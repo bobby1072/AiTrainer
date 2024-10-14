@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "lib": ["es5", "es6"],
+    "outDir": "build",
+    "rootDir": "src",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "target": "ES2019",
+    "module": "CommonJS",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "experimentalDecorators": true
+  }
+}
