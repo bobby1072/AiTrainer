@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Migrations\Sql\*.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Remove="Migrations\Sql\*.sql" />
+    <EmbeddedResource Include="Migrations\Sql\*.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Evolve" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.10" />
+    <PackageReference Include="Npgsql" Version="8.0.5" />
+  </ItemGroup>
+</Project>

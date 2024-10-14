@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace AiTrainer.Web.Controllers
+namespace AiTrainer.Web.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
