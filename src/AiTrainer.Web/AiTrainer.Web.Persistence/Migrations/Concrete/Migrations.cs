@@ -6,7 +6,7 @@ using Npgsql;
 
 namespace AiTrainer.Web.Persistence.Migrations.Concrete
 {
-    public class DatabaseMigrations : IMigrator
+    internal class DatabaseMigrations : IMigrator
     {
         private readonly ILogger<DatabaseMigrations> _logger;
         private readonly string _connectionString;

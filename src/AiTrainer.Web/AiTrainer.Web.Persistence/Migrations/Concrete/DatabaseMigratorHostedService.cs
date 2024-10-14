@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace AiTrainer.Web.Persistence.Migrations.Concrete
 {
-    public class DatabaseMigratorHostedService : IHostedService
+    internal class DatabaseMigratorHostedService : IHostedService
     {
         private readonly IEnumerable<IMigrator> _databaseMigrators;
         private readonly DatabaseMigratorHealthCheck _databaseMigratorHealthCheck;

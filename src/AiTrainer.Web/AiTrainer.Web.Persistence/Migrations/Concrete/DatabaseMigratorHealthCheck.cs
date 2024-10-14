@@ -2,7 +2,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace AiTrainer.Web.Persistence.Migrations.Concrete;
 
-public class DatabaseMigratorHealthCheck : IHealthCheck
+internal class DatabaseMigratorHealthCheck : IHealthCheck
 {
     public const string Name = nameof(DatabaseMigratorHealthCheck);
 

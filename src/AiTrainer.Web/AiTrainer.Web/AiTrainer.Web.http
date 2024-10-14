@@ -1,6 +1,0 @@
-@AiTrainer.Web_HostAddress = http://localhost:5222
-
-GET {{AiTrainer.Web_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
