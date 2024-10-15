@@ -33,7 +33,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
     app.UseCors("corsapp");
 }
-
 else
 {
     app.UseHttpsRedirection();
