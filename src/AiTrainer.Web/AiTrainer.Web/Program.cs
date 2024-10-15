@@ -1,25 +1,45 @@
+using AiTrainer.Web.Persistence;
+using Microsoft.AspNetCore.Http.Timeouts;
+using System.Text.Json;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
-// Add services to the container.
+builder.Services
+    .AddHttpContextAccessor()
+    .AddResponseCompression()
+    .AddRequestTimeouts(opts =>
+    {
+        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromMilliseconds(60000) };
+    })
+    .AddLogging()
+    .AddEndpointsApiExplorer()
+    .AddSwaggerGen()
+    .AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSqlPersistence(builder.Configuration);
+
+builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
+{
+    builder.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+}));
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseCors("corsapp");
 }
-
-app.UseHttpsRedirection();
-
+else
+{
+    app.UseHttpsRedirection();
+}
+app.UseRouting();
+app.UseResponseCompression();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

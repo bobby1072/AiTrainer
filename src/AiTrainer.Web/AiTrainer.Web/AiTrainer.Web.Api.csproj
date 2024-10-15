@@ -10,4 +10,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AiTrainer.Web.Persistence\AiTrainer.Web.Persistence.csproj" />
+  </ItemGroup>
+
 </Project>
