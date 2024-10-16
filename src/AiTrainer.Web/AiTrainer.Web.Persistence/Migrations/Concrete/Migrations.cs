@@ -17,7 +17,7 @@ namespace AiTrainer.Web.Persistence.Migrations.Concrete
             _connectionString = connectionUrl;
             _startVersion = startVersion;
         }
-        public async Task Migrate()
+        public Task Migrate()
         {
             using var connection = new NpgsqlConnection(_connectionString);
             var evolve = new Evolve(connection, msg => _logger.LogInformation(msg))
@@ -30,6 +30,7 @@ namespace AiTrainer.Web.Persistence.Migrations.Concrete
                 OutOfOrder = true
             };
             evolve.Migrate();
+            return Task.CompletedTask;
         }
     }
 }

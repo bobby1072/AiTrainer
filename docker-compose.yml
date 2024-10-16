@@ -3,14 +3,14 @@ volumes:
 
 services:
   postgres:
-    container_name: fs.db
+    container_name: ai-trainer.db
     image: postgres:15-alpine
     ports:
       - 5560:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: fs
+      POSTGRES_DB: ai_trainer
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     healthcheck:
@@ -29,7 +29,7 @@ services:
       ASPNETCORE_URLS: https://+:443;http://+80
       ASPNETCORE_HTTPS_PORT: 44363
       ASPNETCORE_Kestrel__Certificates__Default__Password: password
-      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/fs.pfx
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aitrainer.pfx
       USERS_CONFIGURATION_PATH: /tmp/config/users.json
       CLIENTS_CONFIGURATION_PATH: /tmp/config/clients-config.json
       SERVER_OPTIONS_INLINE: |

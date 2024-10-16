@@ -31,21 +31,14 @@
 
         public override bool Equals(RuntimeBase? other)
         {
-            if (other == null)
-            {
-                return false;
-            }
-            else if (other is OrganisationDocument otherDocument)
-            {
-                return Id == otherDocument.Id
-                    && OriginalFileName == otherDocument.OriginalFileName
-                    && OriginalFileType == otherDocument.OriginalFileType
-                    && CompanyId == otherDocument.CompanyId
-                    && DocumentText == otherDocument.DocumentText
-                    && DateCreated == otherDocument.DateCreated
-                    && DateModified == otherDocument.DateModified;
-            }
-            return false;
+            return other is OrganisationDocument otherDocument
+                && Id == otherDocument.Id
+                && OriginalFileName == otherDocument.OriginalFileName
+                && OriginalFileType == otherDocument.OriginalFileType
+                && CompanyId == otherDocument.CompanyId
+                && DocumentText == otherDocument.DocumentText
+                && DateCreated == otherDocument.DateCreated
+                && DateModified == otherDocument.DateModified;
         }
 
         public bool Equals(OrganisationDocument? other) => Equals(other);
