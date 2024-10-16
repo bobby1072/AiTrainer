@@ -1,8 +1,11 @@
-﻿using AiTrainer.Web.Persistence.Migrations.Abstract;
+﻿using AiTrainer.Web.Persistence.EntityFramework.Contexts;
+using AiTrainer.Web.Persistence.Migrations.Abstract;
 using AiTrainer.Web.Persistence.Migrations.Concrete;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 
 namespace AiTrainer.Web.Persistence
 {
@@ -17,8 +20,10 @@ namespace AiTrainer.Web.Persistence
             {
                 throw new InvalidDataException("No connection string or migration verison");
             }
+            var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString);
+
             services
-            .AddSingleton<IMigrator, DatabaseMigrations>(sp => new DatabaseMigrations(sp.GetRequiredService<ILoggerFactory>().CreateLogger<DatabaseMigrations>(), connectionString, migrationStartVersion));
+                .AddSingleton<IMigrator, DatabaseMigrations>(sp => new DatabaseMigrations(sp.GetRequiredService<ILoggerFactory>().CreateLogger<DatabaseMigrations>(), connectionString, migrationStartVersion));
 
 
             services
@@ -26,6 +31,23 @@ namespace AiTrainer.Web.Persistence
                 .AddSingleton<DatabaseMigratorHealthCheck>()
                 .AddHealthChecks()
                 .AddCheck<DatabaseMigratorHealthCheck>(DatabaseMigratorHealthCheck.Name, tags: ["Ready"]);
+
+            services
+    .AddPooledDbContextFactory<AiTrainerContext>(
+        options =>
+        options
+            .UseSnakeCaseNamingConvention()
+            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+            .UseNpgsql(
+                connectionStringBuilder.ConnectionString,
+                options =>
+                {
+                    options.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+                }
+            )
+    )
+    .AddHealthChecks();
+
 
             return services;
         }

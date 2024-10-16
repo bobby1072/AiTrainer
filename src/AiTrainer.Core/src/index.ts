@@ -7,13 +7,8 @@ abstract class Program {
     const faissStoreFactory = new FaissStoreFactory();
     const testStoreService = new TestStoreService(faissStoreFactory);
 
-    await testStoreService.BuildStoreAndLoadDocuments();
-
     const similaritySearchResults =
       await testStoreService.Store!.similaritySearch("biology", 2);
-
-    const secondSimilaritySearchResults =
-      await testStoreService.Store!.similaritySearch("biology");
 
     console.table(similaritySearchResults);
   }
