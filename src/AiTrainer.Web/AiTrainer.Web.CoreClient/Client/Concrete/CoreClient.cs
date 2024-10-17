@@ -1,21 +1,44 @@
 ﻿using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Client.Abstract;
+using AiTrainer.Web.CoreClient.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Client.Concrete
 {
-    public partial class CoreClient: ICoreClient
+    public partial class CoreClient : ICoreClient
     {
         private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
-        public CoreClient(HttpClient httpClient, ILogger<CoreClient> logger, IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig) { 
+
+        public CoreClient(
+            HttpClient httpClient,
+            ILogger<CoreClient> logger,
+            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+        )
+        {
             _httpClient = httpClient;
             _logger = logger;
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
         }
 
+        private void AddApiKeyHeader(HttpRequestMessage requestMessage)
+        {
+            requestMessage.Headers.Add(
+                CoreClientConstants.ApiKeyHeader,
+                _aiTrainerCoreConfiguration.ApiKey
+            );
+        }
 
+        private void LogCoreError(Exception exception, string methodName)
+        {
+            _logger.LogError(
+                exception,
+                "Exception in core occured while making {MethodName} request. With exception message {ExceptionMessage}",
+                methodName,
+                exception.Message
+            );
+        }
     }
 }
