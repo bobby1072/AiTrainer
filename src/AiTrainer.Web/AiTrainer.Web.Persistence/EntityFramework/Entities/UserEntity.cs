@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AiTrainer.Web.Persistence.Entities
+namespace AiTrainer.Web.Persistence.EntityFramework.Entities
 {
     [Table("user", Schema = DbConstants.PublicSchema)]
     internal record UserEntity : BaseEntity<UserEntity>

@@ -1,4 +1,4 @@
-﻿namespace AiTrainer.Web.Common.Models.RuntimeModels
+﻿namespace AiTrainer.Web.Common.Models.Abstract
 {
     public abstract class RuntimeBase
     {

@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
-using AiTrainer.Web.Common.Models.RuntimeModels;
+using AiTrainer.Web.Common.Models.Abstract;
 
-namespace AiTrainer.Common.Models.RuntimeModels
+namespace AiTrainer.Web.Common.Models.Concrete
 {
     public class User : RuntimeBase, IEquatable<User>
     {
