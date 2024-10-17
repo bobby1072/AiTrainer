@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using AiTrainer.Web.CoreClient.Client.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
@@ -27,15 +26,9 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
 
             AddApiKeyHeader(request);
 
-            var response = await _httpClient.SendAsync(request);
+            var data = await _httpClient.InvokeCoreRequest<ChunkedDocument>(request);
 
-            response.EnsureSuccessStatusCodeAndThrowCoreClientException();
-
-            var data = await response.Content.ReadFromJsonAsync<CoreResponse<ChunkedDocument>>();
-
-            var actualData = data.EnsureSuccessfulResponseAndGetData();
-
-            return actualData.DocumentChunks;
+            return data.DocumentChunks;
         }
 
         public async Task<IReadOnlyCollection<string>?> TryChunkDocument(string documentTextToChunk)

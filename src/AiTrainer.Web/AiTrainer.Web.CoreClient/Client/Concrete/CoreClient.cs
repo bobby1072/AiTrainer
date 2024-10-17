@@ -1,6 +1,5 @@
 ﻿using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Client.Abstract;
-using AiTrainer.Web.CoreClient.Exceptions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -35,7 +34,7 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
         {
             _logger.LogError(
                 exception,
-                "Exception in core occured while making {MethodName} request. With exception message {ExceptionMessage}",
+                "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
                 methodName,
                 exception.Message
             );
