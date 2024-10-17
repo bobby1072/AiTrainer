@@ -1,5 +1,5 @@
 import express, { Application } from "express";
-import ApplicationBuilder from "./Api/Routes/ApplicationBuilder";
+import ApplicationBuilder from "./Api/ApplicationBuilder";
 // console.log("hellllloooo");
 // const faissStoreFactory = new FaissStoreFactory();
 // const testStoreService = new TestStoreService(faissStoreFactory);
@@ -12,7 +12,9 @@ import ApplicationBuilder from "./Api/Routes/ApplicationBuilder";
 abstract class Program {
   private static _app: Application = express();
   public static async Main(): Promise<void> {
-    ApplicationBuilder.AddMiddlewares(Program._app);
+    ApplicationBuilder.AddSystemMiddlewares(Program._app);
+
+    ApplicationBuilder.AddDomainMiddleware(Program._app);
 
     ApplicationBuilder.AddRoutes(Program._app);
 

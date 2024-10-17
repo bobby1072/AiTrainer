@@ -1,10 +1,9 @@
 export default class ApiException extends Error {
-  public statusCode: number;
   public message: string;
-
-  constructor(statusCode: number, message: string) {
+  public innerException?: Error;
+  constructor(message: string, innerException?: Error) {
     super(message);
-    this.statusCode = statusCode;
     this.message = message;
+    this.innerException = innerException;
   }
 }

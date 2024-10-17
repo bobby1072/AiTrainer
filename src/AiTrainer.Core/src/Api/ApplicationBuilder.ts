@@ -1,16 +1,23 @@
 import { Application } from "express";
-import ChunkingRoute from "./ChunkingRoute";
+import ChunkingRouter from "./Routers/ChunkingRouter";
 import compression from "compression";
 import bodyParser from "body-parser";
+import ExceptionHandlingMiddleware from "./Middleware/ExceptionHandlingMiddleware";
+import ApiKeyHeaderMiddleware from "./Middleware/ApiKeyHeaderMiddleware";
 
 export default abstract class ApplicationBuilder {
-  public static AddMiddlewares(app: Application): void {
+  public static AddSystemMiddlewares(app: Application): void {
     app.use(compression());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
   }
+
+  public static AddDomainMiddleware(app: Application): void {
+    app.use(ExceptionHandlingMiddleware.InvokeMiddleware());
+    app.use(ApiKeyHeaderMiddleware.InvokeMiddleware());
+  }
   public static AddRoutes(app: Application): void {
-    new ChunkingRoute(app).InvokeRoutes();
+    ChunkingRouter.InvokeRoutes(app);
   }
   public static Listen(
     app: Application,

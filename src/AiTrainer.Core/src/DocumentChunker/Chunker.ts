@@ -1,5 +1,7 @@
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import AppSettingsProvider from "../Utils/AppSettingsProvider";
+import ApiException from "../Exceptions/ApiException";
+import ExceptionConstants from "../Exceptions/ExceptionConstants";
 
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize:
@@ -11,6 +13,10 @@ const splitter = new RecursiveCharacterTextSplitter({
 
 export default abstract class Chunker {
   public static Chunk(text: string): Promise<string[]> {
-    return splitter.splitText(text);
+    try {
+      return splitter.splitText(text);
+    } catch (e) {
+      throw new ApiException(ExceptionConstants.ChunkerError, e as Error);
+    }
   }
 }
