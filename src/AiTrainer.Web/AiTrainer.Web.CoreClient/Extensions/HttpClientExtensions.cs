@@ -16,7 +16,7 @@ namespace AiTrainer.Web.CoreClient.Extensions
 
             var data = await response.Content.ReadFromJsonAsync<CoreResponse<T>>();
 
-            var actualData = data.EnsureSuccessfulResponseAndGetData();
+            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
 
             return actualData;
         }

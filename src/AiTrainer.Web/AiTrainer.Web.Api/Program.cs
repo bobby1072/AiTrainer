@@ -1,35 +1,52 @@
+using System.Text.Json;
 using AiTrainer.Web.Common.Models.Configuration;
+using AiTrainer.Web.CoreClient;
 using AiTrainer.Web.Persistence;
 using Microsoft.AspNetCore.Http.Timeouts;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
-builder.Services
-    .Configure<AiTrainerCoreConfiguration>(builder.Configuration.GetSection(AiTrainerCoreConfiguration.Key));
+builder.Services.Configure<AiTrainerCoreConfiguration>(
+    builder.Configuration.GetSection(AiTrainerCoreConfiguration.Key)
+);
 
-
-builder.Services
-    .AddHttpClient()
+builder
+    .Services.AddHttpClient()
     .AddHttpContextAccessor()
     .AddResponseCompression()
     .AddRequestTimeouts(opts =>
     {
-        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromMilliseconds(60000) };
+        opts.DefaultPolicy = new RequestTimeoutPolicy
+        {
+            Timeout = TimeSpan.FromMilliseconds(60000),
+        };
     })
     .AddLogging()
     .AddEndpointsApiExplorer()
     .AddSwaggerGen()
     .AddControllers()
-    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    );
 
 builder.Services.AddSqlPersistence(builder.Configuration);
 
-builder.Services.AddCors(p => p.AddPolicy("corsapp", builder =>
-{
-    builder.WithOrigins("http://localhost:3000").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
-}));
+builder.Services.AddCoreClient(builder.Configuration);
+
+builder.Services.AddCors(p =>
+    p.AddPolicy(
+        "corsapp",
+        builder =>
+        {
+            builder
+                .WithOrigins("http://localhost:3000")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+        }
+    )
+);
 
 var app = builder.Build();
 

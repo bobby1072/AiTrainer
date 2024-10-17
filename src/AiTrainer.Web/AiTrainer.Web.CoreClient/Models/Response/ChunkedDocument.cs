@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.CoreClient.Models.Response
 {
-    internal record ChunkedDocument
+    public record ChunkedDocument
     {
         [JsonPropertyName("documentChunks")]
         public IReadOnlyCollection<string> DocumentChunks { get; init; }

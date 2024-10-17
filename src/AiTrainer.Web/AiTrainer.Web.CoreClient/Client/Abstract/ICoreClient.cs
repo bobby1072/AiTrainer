@@ -1,8 +1,8 @@
 ﻿namespace AiTrainer.Web.CoreClient.Client.Abstract
 {
-    public interface ICoreClient
+    public interface ICoreClient<TReturn, TParam>
     {
-        Task<IReadOnlyCollection<string>> ChunkDocument(string documentTextToChunk);
-        Task<IReadOnlyCollection<string>?> TryChunkDocument(string documentTextToChunk);
+        Task<TReturn> InvokeAsync(TParam? param);
+        Task<TReturn?> TryInvokeAsync(TParam? param);
     }
 }

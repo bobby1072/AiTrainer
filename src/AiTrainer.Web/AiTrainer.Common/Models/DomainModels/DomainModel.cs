@@ -1,4 +1,4 @@
-﻿namespace AiTrainer.Web.Common.Models.DomainmModels
+﻿namespace AiTrainer.Web.Common.Models.DomainModels
 {
     public abstract class DomainModel
     {

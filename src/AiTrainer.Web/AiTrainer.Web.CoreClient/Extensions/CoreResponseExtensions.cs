@@ -6,7 +6,9 @@ namespace AiTrainer.Web.CoreClient.Extensions
 {
     internal static class CoreResponseExtensions
     {
-        public static T EnsureSuccessfulResponseAndGetData<T>(this CoreResponse<T>? coreResponse)
+        public static T EnsureSuccessfulCoreResponseAndGetData<T>(
+            this CoreResponse<T>? coreResponse
+        )
         {
             if (coreResponse is null)
             {
