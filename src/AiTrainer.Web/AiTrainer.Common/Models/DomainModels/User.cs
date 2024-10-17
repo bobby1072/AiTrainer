@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
-using AiTrainer.Web.Common.Models.Abstract;
 
-namespace AiTrainer.Web.Common.Models.Concrete
+namespace AiTrainer.Web.Common.Models.DomainmModels
 {
-    public class User : RuntimeBase, IEquatable<User>
+    public class User : DomainModel, IEquatable<User>
     {
         [JsonPropertyName("id")]
         public Guid? Id { get; set; }
@@ -25,7 +24,7 @@ namespace AiTrainer.Web.Common.Models.Concrete
             Username = username;
         }
 
-        public override bool Equals(RuntimeBase? other)
+        public override bool Equals(DomainModel? other)
         {
             return other is User user
                 && Id == user.Id

@@ -15,7 +15,6 @@ export default abstract class ExceptionHandlingMiddleware {
         if (e instanceof ApiException) {
           res.status(200).json({
             exceptionMessage: e.message,
-            innerExceptionMessage: e.innerException?.message,
             isSuccess: false,
           } as IUnsuccessfulRouteResponse);
           return;
@@ -23,7 +22,6 @@ export default abstract class ExceptionHandlingMiddleware {
 
         res.status(200).json({
           exceptionMessage: defaultErrorMessage,
-          innerExceptionMessage: e.message,
           isSuccess: false,
         } as IUnsuccessfulRouteResponse);
       }

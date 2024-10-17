@@ -1,3 +1,4 @@
+using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.Persistence;
 using Microsoft.AspNetCore.Http.Timeouts;
 using System.Text.Json;
@@ -6,6 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 builder.Services
+    .Configure<AiTrainerCoreConfiguration>(builder.Configuration.GetSection(AiTrainerCoreConfiguration.Key));
+
+
+builder.Services
+    .AddHttpClient()
     .AddHttpContextAccessor()
     .AddResponseCompression()
     .AddRequestTimeouts(opts =>
