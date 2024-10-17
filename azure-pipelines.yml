@@ -12,9 +12,11 @@ trigger:
 pr:
   branches:
     include:
+      - "master"
       - "feature/*"
       - "hotfix/*"
       - "bugfix/*"
+
 pool:
   vmImage: "ubuntu-latest"
 
