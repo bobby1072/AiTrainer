@@ -16,18 +16,40 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
     {
         protected const string _applicationJson = "application/json";
         protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
-        protected readonly ILogger<BaseCoreClient<TReturn>> _logger;
+        protected abstract ILogger _logger { get; init; }
         protected readonly HttpClient _httpClient;
+        protected abstract string _endpoint { get; }
+        protected string _operationName => GetType().Name;
+        protected abstract CoreClientRequestType _requestType { get; }
+        protected abstract HttpMethod _httpMethod { get; }
 
         protected BaseCoreClient(
             HttpClient httpClient,
-            ILogger<BaseCoreClient<TReturn>> logger,
             IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
         )
         {
             _httpClient = httpClient;
-            _logger = logger;
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
+        }
+
+        public virtual async Task<TReturn> InvokeAsync()
+        {
+            var data = await ExecuteRequest(_requestType, _httpMethod, _endpoint, _operationName);
+
+            return data;
+        }
+
+        public virtual async Task<TReturn?> TryInvokeAsync()
+        {
+            try
+            {
+                return await InvokeAsync();
+            }
+            catch (Exception coreClientException)
+            {
+                LogCoreError(coreClientException, _operationName);
+                return null;
+            }
         }
 
         protected async Task<TReturn> ExecuteRequest(
@@ -114,21 +136,20 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
     internal abstract class BaseCoreClient<TParam, TReturn> : BaseCoreClient<TReturn>
         where TReturn : class
     {
-        protected new readonly ILogger<BaseCoreClient<TParam, TReturn>> _logger;
-
         protected BaseCoreClient(
             HttpClient httpClient,
-            ILogger<BaseCoreClient<TParam, TReturn>> logger,
             IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
         )
-            : base(httpClient, logger, aiTrainerCoreConfig)
+            : base(httpClient, aiTrainerCoreConfig) { }
+
+        public virtual async Task<TReturn> InvokeAsync(TParam param)
         {
-            _logger = logger;
+            var data = await ExecuteRequest(_requestType, _httpMethod, _endpoint, _operationName);
+
+            return data;
         }
 
-        public abstract Task<TReturn> InvokeAsync(TParam param);
-
-        public async Task<TReturn?> TryInvokeAsync(TParam param)
+        public virtual async Task<TReturn?> TryInvokeAsync(TParam param)
         {
             try
             {
@@ -136,7 +157,7 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
             }
             catch (Exception coreClientException)
             {
-                LogCoreError(coreClientException, nameof(CoreClientChunkDocument));
+                LogCoreError(coreClientException, _operationName);
                 return null;
             }
         }
