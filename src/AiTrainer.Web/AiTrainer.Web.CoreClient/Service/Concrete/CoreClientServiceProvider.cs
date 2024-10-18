@@ -70,6 +70,20 @@ namespace AiTrainer.Web.CoreClient.Service
             var client =
                 _serviceProvider.GetService<ICoreClient<TParam, TReturn>>()
                 ?? throw new InvalidOperationException(ExceptionConstants.NoService);
+
+            if (client is null)
+            {
+                var noServiceException = new InvalidOperationException(
+                    ExceptionConstants.NoService
+                );
+                _logger.LogError(
+                    noServiceException,
+                    "Couldn't resolve client for param type {TParam} and return type {TReturn}",
+                    nameof(TReturn),
+                    nameof(TReturn)
+                );
+                throw noServiceException;
+            }
             return client;
         }
 
@@ -85,8 +99,7 @@ namespace AiTrainer.Web.CoreClient.Service
                 );
                 _logger.LogError(
                     noServiceException,
-                    "Couldn't resolve client for param type {TParam} and return type {TReturn}",
-                    nameof(TReturn),
+                    "Couldn't resolve client for return type {TReturn}",
                     nameof(TReturn)
                 );
                 throw noServiceException;
