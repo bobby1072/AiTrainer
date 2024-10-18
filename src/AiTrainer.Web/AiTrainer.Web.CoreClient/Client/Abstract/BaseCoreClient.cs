@@ -9,7 +9,7 @@ using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace AiTrainer.Web.CoreClient.Client.Concrete
+namespace AiTrainer.Web.CoreClient.Client.Abstract
 {
     internal abstract class BaseCoreClient<TReturn>
         where TReturn : class
