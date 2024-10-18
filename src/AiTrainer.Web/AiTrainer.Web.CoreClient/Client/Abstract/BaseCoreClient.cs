@@ -11,7 +11,8 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Client.Concrete
 {
-    internal abstract class BaseCoreClient<TParam, TReturn> where TReturn: class
+    internal abstract class BaseCoreClient<TParam, TReturn>
+        where TReturn : class
     {
         protected const string _applicationJson = "application/json";
         protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -28,8 +29,10 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
             _logger = logger;
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
         }
-        public abstract Task<TReturn> InvokeAsync(TParam? param);
-        public async Task<TReturn?> TryInvokeAsync(TParam? param)
+
+        public abstract Task<TReturn> InvokeAsync(TParam param);
+
+        public async Task<TReturn?> TryInvokeAsync(TParam param)
         {
             try
             {
@@ -41,7 +44,8 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
                 return null;
             }
         }
-        protected async Task<TReturn> ExcecuteRequest(
+
+        protected async Task<TReturn> ExecuteRequest(
             CoreClientRequestType requestType,
             HttpMethod httpMethod,
             string endpoint,

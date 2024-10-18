@@ -9,7 +9,9 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Client.Concrete
 {
-    internal class CoreClientChunkDocument : BaseCoreClient<string, ChunkedDocument>, ICoreClient<string, ChunkedDocument>
+    internal class CoreClientChunkDocument
+        : BaseCoreClient<string, ChunkedDocument>,
+            ICoreClient<string, ChunkedDocument>
     {
         public CoreClientChunkDocument(
             HttpClient httpClient,
@@ -18,21 +20,25 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
         )
             : base(httpClient, logger, aiTrainerCoreConfig) { }
 
-        public override async Task<ChunkedDocument> InvokeAsync(string? documentTextToChunk)
+        public override async Task<ChunkedDocument> InvokeAsync(string documentTextToChunk)
         {
             if (string.IsNullOrEmpty(documentTextToChunk))
             {
-                throw new CoreClientException("No document text to chunk");
+                throw new CoreClientException(
+                    CoreClientConstants.CoreClientExceptionConstants.NoDocumentToChunk
+                );
             }
             var documentToChunk = new DocumentToChunk { DocumentText = documentTextToChunk };
 
-
-            var data = await ExcecuteRequest(CoreClientRequestType.Json, HttpMethod.Post, "chunkingrouter/chunk", nameof(CoreClientChunkDocument), documentTextToChunk);
-            
+            var data = await ExecuteRequest(
+                CoreClientRequestType.Json,
+                HttpMethod.Post,
+                "chunkingrouter/chunk",
+                nameof(CoreClientChunkDocument),
+                documentTextToChunk
+            );
 
             return data;
         }
-
-
     }
 }

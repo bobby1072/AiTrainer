@@ -1,7 +1,10 @@
+using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Client.Abstract;
 using AiTrainer.Web.CoreClient.Client.Concrete;
 using AiTrainer.Web.CoreClient.Models.Response;
+using AiTrainer.Web.CoreClient.Service;
+using AiTrainer.Web.CoreClient.Service.Abstract;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +21,7 @@ namespace AiTrainer.Web.CoreClient
 
             if (!aiTrainerCoreSection.Exists())
             {
-                throw new InvalidDataException("Missing env vars");
+                throw new InvalidDataException(ExceptionConstants.MissingEnvVars);
             }
 
             serviceCollection.Configure<AiTrainerCoreConfiguration>(aiTrainerCoreSection);
@@ -27,6 +30,8 @@ namespace AiTrainer.Web.CoreClient
                 ICoreClient<string, ChunkedDocument>,
                 CoreClientChunkDocument
             >();
+
+            serviceCollection.AddScoped<ICoreClientServiceProvider, CoreClientServiceProvider>();
 
             return serviceCollection;
         }
