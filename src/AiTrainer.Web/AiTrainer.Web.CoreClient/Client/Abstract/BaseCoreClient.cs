@@ -16,10 +16,10 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
     {
         protected const string _applicationJson = "application/json";
         protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
-        protected abstract ILogger _logger { get; init; }
         protected readonly HttpClient _httpClient;
-        protected abstract string _endpoint { get; }
         protected string _operationName => GetType().Name;
+        protected abstract string _endpoint { get; }
+        protected abstract ILogger _logger { get; init; }
         protected abstract CoreClientRequestType _requestType { get; }
         protected abstract HttpMethod _httpMethod { get; }
 

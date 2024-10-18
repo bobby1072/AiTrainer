@@ -3,6 +3,5 @@
     internal enum CoreClientRequestType
     {
         Json,
-        NoBody
     }
 }
