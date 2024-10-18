@@ -1,6 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using AiTrainer.Web.Common.Models.Configuration;
+﻿using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Client.Abstract;
 using AiTrainer.Web.CoreClient.Exceptions;
 using AiTrainer.Web.CoreClient.Models;
@@ -11,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Client.Concrete
 {
-    internal class CoreClientChunkDocument : BaseCoreClient<string, ChunkedDocument>, ICoreClientChunkDocument
+    internal class CoreClientChunkDocument : BaseCoreClient<string, ChunkedDocument>, ICoreClient<string, ChunkedDocument>
     {
         public CoreClientChunkDocument(
             HttpClient httpClient,
