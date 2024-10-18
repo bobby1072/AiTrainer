@@ -12,7 +12,7 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
         : BaseCoreClient<DocumentToChunk, ChunkedDocument>,
             ICoreClient<DocumentToChunk, ChunkedDocument>
     {
-        protected override string _endpoint => "chunkingrouter/chunk";
+        protected override string _endpoint => "chunkingrouter/chunkdocument";
         protected override CoreClientRequestType _requestType => CoreClientRequestType.Json;
         protected override HttpMethod _httpMethod => HttpMethod.Post;
         protected override ILogger _logger { get; init; }
