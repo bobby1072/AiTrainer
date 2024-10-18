@@ -1,4 +1,4 @@
-using AiTrainer.Web.Persistence.Entities;
+using AiTrainer.Web.Persistence.EntityFramework.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace AiTrainer.Web.Persistence.EntityFramework.Contexts

@@ -7,11 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\AiTrainer.Common\AiTrainer.Web.Common.csproj" />
+    <ProjectReference Include="..\AiTrainer.Web.CoreClient\AiTrainer.Web.CoreClient.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Persistence\AiTrainer.Web.Persistence.csproj" />
   </ItemGroup>
 

@@ -1,4 +1,4 @@
-namespace AiTrainer.Web.Persistence.Entities
+namespace AiTrainer.Web.Persistence
 {
     internal static class DbConstants
     {
