@@ -1,10 +1,9 @@
-const appSettingsJson = require("./../expressappsettings.json");
-
 export default abstract class AppSettingsProvider {
+  private static readonly _appSettingsJson = require("./../expressappsettings.json");
   public static TryGetValue<T>(key: string): T | undefined | null {
     try {
       const keys = key.split(".");
-      let result: any = appSettingsJson;
+      let result: any = this._appSettingsJson;
 
       for (const k of keys) {
         if (result[k] === undefined) {

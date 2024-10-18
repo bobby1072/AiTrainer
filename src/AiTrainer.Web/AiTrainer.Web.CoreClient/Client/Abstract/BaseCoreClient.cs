@@ -61,7 +61,7 @@ namespace AiTrainer.Web.CoreClient.Client.Abstract
             var (time, result) = await OperationTimerUtils.TimeWithResultsAsync(request);
 
             _logger.LogInformation(
-                "Core request {MethodName} took {ElapsedMilliseconds}ms",
+                "Core request {MethodName} took {ElapsedMilliseconds}ms to complete",
                 _operationName,
                 time.Milliseconds
             );

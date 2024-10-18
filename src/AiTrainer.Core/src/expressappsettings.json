@@ -4,5 +4,6 @@
     "ChunkSize": 512,
     "ChunkOverlap": 128
   },
+  "ExpressPort": 4000,
   "ApiKey": "4cee1375-062b-48ca-b838-aa65810f66ed"
 }

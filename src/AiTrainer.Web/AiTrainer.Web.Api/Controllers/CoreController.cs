@@ -24,7 +24,7 @@ One stormy evening, as thunder rolled through the sky, Elias heard a sound he ha
         }
 
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesDefaultResponseType(typeof(string))]
+        [ProducesDefaultResponseType(typeof(ChunkedDocument))]
         [HttpGet("hello")]
         public async Task<IActionResult> Hello()
         {
@@ -35,7 +35,8 @@ One stormy evening, as thunder rolled through the sky, Elias heard a sound he ha
 
             var result = await _coreClientServiceProvider.ExecuteAsync<DocumentToChunk, ChunkedDocument>(testDoc);
 
-            return Ok("Hello from CoreController");
+            return Ok(result);
         }
     }
 }
+ 
