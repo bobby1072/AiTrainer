@@ -24,7 +24,7 @@ namespace AiTrainer.Web.CoreClient
             serviceCollection.Configure<AiTrainerCoreConfiguration>(aiTrainerCoreSection);
 
             serviceCollection.AddHttpClient<
-                ICoreClient<ChunkedDocument, string>,
+                ICoreClient<string, ChunkedDocument >,
                 CoreClientChunkDocument
             >();
 

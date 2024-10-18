@@ -3,6 +3,7 @@ using System.Text.Json;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Client.Abstract;
 using AiTrainer.Web.CoreClient.Exceptions;
+using AiTrainer.Web.CoreClient.Models;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Client.Concrete
 {
-    internal class CoreClientChunkDocument : BaseCoreClient, ICoreClientChunkDocument
+    internal class CoreClientChunkDocument : BaseCoreClient<string, ChunkedDocument>, ICoreClientChunkDocument
     {
         public CoreClientChunkDocument(
             HttpClient httpClient,
@@ -19,7 +20,7 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
         )
             : base(httpClient, logger, aiTrainerCoreConfig) { }
 
-        public async Task<ChunkedDocument> InvokeAsync(string? documentTextToChunk)
+        public override async Task<ChunkedDocument> InvokeAsync(string? documentTextToChunk)
         {
             if (string.IsNullOrEmpty(documentTextToChunk))
             {
@@ -27,38 +28,13 @@ namespace AiTrainer.Web.CoreClient.Client.Concrete
             }
             var documentToChunk = new DocumentToChunk { DocumentText = documentTextToChunk };
 
-            using var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                Content = new StringContent(
-                    JsonSerializer.Serialize(documentToChunk),
-                    Encoding.UTF8,
-                    _applicationJson
-                ),
-                RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/chunk"),
-            };
 
-            AddApiKeyHeader(request);
-
-            var data = await InvokeCoreRequest<ChunkedDocument>(
-                request,
-                nameof(CoreClientChunkDocument)
-            );
+            var data = await ExcecuteRequest(CoreClientRequestType.Json, HttpMethod.Post, "chunkingrouter/chunk", nameof(CoreClientChunkDocument), documentTextToChunk);
+            
 
             return data;
         }
 
-        public async Task<ChunkedDocument?> TryInvokeAsync(string? documentTextToChunk)
-        {
-            try
-            {
-                return await InvokeAsync(documentTextToChunk);
-            }
-            catch (Exception coreClientException)
-            {
-                LogCoreError(coreClientException, nameof(CoreClientChunkDocument));
-                return null;
-            }
-        }
+
     }
 }

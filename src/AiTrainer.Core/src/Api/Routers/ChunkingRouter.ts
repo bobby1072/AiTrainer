@@ -9,7 +9,7 @@ import { Application, Request, Response } from "express";
 export default abstract class ChunkingRouter {
   private static ChunkDocument(app: Application) {
     return app.post(
-      `/api/${ChunkingRouter.name}`,
+      `/api/${ChunkingRouter.name.toLowerCase()}/chunkdocument`,
       async (req: Request, res: Response) => {
         const safeParsedDocumentToChunk = DocumentToChunkSchema.safeParse(
           req.body
