@@ -5,7 +5,7 @@ using AiTrainer.Web.Common.Models.DomainModels;
 namespace AiTrainer.Web.Persistence.EntityFramework.Entities
 {
     [Table("user", Schema = DbConstants.PublicSchema)]
-    internal record UserEntity : BaseEntity<User>
+    public record UserEntity : BaseEntity<User>
     {
         [Key]
         public Guid Id { get; set; }

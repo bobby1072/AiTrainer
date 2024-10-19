@@ -30,6 +30,8 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
                 dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
         }
 
+        protected abstract TEnt RuntimeToEntity(TModel runtimeObj);
+
         public virtual async Task<int> GetCount()
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
@@ -47,6 +49,7 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             params string[] relations
         )
         {
+            ThrowIfPropertyDoesNotExist(value, propertyName);
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
             var foundOne = await TimeAndLogDbOperation(
@@ -67,6 +70,7 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             params string[] relations
         )
         {
+            ThrowIfPropertyDoesNotExist(value, propertyName);
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
             var foundOne = await TimeAndLogDbOperation(
@@ -137,7 +141,6 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             params string[] relations
         )
         {
-            ;
             foreach (var relation in relations)
             {
                 set = set.Include(relation);
@@ -177,6 +180,19 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             return result;
         }
 
-        protected abstract TEnt RuntimeToEntity(TModel runtimeObj);
+        private static bool DoesPropertyExist<T>(T value, string propertyName)
+        {
+            return _entityProperties.Any(x => x.Name == propertyName && x.PropertyType is T);
+        }
+
+        private static void ThrowIfPropertyDoesNotExist<T>(T value, string propertyName)
+        {
+            if (!DoesPropertyExist(value, propertyName))
+            {
+                throw new ArgumentException(
+                    $"Property {propertyName} does not exist on entity {_entityType.Name}"
+                );
+            }
+        }
     }
 }
