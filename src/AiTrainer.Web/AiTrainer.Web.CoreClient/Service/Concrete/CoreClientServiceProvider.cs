@@ -4,7 +4,7 @@ using AiTrainer.Web.CoreClient.Service.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace AiTrainer.Web.CoreClient.Service
+namespace AiTrainer.Web.CoreClient.Service.Concrete
 {
     internal class CoreClientServiceProvider : ICoreClientServiceProvider
     {

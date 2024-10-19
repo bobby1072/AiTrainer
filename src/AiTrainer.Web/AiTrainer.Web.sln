@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Api", "AiTrai
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Persistence", "AiTrainer.Web.Persistence\AiTrainer.Web.Persistence.csproj", "{A636CAF2-8FD9-4590-9B0A-86DCEDB6E5BE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Common", "AiTrainer.Common\AiTrainer.Web.Common.csproj", "{13E333CD-B237-445F-89EB-D56B1BA47E89}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.CoreClient", "AiTrainer.Web.CoreClient\AiTrainer.Web.CoreClient.csproj", "{704C7E7F-0A92-447D-B4D8-22CEBA2C3B4D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Submodules", "Submodules", "{EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}"
@@ -16,6 +14,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.OperationTimer", "..\Submodules\BT\src\BT.Common\BT.Common.OperationTimer\BT.Common.OperationTimer.csproj", "{CF84B3A7-2EE7-4208-9CFA-0D2F72DA8C46}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.FastArray", "..\Submodules\BT\src\BT.Common\BT.Common.FastArray\BT.Common.FastArray.csproj", "{DDB6B9E8-39B5-4D80-AF01-49157178D7A9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Common", "AiTrainer.Web.Common\AiTrainer.Web.Common.csproj", "{C2BD5581-D312-4CC1-828D-83BF33491FCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +31,6 @@ Global
 		{A636CAF2-8FD9-4590-9B0A-86DCEDB6E5BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A636CAF2-8FD9-4590-9B0A-86DCEDB6E5BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A636CAF2-8FD9-4590-9B0A-86DCEDB6E5BE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13E333CD-B237-445F-89EB-D56B1BA47E89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13E333CD-B237-445F-89EB-D56B1BA47E89}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13E333CD-B237-445F-89EB-D56B1BA47E89}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13E333CD-B237-445F-89EB-D56B1BA47E89}.Release|Any CPU.Build.0 = Release|Any CPU
 		{704C7E7F-0A92-447D-B4D8-22CEBA2C3B4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{704C7E7F-0A92-447D-B4D8-22CEBA2C3B4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{704C7E7F-0A92-447D-B4D8-22CEBA2C3B4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -47,6 +43,10 @@ Global
 		{DDB6B9E8-39B5-4D80-AF01-49157178D7A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDB6B9E8-39B5-4D80-AF01-49157178D7A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDB6B9E8-39B5-4D80-AF01-49157178D7A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2BD5581-D312-4CC1-828D-83BF33491FCD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2BD5581-D312-4CC1-828D-83BF33491FCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2BD5581-D312-4CC1-828D-83BF33491FCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2BD5581-D312-4CC1-828D-83BF33491FCD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

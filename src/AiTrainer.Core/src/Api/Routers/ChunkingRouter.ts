@@ -16,7 +16,7 @@ export default abstract class ChunkingRouter {
         );
         const actualText = safeParsedDocumentToChunk.data?.documentText;
         if (!actualText) {
-          throw new ApiException(ExceptionConstants.ChunkerError);
+          throw new ApiException(ExceptionConstants.DocumentTextIsRequired);
         }
         const chunks = await Chunker.Chunk(actualText);
 

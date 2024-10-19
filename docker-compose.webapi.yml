@@ -1,0 +1,13 @@
+services:
+  webapi:
+    build: 
+      context: .
+      dockerfile: src/AiTrainer.Web/dockerfile
+    ports:
+      - 5234:80
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+80
+      ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=ai_trainer;User ID=postgres;Password=postgres;SslMode=Disable
+    depends_on:
+      - "postgres"

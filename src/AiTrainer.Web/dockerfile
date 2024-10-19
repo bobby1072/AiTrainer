@@ -1,0 +1,41 @@
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
+
+RUN apk add --no-cache icu-libs
+RUN apk add --no-cache icu-data-full
+
+RUN adduser --uid 10000 runner --disabled-password
+USER 10000
+
+WORKDIR /app
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS publish
+ARG CONF=Release
+
+WORKDIR /src
+
+COPY src/AiTrainer.Web/AiTrainer.Web.Api/*.csproj ./AiTrainer.Web/AiTrainer.Web.Api/
+COPY src/AiTrainer.Web/AiTrainer.Web.Common/*.csproj ./AiTrainer.Web/AiTrainer.Web.Common/
+COPY src/AiTrainer.Web/AiTrainer.Web.CoreClient/*.csproj ./AiTrainer.Web/AiTrainer.Web.CoreClient/
+COPY src/AiTrainer.Web/AiTrainer.Web.Persistence/*.csproj ./AiTrainer.Web/AiTrainer.Web.Persistence/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/*.csproj ./Submodules/BT.Common/src/BT.Common/BT.Common.FastArray/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/*.csproj ./Submodules/BT.Common/src/BT.Common/BT.Common.OperationTimer/
+
+RUN dotnet restore AiTrainer.Web/AiTrainer.Web.Api/AiTrainer.Web.Api.csproj 
+
+COPY src/AiTrainer.Web/AiTrainer.Web.Api/ ./AiTrainer.Web/AiTrainer.Web.Api/
+COPY src/AiTrainer.Web/AiTrainer.Web.Common/ ./AiTrainer.Web/AiTrainer.Web.Common/
+COPY src/AiTrainer.Web/AiTrainer.Web.CoreClient/ ./AiTrainer.Web/AiTrainer.Web.CoreClient/
+COPY src/AiTrainer.Web/AiTrainer.Web.Persistence/ ./AiTrainer.Web/AiTrainer.Web.Persistence/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/ ./Submodules/BT/src/BT.Common/BT.Common.FastArray/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/ ./Submodules/BT/src/BT.Common/BT.Common.OperationTimer/
+
+WORKDIR /src/AiTrainer.Web/AiTrainer.Web.Api
+ARG CONF=Release
+RUN dotnet publish AiTrainer.Web.Api.csproj -c ${CONF} -o /app
+
+FROM base AS final
+ARG CONF=Release
+WORKDIR /app
+COPY --from=publish /app .
+
+ENTRYPOINT ["dotnet", "AiTrainer.Web.Api.dll"]
