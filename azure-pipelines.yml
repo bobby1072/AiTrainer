@@ -46,7 +46,7 @@ stages:
             displayName: build local docker image
             inputs:
               command: build
-              Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Web/dockerfile"
+              Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Web.Api/dockerfile"
               buildContext: "$(Build.SourcesDirectory)"
 
       - job: build_frontend
