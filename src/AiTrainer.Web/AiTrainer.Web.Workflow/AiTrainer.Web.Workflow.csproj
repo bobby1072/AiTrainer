@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Activities\Concrete\" />
-    <Folder Include="Services\Abstract\" />
-    <Folder Include="Services\Concrete\" />
+    <Compile Remove="Activities\Concrete\**" />
+    <EmbeddedResource Remove="Activities\Concrete\**" />
+    <None Remove="Activities\Concrete\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Services\" />
   </ItemGroup>
 

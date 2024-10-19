@@ -1,10 +1,10 @@
 using AiTrainer.Web.Common;
-using AiTrainer.Web.CoreClient.Client.Abstract;
-using AiTrainer.Web.CoreClient.Service.Abstract;
+using AiTrainer.Web.CoreClient.Clients.Abstract;
+using AiTrainer.Web.CoreClient.Services.Abstract;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace AiTrainer.Web.CoreClient.Service.Concrete
+namespace AiTrainer.Web.CoreClient.Services.Concrete
 {
     internal class CoreClientServiceProvider : ICoreClientServiceProvider
     {

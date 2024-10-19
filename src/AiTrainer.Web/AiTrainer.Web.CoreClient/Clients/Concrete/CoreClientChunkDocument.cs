@@ -1,12 +1,12 @@
 ﻿using AiTrainer.Web.Common.Models.Configuration;
-using AiTrainer.Web.CoreClient.Client.Abstract;
+using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace AiTrainer.Web.CoreClient.Client.Concrete
+namespace AiTrainer.Web.CoreClient.Clients.Concrete
 {
     internal class CoreClientChunkDocument
         : BaseCoreClient<DocumentToChunk, ChunkedDocument>,

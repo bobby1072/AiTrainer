@@ -1,4 +1,4 @@
-namespace AiTrainer.Web.Api.Middleware
+namespace AiTrainer.Web.Api.Middlewares
 {
     internal abstract class BaseMiddleware
     {

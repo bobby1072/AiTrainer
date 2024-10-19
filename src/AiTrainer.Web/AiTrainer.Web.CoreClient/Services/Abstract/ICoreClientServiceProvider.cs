@@ -1,4 +1,4 @@
-namespace AiTrainer.Web.CoreClient.Service.Abstract
+namespace AiTrainer.Web.CoreClient.Services.Abstract
 {
     public interface ICoreClientServiceProvider
     {

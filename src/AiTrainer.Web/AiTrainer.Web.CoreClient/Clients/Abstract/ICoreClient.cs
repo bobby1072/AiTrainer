@@ -1,4 +1,4 @@
-﻿namespace AiTrainer.Web.CoreClient.Client.Abstract
+﻿namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {
     internal interface ICoreClient<TParam, TReturn>
         where TReturn : class

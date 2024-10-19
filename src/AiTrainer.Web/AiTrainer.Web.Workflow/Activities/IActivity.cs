@@ -1,10 +1,10 @@
 ﻿using AiTrainer.Web.Workflow.Models;
 
-namespace AiTrainer.Web.Workflow.Activities.Abstract
+namespace AiTrainer.Web.Workflow.Activities
 {
     public interface IActivity
     {
-        public string Description {  get; }
+        public string Description { get; }
         Task<ActivityResultEnum> ExecuteAsync();
     }
 }

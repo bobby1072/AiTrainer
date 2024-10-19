@@ -1,11 +1,11 @@
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Models.Configuration;
-using AiTrainer.Web.CoreClient.Client.Abstract;
-using AiTrainer.Web.CoreClient.Client.Concrete;
+using AiTrainer.Web.CoreClient.Clients.Abstract;
+using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
-using AiTrainer.Web.CoreClient.Service.Abstract;
-using AiTrainer.Web.CoreClient.Service.Concrete;
+using AiTrainer.Web.CoreClient.Services.Abstract;
+using AiTrainer.Web.CoreClient.Services.Concrete;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

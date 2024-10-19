@@ -1,4 +1,4 @@
-﻿using AiTrainer.Web.Workflow.Activities.Abstract;
+﻿using AiTrainer.Web.Workflow.Activities;
 
 namespace AiTrainer.Web.Workflow.Models
 {
