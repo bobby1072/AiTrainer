@@ -1,5 +1,5 @@
 services:
-  aitrainerwebapi:
+  webapi:
     build: 
       context: .
       dockerfile: src/AiTrainer.Web/dockerfile

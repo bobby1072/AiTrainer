@@ -1,5 +1,5 @@
 export default abstract class AppSettingsProvider {
-  private static readonly _appSettingsJson = require("./../expressappsettings.json");
+  private static readonly _appSettingsJson = require("./../data/expressappsettings.json");
   public static TryGetValue<T>(key: string): T | undefined | null {
     try {
       const keys = key.split(".");

@@ -1,11 +1,11 @@
 param (
-    [switch] $debugweb = $false
+    [switch] $debug = $false
 )
 $ErrorActionPreference = "Stop"
 
-if($debugweb -eq $false)
-{
+if ($debug -eq $false) {
     docker compose -f docker-compose.yml -f docker-compose.webapi.yml up -d --build
-} else {
+}
+else {
     docker compose up -d --build
 }
