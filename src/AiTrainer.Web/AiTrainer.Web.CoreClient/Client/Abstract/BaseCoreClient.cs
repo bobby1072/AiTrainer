@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using AiTrainer.Web.Common.Models.Configuration;
+using AiTrainer.Web.CoreClient.Exceptions;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models;
 using AiTrainer.Web.CoreClient.Models.Response;
@@ -104,12 +105,24 @@ namespace AiTrainer.Web.CoreClient.Client.Abstract
 
         protected void LogCoreError(Exception exception)
         {
-            _logger.LogError(
-                exception,
-                "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
-                _operationName,
-                exception.Message
-            );
+            if (exception is CoreClientException)
+            {
+                _logger.LogInformation(
+                    exception,
+                    "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
+                    _operationName,
+                    exception.Message
+                );
+            }
+            else
+            {
+                _logger.LogError(
+                    exception,
+                    "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
+                    _operationName,
+                    exception.Message
+                );
+            }
         }
     }
 

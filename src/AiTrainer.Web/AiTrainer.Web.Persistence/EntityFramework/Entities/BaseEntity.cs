@@ -1,6 +1,8 @@
 namespace AiTrainer.Web.Persistence.EntityFramework.Entities
 {
-    internal abstract record BaseEntity<TRuntime>
+    public abstract record BaseEntity<TRuntime>
         where TRuntime : class
-    { }
+    {
+        public abstract TRuntime ToModel();
+    }
 }

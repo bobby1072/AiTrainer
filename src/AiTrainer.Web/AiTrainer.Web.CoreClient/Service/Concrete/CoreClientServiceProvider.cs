@@ -67,9 +67,7 @@ namespace AiTrainer.Web.CoreClient.Service.Concrete
         private ICoreClient<TParam, TReturn> GetClient<TParam, TReturn>()
             where TReturn : class
         {
-            var client =
-                _serviceProvider.GetService<ICoreClient<TParam, TReturn>>()
-                ?? throw new InvalidOperationException(ExceptionConstants.NoService);
+            var client = _serviceProvider.GetService<ICoreClient<TParam, TReturn>>();
 
             if (client is null)
             {
