@@ -8,5 +8,10 @@ namespace AiTrainer.Web.CoreClient.Models.Request
         [Required]
         [JsonPropertyName("documentText")]
         public string DocumentText { get; init; }
+
+        public DocumentToChunk(string documentText)
+        {
+            DocumentText = documentText;
+        }
     }
 }

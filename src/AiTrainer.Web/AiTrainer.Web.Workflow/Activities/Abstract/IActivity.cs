@@ -2,9 +2,10 @@
 
 namespace AiTrainer.Web.Workflow.Activities
 {
-    public interface IActivity
+    public interface IActivity<T>
     {
+        public string Name { get; }
         public string Description { get; }
-        Task<ActivityResultEnum> ExecuteAsync();
+        Task<ActivityResultEnum> ExecuteAsync(T workflowContexItem);
     }
 }

@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.FastArray\BT.Common.FastArray.csproj" />
+    <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.Helpers\BT.Common.Helpers.csproj" />
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.OperationTimer\BT.Common.OperationTimer.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
   </ItemGroup>
