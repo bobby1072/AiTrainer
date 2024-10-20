@@ -1,4 +1,4 @@
-﻿using AiTrainer.Web.Common;
+﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Persistence.EntityFramework.Contexts;
 using AiTrainer.Web.Persistence.Migrations.Abstract;
 using AiTrainer.Web.Persistence.Migrations.Concrete;

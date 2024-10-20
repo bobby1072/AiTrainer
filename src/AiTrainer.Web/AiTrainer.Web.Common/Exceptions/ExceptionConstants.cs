@@ -1,4 +1,4 @@
-namespace AiTrainer.Web.Common
+namespace AiTrainer.Web.Common.Exceptions
 {
     public static class ExceptionConstants
     {

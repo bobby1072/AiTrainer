@@ -1,4 +1,4 @@
-﻿using AiTrainer.Web.Workflow.Activities;
+﻿using AiTrainer.Web.Workflow.Activities.Abstract;
 using BT.Common.Helpers.TypeFor;
 
 namespace AiTrainer.Web.Workflow.Models
@@ -7,7 +7,7 @@ namespace AiTrainer.Web.Workflow.Models
     {
         public TimeSpan TimeTaken { get; init; }
         public DateTime CompletedAt { get; init; }
-        public TypeFor<IActivity<T>> ActvityType { get; init; }
+        public TypeFor<IActivity<T>> ActivityType { get; init; }
         public int NumberOfRetries { get; init; }
 
         public CompletedWorkflowActivityResult(
@@ -19,7 +19,7 @@ namespace AiTrainer.Web.Workflow.Models
         {
             TimeTaken = timeTaken;
             CompletedAt = completedAt;
-            ActvityType = actvityType;
+            ActivityType = actvityType;
             NumberOfRetries = numberOfRetries;
         }
     }

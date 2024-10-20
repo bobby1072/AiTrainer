@@ -4,7 +4,7 @@
         where TInputContext : IWorkflowInputContext
         where TOutputContext : IWorkflowOutputContext<TReturn>
     {
-        public TInputContext Input { get; }
-        public TOutputContext Output { get; }
+        TInputContext Input { get; init; }
+        TOutputContext Output { get; init; }
     }
 }

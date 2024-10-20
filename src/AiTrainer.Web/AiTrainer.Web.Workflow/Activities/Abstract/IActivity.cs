@@ -1,6 +1,6 @@
 ﻿using AiTrainer.Web.Workflow.Models;
 
-namespace AiTrainer.Web.Workflow.Activities
+namespace AiTrainer.Web.Workflow.Activities.Abstract
 {
     public interface IActivity<T>
     {

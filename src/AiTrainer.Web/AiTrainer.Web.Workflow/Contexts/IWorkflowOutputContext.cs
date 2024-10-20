@@ -2,6 +2,6 @@
 {
     public interface IWorkflowOutputContext<TReturn>
     {
-        public abstract TReturn? ReturnObject { get; set; }
+        TReturn? ReturnObject { get; set; }
     }
 }
