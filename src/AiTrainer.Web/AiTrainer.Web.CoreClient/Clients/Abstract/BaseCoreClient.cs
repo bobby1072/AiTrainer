@@ -1,7 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using AiTrainer.Web.Common.Models.Configuration;
+﻿using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Exceptions;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models;
@@ -9,6 +6,9 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {

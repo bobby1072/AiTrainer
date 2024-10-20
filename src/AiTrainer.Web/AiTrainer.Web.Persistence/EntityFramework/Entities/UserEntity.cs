@@ -1,6 +1,6 @@
+using AiTrainer.Web.Common.Models.DomainModels;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using AiTrainer.Web.Common.Models.DomainModels;
 
 namespace AiTrainer.Web.Persistence.EntityFramework.Entities
 {

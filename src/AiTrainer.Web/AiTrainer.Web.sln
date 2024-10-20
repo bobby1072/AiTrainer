@@ -17,8 +17,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.FastArray", "..\S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Common", "AiTrainer.Web.Common\AiTrainer.Web.Common.csproj", "{C2BD5581-D312-4CC1-828D-83BF33491FCD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Workflow", "AiTrainer.Web.Workflow\AiTrainer.Web.Workflow.csproj", "{5CE8E9CB-EC8D-4189-A532-7110601FD8B1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.Helpers", "..\Submodules\BT\src\BT.Common\BT.Common.Helpers\BT.Common.Helpers.csproj", "{839DE74E-EC72-41FC-AC60-AE7DF48C0B82}"
 EndProject
 Global
@@ -51,10 +49,6 @@ Global
 		{C2BD5581-D312-4CC1-828D-83BF33491FCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C2BD5581-D312-4CC1-828D-83BF33491FCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C2BD5581-D312-4CC1-828D-83BF33491FCD}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5CE8E9CB-EC8D-4189-A532-7110601FD8B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5CE8E9CB-EC8D-4189-A532-7110601FD8B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5CE8E9CB-EC8D-4189-A532-7110601FD8B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5CE8E9CB-EC8D-4189-A532-7110601FD8B1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82}.Release|Any CPU.ActiveCfg = Release|Any CPU

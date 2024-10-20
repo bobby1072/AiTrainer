@@ -1,8 +1,9 @@
-using System.Text.Json;
+using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient;
 using AiTrainer.Web.Persistence;
 using Microsoft.AspNetCore.Http.Timeouts;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
@@ -30,9 +31,11 @@ builder
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     );
 
-builder.Services.AddSqlPersistence(builder.Configuration);
+builder.Services.AddCommon();
 
 builder.Services.AddCoreClient(builder.Configuration);
+
+builder.Services.AddSqlPersistence(builder.Configuration);
 
 builder.Services.AddCors(p =>
     p.AddPolicy(

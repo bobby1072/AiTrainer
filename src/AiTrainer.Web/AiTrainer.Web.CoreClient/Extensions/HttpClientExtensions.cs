@@ -1,5 +1,5 @@
-using System.Net.Http.Json;
 using AiTrainer.Web.CoreClient.Models.Response;
+using System.Net.Http.Json;
 
 namespace AiTrainer.Web.CoreClient.Extensions
 {
