@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.CoreClient
 {
-    public static class CoreClientServiceExtensions
+    public static class CoreClientServiceCollectionExtensions
     {
         public static IServiceCollection AddCoreClient(
             this IServiceCollection serviceCollection,
