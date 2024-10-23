@@ -31,7 +31,6 @@ builder
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     );
 
-builder.Services.AddCommon();
 
 builder.Services.AddCoreClient(builder.Configuration);
 
