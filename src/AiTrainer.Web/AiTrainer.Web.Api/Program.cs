@@ -2,6 +2,7 @@ using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient;
 using AiTrainer.Web.Persistence;
+using BT.Common.Workflow;
 using Microsoft.AspNetCore.Http.Timeouts;
 using System.Text.Json;
 
@@ -35,6 +36,8 @@ builder
 builder.Services.AddCoreClient(builder.Configuration);
 
 builder.Services.AddSqlPersistence(builder.Configuration);
+
+builder.Services.AddWorkflowServices();
 
 builder.Services.AddCors(p =>
     p.AddPolicy(
