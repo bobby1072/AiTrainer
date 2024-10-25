@@ -1,17 +1,15 @@
-using AiTrainer.Web.Common;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.Configuration;
-using AiTrainer.Web.CoreClient.Client.Abstract;
-using AiTrainer.Web.CoreClient.Client.Concrete;
+using AiTrainer.Web.CoreClient.Clients.Abstract;
+using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
-using AiTrainer.Web.CoreClient.Service.Abstract;
-using AiTrainer.Web.CoreClient.Service.Concrete;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.CoreClient
 {
-    public static class CoreClientServiceExtensions
+    public static class CoreClientServiceCollectionExtensions
     {
         public static IServiceCollection AddCoreClient(
             this IServiceCollection serviceCollection,
@@ -31,8 +29,6 @@ namespace AiTrainer.Web.CoreClient
                 ICoreClient<DocumentToChunk, ChunkedDocument>,
                 CoreClientChunkDocument
             >();
-
-            serviceCollection.AddScoped<ICoreClientServiceProvider, CoreClientServiceProvider>();
 
             return serviceCollection;
         }

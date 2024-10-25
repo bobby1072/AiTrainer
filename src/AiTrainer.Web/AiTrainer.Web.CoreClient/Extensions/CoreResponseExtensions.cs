@@ -1,4 +1,4 @@
-using AiTrainer.Web.Common;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.CoreClient.Exceptions;
 using AiTrainer.Web.CoreClient.Models.Response;
 

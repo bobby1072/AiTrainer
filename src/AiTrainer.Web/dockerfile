@@ -17,8 +17,10 @@ COPY src/AiTrainer.Web/AiTrainer.Web.Api/*.csproj ./AiTrainer.Web/AiTrainer.Web.
 COPY src/AiTrainer.Web/AiTrainer.Web.Common/*.csproj ./AiTrainer.Web/AiTrainer.Web.Common/
 COPY src/AiTrainer.Web/AiTrainer.Web.CoreClient/*.csproj ./AiTrainer.Web/AiTrainer.Web.CoreClient/
 COPY src/AiTrainer.Web/AiTrainer.Web.Persistence/*.csproj ./AiTrainer.Web/AiTrainer.Web.Persistence/
-COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/*.csproj ./Submodules/BT.Common/src/BT.Common/BT.Common.FastArray/
-COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/*.csproj ./Submodules/BT.Common/src/BT.Common/BT.Common.OperationTimer/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.FastArray/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.OperationTimer/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.Helpers/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.Helpers/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.WorkflowActivities/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.WorkflowActivities/
 
 RUN dotnet restore AiTrainer.Web/AiTrainer.Web.Api/AiTrainer.Web.Api.csproj 
 
@@ -28,6 +30,8 @@ COPY src/AiTrainer.Web/AiTrainer.Web.CoreClient/ ./AiTrainer.Web/AiTrainer.Web.C
 COPY src/AiTrainer.Web/AiTrainer.Web.Persistence/ ./AiTrainer.Web/AiTrainer.Web.Persistence/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/ ./Submodules/BT/src/BT.Common/BT.Common.FastArray/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/ ./Submodules/BT/src/BT.Common/BT.Common.OperationTimer/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.Helpers/ ./Submodules/BT/src/BT.Common/BT.Common.Helpers/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.WorkflowActivities/ ./Submodules/BT/src/BT.Common/BT.Common.WorkflowActivities/
 
 WORKDIR /src/AiTrainer.Web/AiTrainer.Web.Api
 ARG CONF=Release
