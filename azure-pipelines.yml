@@ -84,7 +84,7 @@ stages:
               customCommand: "run build"
               workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
 
-          - publish: "$(Build.SourcesDirectory)/src/client/build"
+          - publish: "$(Build.SourcesDirectory)/src/AiTrainer.Core/build"
             condition: eq(variables.isMain, true)
             displayName: "Publish client files"
             artifact: client
