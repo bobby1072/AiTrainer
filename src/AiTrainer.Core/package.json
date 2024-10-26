@@ -7,7 +7,7 @@
     "build-start": "npm run build && npm start",
     "debug:start": "set DEBUG=express:* & node build/index.js",
     "start": "node build/index.js",
-    "build": "tsc && xcopy src\\Data\\expressappsettings.json build\\Data\\ /Y /I",
+    "build": "tsc",
     "start:dev": "set NODE_ENV=development&& nodemon"
   },
   "devDependencies": {
