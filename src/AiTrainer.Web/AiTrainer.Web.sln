@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.Helpers", "..\Sub
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.WorkflowActivities", "..\Submodules\BT\src\BT.Common\BT.Common.WorkflowActivities\BT.Common.WorkflowActivities.csproj", "{259C3E65-0F03-4755-9177-C65DAB30DFD8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.Domain.Services", "AiTrainer.Web.Domain.Services\AiTrainer.Web.Domain.Services.csproj", "{F07E8E7D-75AE-47CB-A628-6F612BFADA00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{259C3E65-0F03-4755-9177-C65DAB30DFD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{259C3E65-0F03-4755-9177-C65DAB30DFD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{259C3E65-0F03-4755-9177-C65DAB30DFD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
