@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AiTrainer.Web.Persistence.EntityFramework.Entities
 {
     [Table("user", Schema = DbConstants.PublicSchema)]
-    public record UserEntity : BaseEntity<Guid,User>
+    public record UserEntity : BaseEntity<Guid, User>
     {
         public string Email { get; set; }
         public string? Name { get; set; }

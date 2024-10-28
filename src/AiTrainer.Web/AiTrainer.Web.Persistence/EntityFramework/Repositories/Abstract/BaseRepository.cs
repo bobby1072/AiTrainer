@@ -10,12 +10,12 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
 {
-    internal abstract class BaseRepository<TEnt, TModel> : IRepository<TEnt, TModel>
-        where TEnt : BaseEntity<object, TModel>
+    internal abstract class BaseRepository<TEnt, TEntId, TModel> : IRepository<TEnt,TEntId, TModel>
+        where TEnt : BaseEntity<TEntId, TModel>
         where TModel : class
     {
         protected readonly IDbContextFactory<AiTrainerContext> _contextFactory;
-        protected abstract ILogger _logger { get; init; }
+        protected ILogger<object> _logger { get; init; }
         private static readonly Type _entityType = typeof(TEnt);
         private static readonly Type _modelType = typeof(TModel);
         private static readonly IReadOnlyCollection<PropertyInfo> _entityProperties =
@@ -24,8 +24,9 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
         private static readonly IReadOnlyCollection<PropertyInfo> _modelProperties =
             _modelType.GetProperties();
 
-        protected BaseRepository(IDbContextFactory<AiTrainerContext> dbContextFactory)
+        protected BaseRepository(IDbContextFactory<AiTrainerContext> dbContextFactory, ILogger<object> logger)
         {
+            _logger = logger;
             _contextFactory =
                 dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
         }

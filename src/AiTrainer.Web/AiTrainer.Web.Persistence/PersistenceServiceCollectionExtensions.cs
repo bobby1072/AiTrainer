@@ -1,5 +1,9 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Common.Models.DomainModels;
 using AiTrainer.Web.Persistence.EntityFramework.Contexts;
+using AiTrainer.Web.Persistence.EntityFramework.Entities;
+using AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract;
+using AiTrainer.Web.Persistence.EntityFramework.Repositories.Concrete;
 using AiTrainer.Web.Persistence.Migrations.Abstract;
 using AiTrainer.Web.Persistence.Migrations.Concrete;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +67,9 @@ namespace AiTrainer.Web.Persistence
                         )
                 )
                 .AddHealthChecks();
+
+            services
+                .AddScoped<IRepository<UserEntity, Guid, User>, UserRepository>();
 
             return services;
         }
