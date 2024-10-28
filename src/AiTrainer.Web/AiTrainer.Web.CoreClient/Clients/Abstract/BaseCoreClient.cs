@@ -166,19 +166,24 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
 
         protected HttpRequestMessage BuildHttpMessage(TParam param)
         {
-            var request = new HttpRequestMessage
+            if(_requestType == CoreClientRequestType.Json)
             {
-                Method = _httpMethod,
-                Content = new StringContent(
-                    JsonSerializer.Serialize(param),
-                    Encoding.UTF8,
-                    _applicationJson
-                ),
-                RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/{_endpoint}"),
-            };
-            AddApiKeyHeader(request);
+                var request = new HttpRequestMessage
+                {
+                    Method = _httpMethod,
+                    Content = new StringContent(
+                        JsonSerializer.Serialize(param),
+                        Encoding.UTF8,
+                        _applicationJson
+                    ),
+                    RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/{_endpoint}"),
+                };
+                AddApiKeyHeader(request);
 
-            return request;
+                return request;
+            }
+
+            throw new NotImplementedException();
         }
     }
 }

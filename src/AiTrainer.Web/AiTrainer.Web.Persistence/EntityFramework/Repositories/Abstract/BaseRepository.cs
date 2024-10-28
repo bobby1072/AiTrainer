@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
 {
     internal abstract class BaseRepository<TEnt, TModel> : IRepository<TEnt, TModel>
-        where TEnt : BaseEntity<TModel>
+        where TEnt : BaseEntity<object, TModel>
         where TModel : class
     {
         protected readonly IDbContextFactory<AiTrainerContext> _contextFactory;

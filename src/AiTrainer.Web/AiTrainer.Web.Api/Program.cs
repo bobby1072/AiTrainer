@@ -9,9 +9,6 @@ using BT.Common.WorkflowActivities;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
-builder.Services.Configure<AiTrainerCoreConfiguration>(
-    builder.Configuration.GetSection(AiTrainerCoreConfiguration.Key)
-);
 
 builder
     .Services.AddHttpClient()

@@ -3,7 +3,7 @@ using AiTrainer.Web.Persistence.EntityFramework.Entities;
 namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
 {
     public interface IRepository<TEnt, TModel>
-        where TEnt : BaseEntity<TModel>
+        where TEnt : BaseEntity<object, TModel>
         where TModel : class
     {
         Task<int> GetCount();
