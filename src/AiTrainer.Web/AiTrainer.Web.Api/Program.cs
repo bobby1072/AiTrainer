@@ -1,10 +1,10 @@
-using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient;
 using AiTrainer.Web.Persistence;
-using BT.Common.Workflow;
 using Microsoft.AspNetCore.Http.Timeouts;
 using System.Text.Json;
+using BT.Common.WorkflowActivities;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);

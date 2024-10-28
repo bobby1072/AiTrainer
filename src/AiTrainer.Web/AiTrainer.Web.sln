@@ -19,9 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Common", "AiT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.Helpers", "..\Submodules\BT\src\BT.Common\BT.Common.Helpers\BT.Common.Helpers.csproj", "{839DE74E-EC72-41FC-AC60-AE7DF48C0B82}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.WorkflowActivities", "..\Submodules\BT\src\BT.Common\BT.Common.WorkflowActivities\BT.Common.WorkflowActivities.csproj", "{259C3E65-0F03-4755-9177-C65DAB30DFD8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Domain.Services", "AiTrainer.Web.Domain.Services\AiTrainer.Web.Domain.Services.csproj", "{F07E8E7D-75AE-47CB-A628-6F612BFADA00}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.Domain.Services", "AiTrainer.Web.Domain.Services\AiTrainer.Web.Domain.Services.csproj", "{F07E8E7D-75AE-47CB-A628-6F612BFADA00}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.WorkflowActivities", "..\Submodules\BT\src\BT.Common\BT.Common.WorkflowActivities\BT.Common.WorkflowActivities.csproj", "{87CA8515-1FC2-4994-B647-50B44777BC64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,14 +57,14 @@ Global
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82}.Release|Any CPU.Build.0 = Release|Any CPU
-		{259C3E65-0F03-4755-9177-C65DAB30DFD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{259C3E65-0F03-4755-9177-C65DAB30DFD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{259C3E65-0F03-4755-9177-C65DAB30DFD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{259C3E65-0F03-4755-9177-C65DAB30DFD8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87CA8515-1FC2-4994-B647-50B44777BC64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87CA8515-1FC2-4994-B647-50B44777BC64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87CA8515-1FC2-4994-B647-50B44777BC64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87CA8515-1FC2-4994-B647-50B44777BC64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -73,7 +73,7 @@ Global
 		{CF84B3A7-2EE7-4208-9CFA-0D2F72DA8C46} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 		{DDB6B9E8-39B5-4D80-AF01-49157178D7A9} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
-		{259C3E65-0F03-4755-9177-C65DAB30DFD8} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
+		{87CA8515-1FC2-4994-B647-50B44777BC64} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0EA356DC-E454-4B7C-909C-B1CB96C96363}
