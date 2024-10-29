@@ -6,4 +6,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="WorkflowActivities\Activities\Abstract\" />
+    <Folder Include="WorkflowActivities\Activities\Concrete\" />
+    <Folder Include="WorkflowActivities\Workflows\Abstract\" />
+    <Folder Include="WorkflowActivities\Workflows\Concrete\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.WorkflowActivities\BT.Common.WorkflowActivities.csproj" />
+    <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
+  </ItemGroup>
+
 </Project>

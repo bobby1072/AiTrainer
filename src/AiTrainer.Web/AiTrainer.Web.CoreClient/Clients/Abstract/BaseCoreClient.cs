@@ -33,7 +33,14 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
         }
 
-        public virtual Task<TReturn> InvokeAsync() => ExecuteRequest();
+        public virtual async Task<TReturn> InvokeAsync()
+        {
+            var requestMessage = BuildHttpMessage();
+
+            var data = await InvokeCoreRequest(requestMessage);
+
+            return data;
+        }
 
         public virtual async Task<TReturn?> TryInvokeAsync()
         {
@@ -48,14 +55,6 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
             }
         }
 
-        protected async Task<TReturn> ExecuteRequest()
-        {
-            var requestMessage = BuildHttpMessage();
-
-            var data = await InvokeCoreRequest(requestMessage);
-
-            return data;
-        }
 
         protected async Task<T> TimeAndExecuteRequest<T>(Func<Task<T>> request)
         {
@@ -105,24 +104,12 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
 
         protected void LogCoreError(Exception exception)
         {
-            if (exception is CoreClientException)
-            {
-                _logger.LogInformation(
-                    exception,
-                    "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
-                    _operationName,
-                    exception.Message
-                );
-            }
-            else
-            {
-                _logger.LogError(
-                    exception,
-                    "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
-                    _operationName,
-                    exception.Message
-                );
-            }
+            _logger.LogError(
+                exception,
+                "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
+                _operationName,
+                exception.Message
+            );
         }
     }
 

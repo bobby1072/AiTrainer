@@ -3,7 +3,7 @@ using AiTrainer.Web.CoreClient.Exceptions;
 
 namespace AiTrainer.Web.CoreClient.Extensions
 {
-    internal static class HttpResponseMessageExceptions
+    internal static class HttpResponseMessageExtensions
     {
         public static void EnsureSuccessStatusCodeAndThrowCoreClientException(
             this HttpResponseMessage response
