@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.WorkflowActivities\BT.Common.WorkflowActivities.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
+    <ProjectReference Include="..\AiTrainer.Web.Domain.Models\AiTrainer.Web.Domain.Models.csproj" />
   </ItemGroup>
 
 </Project>

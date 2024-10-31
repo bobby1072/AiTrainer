@@ -8,5 +8,8 @@
         {
             return base.GetHashCode();
         }
+
+        public virtual void ApplyDefaults() { }
+
     }
 }
