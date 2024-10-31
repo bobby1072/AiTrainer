@@ -1,4 +1,4 @@
-﻿using AiTrainer.Web.Common.Models.DomainModels;
+﻿using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.EntityFramework.Entities;
 
 namespace AiTrainer.Web.Persistence.Extensions

@@ -1,4 +1,4 @@
-using AiTrainer.Web.Common.Models.DomainModels;
+using AiTrainer.Web.Domain.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.EntityFramework.Entities

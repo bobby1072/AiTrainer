@@ -1,4 +1,4 @@
-﻿using AiTrainer.Web.Common.Models.DomainModels;
+﻿using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.EntityFramework.Contexts;
 using AiTrainer.Web.Persistence.EntityFramework.Entities;
 using AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract;

@@ -1,4 +1,4 @@
-using AiTrainer.Web.Common.Models.Configuration;
+using AiTrainer.Web.UserInfoClient;
 using AiTrainer.Web.CoreClient;
 using AiTrainer.Web.Persistence;
 using Microsoft.AspNetCore.Http.Timeouts;
@@ -11,14 +11,15 @@ builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 
 builder
-    .Services.AddHttpClient()
+    .Services
+    .AddHttpClient()
     .AddHttpContextAccessor()
     .AddResponseCompression()
     .AddRequestTimeouts(opts =>
     {
         opts.DefaultPolicy = new RequestTimeoutPolicy
         {
-            Timeout = TimeSpan.FromMilliseconds(60000),
+            Timeout = TimeSpan.FromSeconds(60),
         };
     })
     .AddLogging()
@@ -35,6 +36,8 @@ builder.Services.AddCoreClient(builder.Configuration);
 builder.Services.AddSqlPersistence(builder.Configuration);
 
 builder.Services.AddWorkflowServices();
+
+builder.Services.AddUserInfoClient();
 
 builder.Services.AddCors(p =>
     p.AddPolicy(
@@ -62,6 +65,8 @@ else
 {
     app.UseHttpsRedirection();
 }
+
+
 app.UseRouting();
 app.UseResponseCompression();
 app.UseAuthorization();

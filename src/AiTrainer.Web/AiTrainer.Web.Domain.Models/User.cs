@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace AiTrainer.Web.Common.Models.DomainModels
+namespace AiTrainer.Web.Domain.Models
 {
     public class User : DomainModel, IEquatable<User>
     {
