@@ -1,11 +1,11 @@
-﻿using AiTrainer.Web.Domain.Models.Attributes;
+﻿using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.Domain.Models.Attributes;
 using System.Reflection;
-
 namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class DomainModelExtensions
     {
-        public static bool ValidateAgainstOriginal<TModel, TModelId>(this TModel originalModel,TModel checkAgainst) where TModel : DomainModel<TModelId>
+        public static bool ValidateAgainstOriginal<TModel, TModelId>(this TModel originalModel, TModel checkAgainst) where TModel : DomainModel<TModelId>
         {
             var allPropertiesToCheck = checkAgainst.GetType().GetProperties();
             for (var i = 0; i < allPropertiesToCheck.Length; i++)
@@ -41,10 +41,19 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         }
         public static void RemoveSensitive<TModel, TModelId>(this IEnumerable<TModel> originalModels) where TModel : DomainModel<TModelId>
         {
-            foreach(var model in originalModels)
+            foreach (var model in originalModels)
             {
                 model.RemoveSensitive<TModel, TModelId>();
             }
+        }
+        public static T? GetPropertyValue<T>(this object? value, string propertyName)
+        {
+            if (value is not DomainModel<object> || propertyName.ToLower() != "Id")
+            {
+                return ObjectExtensions.GetPropertyValue<T>(value, propertyName);
+            }
+
+            return ((T?)((DomainModel<object>)value).Id);
         }
     }
 }

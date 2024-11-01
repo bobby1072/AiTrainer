@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.Common.Workflow.Activities
 {
-    internal class ValidateModelActivity<TModelToValidate>: BaseActivity<TModelToValidate, ValidationResult>
+    internal class ValidateModelActivity<TModelToValidate> : BaseActivity<TModelToValidate, ValidationResult>
     {
         public override string Description => "This activity validates a model and returns a failed activity result if the validation fails";
         private readonly IValidator<TModelToValidate> _validator;
@@ -19,7 +19,7 @@ namespace AiTrainer.Web.Domain.Services.Common.Workflow.Activities
 
         public override async Task<(ActivityResultEnum ActivityResult, ValidationResult? ActualResult)> ExecuteAsync(TModelToValidate? workflowContextItem)
         {
-            if(workflowContextItem is null)
+            if (workflowContextItem is null)
             {
                 return (ActivityResultEnum.Fail, null);
             }
@@ -30,8 +30,8 @@ namespace AiTrainer.Web.Domain.Services.Common.Workflow.Activities
             {
                 _logger.LogWarning("Validated object of type {TypeName} was invalid", workflowContextItem.GetType().Name);
             }
-            
-            return (validatationReults.IsValid ? ActivityResultEnum.Success :ActivityResultEnum.Fail, validatationReults);
+
+            return (validatationReults.IsValid ? ActivityResultEnum.Success : ActivityResultEnum.Fail, validatationReults);
         }
     }
 }

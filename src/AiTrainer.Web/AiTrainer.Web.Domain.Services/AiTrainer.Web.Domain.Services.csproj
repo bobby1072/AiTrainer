@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="User\Workflow\**" />
+    <EmbeddedResource Remove="User\Workflow\**" />
+    <None Remove="User\Workflow\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.WorkflowActivities\BT.Common.WorkflowActivities.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Domain.Models\AiTrainer.Web.Domain.Models.csproj" />
@@ -14,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="User\Workflow\Activities\" />
+    <Folder Include="User\" />
   </ItemGroup>
 
 </Project>

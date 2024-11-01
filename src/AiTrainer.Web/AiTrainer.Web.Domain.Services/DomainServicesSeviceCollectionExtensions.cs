@@ -8,21 +8,18 @@ namespace AiTrainer.Web.Domain.Services
 {
     public static class DomainServicesSeviceCollectionExtensions
     {
-        private static readonly Type _domainModelType = typeof(DomainModel<object>);
         public static IServiceCollection AddDomainServices(this IServiceCollection services)
         {
-            services
-                .AddUserServices();
 
             return services;
         }
 
 
-        private static IServiceCollection AddUserServices(this IServiceCollection services)
+        internal static IServiceCollection AddDomainModelServices<TModel, TModelId>(this IServiceCollection services) where TModel: DomainModel<TModelId> 
         {
             services
-                .AddActivity<ValidateModelActivity<Models.User>, Models.User, ValidationResult>()
-                .AddActivity<ValidateDomainModelAgainstOriginalActivity<Models.User, Guid?>, (Models.User, Models.User), bool>();
+                .AddActivity<ValidateModelActivity<TModel>,TModel, ValidationResult>()
+                .AddActivity<ValidateDomainModelAgainstOriginalActivity<TModel, TModelId?>, (TModel, TModel), bool>();
 
             return services;
         }
