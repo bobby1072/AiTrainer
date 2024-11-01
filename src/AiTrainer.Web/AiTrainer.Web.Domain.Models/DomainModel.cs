@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Domain.Models
 {
@@ -15,4 +14,5 @@ namespace AiTrainer.Web.Domain.Models
         }
 
         public virtual void ApplyDefaults() { }
+    }
 }

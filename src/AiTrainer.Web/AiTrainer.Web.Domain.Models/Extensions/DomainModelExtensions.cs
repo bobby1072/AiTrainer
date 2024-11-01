@@ -5,7 +5,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class DomainModelExtensions
     {
-        public static bool ValidateAgainstOriginal<TModel>(this TModel originalModel,TModel checkAgainst) where TModel : DomainModel<object>
+        public static bool ValidateAgainstOriginal<TModel, TModelId>(this TModel originalModel,TModel checkAgainst) where TModel : DomainModel<TModelId>
         {
             var allPropertiesToCheck = checkAgainst.GetType().GetProperties();
             for (var i = 0; i < allPropertiesToCheck.Length; i++)
@@ -18,20 +18,20 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             }
             return true;
         }
-        public static void RemoveSensitive<TModel>(this TModel originalModel) where TModel : DomainModel<object>
+        public static void RemoveSensitive<TModel, TModelId>(this TModel originalModel) where TModel : DomainModel<TModelId>
         {
             var allProperties = originalModel.GetType().GetProperties();
             for (var i = 0; i < allProperties.Length; i++)
             {
                 var property = allProperties[i];
                 var foundProp = property.GetValue(originalModel);
-                if (foundProp is DomainModel<object> deepBaseModel)
+                if (foundProp is DomainModel<TModelId> deepBaseModel)
                 {
-                    deepBaseModel.RemoveSensitive();
+                    deepBaseModel.RemoveSensitive<DomainModel<TModelId>, TModelId>();
                 }
-                else if (foundProp is IEnumerable<DomainModel<object>> deepBaseModels)
+                else if (foundProp is IEnumerable<DomainModel<TModelId>> deepBaseModels)
                 {
-                    deepBaseModels.RemoveSensitive();
+                    deepBaseModels.RemoveSensitive<DomainModel<TModelId>, TModelId>();
                 }
                 else if (property?.GetCustomAttribute<SensitivePropertyAttribute>() is not null)
                 {
@@ -39,11 +39,11 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 }
             }
         }
-        public static void RemoveSensitive<TModel>(this IEnumerable<TModel> originalModels) where TModel : DomainModel<object>
+        public static void RemoveSensitive<TModel, TModelId>(this IEnumerable<TModel> originalModels) where TModel : DomainModel<TModelId>
         {
             foreach(var model in originalModels)
             {
-                model.RemoveSensitive();
+                model.RemoveSensitive<TModel, TModelId>();
             }
         }
     }

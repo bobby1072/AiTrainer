@@ -3,6 +3,7 @@ using System.Text;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Persistence.EntityFramework.Contexts;
 using AiTrainer.Web.Persistence.EntityFramework.Entities;
+using AiTrainer.Web.Persistence.Models;
 using BT.Common.FastArray.Proto;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.EntityFrameworkCore;
@@ -17,14 +18,10 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
         protected readonly IDbContextFactory<AiTrainerContext> _contextFactory;
         protected ILogger<object> _logger { get; init; }
         private static readonly Type _entityType = typeof(TEnt);
-        private static readonly Type _modelType = typeof(TModel);
         private static readonly IReadOnlyCollection<PropertyInfo> _entityProperties =
             _entityType.GetProperties();
 
-        private static readonly IReadOnlyCollection<PropertyInfo> _modelProperties =
-            _modelType.GetProperties();
-
-        protected BaseRepository(IDbContextFactory<AiTrainerContext> dbContextFactory, ILogger<object> logger)
+        protected BaseRepository(IDbContextFactory<AiTrainerContext> dbContextFactory, ILogger<BaseRepository<TEnt, TEntId, TModel>> logger)
         {
             _logger = logger;
             _contextFactory =
@@ -33,18 +30,20 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
 
         protected abstract TEnt RuntimeToEntity(TModel runtimeObj);
 
-        public virtual async Task<int> GetCount()
+        public virtual async Task<DbResult<int>> GetCount()
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var foundOneQuerySet = dbContext.Set<TEnt>();
-            return await TimeAndLogDbOperation(
+            var count = await TimeAndLogDbOperation(
                 () => foundOneQuerySet.CountAsync(),
                 nameof(GetCount),
                 _entityType.Name
             );
+
+            return new DbResult<int>(true, count);
         }
 
-        public virtual async Task<IReadOnlyCollection<TModel>?> GetMany<T>(
+        public virtual async Task<DbGetManyResult<TModel>> GetMany<T>(
             T value,
             string propertyName,
             params string[] relations
@@ -62,10 +61,10 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
                 _entityType.Name
             );
 
-            return foundOne?.FastArraySelect(x => x.ToModel()).ToArray();
+            return new DbGetManyResult<TModel>(foundOne?.FastArraySelect(x => x.ToModel()).ToArray());
         }
 
-        public virtual async Task<TModel?> GetOne<T>(
+        public virtual async Task<DbGetOneResult<TModel>> GetOne<T>(
             T value,
             string propertyName,
             params string[] relations
@@ -83,10 +82,10 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
                 _entityType.Name
             );
 
-            return foundOne?.ToModel();
+            return new DbGetOneResult<TModel>(foundOne?.ToModel());
         }
 
-        public virtual async Task<IReadOnlyCollection<TModel>?> Create(
+        public virtual async Task<DbSaveResult<TModel>> Create(
             IReadOnlyCollection<TModel> entObj
         )
         {
@@ -100,10 +99,10 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             }
             await TimeAndLogDbOperation(operation, nameof(Create), _entityType.Name);
             var runtimeObjs = set.Local.FastArraySelect(x => x.ToModel());
-            return runtimeObjs?.Count() > 0 ? runtimeObjs.OfType<TModel>().ToArray() : null;
+            return new DbSaveResult<TModel>(runtimeObjs.OfType<TModel>().ToArray());
         }
 
-        public virtual async Task<IReadOnlyCollection<TModel>?> Delete(
+        public virtual async Task<DbDeleteResult<TModel>> Delete(
             IReadOnlyCollection<TModel> entObj
         )
         {
@@ -116,10 +115,10 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
                 return null;
             }
             await TimeAndLogDbOperation(operation, nameof(Delete), _entityType.Name);
-            return entObj;
+            return new DbDeleteResult<TModel>(entObj);
         }
 
-        public virtual async Task<IReadOnlyCollection<TModel>?> Update(
+        public virtual async Task<DbSaveResult<TModel>> Update(
             IReadOnlyCollection<TModel> entObj
         )
         {
@@ -134,7 +133,7 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             await TimeAndLogDbOperation(operation, nameof(Update), _entityType.Name);
 
             var runtimeObjs = set.Local.FastArraySelect(x => x.ToModel());
-            return runtimeObjs?.Count() > 0 ? runtimeObjs.OfType<TModel>().ToArray() : null;
+            return new DbSaveResult<TModel>(runtimeObjs.OfType<TModel>().ToArray());
         }
 
         protected IQueryable<TEnt> AddRelationsToSet(

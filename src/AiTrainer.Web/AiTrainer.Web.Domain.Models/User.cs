@@ -47,6 +47,6 @@ namespace AiTrainer.Web.Domain.Models
                 && DateModified == user.DateModified;
         }
 
-        public bool Equals(User? obj) => Equals(obj);
+        public bool Equals(User? obj) => Equals((DomainModel<Guid?>?)obj);
     }
 }
