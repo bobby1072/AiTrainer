@@ -2,11 +2,8 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Domain.Models
 {
-    public class User : DomainModel, IEquatable<User>
+    public class User : DomainModel<Guid?>, IEquatable<User>
     {
-        [JsonPropertyName("id")]
-        public Guid? Id { get; set; }
-
         [JsonPropertyName("email")]
         public string Email { get; set; }
 
@@ -39,7 +36,7 @@ namespace AiTrainer.Web.Domain.Models
             DateModified = dateModified;
         }
 
-        public override bool Equals(DomainModel? other)
+        public override bool Equals(DomainModel<Guid?>? other)
         {
             return other is User user
                 && Id == user.Id

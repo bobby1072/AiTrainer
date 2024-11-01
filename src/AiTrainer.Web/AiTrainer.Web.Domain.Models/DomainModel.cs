@@ -1,8 +1,13 @@
-﻿namespace AiTrainer.Web.Domain.Models
+﻿using System.Reflection;
+using System.Text.Json.Serialization;
+
+namespace AiTrainer.Web.Domain.Models
 {
-    public abstract class DomainModel
+    public abstract class DomainModel<TId>
     {
-        public abstract bool Equals(DomainModel? other);
+        [JsonPropertyName("id")]
+        public TId? Id { get; set; }
+        public abstract bool Equals(DomainModel<TId>? other);
 
         public new virtual int GetHashCode()
         {
@@ -10,6 +15,4 @@
         }
 
         public virtual void ApplyDefaults() { }
-
-    }
 }
