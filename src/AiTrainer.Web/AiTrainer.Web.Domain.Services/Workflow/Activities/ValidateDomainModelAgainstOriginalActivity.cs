@@ -4,7 +4,7 @@ using BT.Common.WorkflowActivities.Activities.Abstract;
 using BT.Common.WorkflowActivities.Activities.Concrete;
 using Microsoft.Extensions.Logging;
 
-namespace AiTrainer.Web.Domain.Services.Common.Workflow.Activities
+namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 {
     internal class ValidateDomainModelAgainstOriginalActivity<TModelToValidate, TModelId> : BaseActivity<(TModelToValidate, TModelToValidate?), bool>
         where TModelToValidate : DomainModel<TModelId>
@@ -16,7 +16,7 @@ namespace AiTrainer.Web.Domain.Services.Common.Workflow.Activities
             _logger = logger;
         }
 
-        public override Task<(ActivityResultEnum ActivityResult, bool ActualResult)> ExecuteAsync((TModelToValidate ,TModelToValidate?) workflowContextItem)
+        public override Task<(ActivityResultEnum ActivityResult, bool ActualResult)> ExecuteAsync((TModelToValidate, TModelToValidate?) workflowContextItem)
         {
             var (newModel, originalModel) = workflowContextItem;
 

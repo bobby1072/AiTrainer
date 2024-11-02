@@ -4,7 +4,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 
-namespace AiTrainer.Web.Domain.Services.Common.Workflow.Activities
+namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 {
     internal class ValidateModelActivity<TModelToValidate> : BaseActivity<TModelToValidate, ValidationResult>
     {

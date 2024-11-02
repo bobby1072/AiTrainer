@@ -1,5 +1,5 @@
 ﻿using AiTrainer.Web.Domain.Models;
-using AiTrainer.Web.Domain.Services.Common.Workflow.Activities;
+using AiTrainer.Web.Domain.Services.Workflow.Activities;
 using BT.Common.WorkflowActivities;
 using FluentValidation.Results;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,11 +15,11 @@ namespace AiTrainer.Web.Domain.Services
         }
 
 
-        internal static IServiceCollection AddDomainModelServices<TModel, TModelId>(this IServiceCollection services) where TModel: DomainModel<TModelId> 
+        internal static IServiceCollection AddDomainModelActivities<TModel, TModelId>(this IServiceCollection services) where TModel : DomainModel<TModelId>
         {
             services
-                .AddActivity<ValidateModelActivity<TModel>,TModel, ValidationResult>()
-                .AddActivity<ValidateDomainModelAgainstOriginalActivity<TModel, TModelId?>, (TModel, TModel), bool>();
+                .AddActivity<ValidateModelActivity<TModel>, TModel, ValidationResult>()
+                .AddActivity<ValidateDomainModelAgainstOriginalActivity<TModel, TModelId?>, (TModel, TModel?), bool>();
 
             return services;
         }

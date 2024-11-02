@@ -1,6 +1,7 @@
 ﻿using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models.Attributes;
 using System.Reflection;
+
 namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class DomainModelExtensions

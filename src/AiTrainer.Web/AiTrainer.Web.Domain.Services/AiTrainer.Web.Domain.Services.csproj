@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="User\Workflow\**" />
-    <EmbeddedResource Remove="User\Workflow\**" />
-    <None Remove="User\Workflow\**" />
+    <PackageReference Include="Faker.Net" Version="2.0.163" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,10 +15,6 @@
     <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Domain.Models\AiTrainer.Web.Domain.Models.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Persistence\AiTrainer.Web.Persistence.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="User\" />
   </ItemGroup>
 
 </Project>
