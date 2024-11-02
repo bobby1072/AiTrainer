@@ -1,6 +1,7 @@
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Json;
@@ -11,10 +12,25 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
     {
         private readonly string _userInfoEndpoint;
         private HttpClient _client;
-        public UserInfoClient(HttpClient httpClient, IOptions<ClientSettingsConfiguration> options)
+        private readonly ILogger<UserInfoClient> _logger;
+        public UserInfoClient(HttpClient httpClient, IOptions<ClientSettingsConfiguration> options, ILogger<UserInfoClient> logger)
         {
             _userInfoEndpoint = options.Value.UserInfoEndpoint;
             _client = httpClient;
+            _logger = logger;
+        }
+        public async Task<UserInfoResponse?> TryInvokeAsync(string accessToken)
+        {
+            try
+            {
+                return await InvokeAsync(accessToken);
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex, "User info client threw exception with message {Message}", ex.Message);
+
+                return null;
+            }
         }
         public async Task<UserInfoResponse> InvokeAsync(string accessToken)
         {

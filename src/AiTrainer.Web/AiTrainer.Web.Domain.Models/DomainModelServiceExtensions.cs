@@ -6,7 +6,13 @@ namespace AiTrainer.Web.Domain.Models
 {
     public static class DomainModelServiceExtensions
     {
-        public static IServiceCollection AddDomainModelValidators(this IServiceCollection services)
+        public static IServiceCollection AddDomainModelServices(this IServiceCollection services) 
+        {
+            services.AddDomainModelValidators();
+
+            return services;
+        }
+        internal static IServiceCollection AddDomainModelValidators(this IServiceCollection services)
         {
             services
                 .AddSingleton<IValidator<User>, UserValidator>();

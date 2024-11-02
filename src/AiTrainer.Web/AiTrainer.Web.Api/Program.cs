@@ -4,6 +4,7 @@ using AiTrainer.Web.Persistence;
 using Microsoft.AspNetCore.Http.Timeouts;
 using System.Text.Json;
 using BT.Common.WorkflowActivities;
+using AiTrainer.Web.Domain.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,13 +32,13 @@ builder
     );
 
 
-builder.Services.AddCoreClient(builder.Configuration);
+builder.Services
+    .AddCoreClient(builder.Configuration)
+    .AddSqlPersistence(builder.Configuration)
+    .AddWorkflowServices()
+    .AddUserInfoClient()
+    .AddDomainModelServices();
 
-builder.Services.AddSqlPersistence(builder.Configuration);
-
-builder.Services.AddWorkflowServices();
-
-builder.Services.AddUserInfoClient();
 
 builder.Services.AddCors(p =>
     p.AddPolicy(

@@ -16,6 +16,8 @@
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.WorkflowActivities\BT.Common.WorkflowActivities.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.CoreClient\AiTrainer.Web.CoreClient.csproj" />
+    <ProjectReference Include="..\AiTrainer.Web.Domain.Models\AiTrainer.Web.Domain.Models.csproj" />
+    <ProjectReference Include="..\AiTrainer.Web.Domain.Services\AiTrainer.Web.Domain.Services.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Persistence\AiTrainer.Web.Persistence.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.UserInfoClient\AiTrainer.Web.UserInfoClient.csproj" />
   </ItemGroup>
