@@ -18,7 +18,7 @@ namespace AiTrainer.Web.Common.Exceptions
         public ApiException(
             Exception innerException,
             HttpStatusCode statusCode = HttpStatusCode.InternalServerError,
-            string? message = ExceptionConstants.InternalServerError
+            string message = ExceptionConstants.InternalServerError
         )
             : base(message, innerException)
         {

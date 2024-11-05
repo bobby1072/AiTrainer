@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.Timeouts;
 using System.Text.Json;
 using BT.Common.WorkflowActivities;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Api.Middlewares;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -71,6 +72,11 @@ else
 app.UseRouting();
 app.UseResponseCompression();
 app.UseAuthorization();
+
+app
+    .UseMiddleware<ExceptionHandlingMiddleware>()
+    .UseMiddleware<CorrelationIdMiddleware>();
+
 app.MapControllers();
 
-app.Run();
+await app.RunAsync();

@@ -1,5 +1,4 @@
 ﻿using AiTrainer.Web.Common.Models.Configuration;
-using AiTrainer.Web.CoreClient.Exceptions;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models;
 using AiTrainer.Web.CoreClient.Models.Response;
@@ -7,12 +6,13 @@ using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {
-    internal abstract class BaseCoreClient<TReturn>
+    internal abstract class BaseCoreClient<TReturn>: ICoreClient<TReturn>
         where TReturn : class
     {
         protected const string _applicationJson = "application/json";
@@ -21,7 +21,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
         protected string _operationName => GetType().Name;
         protected abstract string _endpoint { get; }
         protected abstract ILogger _logger { get; init; }
-        protected abstract CoreClientRequestType _requestType { get; }
+        protected abstract string _requestType { get; }
         protected abstract HttpMethod _httpMethod { get; }
 
         protected BaseCoreClient(
@@ -113,7 +113,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
         }
     }
 
-    internal abstract class BaseCoreClient<TParam, TReturn> : BaseCoreClient<TReturn>
+    internal abstract class BaseCoreClient<TParam, TReturn> : BaseCoreClient<TReturn>, ICoreClient<TParam, TReturn>
         where TReturn : class
     {
         protected BaseCoreClient(
@@ -153,24 +153,19 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
 
         protected HttpRequestMessage BuildHttpMessage(TParam param)
         {
-            if(_requestType == CoreClientRequestType.Json)
+            var request = new HttpRequestMessage
             {
-                var request = new HttpRequestMessage
-                {
-                    Method = _httpMethod,
-                    Content = new StringContent(
-                        JsonSerializer.Serialize(param),
-                        Encoding.UTF8,
-                        _applicationJson
-                    ),
-                    RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/{_endpoint}"),
-                };
-                AddApiKeyHeader(request);
+                Method = _httpMethod,
+                Content = new StringContent(
+                    JsonSerializer.Serialize(param),
+                    Encoding.UTF8,
+                    _requestType
+                ),
+                RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/{_endpoint}"),
+            };
+            AddApiKeyHeader(request);
 
-                return request;
-            }
-
-            throw new NotImplementedException();
+            return request;
         }
     }
 }

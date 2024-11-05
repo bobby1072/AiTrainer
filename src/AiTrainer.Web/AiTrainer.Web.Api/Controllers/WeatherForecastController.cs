@@ -1,13 +1,14 @@
+using AiTrainer.Web.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AiTrainer.Web.Api.Controllers
 {
     public class WeatherForecastController : BaseController
     {
-        private static readonly string[] Summaries = new[]
-        {
+        private static readonly string[] Summaries =
+        [
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        ];
 
         private new readonly ILogger<WeatherForecastController> _logger;
 

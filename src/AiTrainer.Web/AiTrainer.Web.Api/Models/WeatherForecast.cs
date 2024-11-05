@@ -1,4 +1,4 @@
-namespace AiTrainer.Web.Api
+namespace AiTrainer.Web.Api.Models
 {
     public class WeatherForecast
     {
