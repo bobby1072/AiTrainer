@@ -6,14 +6,14 @@ using System.Text.Json;
 using BT.Common.WorkflowActivities;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Api.Middlewares;
+using AiTrainer.Web.Domain.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 
-builder
-    .Services
+builder.Services
     .AddHttpClient()
     .AddHttpContextAccessor()
     .AddResponseCompression()
@@ -38,7 +38,8 @@ builder.Services
     .AddSqlPersistence(builder.Configuration)
     .AddWorkflowServices()
     .AddUserInfoClient()
-    .AddDomainModelServices();
+    .AddDomainModelServices()
+    .AddDomainServices();
 
 
 builder.Services.AddCors(p =>
