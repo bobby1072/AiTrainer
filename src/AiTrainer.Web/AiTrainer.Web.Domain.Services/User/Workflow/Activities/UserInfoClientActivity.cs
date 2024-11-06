@@ -17,7 +17,7 @@ namespace AiTrainer.Web.Domain.Services.User.Workflow.Activities
         {
             if (string.IsNullOrEmpty(workflowContextItem))
             {
-                return (ActivityResultEnum.Fail, null);
+                return (ActivityResultEnum.Skip, null);
             }
 
             var userInfo = await _userInfoClient.TryInvokeAsync(workflowContextItem);
