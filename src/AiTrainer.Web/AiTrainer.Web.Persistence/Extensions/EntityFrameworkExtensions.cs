@@ -3,7 +3,7 @@ using AiTrainer.Web.Persistence.EntityFramework.Entities;
 
 namespace AiTrainer.Web.Persistence.Extensions
 {
-    internal static class EntityExtensions
+    internal static class EntityFrameworkExtensions
     {
         public static UserEntity ToEntity(this User user)
         {
@@ -13,7 +13,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 DateModified = user.DateModified,
                 Email = user.Email,
                 Name = user.Name,
-                Username = user.Username
+                Username = user.Username,
             };
             if (user.Id is not null)
             {
