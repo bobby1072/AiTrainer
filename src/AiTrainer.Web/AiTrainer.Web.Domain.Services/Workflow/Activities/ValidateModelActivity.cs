@@ -6,32 +6,47 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 {
-    internal class ValidateModelActivity<TModelToValidate> : BaseActivity<TModelToValidate, ValidationResult>
+    internal class ValidateModelActivity<TModelToValidate>
+        : BaseActivity<TModelToValidate, ValidationResult>
     {
-        public override string Description => "This activity validates a model and returns a failed activity result if the validation fails";
+        public override string Description =>
+            "This activity validates a model and returns a failed activity result if the validation fails";
         private readonly IValidator<TModelToValidate> _validator;
         private readonly ILogger<ValidateModelActivity<TModelToValidate>> _logger;
-        public ValidateModelActivity(IValidator<TModelToValidate> validator, ILogger<ValidateModelActivity<TModelToValidate>> logger)
+
+        public ValidateModelActivity(
+            IValidator<TModelToValidate> validator,
+            ILogger<ValidateModelActivity<TModelToValidate>> logger
+        )
         {
             _validator = validator;
             _logger = logger;
         }
 
-        public override async Task<(ActivityResultEnum ActivityResult, ValidationResult? ActualResult)> ExecuteAsync(TModelToValidate? workflowContextItem)
+        public override async Task<(
+            ActivityResultEnum ActivityResult,
+            ValidationResult? ActualResult
+        )> ExecuteAsync(TModelToValidate? workflowContextItem)
         {
             if (workflowContextItem is null)
             {
-                return (ActivityResultEnum.Fail, null);
+                return (ActivityResultEnum.Skip, null);
             }
 
-            var validatationReults = await _validator.ValidateAsync(workflowContextItem);
+            var validationResults = await _validator.ValidateAsync(workflowContextItem);
 
-            if (!validatationReults.IsValid)
+            if (!validationResults.IsValid)
             {
-                _logger.LogWarning("Validated object of type {TypeName} was invalid", workflowContextItem.GetType().Name);
+                _logger.LogWarning(
+                    "Validated object of type {TypeName} was invalid",
+                    workflowContextItem.GetType().Name
+                );
             }
 
-            return (validatationReults.IsValid ? ActivityResultEnum.Success : ActivityResultEnum.Fail, validatationReults);
+            return (
+                validationResults.IsValid ? ActivityResultEnum.Success : ActivityResultEnum.Fail,
+                validationResults
+            );
         }
     }
 }
