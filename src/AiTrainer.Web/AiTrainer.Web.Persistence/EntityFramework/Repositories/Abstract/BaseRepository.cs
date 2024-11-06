@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
 {
-    internal abstract class BaseRepository<TEnt, TEntId, TModel> : IRepository<TEnt,TEntId, TModel>
+    internal abstract class BaseRepository<TEnt, TEntId, TModel> : IRepository<TEnt, TEntId, TModel>
         where TEnt : BaseEntity<TEntId, TModel>
         where TModel : class
     {
@@ -21,7 +21,10 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
         private static readonly IReadOnlyCollection<PropertyInfo> _entityProperties =
             _entityType.GetProperties();
 
-        protected BaseRepository(IDbContextFactory<AiTrainerContext> dbContextFactory, ILogger<BaseRepository<TEnt, TEntId, TModel>> logger)
+        protected BaseRepository(
+            IDbContextFactory<AiTrainerContext> dbContextFactory,
+            ILogger<BaseRepository<TEnt, TEntId, TModel>> logger
+        )
         {
             _logger = logger;
             _contextFactory =
@@ -61,7 +64,43 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
                 _entityType.Name
             );
 
-            return new DbGetManyResult<TModel>(foundOne?.FastArraySelect(x => x.ToModel()).ToArray());
+            return new DbGetManyResult<TModel>(
+                foundOne?.FastArraySelect(x => x.ToModel()).ToArray()
+            );
+        }
+
+        public virtual async Task<DbGetManyResult<TModel>> GetMany(
+            TEntId entityId,
+            params string[] relations
+        )
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOne = await TimeAndLogDbOperation(
+                () => foundOneQuerySet.Where(x => x.Id!.Equals(entityId)).ToArrayAsync(),
+                nameof(GetMany),
+                _entityType.Name
+            );
+
+            return new DbGetManyResult<TModel>(
+                foundOne?.FastArraySelect(x => x.ToModel()).ToArray()
+            );
+        }
+
+        public virtual async Task<DbGetOneResult<TModel>> GetOne(
+            TEntId entityId,
+            params string[] relations
+        )
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOne = await TimeAndLogDbOperation(
+                () => foundOneQuerySet.FirstOrDefaultAsync(x => x.Id!.Equals(entityId)),
+                nameof(GetOne),
+                _entityType.Name
+            );
+
+            return new DbGetOneResult<TModel>(foundOne?.ToModel());
         }
 
         public virtual async Task<DbGetOneResult<TModel>> GetOne<T>(
@@ -85,9 +124,7 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             return new DbGetOneResult<TModel>(foundOne?.ToModel());
         }
 
-        public virtual async Task<DbSaveResult<TModel>> Create(
-            IReadOnlyCollection<TModel> entObj
-        )
+        public virtual async Task<DbSaveResult<TModel>> Create(IReadOnlyCollection<TModel> entObj)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var set = dbContext.Set<TEnt>();
@@ -102,9 +139,7 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             return new DbSaveResult<TModel>(runtimeObjs.OfType<TModel>().ToArray());
         }
 
-        public virtual async Task<DbDeleteResult<TModel>> Delete(
-            IReadOnlyCollection<TModel> entObj
-        )
+        public virtual async Task<DbDeleteResult<TModel>> Delete(IReadOnlyCollection<TModel> entObj)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var set = dbContext.Set<TEnt>();
@@ -118,9 +153,7 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             return new DbDeleteResult<TModel>(entObj);
         }
 
-        public virtual async Task<DbSaveResult<TModel>> Update(
-            IReadOnlyCollection<TModel> entObj
-        )
+        public virtual async Task<DbSaveResult<TModel>> Update(IReadOnlyCollection<TModel> entObj)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var set = dbContext.Set<TEnt>();
