@@ -1,5 +1,6 @@
 ﻿using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
+using AiTrainer.Web.CoreClient.Models;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Concrete
         : BaseCoreClient<DocumentToChunk, ChunkedDocument>
     {
         protected override string _endpoint => "chunkingrouter/chunkdocument";
-        protected override string _requestType => MediaTypeNames.Application.Json;
+        protected override CoreClientRequestType _requestType => CoreClientRequestType.ApplicationJson;
         protected override HttpMethod _httpMethod => HttpMethod.Post;
         protected override ILogger _logger { get; init; }
 
