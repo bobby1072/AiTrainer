@@ -5,7 +5,6 @@ using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Net.Mime;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete
 {

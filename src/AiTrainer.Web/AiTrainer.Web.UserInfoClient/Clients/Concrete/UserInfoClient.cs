@@ -1,10 +1,10 @@
-using System.Net;
-using System.Net.Http.Json;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Http.Json;
 
 namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
 {

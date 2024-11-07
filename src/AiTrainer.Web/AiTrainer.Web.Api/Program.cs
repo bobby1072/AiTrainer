@@ -1,12 +1,12 @@
-using AiTrainer.Web.UserInfoClient;
+using AiTrainer.Web.Api.Middlewares;
 using AiTrainer.Web.CoreClient;
+using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Services;
 using AiTrainer.Web.Persistence;
+using AiTrainer.Web.UserInfoClient;
+using BT.Common.WorkflowActivities;
 using Microsoft.AspNetCore.Http.Timeouts;
 using System.Text.Json;
-using BT.Common.WorkflowActivities;
-using AiTrainer.Web.Domain.Models;
-using AiTrainer.Web.Api.Middlewares;
-using AiTrainer.Web.Domain.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);

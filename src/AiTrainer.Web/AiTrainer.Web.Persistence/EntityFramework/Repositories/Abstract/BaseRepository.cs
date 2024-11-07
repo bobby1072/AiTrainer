@@ -1,5 +1,3 @@
-using System.Reflection;
-using System.Text;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Persistence.EntityFramework.Contexts;
 using AiTrainer.Web.Persistence.EntityFramework.Entities;
@@ -8,6 +6,8 @@ using BT.Common.FastArray.Proto;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
+using System.Text;
 
 namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
 {
