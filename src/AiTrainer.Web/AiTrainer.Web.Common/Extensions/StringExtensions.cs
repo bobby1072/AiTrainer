@@ -5,6 +5,26 @@ namespace AiTrainer.Web.Common.Extensions
 {
     public static class StringExtensions
     {
+        public static Uri AppendPathToUrl(this string baseUrl, string path)
+        {
+            return new Uri(new Uri(baseUrl), path);
+        }
+
+        public static Uri AppendPathToUrl(this Uri baseUrl, string path)
+        {
+            return new Uri(baseUrl, path);
+        }
+
+        public static Uri AppendQueryToUrl(this string baseUrl, string query)
+        {
+            return new Uri($"{baseUrl}?{query}");
+        }
+
+        public static Uri AppendQueryToUrl(this Uri baseUrl, string query)
+        {
+            return new Uri($"{baseUrl.AbsoluteUri}?{query}");
+        }
+
         public static string TrimBase64String(this string input)
         {
             string pattern = @"^data:image\/[^;]+;base64,";
