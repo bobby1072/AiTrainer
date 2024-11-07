@@ -2,8 +2,8 @@
 
 namespace AiTrainer.Web.Domain.Services.User.Workflow.Contexts
 {
-    internal class SaveUserOutputContext: IWorkflowOutputContext<Models.User>
+    internal class SaveUserOutputContext: WorkflowOutputContext<Models.User>
     {
-        public Models.User? ReturnObject { get; set; }
+        public override Models.User? ReturnObject { get; set; }
     }
 }

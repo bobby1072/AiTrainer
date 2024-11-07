@@ -1,6 +1,6 @@
-﻿using AiTrainer.Web.Domain.Models.Validators;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace AiTrainer.Web.Domain.Models
 {
@@ -14,8 +14,8 @@ namespace AiTrainer.Web.Domain.Models
         }
         internal static IServiceCollection AddDomainModelValidators(this IServiceCollection services)
         {
-            services
-                .AddSingleton<IValidator<User>, UserValidator>();
+
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             return services;
         }

@@ -1,10 +1,12 @@
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
 using BT.Common.WorkflowActivities.Activities.Abstract;
+using BT.Common.WorkflowActivities.Activities.Attributes;
 using BT.Common.WorkflowActivities.Activities.Concrete;
 
 namespace AiTrainer.Web.Domain.Services.User.Workflow.Activities
 {
+    [DefaultActivityRetry(2, 1)]
     public class UserInfoClientActivity: BaseActivity<string, UserInfoResponse>
     {
         public override string Description => "This activity is used to make a request to the user info client with a access token";

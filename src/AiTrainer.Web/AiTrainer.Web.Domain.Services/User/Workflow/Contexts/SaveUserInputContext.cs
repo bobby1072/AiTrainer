@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Services.User.Workflow.Contexts
 {
-    internal class SaveUserInputContext: IWorkflowInputContext
+    internal class SaveUserInputContext: WorkflowInputContext
     {
         public Models.User? NewUser {  get; set; }
 

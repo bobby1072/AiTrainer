@@ -4,11 +4,13 @@ using AiTrainer.Web.Persistence.EntityFramework.Entities;
 using AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Models;
 using BT.Common.WorkflowActivities.Activities.Abstract;
+using BT.Common.WorkflowActivities.Activities.Attributes;
 using BT.Common.WorkflowActivities.Activities.Concrete;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 {
+    [DefaultActivityRetry(2, 1)]
     internal class SaveModelToDbActivity<TModel, TEnt, TEntId>
         : BaseActivity<IReadOnlyCollection<TModel>, DbSaveResult<TModel>>
         where TEnt : BaseEntity<TEntId, TModel>

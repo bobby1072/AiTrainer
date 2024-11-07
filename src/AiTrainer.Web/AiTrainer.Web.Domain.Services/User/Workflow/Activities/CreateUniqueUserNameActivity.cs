@@ -2,11 +2,13 @@
 using AiTrainer.Web.Persistence.EntityFramework.Entities;
 using AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract;
 using BT.Common.WorkflowActivities.Activities.Abstract;
+using BT.Common.WorkflowActivities.Activities.Attributes;
 using BT.Common.WorkflowActivities.Activities.Concrete;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.User.Workflow.Activities
 {
+    [DefaultActivityRetry(2, 1)]
     internal class CreateUniqueUserNameActivity : BaseActivity<Models.User, (Models.User?, string?)>
     {
         public override string Description =>
