@@ -1,7 +1,7 @@
-using AiTrainer.Web.Persistence.EntityFramework.Entities;
+using AiTrainer.Web.Persistence.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace AiTrainer.Web.Persistence.EntityFramework.Contexts
+namespace AiTrainer.Web.Persistence.Contexts
 {
     internal class AiTrainerContext : DbContext
     {

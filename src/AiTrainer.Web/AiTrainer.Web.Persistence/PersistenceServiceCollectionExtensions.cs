@@ -1,11 +1,11 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Models;
-using AiTrainer.Web.Persistence.EntityFramework.Contexts;
-using AiTrainer.Web.Persistence.EntityFramework.Entities;
-using AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract;
-using AiTrainer.Web.Persistence.EntityFramework.Repositories.Concrete;
+using AiTrainer.Web.Persistence.Contexts;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Migrations.Abstract;
 using AiTrainer.Web.Persistence.Migrations.Concrete;
+using AiTrainer.Web.Persistence.Repositories.Abstract;
+using AiTrainer.Web.Persistence.Repositories.Concrete;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

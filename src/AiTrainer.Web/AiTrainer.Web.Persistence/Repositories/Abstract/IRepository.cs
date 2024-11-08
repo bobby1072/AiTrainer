@@ -1,7 +1,7 @@
-using AiTrainer.Web.Persistence.EntityFramework.Entities;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 
-namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
+namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {
     public interface IRepository<TEnt, TEntId, TModel>
         where TEnt : BaseEntity<TEntId, TModel>

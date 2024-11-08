@@ -1,6 +1,6 @@
 using AiTrainer.Web.Common.Extensions;
-using AiTrainer.Web.Persistence.EntityFramework.Contexts;
-using AiTrainer.Web.Persistence.EntityFramework.Entities;
+using AiTrainer.Web.Persistence.Contexts;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using BT.Common.FastArray.Proto;
 using BT.Common.OperationTimer.Proto;
@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 using System.Reflection;
 using System.Text;
 
-namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
+namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {
     internal abstract class BaseRepository<TEnt, TEntId, TModel> : IRepository<TEnt, TEntId, TModel>
         where TEnt : BaseEntity<TEntId, TModel>

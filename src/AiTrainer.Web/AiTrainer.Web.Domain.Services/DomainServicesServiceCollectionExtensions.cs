@@ -1,7 +1,7 @@
 ﻿using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Services.User;
 using AiTrainer.Web.Domain.Services.Workflow.Activities;
-using AiTrainer.Web.Persistence.EntityFramework.Entities;
+using AiTrainer.Web.Persistence.Entities;
 using BT.Common.WorkflowActivities;
 using FluentValidation.Results;
 using Microsoft.Extensions.DependencyInjection;

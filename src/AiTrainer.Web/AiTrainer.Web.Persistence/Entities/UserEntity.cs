@@ -1,7 +1,7 @@
 using AiTrainer.Web.Domain.Models;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace AiTrainer.Web.Persistence.EntityFramework.Entities
+namespace AiTrainer.Web.Persistence.Entities
 {
     [Table("user", Schema = DbConstants.PublicSchema)]
     public record UserEntity : BaseEntity<Guid, User>

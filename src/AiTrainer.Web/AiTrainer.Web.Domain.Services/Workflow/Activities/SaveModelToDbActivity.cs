@@ -1,8 +1,8 @@
 ﻿using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models.Extensions;
-using AiTrainer.Web.Persistence.EntityFramework.Entities;
-using AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
+using AiTrainer.Web.Persistence.Repositories.Abstract;
 using BT.Common.WorkflowActivities.Activities.Abstract;
 using BT.Common.WorkflowActivities.Activities.Attributes;
 using BT.Common.WorkflowActivities.Activities.Concrete;
