@@ -1,8 +1,5 @@
 ﻿using AiTrainer.Web.Domain.Services.User.Workflow.Activities;
-using AiTrainer.Web.Domain.Services.Workflow.Activities;
 using AiTrainer.Web.Persistence.Entities;
-using AiTrainer.Web.Persistence.Models;
-using AiTrainer.Web.UserInfoClient.Models;
 using BT.Common.WorkflowActivities;
 using Microsoft.Extensions.DependencyInjection;
 

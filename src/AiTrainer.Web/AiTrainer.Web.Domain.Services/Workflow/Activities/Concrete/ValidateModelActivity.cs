@@ -5,7 +5,7 @@ using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 
-namespace AiTrainer.Web.Domain.Services.Workflow.Activities
+namespace AiTrainer.Web.Domain.Services.Workflow.Activities.Concrete
 {
     internal class ValidateModelActivity<TModelToValidate>
         : BaseActivity<ValidateModelActivityContextItem<TModelToValidate>, ValidateModelActivityReturnItem>
@@ -57,7 +57,7 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
     {
         public TModelToValidate? Model { get; init; }
     }
-    internal record ValidateModelActivityReturnItem: ActivityReturnItem
+    internal record ValidateModelActivityReturnItem : ActivityReturnItem
     {
         public ValidationResult? ValidationResult { get; init; }
     }

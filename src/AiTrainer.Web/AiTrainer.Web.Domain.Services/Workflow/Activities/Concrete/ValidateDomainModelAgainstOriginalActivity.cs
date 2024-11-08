@@ -5,7 +5,7 @@ using BT.Common.WorkflowActivities.Activities.Concrete;
 using BT.Common.WorkflowActivities.Contexts;
 using Microsoft.Extensions.Logging;
 
-namespace AiTrainer.Web.Domain.Services.Workflow.Activities
+namespace AiTrainer.Web.Domain.Services.Workflow.Activities.Concrete
 {
     internal class ValidateDomainModelAgainstOriginalActivity<TModelToValidate, TModelId>
         : BaseActivity<ValidateDomainModelAgainstOriginalActivityContextItem<TModelToValidate, TModelId>, ValidateDomainModelAgainstOriginalActivityReturnItem>
@@ -28,7 +28,7 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
             ValidateDomainModelAgainstOriginalActivityContextItem<TModelToValidate, TModelId> workflowContextItem
         )
         {
-            
+
 
             if (workflowContextItem.OriginalModel is null || workflowContextItem.NewModel is null)
             {

@@ -1,19 +1,19 @@
 ﻿using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models.Extensions;
+using AiTrainer.Web.Domain.Services.Workflow.Activities.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
-using BT.Common.WorkflowActivities.Activities.Abstract;
 using BT.Common.WorkflowActivities.Activities.Attributes;
 using BT.Common.WorkflowActivities.Activities.Concrete;
 using BT.Common.WorkflowActivities.Contexts;
 using Microsoft.Extensions.Logging;
 
-namespace AiTrainer.Web.Domain.Services.Workflow.Activities
+namespace AiTrainer.Web.Domain.Services.Workflow.Activities.Concrete
 {
     [DefaultActivityRetry(2, 1)]
     internal class SaveModelToDbActivity<TModel, TEnt, TEntId>
-        : BaseActivity<SaveModelToDbActivityContextItem<TModel>, SaveModelToDbActivityReturnItem<TModel>>
+        : BaseDbActivity<TModel, TEnt, TEntId, SaveModelToDbActivityContextItem<TModel>, SaveModelToDbActivityReturnItem<TModel>>
         where TEnt : BaseEntity<TEntId, TModel>
         where TModel : class
     {
@@ -39,7 +39,7 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
             try
             {
 
-                if(workflowContextItem.ModelsToSave.Count < 1)
+                if (workflowContextItem.ModelsToSave.Count < 1)
                 {
                     return (ActivityResultEnum.Skip, new SaveModelToDbActivityReturnItem<TModel>());
                 }
