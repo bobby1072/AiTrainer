@@ -4,12 +4,13 @@ using AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract;
 using BT.Common.WorkflowActivities.Activities.Abstract;
 using BT.Common.WorkflowActivities.Activities.Attributes;
 using BT.Common.WorkflowActivities.Activities.Concrete;
+using BT.Common.WorkflowActivities.Contexts;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.User.Workflow.Activities
 {
     [DefaultActivityRetry(2, 1)]
-    internal class CreateUniqueUserNameActivity : BaseActivity<Models.User, (Models.User?, string?)>
+    internal class CreateUniqueUserNameActivity : BaseActivity<CreateUniqueUserNameActivityContextItem, CreateUniqueUserNameActivityReturnItem>
     {
         public override string Description =>
             "This activity is used to create a unique username for a brand new user";
@@ -28,12 +29,12 @@ namespace AiTrainer.Web.Domain.Services.User.Workflow.Activities
 
         public override async Task<(
             ActivityResultEnum ActivityResult,
-            (Models.User?, string?) ActualResult
-        )> ExecuteAsync(Models.User? workflowContextItem)
+            CreateUniqueUserNameActivityReturnItem ActualResult
+        )> ExecuteAsync(CreateUniqueUserNameActivityContextItem workflowContextItem)
         {
             try
             {
-                if (workflowContextItem?.Id is null && workflowContextItem?.Username is null)
+                if (workflowContextItem.UserToStartWith is not null && (workflowContextItem.UserToStartWith.Id is null && workflowContextItem.UserToStartWith.Username is null))
                 {
                     var usernamePrefix = GenerateActualName();
                     var newUsername = $"{usernamePrefix}{GenerateDigitsForUsername()}";
@@ -44,19 +45,16 @@ namespace AiTrainer.Web.Domain.Services.User.Workflow.Activities
 
                     if (foundUserOfSameUsername is null)
                     {
-                        return (ActivityResultEnum.Success, (workflowContextItem, newUsername));
+                        return (ActivityResultEnum.Success, new CreateUniqueUserNameActivityReturnItem { NewUsername = newUsername });
                     }
 
                     return (
                         ActivityResultEnum.Success,
-                        (
-                            workflowContextItem,
-                            $"{usernamePrefix}{Guid.NewGuid().ToString().Replace("-", "")}"
-                        )
+                        new CreateUniqueUserNameActivityReturnItem { NewUsername = $"{usernamePrefix}{Guid.NewGuid().ToString().Replace("-", "")}" }
                     );
                 }
 
-                return (ActivityResultEnum.Skip, (workflowContextItem, null));
+                return (ActivityResultEnum.Skip, new CreateUniqueUserNameActivityReturnItem());
             }
             catch (Exception ex)
             {
@@ -66,7 +64,7 @@ namespace AiTrainer.Web.Domain.Services.User.Workflow.Activities
                     ex.Message
                 );
 
-                return (ActivityResultEnum.Fail, (workflowContextItem, null));
+                return (ActivityResultEnum.Fail, new CreateUniqueUserNameActivityReturnItem());
             }
         }
 
@@ -89,5 +87,13 @@ namespace AiTrainer.Web.Domain.Services.User.Workflow.Activities
 
             return random.Next(1000, 9999);
         }
+    }
+    internal record CreateUniqueUserNameActivityContextItem: ActivityContextItem
+    {
+        public Models.User? UserToStartWith { get; init; } 
+    }
+    internal record CreateUniqueUserNameActivityReturnItem: ActivityReturnItem
+    {
+        public string? NewUsername { get; init; }
     }
 }

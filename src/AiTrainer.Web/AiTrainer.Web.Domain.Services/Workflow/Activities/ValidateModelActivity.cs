@@ -1,5 +1,6 @@
 ﻿using BT.Common.WorkflowActivities.Activities.Abstract;
 using BT.Common.WorkflowActivities.Activities.Concrete;
+using BT.Common.WorkflowActivities.Contexts;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
@@ -7,7 +8,8 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 {
     internal class ValidateModelActivity<TModelToValidate>
-        : BaseActivity<TModelToValidate, ValidationResult>
+        : BaseActivity<ValidateModelActivityContextItem<TModelToValidate>, ValidateModelActivityReturnItem>
+        where TModelToValidate : class
     {
         public override string Description =>
             "This activity validates a model and returns a failed activity result if the validation fails";
@@ -25,15 +27,15 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 
         public override async Task<(
             ActivityResultEnum ActivityResult,
-            ValidationResult? ActualResult
-        )> ExecuteAsync(TModelToValidate? workflowContextItem)
+            ValidateModelActivityReturnItem ActualResult
+        )> ExecuteAsync(ValidateModelActivityContextItem<TModelToValidate> workflowContextItem)
         {
-            if (workflowContextItem is null)
+            if (workflowContextItem.Model is null)
             {
-                return (ActivityResultEnum.Skip, null);
+                return (ActivityResultEnum.Skip, new ValidateModelActivityReturnItem { ValidationResult = null });
             }
 
-            var validationResults = await _validator.ValidateAsync(workflowContextItem);
+            var validationResults = await _validator.ValidateAsync(workflowContextItem.Model);
 
             if (!validationResults.IsValid)
             {
@@ -45,8 +47,18 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 
             return (
                 validationResults.IsValid ? ActivityResultEnum.Success : ActivityResultEnum.Fail,
-                validationResults
+                new ValidateModelActivityReturnItem { ValidationResult = validationResults }
             );
         }
+    }
+    internal record ValidateModelActivityContextItem<TModelToValidate> : ActivityContextItem
+        where TModelToValidate : class
+
+    {
+        public TModelToValidate? Model { get; init; }
+    }
+    internal record ValidateModelActivityReturnItem: ActivityReturnItem
+    {
+        public ValidationResult? ValidationResult { get; init; }
     }
 }

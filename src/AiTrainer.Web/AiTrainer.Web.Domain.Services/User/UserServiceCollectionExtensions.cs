@@ -16,9 +16,11 @@ namespace AiTrainer.Web.Domain.Services.User
                 .AddDomainModelActivities<Models.User, Guid?>();
 
             services
-                .AddActivity<SaveModelToDbActivity<Models.User, UserEntity, Guid>, IReadOnlyCollection<Models.User>?, DbSaveResult<Models.User>?>()
-                .AddActivity<CreateUniqueUserNameActivity, Models.User?, (Models.User?, string?)>()
-                .AddActivity<UserInfoClientActivity, string?, UserInfoResponse?>();
+                .AddDefaultDbActivities<Models.User, UserEntity, Guid>();
+
+            services
+                .AddActivity<CreateUniqueUserNameActivity, CreateUniqueUserNameActivityContextItem, CreateUniqueUserNameActivityReturnItem>()
+                .AddActivity<UserInfoClientActivity, UserInfoClientActivityContextItem, UserInfoClientActivityReturnItem>();
 
             return services;
         }

@@ -6,13 +6,14 @@ using AiTrainer.Web.Persistence.Models;
 using BT.Common.WorkflowActivities.Activities.Abstract;
 using BT.Common.WorkflowActivities.Activities.Attributes;
 using BT.Common.WorkflowActivities.Activities.Concrete;
+using BT.Common.WorkflowActivities.Contexts;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 {
     [DefaultActivityRetry(2, 1)]
     internal class SaveModelToDbActivity<TModel, TEnt, TEntId>
-        : BaseActivity<IReadOnlyCollection<TModel>, DbSaveResult<TModel>>
+        : BaseActivity<SaveModelToDbActivityContextItem<TModel>, SaveModelToDbActivityReturnItem<TModel>>
         where TEnt : BaseEntity<TEntId, TModel>
         where TModel : class
     {
@@ -32,15 +33,20 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 
         public override async Task<(
             ActivityResultEnum ActivityResult,
-            DbSaveResult<TModel>? ActualResult
-        )> ExecuteAsync(IReadOnlyCollection<TModel>? workflowContextItem)
+            SaveModelToDbActivityReturnItem<TModel> ActualResult
+        )> ExecuteAsync(SaveModelToDbActivityContextItem<TModel> workflowContextItem)
         {
             try
             {
+
+                if(workflowContextItem.ModelsToSave.Count < 1)
+                {
+                    return (ActivityResultEnum.Skip, new SaveModelToDbActivityReturnItem<TModel>());
+                }
                 var dtosToCreate = new List<TModel>();
                 var dtosToUpdate = new List<TModel>();
 
-                foreach (var allEnts in workflowContextItem ?? [])
+                foreach (var allEnts in workflowContextItem.ModelsToSave ?? [])
                 {
                     var foundId = DomainModelExtensions.GetPropertyValue<object>(
                         allEnts,
@@ -62,12 +68,12 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
                     if (dtosToCreate.Count == 0)
                     {
                         var newUpdatedList = await _repo.Update(dtosToUpdate);
-                        return (ActivityResultEnum.Success, newUpdatedList);
+                        return (ActivityResultEnum.Success, new SaveModelToDbActivityReturnItem<TModel> { SavedModels = newUpdatedList });
                     }
                     else if (dtosToUpdate.Count == 0)
                     {
                         var newCreatedList = await _repo.Create(dtosToCreate);
-                        return (ActivityResultEnum.Success, newCreatedList);
+                        return (ActivityResultEnum.Success, new SaveModelToDbActivityReturnItem<TModel> { SavedModels = newCreatedList });
                     }
                     else
                     {
@@ -78,14 +84,17 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 
                         return (
                             ActivityResultEnum.Success,
-                            new DbSaveResult<TModel>(
-                                newSavedList.SelectMany(x => x.Data!).ToArray()
-                            )
+                            new SaveModelToDbActivityReturnItem<TModel>
+                            {
+                                SavedModels = new DbSaveResult<TModel>(
+                                    newSavedList.SelectMany(x => x.Data!).ToArray()
+                                )
+                            }
                         );
                     }
                 }
 
-                return (ActivityResultEnum.Skip, null);
+                return (ActivityResultEnum.Skip, new SaveModelToDbActivityReturnItem<TModel>());
             }
             catch (Exception e)
             {
@@ -95,8 +104,16 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
                     e.Message
                 );
 
-                return (ActivityResultEnum.Fail, null);
+                return (ActivityResultEnum.Fail, new SaveModelToDbActivityReturnItem<TModel>());
             }
         }
+    }
+    internal record SaveModelToDbActivityContextItem<TModel> : ActivityContextItem where TModel : class
+    {
+        public required IReadOnlyCollection<TModel> ModelsToSave { get; set; }
+    }
+    internal record SaveModelToDbActivityReturnItem<TModel> : ActivityReturnItem where TModel : class
+    {
+        public DbSaveResult<TModel>? SavedModels { get; init; }
     }
 }

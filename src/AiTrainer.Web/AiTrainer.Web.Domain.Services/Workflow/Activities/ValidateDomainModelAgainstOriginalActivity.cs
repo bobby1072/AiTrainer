@@ -2,12 +2,13 @@
 using AiTrainer.Web.Domain.Models.Extensions;
 using BT.Common.WorkflowActivities.Activities.Abstract;
 using BT.Common.WorkflowActivities.Activities.Concrete;
+using BT.Common.WorkflowActivities.Contexts;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 {
     internal class ValidateDomainModelAgainstOriginalActivity<TModelToValidate, TModelId>
-        : BaseActivity<(TModelToValidate, TModelToValidate?), bool>
+        : BaseActivity<ValidateDomainModelAgainstOriginalActivityContextItem<TModelToValidate, TModelId>, ValidateDomainModelAgainstOriginalActivityReturnItem>
         where TModelToValidate : DomainModel<TModelId>
     {
         public override string Description =>
@@ -23,24 +24,34 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
             _logger = logger;
         }
 
-        public override Task<(ActivityResultEnum ActivityResult, bool ActualResult)> ExecuteAsync(
-            (TModelToValidate?, TModelToValidate?) workflowContextItem
+        public override Task<(ActivityResultEnum ActivityResult, ValidateDomainModelAgainstOriginalActivityReturnItem ActualResult)> ExecuteAsync(
+            ValidateDomainModelAgainstOriginalActivityContextItem<TModelToValidate, TModelId> workflowContextItem
         )
         {
-            var (newModel, originalModel) = workflowContextItem;
+            
 
-            if (originalModel is null || newModel is null)
+            if (workflowContextItem.OriginalModel is null || workflowContextItem.NewModel is null)
             {
-                return Task.FromResult((ActivityResultEnum.Skip, true));
+                return Task.FromResult((ActivityResultEnum.Skip, new ValidateDomainModelAgainstOriginalActivityReturnItem { IsValid = true }));
             }
 
-            var isNewModelOk = newModel.ValidateAgainstOriginal<TModelToValidate, TModelId>(
-                originalModel
+            var isNewModelOk = workflowContextItem.NewModel.ValidateAgainstOriginal<TModelToValidate, TModelId>(
+                workflowContextItem.OriginalModel
             );
 
             return Task.FromResult(
-                (isNewModelOk ? ActivityResultEnum.Success : ActivityResultEnum.Fail, isNewModelOk)
+                (isNewModelOk ? ActivityResultEnum.Success : ActivityResultEnum.Fail, new ValidateDomainModelAgainstOriginalActivityReturnItem { IsValid = isNewModelOk })
             );
         }
+    }
+    internal record ValidateDomainModelAgainstOriginalActivityContextItem<TModelToValidate, TModelId> : ActivityContextItem
+    where TModelToValidate : DomainModel<TModelId>
+    {
+        public TModelToValidate? NewModel { get; init; }
+        public TModelToValidate? OriginalModel { get; init; }
+    }
+    internal record ValidateDomainModelAgainstOriginalActivityReturnItem : ActivityReturnItem
+    {
+        public required bool IsValid { get; init; }
     }
 }
