@@ -24,12 +24,12 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
         }
 
         public override Task<(ActivityResultEnum ActivityResult, bool ActualResult)> ExecuteAsync(
-            (TModelToValidate, TModelToValidate?) workflowContextItem
+            (TModelToValidate?, TModelToValidate?) workflowContextItem
         )
         {
             var (newModel, originalModel) = workflowContextItem;
 
-            if (originalModel is null)
+            if (originalModel is null || newModel is null)
             {
                 return Task.FromResult((ActivityResultEnum.Skip, true));
             }

@@ -6,9 +6,9 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Entities
     [Table("user", Schema = DbConstants.PublicSchema)]
     public record UserEntity : BaseEntity<Guid, User>
     {
-        public string Email { get; set; }
+        public required string Email { get; set; }
         public string? Name { get; set; }
-        public string Username { get; set; }
+        public required string Username { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 

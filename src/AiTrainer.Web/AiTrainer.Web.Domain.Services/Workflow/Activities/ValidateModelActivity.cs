@@ -37,7 +37,7 @@ namespace AiTrainer.Web.Domain.Services.Workflow.Activities
 
             if (!validationResults.IsValid)
             {
-                _logger.LogWarning(
+                _logger.LogDebug(
                     "Validated object of type {TypeName} was invalid",
                     workflowContextItem.GetType().Name
                 );

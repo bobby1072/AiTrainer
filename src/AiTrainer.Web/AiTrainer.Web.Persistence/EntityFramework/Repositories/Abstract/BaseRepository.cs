@@ -194,7 +194,7 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
             {
                 logMessageBuilder.Append(" with id {EntityId}");
             }
-            _logger.LogInformation(
+            _logger.LogDebug(
                 logMessageBuilder.ToString(),
                 operationName,
                 entityName,
@@ -203,7 +203,7 @@ namespace AiTrainer.Web.Persistence.EntityFramework.Repositories.Abstract
 
             var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(func);
 
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "finished {OperationName} on {EntityName} in {TimeTaken}ms",
                 operationName,
                 entityId is not null ? entityId : entityName,

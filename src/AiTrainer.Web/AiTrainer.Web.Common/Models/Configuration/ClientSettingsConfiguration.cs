@@ -3,9 +3,9 @@
     public class ClientSettingsConfiguration: BaseConfiguration
     {
         public static readonly string Key = GetKey(nameof(ClientSettingsConfiguration));
-        public string Scope { get; init; }
-        public string UserInfoEndpoint { get; init; }
-        public string AuthorityHost { get; init; }
-        public string AuthorityClientId { get; init; }
+        public required string Scope { get; init; }
+        public required string UserInfoEndpoint { get; init; }
+        public required string AuthorityHost { get; init; }
+        public required string AuthorityClientId { get; init; }
     }
 }
