@@ -21,11 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.Helpers", "..\Sub
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Domain.Services", "AiTrainer.Web.Domain.Services\AiTrainer.Web.Domain.Services.csproj", "{F07E8E7D-75AE-47CB-A628-6F612BFADA00}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.WorkflowActivities", "..\Submodules\BT\src\BT.Common\BT.Common.WorkflowActivities\BT.Common.WorkflowActivities.csproj", "{87CA8515-1FC2-4994-B647-50B44777BC64}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.UserInfoClient", "AiTrainer.Web.UserInfoClient\AiTrainer.Web.UserInfoClient.csproj", "{2422D7EE-EE47-41ED-95F5-09C233B06E74}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.Domain.Models", "AiTrainer.Web.Domain.Models\AiTrainer.Web.Domain.Models.csproj", "{7B89EE7B-7DD6-4FF7-8820-E4ECAA2EAF8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Domain.Models", "AiTrainer.Web.Domain.Models\AiTrainer.Web.Domain.Models.csproj", "{7B89EE7B-7DD6-4FF7-8820-E4ECAA2EAF8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +63,6 @@ Global
 		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F07E8E7D-75AE-47CB-A628-6F612BFADA00}.Release|Any CPU.Build.0 = Release|Any CPU
-		{87CA8515-1FC2-4994-B647-50B44777BC64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{87CA8515-1FC2-4994-B647-50B44777BC64}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{87CA8515-1FC2-4994-B647-50B44777BC64}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{87CA8515-1FC2-4994-B647-50B44777BC64}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2422D7EE-EE47-41ED-95F5-09C233B06E74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2422D7EE-EE47-41ED-95F5-09C233B06E74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2422D7EE-EE47-41ED-95F5-09C233B06E74}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -85,7 +79,6 @@ Global
 		{CF84B3A7-2EE7-4208-9CFA-0D2F72DA8C46} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 		{DDB6B9E8-39B5-4D80-AF01-49157178D7A9} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
-		{87CA8515-1FC2-4994-B647-50B44777BC64} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0EA356DC-E454-4B7C-909C-B1CB96C96363}
