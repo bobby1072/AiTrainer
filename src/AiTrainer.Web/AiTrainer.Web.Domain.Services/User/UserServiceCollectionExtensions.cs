@@ -1,3 +1,4 @@
+using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Domain.Services.User.Concrete;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,5 +1,6 @@
 ﻿using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Common.Extensions;
 using System.Net.Mime;
 
 namespace AiTrainer.Web.Api.Middlewares
@@ -20,7 +21,7 @@ namespace AiTrainer.Web.Api.Middlewares
             }
             catch(ApiException e)
             {
-                _logger.LogInformation(e, "ApiException was thrown during request for {Route} with message {Message}", context.Request.Path, e.Message);
+                _logger.LogError(e, "ApiException was thrown during request for {Route} with message {Message}", context.Request.Path, e.Message);
 
                 await RespondWithException(context, e);
             }
@@ -36,10 +37,10 @@ namespace AiTrainer.Web.Api.Middlewares
             context.Response.Clear();
             context.Response.ContentType = MediaTypeNames.Application.Json;
             context.Response.StatusCode = (int)apiException.StatusCode;
-
-            if (context.Request.Headers.TryGetValue(ApiConstants.CorrelationIdHeader, out var correlationId))
+            var foundCorrelationId = context.GetCorrelationId();
+            if (foundCorrelationId is not null)
             {
-                context.Response.Headers.TryAdd(ApiConstants.CorrelationIdHeader, correlationId);
+                context.Response.Headers.TryAdd(ApiConstants.CorrelationIdHeader, foundCorrelationId.ToString());
             } 
             else
             {

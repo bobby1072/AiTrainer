@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
@@ -36,6 +37,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 DateModified = DateTime.UtcNow
             };
 
+            user.ApplyCreationDefaults();
             var saveUser = await EntityFrameworkUtils.TryDbOperation(() => _repo.Create([user]), _logger) ?? throw new ApiException("Failed to create user", HttpStatusCode.InternalServerError);
 
             if (!saveUser.IsSuccessful)
