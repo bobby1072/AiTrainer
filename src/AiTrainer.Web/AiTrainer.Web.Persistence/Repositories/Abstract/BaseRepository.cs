@@ -1,4 +1,3 @@
-using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Persistence.Contexts;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
@@ -58,7 +57,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             var foundOne = await TimeAndLogDbOperation(
                 () =>
                     foundOneQuerySet
-                        .Where(x => EF.Property<T>(x, propertyName.ToPascalCase()).Equals(value))
+                        .Where(x => EF.Property<T>(x, propertyName).Equals(value))
                         .ToArrayAsync(),
                 nameof(GetMany),
                 _entityType.Name
@@ -102,7 +101,36 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
             return new DbGetOneResult<TModel>(foundOne?.ToModel());
         }
+        public virtual async Task<DbResult<bool>> Exists(TEntId entityId)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var foundOneQuerySet = dbContext.Set<TEnt>();
+            var foundOne = await TimeAndLogDbOperation(
+                () =>
+                    foundOneQuerySet.AnyAsync(x => x.Id!.Equals(entityId)),
+                nameof(Exists),
+                _entityType.Name
+            );
 
+            return new DbResult<bool>(true, foundOne);
+        }
+        public virtual async Task<DbResult<bool>> Exists<T>(T value,
+            string propertyName,
+            params string[] relations)
+        {
+            ThrowIfPropertyDoesNotExist(value, propertyName);
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOne = await TimeAndLogDbOperation(
+                () =>
+                    foundOneQuerySet
+                        .AnyAsync(x => EF.Property<T>(x, propertyName).Equals(value)),
+                nameof(Exists),
+                _entityType.Name
+            );
+
+            return new DbResult<bool>(true, foundOne);
+        }
         public virtual async Task<DbGetOneResult<TModel>> GetOne<T>(
             T value,
             string propertyName,
@@ -115,7 +143,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             var foundOne = await TimeAndLogDbOperation(
                 () =>
                     foundOneQuerySet.FirstOrDefaultAsync(x =>
-                        EF.Property<T>(x, propertyName.ToPascalCase()).Equals(value)
+                        EF.Property<T>(x, propertyName).Equals(value)
                     ),
                 nameof(GetOne),
                 _entityType.Name
@@ -215,7 +243,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
         private static bool DoesPropertyExist<T>(T value, string propertyName)
         {
-            return _entityProperties.Any(x => x.Name == propertyName && x.PropertyType is T);
+            return _entityProperties.Any(x => x.Name == propertyName && x.PropertyType == typeof(T));
         }
 
         private static void ThrowIfPropertyDoesNotExist<T>(T value, string propertyName)

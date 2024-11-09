@@ -12,6 +12,6 @@ namespace AiTrainer.Web.Persistence.Entities
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
-        public override User ToModel() => new(Email, Username, DateCreated, DateModified, Name, Id);
+        public override User ToModel() => new() { Email = Email, Username = Username, DateCreated = DateCreated, DateModified = DateModified, Name = Name, Id = Id };
     }
 }

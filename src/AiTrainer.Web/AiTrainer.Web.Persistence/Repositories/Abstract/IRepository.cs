@@ -23,5 +23,9 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
         Task<DbSaveResult<TModel>> Create(IReadOnlyCollection<TModel> entObj);
         Task<DbSaveResult<TModel>> Update(IReadOnlyCollection<TModel> entObj);
         Task<DbDeleteResult<TModel>> Delete(IReadOnlyCollection<TModel> entObj);
+        Task<DbResult<bool>> Exists<T>(T value,
+            string propertyName,
+            params string[] relations);
+        Task<DbResult<bool>> Exists(TEntId entityId);
     }
 }

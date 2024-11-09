@@ -8,10 +8,10 @@
             IsSuccessful = isSucccessful;
         }
     }
-    public record DbResult<T>: DbResult
+    public record DbResult<T> : DbResult
     {
-        public T? Data { get; init; }    
-        public DbResult(bool isSuccess, T? data): base(isSuccess)
+        public T Data { get; init; }
+        public DbResult(bool isSuccess, T data) : base(isSuccess)
         {
             Data = data;
         }
