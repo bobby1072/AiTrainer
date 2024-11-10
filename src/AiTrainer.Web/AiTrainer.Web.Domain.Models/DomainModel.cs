@@ -1,10 +1,7 @@
-﻿using System.Text.Json.Serialization;
-
-namespace AiTrainer.Web.Domain.Models
+﻿namespace AiTrainer.Web.Domain.Models
 {
     public abstract class DomainModel<TEquatable, TId> : IEquatable<TEquatable>
     {
-        [JsonPropertyName("id")]
         public required TId Id { get; set; }
         public abstract bool Equals(DomainModel<TEquatable, TId>? other);
 

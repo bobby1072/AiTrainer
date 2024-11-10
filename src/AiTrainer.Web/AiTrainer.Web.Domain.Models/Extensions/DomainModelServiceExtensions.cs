@@ -2,11 +2,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace AiTrainer.Web.Domain.Models
+namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class DomainModelServiceExtensions
     {
-        public static IServiceCollection AddDomainModelServices(this IServiceCollection services) 
+        public static IServiceCollection AddDomainModelServices(this IServiceCollection services)
         {
             services.AddDomainModelValidators();
 

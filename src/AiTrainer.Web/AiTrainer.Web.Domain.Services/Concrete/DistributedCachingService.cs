@@ -1,7 +1,7 @@
-using System.Text.Json;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {

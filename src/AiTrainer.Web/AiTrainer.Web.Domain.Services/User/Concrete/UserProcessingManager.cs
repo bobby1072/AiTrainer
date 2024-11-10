@@ -1,6 +1,4 @@
-﻿using System.Net;
-using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Domain.Models.Extensions;
+﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
@@ -8,6 +6,7 @@ using AiTrainer.Web.Persistence.Utils;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {

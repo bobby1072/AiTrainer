@@ -1,23 +1,18 @@
-using System.Text.Json.Serialization;
-
 namespace AiTrainer.Web.Domain.Models
 {
     public class FileCollection : DomainModel<FileCollection, Guid?>
     {
-        [JsonPropertyName("userId")]
         public required Guid UserId { get; set; }
 
-        [JsonPropertyName("user")]
-        public User? User { get; set; }
-
-        [JsonPropertyName("name")]
         public required string Name { get; set; }
 
-        [JsonPropertyName("dateCreated")]
         public required DateTime DateCreated { get; set; }
 
-        [JsonPropertyName("dateModified")]
         public required DateTime DateModified { get; set; }
+
+        public IReadOnlyCollection<FileCollectionNest>? CollectionNests { get; set; }
+
+        public IReadOnlyCollection<FileDocument>? FileDocuments { get; set; }
 
         public override bool Equals(DomainModel<FileCollection, Guid?>? other)
         {
