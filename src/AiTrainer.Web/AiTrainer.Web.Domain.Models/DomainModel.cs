@@ -2,11 +2,13 @@
 
 namespace AiTrainer.Web.Domain.Models
 {
-    public abstract class DomainModel<TId>
+    public abstract class DomainModel<TEquatable, TId> : IEquatable<TEquatable>
     {
         [JsonPropertyName("id")]
-        public required TId? Id { get; set; }
-        public abstract bool Equals(DomainModel<TId>? other);
+        public required TId Id { get; set; }
+        public abstract bool Equals(DomainModel<TEquatable, TId>? other);
+
+        public bool Equals(TEquatable? obj) => Equals(obj as DomainModel<TEquatable, TId>);
 
         public new virtual int GetHashCode()
         {

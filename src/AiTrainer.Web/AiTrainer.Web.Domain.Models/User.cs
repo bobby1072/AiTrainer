@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Domain.Models
 {
-    public class User : DomainModel<Guid?>, IEquatable<User>
+    public class User : DomainModel<User, Guid?>
     {
         [JsonPropertyName("email")]
         public required string Email { get; set; }
@@ -16,7 +16,7 @@ namespace AiTrainer.Web.Domain.Models
         [JsonPropertyName("dateModified")]
         public required DateTime DateModified { get; set; }
 
-        public override bool Equals(DomainModel<Guid?>? other)
+        public override bool Equals(DomainModel<User, Guid?>? other)
         {
             return other is User user
                 && Id == user.Id
@@ -31,8 +31,6 @@ namespace AiTrainer.Web.Domain.Models
             DateCreated = DateTime.UtcNow;
             DateModified = DateTime.UtcNow;
         }
-
-        public bool Equals(User? obj) => Equals((DomainModel<Guid?>?)obj);
 
         public static string GetCacheKey(string accessToken) => $"{_cacheKey}{accessToken}";
 
