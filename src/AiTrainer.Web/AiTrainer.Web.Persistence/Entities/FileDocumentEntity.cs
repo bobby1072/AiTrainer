@@ -10,7 +10,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public DateTime DateCreated { get; set; }
         public required int FileType { get; set; }
         public required string FileName { get; set; }
-        public required string FileData { get; set; }
+        public required byte[] FileData { get; set; }
 
         public override FileDocument ToModel() =>
             new FileDocument

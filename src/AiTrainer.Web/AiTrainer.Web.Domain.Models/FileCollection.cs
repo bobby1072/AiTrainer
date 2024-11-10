@@ -11,16 +11,17 @@ namespace AiTrainer.Web.Domain.Models
         public required DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
         public FileCollection? Parent { get; init; }
-        public virtual IReadOnlyCollection<FileCollection>? Children { get; init; }
+        public IReadOnlyCollection<FileCollection>? Children { get; init; }
 
         public override bool Equals(FileCollection? other)
         {
-            return Id == other?.Id
-                && UserId == other?.UserId
-                && CollectionName == other.CollectionName
-                && DateCreated == other.DateCreated
-                && DateModified == other.DateModified
-                && ParentId == other.ParentId;
+            return other is FileCollection fileCollection
+                && Id == fileCollection.Id
+                && UserId == fileCollection.UserId
+                && CollectionName == fileCollection.CollectionName
+                && DateCreated == fileCollection.DateCreated
+                && DateModified == fileCollection.DateModified
+                && ParentId == fileCollection.ParentId;
         }
 
         public override int GetHashCode()
