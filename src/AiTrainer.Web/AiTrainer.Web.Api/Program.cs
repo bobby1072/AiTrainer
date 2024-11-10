@@ -1,6 +1,7 @@
 using AiTrainer.Web.Api.Auth;
 using AiTrainer.Web.Api.Middlewares;
 using AiTrainer.Web.CoreClient;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Persistence;
 using AiTrainer.Web.UserInfoClient;
 using Microsoft.AspNetCore.Http.Timeouts;
