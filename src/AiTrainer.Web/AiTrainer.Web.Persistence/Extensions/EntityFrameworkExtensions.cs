@@ -21,5 +21,53 @@ namespace AiTrainer.Web.Persistence.Extensions
 
             return entity;
         }
+
+        public static FileDocumentEntity ToEntity(this FileDocument fileDocument)
+        {
+            var entity = new FileDocumentEntity
+            {
+                CollectionId = fileDocument.CollectionId,
+                DateCreated = fileDocument.DateCreated,
+                FileType = (int)fileDocument.FileType,
+            };
+            if (fileDocument.Id is not null)
+            {
+                entity.Id = (Guid)fileDocument.Id!;
+            }
+
+            return entity;
+        }
+
+        public static FileCollectionEntity ToEntity(this FileCollection fileCollection)
+        {
+            var entity = new FileCollectionEntity
+            {
+                DateCreated = fileCollection.DateCreated,
+                DateModified = fileCollection.DateModified,
+                Name = fileCollection.Name,
+                UserId = fileCollection.UserId,
+            };
+            if (fileCollection.Id is not null)
+            {
+                entity.Id = (Guid)fileCollection.Id!;
+            }
+
+            return entity;
+        }
+
+        public static FileCollectionNestEntity ToEntity(this FileCollectionNest fileCollectionNest)
+        {
+            var entity = new FileCollectionNestEntity
+            {
+                ChildCollectionId = fileCollectionNest.ChildCollectionId,
+                ParentCollectionId = fileCollectionNest.ParentCollectionId,
+            };
+            if (fileCollectionNest.Id is not null)
+            {
+                entity.Id = (long)fileCollectionNest.Id!;
+            }
+
+            return entity;
+        }
     }
 }

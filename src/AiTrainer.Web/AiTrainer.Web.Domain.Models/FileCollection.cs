@@ -10,9 +10,9 @@ namespace AiTrainer.Web.Domain.Models
 
         public required DateTime DateModified { get; set; }
 
-        public IReadOnlyCollection<FileCollectionNest>? CollectionNests { get; set; }
+        public IReadOnlyCollection<FileCollectionNest>? CollectionNests { get; init; }
 
-        public IReadOnlyCollection<FileDocument>? FileDocuments { get; set; }
+        public IReadOnlyCollection<FileDocument>? FileDocuments { get; init; }
 
         public override bool Equals(DomainModel<FileCollection, Guid?>? other)
         {
