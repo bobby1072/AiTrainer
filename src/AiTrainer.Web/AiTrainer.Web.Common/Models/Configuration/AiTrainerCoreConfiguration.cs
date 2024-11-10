@@ -3,7 +3,7 @@
     public class AiTrainerCoreConfiguration : BaseConfiguration
     {
         public static readonly string Key = GetKey(nameof(AiTrainerCoreConfiguration));
-        public string ApiKey { get; init; }
-        public string BaseEndpoint { get; init; }
+        public required string ApiKey { get; init; }
+        public required string BaseEndpoint { get; init; }
     }
 }

@@ -19,33 +19,33 @@ services:
       timeout: 5s
       retries: 5
 
-  # oidc:
-  #   container_name: oidc-server-mock
-  #   image: ghcr.io/soluto/oidc-server-mock:latest
-  #   ports:
-  #     - "44363:443"
-  #   environment:
-  #     ASPNETCORE_ENVIRONMENT: Development
-  #     ASPNETCORE_URLS: https://+:443;http://+80
-  #     ASPNETCORE_HTTPS_PORT: 44363
-  #     ASPNETCORE_Kestrel__Certificates__Default__Password: password
-  #     ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aitrainer.pfx
-  #     USERS_CONFIGURATION_PATH: /tmp/config/users.json
-  #     CLIENTS_CONFIGURATION_PATH: /tmp/config/clients-config.json
-  #     SERVER_OPTIONS_INLINE: |
-  #       {
-  #        "IssuerUri": "https://localhost:44363"
-  #       }
-  #   volumes:
-  #     - ./mocks/oidc:/tmp/config:ro
-  #     - ./.aspnet/https:/https:ro
+  oidc:
+    container_name: oidc-server-mock
+    image: ghcr.io/soluto/oidc-server-mock:latest
+    ports:
+      - "44363:443"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: https://+:443;http://+80
+      ASPNETCORE_HTTPS_PORT: 44363
+      ASPNETCORE_Kestrel__Certificates__Default__Password: password
+      ASPNETCORE_Kestrel__Certificates__Default__Path: /https/aitrainer.pfx
+      USERS_CONFIGURATION_PATH: /tmp/config/users.json
+      CLIENTS_CONFIGURATION_PATH: /tmp/config/clients-config.json
+      SERVER_OPTIONS_INLINE: |
+        {
+         "IssuerUri": "https://localhost:44363"
+        }
+    volumes:
+      - ./mocks/oidc:/tmp/config:ro
+      - ./.aspnet/https:/https:ro
 
-  # oidc-https-proxy:
-  #   image: mockserver/mockserver:latest
-  #   container_name: oidc.https-proxy
-  #   command: -serverPort 1090
-  #   environment:
-  #     MOCKSERVER_WATCH_INITIALIZATION_JSON: "true"
-  #     MOCKSERVER_INITIALIZATION_JSON_PATH: /config/expectations.json
-  #   volumes:
-  #     - ./mocks/oidc-https-proxy:/config
+  oidc-https-proxy:
+    image: mockserver/mockserver:latest
+    container_name: oidc.https-proxy
+    command: -serverPort 1090
+    environment:
+      MOCKSERVER_WATCH_INITIALIZATION_JSON: "true"
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/expectations.json
+    volumes:
+      - ./mocks/oidc-https-proxy:/config

@@ -8,5 +8,7 @@ namespace AiTrainer.Web.Api.Middlewares
         {
             _next = next;
         }
+
+        public abstract Task InvokeAsync(HttpContext context);
     }
 }

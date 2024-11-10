@@ -1,0 +1,27 @@
+[
+  {
+    "ClientId": "aitrainer-local",
+    "Description": "Client for implicit flow",
+    "AllowedGrantTypes": ["authorization_code"],
+    "AllowAccessTokensViaBrowser": true,
+    "RedirectUris": [
+      "http://localhost:3000/oidc-signin",
+      "http://localhost:3000/oidc-silent-renew",
+      "http://localhost:3000/oidc-signout",
+      "http://localhost:5234/oidc-signin",
+      "http://localhost:5234/oidc-silent-renew",
+      "http://localhost:5234/oidc-signout"
+    ],
+    "AllowedScopes": ["openid", "profile", "email"],
+    "RequireClientSecret": false,
+    "IdentityTokenLifetime": 3600,
+    "AccessTokenLifetime": 3600
+  },
+  {
+    "ClientId": "authorization_code-mock-client",
+    "Description": "Client for authorization code flow",
+    "AllowedGrantTypes": ["authorization_code"],
+    "RequireClientSecret": false,
+    "AllowedScopes": ["aitrainer"]
+  }
+]

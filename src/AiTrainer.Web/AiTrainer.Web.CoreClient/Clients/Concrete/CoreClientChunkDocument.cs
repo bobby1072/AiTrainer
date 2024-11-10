@@ -9,22 +9,19 @@ using Microsoft.Extensions.Options;
 namespace AiTrainer.Web.CoreClient.Clients.Concrete
 {
     internal class CoreClientChunkDocument
-        : BaseCoreClient<DocumentToChunk, ChunkedDocument>,
-            ICoreClient<DocumentToChunk, ChunkedDocument>
+        : BaseCoreClient<DocumentToChunk, ChunkedDocument>
     {
         protected override string _endpoint => "chunkingrouter/chunkdocument";
-        protected override CoreClientRequestType _requestType => CoreClientRequestType.Json;
+        protected override CoreClientRequestType _requestType => CoreClientRequestType.ApplicationJson;
         protected override HttpMethod _httpMethod => HttpMethod.Post;
-        protected override ILogger _logger { get; init; }
 
         public CoreClientChunkDocument(
             HttpClient httpClient,
             ILogger<CoreClientChunkDocument> logger,
             IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
         )
-            : base(httpClient, aiTrainerCoreConfig)
+            : base(httpClient, aiTrainerCoreConfig, logger)
         {
-            _logger = logger;
         }
     }
 }

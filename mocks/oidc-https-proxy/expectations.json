@@ -1,0 +1,22 @@
+[
+  {
+    "httpRequest": {
+      "path": "/.well-known/openid-configuration"
+    },
+    "httpForward": {
+      "host": "aitrainer.oidc",
+      "port": 443,
+      "scheme": "HTTPS"
+    }
+  },
+  {
+    "httpRequest": {
+      "path": "/.well-known/openid-configuration/jwks"
+    },
+    "httpForward": {
+      "host": "aitrainer.oidc",
+      "port": 443,
+      "scheme": "HTTPS"
+    }
+  }
+]
