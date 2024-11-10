@@ -78,7 +78,7 @@ namespace AiTrainer.Web.Persistence
                     IRepository<FileCollectionEntity, Guid, FileCollection>,
                     FileCollectionRepository
                 >()
-                .AddScoped<IRepository<FileCollectionNestEntity, long, FileCollectionNest>>();
+                .AddScoped<IRepository<FileCollectionNestEntity, long, FileCollectionNest>, FileCollectionNestRepository>();
 
             return services;
         }

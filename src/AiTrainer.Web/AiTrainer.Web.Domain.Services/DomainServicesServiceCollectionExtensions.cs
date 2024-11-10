@@ -9,10 +9,9 @@ namespace AiTrainer.Web.Domain.Services
     {
         public static IServiceCollection AddDomainServices(this IServiceCollection services)
         {
-
             services
                 .AddUserServices()
-                .AddScoped<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
+                .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
                 .AddScoped<ICachingService, DistributedCachingService>();
 
             return services;
