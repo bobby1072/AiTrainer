@@ -6,7 +6,7 @@ namespace AiTrainer.Web.Domain.Services.User
 {
     public static class UserServiceCollectionExtensions
     {
-        public static IServiceCollection AddUserService(this IServiceCollection services)
+        public static IServiceCollection AddUserServices(this IServiceCollection services)
         {
             services
                 .AddScoped<IUserProcessingManager, UserProcessingManager>();

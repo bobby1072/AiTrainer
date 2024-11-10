@@ -5,14 +5,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.Domain.Services
 {
-    public static class DomainServicesServuceCollectionExtensions
+    public static class DomainServicesServiceCollectionExtensions
     {
         public static IServiceCollection AddDomainServices(this IServiceCollection services)
         {
 
             services
-                .AddUserService()
-                .AddScoped<IDomainServiceActionExecuter, DomainServiceActionExecuter>();
+                .AddUserServices()
+                .AddScoped<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
+                .AddScoped<ICachingService, DistributedCachingService>();
 
             return services;
         }

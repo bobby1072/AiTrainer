@@ -13,6 +13,7 @@ builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 
 builder.Services
+    .AddDistributedMemoryCache()
     .AddHttpClient()
     .AddHttpContextAccessor()
     .AddResponseCompression()
@@ -35,7 +36,6 @@ builder.Services
 builder.Services
     .AddCoreClient(builder.Configuration)
     .AddSqlPersistence(builder.Configuration)
-    .AddWorkflowServices()
     .AddUserInfoClient()
     .AddDomainModelServices();
 
