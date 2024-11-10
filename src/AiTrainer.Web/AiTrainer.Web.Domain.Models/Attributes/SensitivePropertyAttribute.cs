@@ -2,7 +2,7 @@
 {
 
     [AttributeUsage(AttributeTargets.Property)]
-    public sealed class SensitivePropertyAttribute: Attribute
+    public class SensitivePropertyAttribute : Attribute
     {
     }
 }

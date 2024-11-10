@@ -72,9 +72,7 @@ app.UseRouting();
 app.UseResponseCompression();
 app.UseAuthorization();
 
-app
-    .UseMiddleware<ExceptionHandlingMiddleware>()
-    .UseMiddleware<CorrelationIdMiddleware>();
+app.AddAiTrainerDefaultMiddlewares();
 
 app.MapControllers();
 

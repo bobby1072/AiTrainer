@@ -68,6 +68,8 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             return saveUser.Data.First();
         }
 
+
+
         private async Task<string> GetUniqueUsername()
         {
             for (int i = 0; i < 2; i++)
