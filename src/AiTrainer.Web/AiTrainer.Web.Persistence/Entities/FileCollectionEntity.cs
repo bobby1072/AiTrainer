@@ -1,5 +1,6 @@
 using AiTrainer.Web.Domain.Models;
 using BT.Common.FastArray.Proto;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
@@ -12,9 +13,11 @@ namespace AiTrainer.Web.Persistence.Entities
         public DateTime DateCreated { get; set; }
 
         public DateTime DateModified { get; set; }
+        public Guid? ParentId { get; set; }
 
-        public virtual IReadOnlyCollection<FileDocumentEntity>? FileDocuments { get; init; }
-        public virtual IReadOnlyCollection<FileCollectionNestEntity>? CollectionNests { get; init; }
+        [ForeignKey(nameof(ParentId))]
+        public FileCollectionEntity? Parent { get; set; }
+        public virtual IReadOnlyCollection<FileCollectionEntity>? Children { get; set; }
 
         public override FileCollection ToModel() =>
             new FileCollection
@@ -24,8 +27,8 @@ namespace AiTrainer.Web.Persistence.Entities
                 Name = Name,
                 DateCreated = DateCreated,
                 DateModified = DateModified,
-                CollectionNests = CollectionNests?.FastArraySelect(x => x.ToModel()).ToList(),
-                FileDocuments = FileDocuments?.FastArraySelect(x => x.ToModel()).ToList(),
+                Parent = Parent?.ToModel(),
+                Children = Children?.FastArraySelect(x => x.ToModel()).ToArray(),
             };
     }
 }

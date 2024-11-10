@@ -9,10 +9,9 @@ namespace AiTrainer.Web.Domain.Models
         public required DateTime DateCreated { get; set; }
 
         public required DateTime DateModified { get; set; }
-
-        public IReadOnlyCollection<FileCollectionNest>? CollectionNests { get; init; }
-
-        public IReadOnlyCollection<FileDocument>? FileDocuments { get; init; }
+        public Guid? ParentId { get; set; }
+        public FileCollection? Parent { get; init; }
+        public virtual IReadOnlyCollection<FileCollection>? Children { get; init; }
 
         public override bool Equals(FileCollection? other)
         {
@@ -20,7 +19,8 @@ namespace AiTrainer.Web.Domain.Models
                 && UserId == other?.UserId
                 && Name == other.Name
                 && DateCreated == other.DateCreated
-                && DateModified == other.DateModified;
+                && DateModified == other.DateModified
+                && ParentId == other.ParentId;
         }
 
         public override int GetHashCode()

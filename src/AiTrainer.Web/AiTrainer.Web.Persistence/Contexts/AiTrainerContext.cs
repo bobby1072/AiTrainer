@@ -8,7 +8,8 @@ namespace AiTrainer.Web.Persistence.Contexts
         public AiTrainerContext(DbContextOptions<AiTrainerContext> options)
             : base(options) { }
 
-        public DbSet<UserEntity> Users { get; set; }
-        public DbSet<FileDocumentEntity> FileDocuments { get; set; }
+        public virtual DbSet<UserEntity> Users { get; set; }
+        public virtual DbSet<FileCollectionEntity> FileCollections { get; set; }
+        public virtual DbSet<FileDocumentEntity> FileDocuments { get; set; }
     }
 }
