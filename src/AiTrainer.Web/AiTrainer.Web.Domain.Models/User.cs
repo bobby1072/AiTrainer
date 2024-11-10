@@ -1,6 +1,6 @@
 namespace AiTrainer.Web.Domain.Models
 {
-    public class User : DomainModel<User, Guid?>
+    public record User : DomainModel<User, Guid?>
     {
         public required string Email { get; set; }
 
@@ -10,7 +10,7 @@ namespace AiTrainer.Web.Domain.Models
 
         public required DateTime DateModified { get; set; }
 
-        public override bool Equals(DomainModel<User, Guid?>? other)
+        public override bool Equals(User? other)
         {
             return other is User user
                 && Id == user.Id
@@ -20,11 +20,15 @@ namespace AiTrainer.Web.Domain.Models
                 && DateModified == user.DateModified;
         }
 
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public override void ApplyCreationDefaults()
         {
             DateCreated = DateTime.UtcNow;
             DateModified = DateTime.UtcNow;
         }
-
     }
 }

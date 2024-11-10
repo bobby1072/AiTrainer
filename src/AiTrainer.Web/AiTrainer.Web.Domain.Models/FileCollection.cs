@@ -1,6 +1,6 @@
 namespace AiTrainer.Web.Domain.Models
 {
-    public class FileCollection : DomainModel<FileCollection, Guid?>
+    public record FileCollection : DomainModel<FileCollection, Guid?>
     {
         public required Guid UserId { get; set; }
 
@@ -14,14 +14,18 @@ namespace AiTrainer.Web.Domain.Models
 
         public IReadOnlyCollection<FileDocument>? FileDocuments { get; init; }
 
-        public override bool Equals(DomainModel<FileCollection, Guid?>? other)
+        public override bool Equals(FileCollection? other)
         {
-            return other is FileCollection fileCollection
-                && Id == fileCollection.Id
-                && UserId == fileCollection.UserId
-                && Name == fileCollection.Name
-                && DateCreated == fileCollection.DateCreated
-                && DateModified == fileCollection.DateModified;
+            return Id == other?.Id
+                && UserId == other?.UserId
+                && Name == other.Name
+                && DateCreated == other.DateCreated
+                && DateModified == other.DateModified;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         public override void ApplyCreationDefaults()
