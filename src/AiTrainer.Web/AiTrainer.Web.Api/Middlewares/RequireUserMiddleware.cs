@@ -52,9 +52,8 @@ namespace AiTrainer.Web.Api.Middlewares
                 if (foundUser is not null)
                 {
                     _logger.LogInformation(
-                        "User with id {UserId} and username {Username} found in cache for correlationId {CorrelationId} and accessToken {AccessToken}",
+                        "User with id {UserId} found in cache for correlationId {CorrelationId} and accessToken {AccessToken}",
                         foundUser.Id,
-                        foundUser.Username,
                         correlationId,
                         accessToken
                     );
@@ -78,9 +77,8 @@ namespace AiTrainer.Web.Api.Middlewares
                     CacheObjectTimeToLiveInSeconds.ThirtyMinutes
                 );
                 _logger.LogInformation(
-                    "User with id {UserId} and username {Username} has been cached for correlationId {CorrelationId} and accessToken {AccessToken}",
+                    "User with id {UserId} has been cached for correlationId {CorrelationId} and accessToken {AccessToken}",
                     newOrDbFoundUser.Id,
-                    newOrDbFoundUser.Username,
                     correlationId,
                     accessToken
                 );

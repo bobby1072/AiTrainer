@@ -10,9 +10,6 @@ namespace AiTrainer.Web.Domain.Models
         [JsonPropertyName("name")]
         public string? Name { get; set; }
 
-        [JsonPropertyName("username")]
-        public required string Username { get; set; }
-
         [JsonPropertyName("dateCreated")]
         public required DateTime DateCreated { get; set; }
 
@@ -25,7 +22,6 @@ namespace AiTrainer.Web.Domain.Models
                 && Id == user.Id
                 && Email == user.Email
                 && Name == user.Name
-                && Username == user.Username
                 && DateCreated == user.DateCreated
                 && DateModified == user.DateModified;
         }

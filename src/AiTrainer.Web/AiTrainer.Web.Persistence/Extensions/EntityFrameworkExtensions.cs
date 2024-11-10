@@ -13,7 +13,6 @@ namespace AiTrainer.Web.Persistence.Extensions
                 DateModified = user.DateModified,
                 Email = user.Email,
                 Name = user.Name,
-                Username = user.Username,
             };
             if (user.Id is not null)
             {
