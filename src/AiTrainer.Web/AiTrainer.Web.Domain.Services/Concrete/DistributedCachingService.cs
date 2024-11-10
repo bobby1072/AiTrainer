@@ -1,7 +1,7 @@
-using System.Text.Json;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
@@ -70,7 +70,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         public async Task<string> SetObject<T>(
             string key,
             T value,
-            DistributedCacheEntryOptions? options = null
+            DistributedCacheEntryOptions options
         )
             where T : class
         {

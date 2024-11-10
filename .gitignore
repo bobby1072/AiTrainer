@@ -7,5 +7,6 @@ obj/
 *.csproj.user
 dist/
 .config/
+.aspnet/
 
 expressappsettings.json

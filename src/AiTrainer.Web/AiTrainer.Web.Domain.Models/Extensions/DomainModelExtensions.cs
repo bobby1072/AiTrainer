@@ -6,7 +6,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class DomainModelExtensions
     {
-        public static bool ValidateAgainstOriginal<TModel, TModelId>(this TModel originalModel, TModel checkAgainst) where TModel : DomainModel<TModelId>
+        public static bool ValidateAgainstOriginal<TModel, TModelId>(this TModel originalModel, TModel checkAgainst) where TModel : DomainModel<TModel,TModelId>
         {
             var allPropertiesToCheck = checkAgainst.GetType().GetProperties();
             for (var i = 0; i < allPropertiesToCheck.Length; i++)
@@ -19,18 +19,18 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             }
             return true;
         }
-        public static void RemoveSensitive(this DomainModel<object> originalModel)
+        public static void RemoveSensitive(this DomainModel<object, object> originalModel)
         {
             var allProperties = originalModel.GetType().GetProperties();
             for (var i = 0; i < allProperties.Length; i++)
             {
                 var property = allProperties[i];
                 var foundProp = property.GetValue(originalModel);
-                if (foundProp is DomainModel<object> deepBaseModel)
+                if (foundProp is DomainModel<object, object> deepBaseModel)
                 {
                     deepBaseModel.RemoveSensitive();
                 }
-                else if (foundProp is IEnumerable<DomainModel<object>> deepBaseModels)
+                else if (foundProp is IEnumerable<DomainModel<object, object>> deepBaseModels)
                 {
                     deepBaseModels.RemoveSensitive();
                 }
@@ -40,7 +40,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 }
             }
         }
-        public static void RemoveSensitive(this IEnumerable<DomainModel<object>> originalModels)
+        public static void RemoveSensitive(this IEnumerable<DomainModel<object, object>> originalModels)
         {
             foreach (var model in originalModels)
             {
@@ -49,12 +49,12 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         }
         public static T? GetPropertyValue<T>(this object? value, string propertyName)
         {
-            if (value is not DomainModel<object> || propertyName.ToLower() != "Id")
+            if (value is not DomainModel<object, object> || propertyName.ToLower() != "Id")
             {
                 return ObjectExtensions.GetPropertyValue<T>(value, propertyName);
             }
 
-            return (T?)((DomainModel<object>)value).Id;
+            return (T?)((DomainModel<object, object>)value).Id;
         }
     }
 }

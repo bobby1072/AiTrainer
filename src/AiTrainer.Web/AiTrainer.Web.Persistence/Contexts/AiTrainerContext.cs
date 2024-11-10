@@ -9,5 +9,6 @@ namespace AiTrainer.Web.Persistence.Contexts
             : base(options) { }
 
         public DbSet<UserEntity> Users { get; set; }
+        public DbSet<FileDocumentEntity> FileDocuments { get; set; }
     }
 }

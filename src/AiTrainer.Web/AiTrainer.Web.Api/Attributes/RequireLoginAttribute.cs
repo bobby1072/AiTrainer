@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace AiTrainer.Web.Api.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-    public class RequireUserAttribute : Attribute, IAuthorizationFilter
+    public class RequireLoginAttribute : Attribute, IAuthorizationFilter
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {

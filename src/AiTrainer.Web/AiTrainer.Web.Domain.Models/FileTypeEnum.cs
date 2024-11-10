@@ -1,7 +1,7 @@
 ﻿namespace AiTrainer.Web.Domain.Models
 {
-    public enum FileType
+    public enum FileTypeEnum
     {
-        Pdf
+        Pdf,
     }
 }

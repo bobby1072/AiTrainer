@@ -69,7 +69,16 @@ namespace AiTrainer.Web.Persistence
                 .AddHealthChecks();
 
             services
-                .AddScoped<IRepository<UserEntity, Guid, User>, UserRepository>();
+                .AddScoped<IRepository<UserEntity, Guid, User>, UserRepository>()
+                .AddScoped<
+                    IRepository<FileDocumentEntity, Guid, FileDocument>,
+                    FileDocumentRepository
+                >()
+                .AddScoped<
+                    IRepository<FileCollectionEntity, Guid, FileCollection>,
+                    FileCollectionRepository
+                >()
+                .AddScoped<IRepository<FileCollectionNestEntity, long, FileCollectionNest>>();
 
             return services;
         }

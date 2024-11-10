@@ -8,10 +8,17 @@ namespace AiTrainer.Web.Persistence.Entities
     {
         public required string Email { get; set; }
         public string? Name { get; set; }
-        public required string Username { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
 
-        public override User ToModel() => new() { Email = Email, Username = Username, DateCreated = DateCreated, DateModified = DateModified, Name = Name, Id = Id };
+        public override User ToModel() =>
+            new User
+            {
+                Email = Email,
+                DateCreated = DateCreated,
+                DateModified = DateModified,
+                Name = Name,
+                Id = Id,
+            };
     }
 }

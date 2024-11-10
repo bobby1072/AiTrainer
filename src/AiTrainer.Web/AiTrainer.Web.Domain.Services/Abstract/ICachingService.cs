@@ -13,7 +13,7 @@ namespace AiTrainer.Web.Domain.Services.Abstract
             CacheObjectTimeToLiveInSeconds timeToLive = CacheObjectTimeToLiveInSeconds.OneHour
         )
             where T : class;
-        Task<string> SetObject<T>(string key, T value, DistributedCacheEntryOptions? options = null)
+        Task<string> SetObject<T>(string key, T value, DistributedCacheEntryOptions options)
             where T : class;
     }
 }

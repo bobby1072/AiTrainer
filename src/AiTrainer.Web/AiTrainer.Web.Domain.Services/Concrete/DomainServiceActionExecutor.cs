@@ -26,14 +26,16 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         }
 
         public async Task<TReturn> ExecuteAsync<TService, TReturn>(
-            Func<TService, Task<TReturn>> serviceAction
+            Func<TService, Task<TReturn>> serviceAction,
+            string? serviceActionName = null
         )
             where TService : IDomainService
         {
+            var actionName = serviceActionName ?? serviceAction.Method.Name;
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
             _logger.LogInformation(
                 "-------Entering service action {ServiceAction} for correlationId {CorrelationId}-------",
-                serviceAction.Method.Name,
+                actionName,
                 correlationId
             );
 
@@ -47,27 +49,32 @@ namespace AiTrainer.Web.Domain.Services.Concrete
 
             _logger.LogInformation(
                 "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
-                serviceAction.Method.Name,
+                actionName,
                 correlationId,
                 timeTaken.Milliseconds
             );
 
             _logger.LogInformation(
                 "-------Exiting service action {ServiceAction} successfully for correlationId {CorrelationId}-------",
-                serviceAction.Method.Name,
+                actionName,
                 correlationId
             );
 
             return result;
         }
 
-        public TReturn Execute<TService, TReturn>(Func<TService, TReturn> serviceAction)
+        public TReturn Execute<TService, TReturn>(
+            Func<TService, TReturn> serviceAction,
+            string? serviceActionName = null
+        )
             where TService : IDomainService
         {
+            var actionName = serviceActionName ?? serviceAction.Method.Name;
+
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
             _logger.LogInformation(
                 "-------Entering service action {ServiceAction} for correlationId {CorrelationId}-------",
-                serviceAction.Method.Name,
+                actionName,
                 correlationId
             );
 
@@ -81,14 +88,14 @@ namespace AiTrainer.Web.Domain.Services.Concrete
 
             _logger.LogInformation(
                 "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
-                serviceAction.Method.Name,
+                actionName,
                 correlationId,
                 timeTaken.Milliseconds
             );
 
             _logger.LogInformation(
                 "-------Exiting service action {ServiceAction} for correlationId {CorrelationId}-------",
-                serviceAction.Method.Name,
+                actionName,
                 correlationId
             );
 
