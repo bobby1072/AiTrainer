@@ -26,8 +26,5 @@ namespace AiTrainer.Web.Domain.Models
             DateModified = DateTime.UtcNow;
         }
 
-        public static string GetCacheKey(string accessToken) => $"{_cacheKey}{accessToken}";
-
-        private const string _cacheKey = "cacheUser-";
     }
 }

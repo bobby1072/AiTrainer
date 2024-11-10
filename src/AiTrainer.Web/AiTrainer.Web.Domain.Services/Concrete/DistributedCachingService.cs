@@ -70,7 +70,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         public async Task<string> SetObject<T>(
             string key,
             T value,
-            DistributedCacheEntryOptions? options = null
+            DistributedCacheEntryOptions options
         )
             where T : class
         {
