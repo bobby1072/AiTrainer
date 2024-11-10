@@ -4,7 +4,7 @@ namespace AiTrainer.Web.Domain.Models
     {
         public required Guid UserId { get; set; }
 
-        public required string Name { get; set; }
+        public required string CollectionName { get; set; }
 
         public required DateTime DateCreated { get; set; }
 
@@ -17,7 +17,7 @@ namespace AiTrainer.Web.Domain.Models
         {
             return Id == other?.Id
                 && UserId == other?.UserId
-                && Name == other.Name
+                && CollectionName == other.CollectionName
                 && DateCreated == other.DateCreated
                 && DateModified == other.DateModified
                 && ParentId == other.ParentId;

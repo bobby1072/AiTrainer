@@ -22,6 +22,8 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 CollectionId = runtimeObj.CollectionId,
                 DateCreated = runtimeObj.DateCreated,
                 FileType = (int)runtimeObj.FileType,
+                FileName = runtimeObj.FileName,
+                FileData = runtimeObj.FileData,
             };
 
             if (runtimeObj.Id.HasValue)

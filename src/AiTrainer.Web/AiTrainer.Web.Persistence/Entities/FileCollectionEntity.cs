@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using AiTrainer.Web.Domain.Models;
 using BT.Common.FastArray.Proto;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
@@ -8,7 +8,7 @@ namespace AiTrainer.Web.Persistence.Entities
     {
         public required Guid UserId { get; set; }
 
-        public required string Name { get; set; }
+        public required string CollectionName { get; set; }
 
         public DateTime DateCreated { get; set; }
 
@@ -24,7 +24,7 @@ namespace AiTrainer.Web.Persistence.Entities
             {
                 Id = Id,
                 UserId = UserId,
-                Name = Name,
+                CollectionName = CollectionName,
                 DateCreated = DateCreated,
                 DateModified = DateModified,
                 Parent = Parent?.ToModel(),

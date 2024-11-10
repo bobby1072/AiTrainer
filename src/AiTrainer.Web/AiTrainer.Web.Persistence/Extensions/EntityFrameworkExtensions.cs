@@ -44,7 +44,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             {
                 DateCreated = fileCollection.DateCreated,
                 DateModified = fileCollection.DateModified,
-                Name = fileCollection.Name,
+                CollectionName = fileCollection.CollectionName,
                 UserId = fileCollection.UserId,
                 ParentId = fileCollection.ParentId,
             };
@@ -55,6 +55,5 @@ namespace AiTrainer.Web.Persistence.Extensions
 
             return entity;
         }
-
     }
 }
