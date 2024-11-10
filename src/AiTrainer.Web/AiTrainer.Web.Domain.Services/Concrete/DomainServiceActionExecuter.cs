@@ -7,12 +7,12 @@ using AiTrainer.Web.Common.Extensions;
 using BT.Common.OperationTimer.Proto;
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
-    internal class DomainServicesActionExecuter: IDomainServicesActionExecuter
+    internal class DomainServiceActionExecuter : IDomainServiceActionExecuter
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<DomainServicesActionExecuter> _logger;
+        private readonly ILogger<DomainServiceActionExecuter> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public DomainServicesActionExecuter(IServiceProvider serviceProvider, ILogger<DomainServicesActionExecuter> logger, IHttpContextAccessor httpContextAccessor)
+        public DomainServiceActionExecuter(IServiceProvider serviceProvider, ILogger<DomainServiceActionExecuter> logger, IHttpContextAccessor httpContextAccessor)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
@@ -29,7 +29,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
 
             _logger.LogInformation("Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms", serviceAction.Method.Name, correlationId, timeTaken.Milliseconds);
 
-            _logger.LogInformation("-------Exiting service action {ServiceAction} for correlationId {CorrelationId}-------", serviceAction.Method.Name, correlationId);
+            _logger.LogInformation("-------Exiting service action {ServiceAction} successfully for correlationId {CorrelationId}-------", serviceAction.Method.Name, correlationId);
 
             return result;
         }

@@ -17,17 +17,19 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
         protected readonly HttpClient _httpClient;
         protected string _operationName => GetType().Name;
         protected abstract string _endpoint { get; }
-        protected abstract ILogger _logger { get; init; }
+        protected ILogger<BaseCoreClient<TReturn>> _logger { get; init; }
         protected abstract CoreClientRequestType _requestType { get; }
         protected abstract HttpMethod _httpMethod { get; }
 
         protected BaseCoreClient(
             HttpClient httpClient,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            ILogger<BaseCoreClient<TReturn>> logger
         )
         {
             _httpClient = httpClient;
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
+            _logger = logger;
         }
 
         public virtual async Task<TReturn> InvokeAsync()
@@ -78,7 +80,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
             return actualData;
         }
 
-        protected virtual HttpRequestMessage BuildHttpMessage()
+        protected HttpRequestMessage BuildHttpMessage()
         {
             HttpRequestMessage request;
             request = new HttpRequestMessage
@@ -113,12 +115,14 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
         : BaseCoreClient<TReturn>,
             ICoreClient<TParam, TReturn>
         where TReturn : class
+        where TParam : class
     {
         protected BaseCoreClient(
             HttpClient httpClient,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            ILogger<BaseCoreClient<TReturn>> logger
         )
-            : base(httpClient, aiTrainerCoreConfig) { }
+            : base(httpClient, aiTrainerCoreConfig, logger) { }
 
         public virtual async Task<TReturn> InvokeAsync(TParam param)
         {
