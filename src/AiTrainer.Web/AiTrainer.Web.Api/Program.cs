@@ -2,6 +2,7 @@ using AiTrainer.Web.Api.Auth;
 using AiTrainer.Web.Api.Middlewares;
 using AiTrainer.Web.CoreClient;
 using AiTrainer.Web.Domain.Models.Extensions;
+using AiTrainer.Web.Domain.Services;
 using AiTrainer.Web.Persistence;
 using AiTrainer.Web.UserInfoClient;
 using Microsoft.AspNetCore.Http.Timeouts;
@@ -30,7 +31,8 @@ builder
     .Services.AddCoreClient(builder.Configuration)
     .AddSqlPersistence(builder.Configuration)
     .AddUserInfoClient()
-    .AddDomainModelServices();
+    .AddDomainModelServices()
+    .AddDomainServices();
 
 builder.Services.AddCors(p =>
     p.AddPolicy(
@@ -47,6 +49,7 @@ builder.Services.AddCors(p =>
 );
 
 builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environment);
+
 
 var app = builder.Build();
 
