@@ -29,11 +29,17 @@ namespace AiTrainer.Web.Domain.Models
                 && DateCreated == user.DateCreated
                 && DateModified == user.DateModified;
         }
+
         public override void ApplyCreationDefaults()
         {
             DateCreated = DateTime.UtcNow;
             DateModified = DateTime.UtcNow;
         }
+
         public bool Equals(User? obj) => Equals((DomainModel<Guid?>?)obj);
+
+        public static string GetCacheKey(string accessToken) => $"{_cacheKey}{accessToken}";
+
+        private const string _cacheKey = "cacheUser-";
     }
 }

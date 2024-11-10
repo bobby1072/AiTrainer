@@ -8,8 +8,6 @@ namespace AiTrainer.Web.Api.Attributes
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequireUserAttribute : Attribute, IAuthorizationFilter
     {
-        public const string CacheKey = "cacheRequireUser-";
-
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             if (context.HttpContext.User.Identity?.IsAuthenticated == true)

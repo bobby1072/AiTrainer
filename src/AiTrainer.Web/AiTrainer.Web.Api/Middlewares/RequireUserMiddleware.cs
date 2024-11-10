@@ -46,7 +46,7 @@ namespace AiTrainer.Web.Api.Middlewares
                     );
 
                 var foundUser = await _cachingService.TryGetObject<User>(
-                    $"{RequireUserAttribute.CacheKey}{accessToken}"
+                    User.GetCacheKey(accessToken)
                 );
 
                 if (foundUser is not null)
@@ -58,22 +58,22 @@ namespace AiTrainer.Web.Api.Middlewares
                         correlationId,
                         accessToken
                     );
-                    await _next.Invoke(context);
                     _logger.LogInformation(
                         "----Exiting {RequireUserMiddleware} for correlationId {CorrelationId}----",
                         nameof(RequireUserMiddleware),
                         correlationId
                     );
+                    await _next.Invoke(context);
                     return;
                 }
 
                 var newOrDbFoundUser = await _domainServiceExecutor.ExecuteAsync<
                     IUserProcessingManager,
                     User
-                >((service) => service.SaveUserIfDoesNotExist(accessToken));
+                >((userService) => userService.SaveUserIfDoesNotExist(accessToken));
 
                 await _cachingService.SetObject(
-                    $"{RequireUserAttribute.CacheKey}{accessToken}",
+                    User.GetCacheKey(accessToken),
                     newOrDbFoundUser,
                     CacheObjectTimeToLiveInSeconds.ThirtyMinutes
                 );
