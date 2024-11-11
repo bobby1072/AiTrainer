@@ -8,8 +8,7 @@ namespace AiTrainer.Web.Domain.Services.User
     {
         public static IServiceCollection AddUserServices(this IServiceCollection services)
         {
-            services
-                .AddScoped<IUserProcessingManager, UserProcessingManager>();
+            services.AddTransient<IUserProcessingManager, UserProcessingManager>();
 
             return services;
         }

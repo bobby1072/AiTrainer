@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using AiTrainer.Web.Domain.Models;
 using BT.Common.FastArray.Proto;
 
@@ -18,6 +19,8 @@ namespace AiTrainer.Web.Persistence.Entities
         [ForeignKey(nameof(ParentId))]
         public FileCollectionEntity? Parent { get; set; }
         public virtual IReadOnlyCollection<FileCollectionEntity>? Children { get; set; }
+        public required byte[] FaissIndex { get; set; }
+        public required JsonDocument FaissJson { get; set; }
 
         public override FileCollection ToModel() =>
             new FileCollection
@@ -27,6 +30,9 @@ namespace AiTrainer.Web.Persistence.Entities
                 CollectionName = CollectionName,
                 DateCreated = DateCreated,
                 DateModified = DateModified,
+                FaissIndex = FaissIndex,
+                FaissJson = FaissJson,
+                ParentId = ParentId,
                 Parent = Parent?.ToModel(),
                 Children = Children?.FastArraySelect(x => x.ToModel()).ToArray(),
             };

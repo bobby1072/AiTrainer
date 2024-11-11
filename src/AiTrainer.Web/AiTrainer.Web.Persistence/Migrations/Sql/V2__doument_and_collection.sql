@@ -5,6 +5,8 @@ CREATE TABLE public."file_collection" (
     parent_id UUID, 
     date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     date_modified TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    faiss_index BYTEA NOT NULL,
+    faiss_json JSONB NOT NULL,
     FOREIGN KEY (parent_id) REFERENCES public."file_collection"(id) 
         ON DELETE CASCADE     
         ON UPDATE CASCADE,    
@@ -24,6 +26,8 @@ CREATE TABLE public."file_document" (
     file_type INTEGER NOT NULL,
     file_name TEXT NOT NULL,
     file_data BYTEA NOT NULL,
+    faiss_index BYTEA NOT NULL,
+    faiss_json JSONB NOT NULL,
     date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     CONSTRAINT unique_collection_file_name UNIQUE (collection_id, file_name)
 );

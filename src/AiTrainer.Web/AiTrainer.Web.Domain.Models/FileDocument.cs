@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace AiTrainer.Web.Domain.Models
 {
     public record FileDocument : DomainModel<FileDocument, Guid?>
@@ -7,6 +9,8 @@ namespace AiTrainer.Web.Domain.Models
         public required string FileName { get; set; }
         public required byte[] FileData { get; set; }
         public required DateTime DateCreated { get; set; }
+        public required byte[] FaissIndex { get; set; }
+        public required JsonDocument FaissJson { get; set; }
 
         public override bool Equals(FileDocument? other)
         {

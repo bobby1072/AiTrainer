@@ -12,7 +12,7 @@ namespace AiTrainer.Web.Domain.Services
             services
                 .AddUserServices()
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
-                .AddScoped<ICachingService, DistributedCachingService>();
+                .AddTransient<ICachingService, DistributedCachingService>();
 
             return services;
         }
