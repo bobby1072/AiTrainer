@@ -9,6 +9,8 @@ namespace AiTrainer.Web.Persistence.Entities
         public required Guid CollectionId { get; set; }
         public DateTime DateCreated { get; set; }
         public required int FileType { get; set; }
+        public required string FileName { get; set; }
+        public required byte[] FileData { get; set; }
 
         public override FileDocument ToModel() =>
             new FileDocument
@@ -17,6 +19,8 @@ namespace AiTrainer.Web.Persistence.Entities
                 CollectionId = CollectionId,
                 DateCreated = DateCreated,
                 FileType = (FileTypeEnum)FileType,
+                FileData = FileData,
+                FileName = FileName,
             };
     }
 }

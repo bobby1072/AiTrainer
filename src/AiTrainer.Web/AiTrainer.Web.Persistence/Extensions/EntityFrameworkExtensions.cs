@@ -29,6 +29,8 @@ namespace AiTrainer.Web.Persistence.Extensions
                 CollectionId = fileDocument.CollectionId,
                 DateCreated = fileDocument.DateCreated,
                 FileType = (int)fileDocument.FileType,
+                FileData = fileDocument.FileData,
+                FileName = fileDocument.FileName,
             };
             if (fileDocument.Id is not null)
             {
@@ -44,27 +46,13 @@ namespace AiTrainer.Web.Persistence.Extensions
             {
                 DateCreated = fileCollection.DateCreated,
                 DateModified = fileCollection.DateModified,
-                Name = fileCollection.Name,
+                CollectionName = fileCollection.CollectionName,
                 UserId = fileCollection.UserId,
+                ParentId = fileCollection.ParentId,
             };
             if (fileCollection.Id is not null)
             {
                 entity.Id = (Guid)fileCollection.Id!;
-            }
-
-            return entity;
-        }
-
-        public static FileCollectionNestEntity ToEntity(this FileCollectionNest fileCollectionNest)
-        {
-            var entity = new FileCollectionNestEntity
-            {
-                ChildCollectionId = fileCollectionNest.ChildCollectionId,
-                ParentCollectionId = fileCollectionNest.ParentCollectionId,
-            };
-            if (fileCollectionNest.Id is not null)
-            {
-                entity.Id = (long)fileCollectionNest.Id!;
             }
 
             return entity;

@@ -2,6 +2,7 @@
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models;
+using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
@@ -11,7 +12,7 @@ using System.Net.Http.Json;
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {
     internal abstract class BaseCoreClient<TReturn> : ICoreClient<TReturn>
-        where TReturn : class
+        where TReturn : BaseCoreClientResponseBody
     {
         protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
         protected readonly HttpClient _httpClient;
@@ -114,8 +115,8 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
     internal abstract class BaseCoreClient<TParam, TReturn>
         : BaseCoreClient<TReturn>,
             ICoreClient<TParam, TReturn>
-        where TReturn : class
-        where TParam : class
+        where TParam : BaseCoreClientRequestBody
+        where TReturn : BaseCoreClientResponseBody
     {
         protected BaseCoreClient(
             HttpClient httpClient,

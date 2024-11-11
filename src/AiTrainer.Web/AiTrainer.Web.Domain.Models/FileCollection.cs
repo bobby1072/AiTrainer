@@ -4,23 +4,24 @@ namespace AiTrainer.Web.Domain.Models
     {
         public required Guid UserId { get; set; }
 
-        public required string Name { get; set; }
+        public required string CollectionName { get; set; }
 
         public required DateTime DateCreated { get; set; }
 
         public required DateTime DateModified { get; set; }
-
-        public IReadOnlyCollection<FileCollectionNest>? CollectionNests { get; init; }
-
-        public IReadOnlyCollection<FileDocument>? FileDocuments { get; init; }
+        public Guid? ParentId { get; set; }
+        public FileCollection? Parent { get; init; }
+        public IReadOnlyCollection<FileCollection>? Children { get; init; }
 
         public override bool Equals(FileCollection? other)
         {
-            return Id == other?.Id
-                && UserId == other?.UserId
-                && Name == other.Name
-                && DateCreated == other.DateCreated
-                && DateModified == other.DateModified;
+            return other is FileCollection fileCollection
+                && Id == fileCollection.Id
+                && UserId == fileCollection.UserId
+                && CollectionName == fileCollection.CollectionName
+                && DateCreated == fileCollection.DateCreated
+                && DateModified == fileCollection.DateModified
+                && ParentId == fileCollection.ParentId;
         }
 
         public override int GetHashCode()
