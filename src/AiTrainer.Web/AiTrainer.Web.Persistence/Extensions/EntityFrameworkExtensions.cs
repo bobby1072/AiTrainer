@@ -29,6 +29,8 @@ namespace AiTrainer.Web.Persistence.Extensions
                 CollectionId = fileDocument.CollectionId,
                 DateCreated = fileDocument.DateCreated,
                 FileType = (int)fileDocument.FileType,
+                FileData = fileDocument.FileData,
+                FileName = fileDocument.FileName,
             };
             if (fileDocument.Id is not null)
             {
