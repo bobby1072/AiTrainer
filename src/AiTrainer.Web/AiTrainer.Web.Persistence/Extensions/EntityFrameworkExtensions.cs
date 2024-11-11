@@ -31,7 +31,8 @@ namespace AiTrainer.Web.Persistence.Extensions
                 FileType = (int)fileDocument.FileType,
                 FileData = fileDocument.FileData,
                 FileName = fileDocument.FileName,
-                FaissIndex = 
+                FaissIndex = fileDocument.FaissIndex,
+                FaissJson = fileDocument.FaissJson,
             };
             if (fileDocument.Id is not null)
             {
