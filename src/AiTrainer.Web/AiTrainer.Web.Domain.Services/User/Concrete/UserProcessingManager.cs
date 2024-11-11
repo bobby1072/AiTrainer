@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Exceptions;
+﻿using System.Net;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
@@ -11,11 +12,10 @@ using AiTrainer.Web.UserInfoClient.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
-    internal class UserProcessingManager : IUserProcessingManager
+    internal class UserProcessingManager : BaseDomainService, IUserProcessingManager
     {
         private readonly IRepository<UserEntity, Guid, Models.User> _repo;
         private readonly IUserInfoClient _userInfoClient;
@@ -30,8 +30,10 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             ILogger<UserProcessingManager> logger,
             IValidator<Models.User> userValidator,
             ICachingService cachingService,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor,
+            IDomainServiceActionExecutor domainServiceActionExecutor
         )
+            : base(domainServiceActionExecutor)
         {
             _repo = repo;
             _userInfoClient = userInfoClient;

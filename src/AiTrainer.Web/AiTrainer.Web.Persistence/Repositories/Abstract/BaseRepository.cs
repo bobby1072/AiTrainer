@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using AiTrainer.Web.Persistence.Contexts;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
@@ -5,8 +7,6 @@ using BT.Common.FastArray.Proto;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
-using System.Text;
 
 namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {
@@ -51,7 +51,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             params string[] relations
         )
         {
-            ThrowIfPropertyDoesNotExist(value, propertyName);
+            ThrowIfPropertyDoesNotExist<T>(propertyName);
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
             var foundOne = await TimeAndLogDbOperation(
@@ -121,7 +121,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             params string[] relations
         )
         {
-            ThrowIfPropertyDoesNotExist(value, propertyName);
+            ThrowIfPropertyDoesNotExist<T>(propertyName);
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
             var foundOne = await TimeAndLogDbOperation(
@@ -139,7 +139,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             params string[] relations
         )
         {
-            ThrowIfPropertyDoesNotExist(value, propertyName);
+            ThrowIfPropertyDoesNotExist<T>(propertyName);
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
             var foundOne = await TimeAndLogDbOperation(
@@ -166,7 +166,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             }
             await TimeAndLogDbOperation(operation, nameof(Create), _entityType.Name);
             var runtimeObjs = set.Local.FastArraySelect(x => x.ToModel());
-            return new DbSaveResult<TModel>(runtimeObjs.OfType<TModel>().ToArray());
+            return new DbSaveResult<TModel>(runtimeObjs.ToArray());
         }
 
         public virtual async Task<DbDeleteResult<TModel>> Delete(IReadOnlyCollection<TModel> entObj)
@@ -183,6 +183,21 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             return new DbDeleteResult<TModel>(entObj);
         }
 
+        public virtual async Task<DbDeleteResult<TEntId>> Delete(IReadOnlyCollection<TEntId> entIds)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var set = dbContext.Set<TEnt>();
+            async Task<TEntId?> operation()
+            {
+                await set.Where(x => entIds.Contains(x.Id!)).ExecuteDeleteAsync();
+                await dbContext.SaveChangesAsync();
+                return default;
+            }
+            await TimeAndLogDbOperation(operation, nameof(Delete), _entityType.Name);
+
+            return new DbDeleteResult<TEntId>(entIds);
+        }
+
         public virtual async Task<DbSaveResult<TModel>> Update(IReadOnlyCollection<TModel> entObj)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
@@ -196,7 +211,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             await TimeAndLogDbOperation(operation, nameof(Update), _entityType.Name);
 
             var runtimeObjs = set.Local.FastArraySelect(x => x.ToModel());
-            return new DbSaveResult<TModel>(runtimeObjs.OfType<TModel>().ToArray());
+            return new DbSaveResult<TModel>(runtimeObjs.ToArray());
         }
 
         protected IQueryable<TEnt> AddRelationsToSet(
@@ -238,16 +253,16 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             return result;
         }
 
-        private static bool DoesPropertyExist<T>(T value, string propertyName)
+        private static bool DoesPropertyExist<T>(string propertyName)
         {
             return _entityProperties.Any(x =>
                 x.Name == propertyName && x.PropertyType == typeof(T)
             );
         }
 
-        private static void ThrowIfPropertyDoesNotExist<T>(T value, string propertyName)
+        private static void ThrowIfPropertyDoesNotExist<T>(string propertyName)
         {
-            if (!DoesPropertyExist(value, propertyName))
+            if (!DoesPropertyExist<T>(propertyName))
             {
                 throw new ArgumentException(
                     $"Property {propertyName} does not exist on entity {_entityType.Name}"

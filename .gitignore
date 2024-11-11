@@ -10,3 +10,5 @@ dist/
 .aspnet/
 
 expressappsettings.json
+
+filestore/
