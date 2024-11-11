@@ -31,8 +31,6 @@ namespace AiTrainer.Web.Persistence.Extensions
                 FileType = (int)fileDocument.FileType,
                 FileData = fileDocument.FileData,
                 FileName = fileDocument.FileName,
-                FaissIndex = fileDocument.FaissIndex,
-                FaissJson = fileDocument.FaissJson,
             };
             if (fileDocument.Id is not null)
             {
@@ -50,13 +48,27 @@ namespace AiTrainer.Web.Persistence.Extensions
                 DateModified = fileCollection.DateModified,
                 CollectionName = fileCollection.CollectionName,
                 UserId = fileCollection.UserId,
-                ParentId = fileCollection.ParentId,
-                FaissIndex = fileCollection.FaissIndex,
-                FaissJson = fileCollection.FaissJson,
+                ParentId = fileCollection.ParentId
             };
             if (fileCollection.Id is not null)
             {
                 entity.Id = (Guid)fileCollection.Id!;
+            }
+
+            return entity;
+        }
+
+        public static FileCollectionFaissEntity ToEntity(this FileCollectionFaiss fileCollectionFaiss)
+        {
+            var entity = new FileCollectionFaissEntity
+            {
+                CollectionId = fileCollectionFaiss.CollectionId,
+                FaissIndex = fileCollectionFaiss.FaissIndex,
+                FaissJson = fileCollectionFaiss.FaissJson
+            };
+            if (fileCollectionFaiss.Id is not null)
+            {
+                entity.Id = (long)fileCollectionFaiss.Id!;
             }
 
             return entity;

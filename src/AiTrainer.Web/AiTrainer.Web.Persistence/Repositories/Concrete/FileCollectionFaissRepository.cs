@@ -8,15 +8,15 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
-    internal class FileDocumentRepository : BaseRepository<FileDocumentEntity, Guid, FileDocument>
+    internal class FileCollectionFaissRepository : BaseRepository<FileCollectionFaissEntity, long, FileCollectionFaiss>
     {
-        public FileDocumentRepository(
+        public FileCollectionFaissRepository(
             IDbContextFactory<AiTrainerContext> dbContextFactory,
-            ILogger<FileDocumentRepository> logger
+            ILogger<FileCollectionFaissRepository> logger
         )
             : base(dbContextFactory, logger) { }
 
-        protected override FileDocumentEntity RuntimeToEntity(FileDocument runtimeObj)
+        protected override FileCollectionFaissEntity RuntimeToEntity(FileCollectionFaiss runtimeObj)
         {
             return runtimeObj.ToEntity();
         }

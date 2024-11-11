@@ -1,22 +1,15 @@
-using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Models
 {
     public record FileCollection : DomainModel<FileCollection, Guid?>
     {
         public required Guid UserId { get; set; }
-
         public required string CollectionName { get; set; }
-
         public required DateTime DateCreated { get; set; }
-
         public required DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
-        public FileCollection? Parent { get; init; }
         public IReadOnlyCollection<FileCollection>? Children { get; init; }
-        public required byte[] FaissIndex { get; set; }
-        public required JsonDocument FaissJson { get; set; }
-
+        public FileCollectionFaiss? FaissStore { get; init; }
         public override bool Equals(FileCollection? other)
         {
             return other is FileCollection fileCollection

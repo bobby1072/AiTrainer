@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using AiTrainer.Web.Common.Extensions;
+﻿using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models.Attributes;
+using System.Reflection;
+using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Models.Extensions
 {

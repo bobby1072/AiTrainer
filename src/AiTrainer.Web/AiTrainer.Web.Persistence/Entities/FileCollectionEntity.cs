@@ -1,10 +1,10 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
 using AiTrainer.Web.Domain.Models;
 using BT.Common.FastArray.Proto;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
+    [Table("file_collection_faiss", Schema = DbConstants.PublicSchema)]
     public record FileCollectionEntity : BaseEntity<Guid, FileCollection>
     {
         public required Guid UserId { get; set; }
@@ -15,12 +15,8 @@ namespace AiTrainer.Web.Persistence.Entities
 
         public DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
-
-        [ForeignKey(nameof(ParentId))]
-        public FileCollectionEntity? Parent { get; set; }
         public virtual IReadOnlyCollection<FileCollectionEntity>? Children { get; set; }
-        public required byte[] FaissIndex { get; set; }
-        public required JsonDocument FaissJson { get; set; }
+        public virtual IReadOnlyCollection<FileCollectionFaissEntity>? FaissStore { get; init; }
 
         public override FileCollection ToModel() =>
             new FileCollection
@@ -30,11 +26,9 @@ namespace AiTrainer.Web.Persistence.Entities
                 CollectionName = CollectionName,
                 DateCreated = DateCreated,
                 DateModified = DateModified,
-                FaissIndex = FaissIndex,
-                FaissJson = FaissJson,
                 ParentId = ParentId,
-                Parent = Parent?.ToModel(),
                 Children = Children?.FastArraySelect(x => x.ToModel()).ToArray(),
+                FaissStore = FaissStore?.FirstOrDefault()?.ToModel()
             };
     }
 }

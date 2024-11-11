@@ -1,6 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
 using AiTrainer.Web.Domain.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
@@ -12,8 +11,6 @@ namespace AiTrainer.Web.Persistence.Entities
         public required int FileType { get; set; }
         public required string FileName { get; set; }
         public required byte[] FileData { get; set; }
-        public required byte[] FaissIndex { get; set; }
-        public required JsonDocument FaissJson { get; set; }
 
         public override FileDocument ToModel() =>
             new FileDocument
@@ -24,8 +21,6 @@ namespace AiTrainer.Web.Persistence.Entities
                 FileType = (FileTypeEnum)FileType,
                 FileData = FileData,
                 FileName = FileName,
-                FaissIndex = FaissIndex,
-                FaissJson = FaissJson,
             };
     }
 }
