@@ -1,8 +1,14 @@
-﻿namespace AiTrainer.Web.Domain.Models
+﻿using System.Text.Json.Serialization;
+
+namespace AiTrainer.Web.Domain.Models
 {
     public abstract record DomainModel<TEquatable, TId> : IEquatable<TEquatable>
-        where TEquatable : DomainModel<TEquatable, TId>
     {
+        [JsonPropertyName("$type")]
+        public string TypeName
+        {
+            get => GetType().Name;
+        }
         public TId Id { get; set; }
 
         public abstract bool Equals(TEquatable? obj);
