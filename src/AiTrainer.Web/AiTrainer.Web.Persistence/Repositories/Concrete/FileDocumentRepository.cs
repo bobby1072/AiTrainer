@@ -26,10 +26,28 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
         public async Task<DbGetManyResult<FileDocumentPartial>> GetManyPartialsByCollectionId(Guid collectionId, params string[] relationShips)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var entities = await AddRelationsToSet(dbContext.FileDocuments, relationShips)
+
+            var setToQuery = AddRelationsToSet(dbContext.FileDocuments, relationShips);
+
+
+            var entities = await TimeAndLogDbOperation(() => setToQuery
                 .Select(x => new { x.Id, x.CollectionId, x.DateCreated, x.FileName, x.FileType })
                 .Where(x => x.CollectionId == collectionId)
-                .ToArrayAsync();
+                .ToArrayAsync(), nameof(GetManyPartialsByCollectionId), _entityType.Name);
+
+            return new DbGetManyResult<FileDocumentPartial>(entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray());
+        }
+
+        public async Task<DbGetManyResult<FileDocumentPartial>> GetManyPartialsByCollectionId(IReadOnlyCollection<Guid> collectionIds, params string[] relationShips)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var setToQuery = AddRelationsToSet(dbContext.FileDocuments, relationShips);
+
+
+            var entities = await TimeAndLogDbOperation(() => setToQuery
+                .Select(x => new { x.Id, x.CollectionId, x.DateCreated, x.FileName, x.FileType })
+                .Where(x => collectionIds.Contains(x.CollectionId))
+                .ToArrayAsync(), nameof(GetManyPartialsByCollectionId), _entityType.Name);
 
             return new DbGetManyResult<FileDocumentPartial>(entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray());
         }

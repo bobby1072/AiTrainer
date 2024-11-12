@@ -14,6 +14,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             params string[] relations
         );
         Task<DbGetManyResult<TModel>> GetMany(TEntId entityId, params string[] relations);
+        Task<DbGetManyResult<TModel>> GetMany(params TEntId[] entityIds);
         Task<DbGetOneResult<TModel>> GetOne(TEntId entityId, params string[] relations);
         Task<DbGetOneResult<TModel>> GetOne<T>(
             T value,
