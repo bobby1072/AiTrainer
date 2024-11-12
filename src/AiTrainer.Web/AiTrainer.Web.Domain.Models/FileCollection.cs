@@ -10,6 +10,7 @@ namespace AiTrainer.Web.Domain.Models
         public Guid? ParentId { get; set; }
         public IReadOnlyCollection<FileCollection>? Children { get; init; }
         public FileCollectionFaiss? FaissStore { get; init; }
+        public IReadOnlyCollection<FileDocument>? Documents { get; init; }
         public override bool Equals(FileCollection? other)
         {
             return other is FileCollection fileCollection
