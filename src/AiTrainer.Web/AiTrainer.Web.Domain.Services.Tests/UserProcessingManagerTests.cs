@@ -56,6 +56,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
 
             //Assert
             result.Should().Be(mockedUser);
+            _cachingService.Verify(x => x.TryGetObject<Models.User>($"cacheUser-{accessToken}"), Times.Once);
+            _repo.Verify(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email)), Times.Once);
+            _userInfoClient.Verify(x => x.TryInvokeAsync(accessToken),Times.Once);
         }
     }
 }
