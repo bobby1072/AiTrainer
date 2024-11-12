@@ -71,9 +71,14 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             return (T?)((DomainModel<object, object>)value).Id;
         }
 
-        public static string Serialise<T>(this T value)
-            where T : DomainModel<T, object>
+        public static string JsonSerialise(this DomainModel<object, object> value)
         {
+            value.RemoveSensitive();
+            return JsonSerializer.Serialize(value);
+        }
+        public static string JsonSerialise(this IEnumerable<DomainModel<object, object>> value)
+        {
+            value.RemoveSensitive();
             return JsonSerializer.Serialize(value);
         }
     }
