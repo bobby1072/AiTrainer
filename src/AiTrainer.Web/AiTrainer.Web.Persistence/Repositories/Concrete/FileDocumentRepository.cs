@@ -1,13 +1,16 @@
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Contexts;
 using AiTrainer.Web.Persistence.Entities;
+using AiTrainer.Web.Persistence.Extensions;
+using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using BT.Common.FastArray.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
-    internal class FileDocumentRepository : BaseRepository<FileDocumentEntity, Guid, FileDocument>
+    internal class FileDocumentRepository : BaseRepository<FileDocumentEntity, Guid, FileDocument>, IFileDocumentRepository
     {
         public FileDocumentRepository(
             IDbContextFactory<AiTrainerContext> dbContextFactory,
@@ -17,21 +20,30 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
         protected override FileDocumentEntity RuntimeToEntity(FileDocument runtimeObj)
         {
-            var entity = new FileDocumentEntity
+            return runtimeObj.ToEntity();
+        }
+
+        public async Task<DbGetManyResult<FileDocumentPartial>> GetManyPartialsByCollectionId(Guid collectionId, params string[] relationShips)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var entities = await AddRelationsToSet(dbContext.FileDocuments, relationShips)
+                .Select(x => new { x.Id, x.CollectionId, x.DateCreated, x.FileName, x.FileType })
+                .Where(x => x.CollectionId == collectionId)
+                .ToArrayAsync();
+
+            return new DbGetManyResult<FileDocumentPartial>(entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray());
+        }
+
+        private static FileDocumentPartial SelectDataToPartial(dynamic x)
+        {
+            return new FileDocumentPartial
             {
-                CollectionId = runtimeObj.CollectionId,
-                DateCreated = runtimeObj.DateCreated,
-                FileType = (int)runtimeObj.FileType,
-                FileName = runtimeObj.FileName,
-                FileData = runtimeObj.FileData,
+                CollectionId = x.CollectionId,
+                DateCreated = x.DateCreated,
+                FileName = x.FileName,
+                FileType = (FileTypeEnum)x.FileType,
+                Id = x.Id
             };
-
-            if (runtimeObj.Id.HasValue)
-            {
-                entity.Id = runtimeObj.Id.Value;
-            }
-
-            return entity;
         }
     }
 }

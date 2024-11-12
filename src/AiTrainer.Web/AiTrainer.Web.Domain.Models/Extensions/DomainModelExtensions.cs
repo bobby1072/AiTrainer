@@ -1,24 +1,34 @@
 ﻿using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models.Attributes;
 using System.Reflection;
+using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class DomainModelExtensions
     {
-        public static bool ValidateAgainstOriginal<TModel, TModelId>(this TModel originalModel, TModel checkAgainst) where TModel : DomainModel<TModel,TModelId>
+        public static bool ValidateAgainstOriginal<TModel>(
+            this TModel originalModel,
+            TModel checkAgainst
+        )
+            where TModel : DomainModel<TModel, object>
         {
             var allPropertiesToCheck = checkAgainst.GetType().GetProperties();
             for (var i = 0; i < allPropertiesToCheck.Length; i++)
             {
                 var property = allPropertiesToCheck[i];
-                if (property?.GetCustomAttribute<LockedPropertyAttribute>() is not null && property.GetValue(originalModel)?.Equals(property.GetValue(checkAgainst)) is false)
+                if (
+                    property?.GetCustomAttribute<LockedPropertyAttribute>() is not null
+                    && property.GetValue(originalModel)?.Equals(property.GetValue(checkAgainst))
+                        is false
+                )
                 {
                     return false;
                 }
             }
             return true;
         }
+
         public static void RemoveSensitive(this DomainModel<object, object> originalModel)
         {
             var allProperties = originalModel.GetType().GetProperties();
@@ -40,13 +50,17 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 }
             }
         }
-        public static void RemoveSensitive(this IEnumerable<DomainModel<object, object>> originalModels)
+
+        public static void RemoveSensitive(
+            this IEnumerable<DomainModel<object, object>> originalModels
+        )
         {
             foreach (var model in originalModels)
             {
                 model.RemoveSensitive();
             }
         }
+
         public static T? GetPropertyValue<T>(this object? value, string propertyName)
         {
             if (value is not DomainModel<object, object> || propertyName.ToLower() != "Id")
@@ -55,6 +69,12 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             }
 
             return (T?)((DomainModel<object, object>)value).Id;
+        }
+
+        public static string Serialise<T>(this T value)
+            where T : DomainModel<T, object>
+        {
+            return JsonSerializer.Serialize(value);
         }
     }
 }

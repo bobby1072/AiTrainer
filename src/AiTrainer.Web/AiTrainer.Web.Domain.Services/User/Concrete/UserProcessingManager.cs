@@ -15,7 +15,7 @@ using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
-    internal class UserProcessingManager : IUserProcessingManager
+    internal class UserProcessingManager : BaseDomainService, IUserProcessingManager
     {
         private readonly IRepository<UserEntity, Guid, Models.User> _repo;
         private readonly IUserInfoClient _userInfoClient;
@@ -30,8 +30,10 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             ILogger<UserProcessingManager> logger,
             IValidator<Models.User> userValidator,
             ICachingService cachingService,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor,
+            IDomainServiceActionExecutor domainServiceActionExecutor
         )
+            : base(domainServiceActionExecutor)
         {
             _repo = repo;
             _userInfoClient = userInfoClient;

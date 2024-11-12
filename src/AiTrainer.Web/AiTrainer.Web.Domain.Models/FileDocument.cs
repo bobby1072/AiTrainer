@@ -1,3 +1,4 @@
+
 namespace AiTrainer.Web.Domain.Models
 {
     public record FileDocument : DomainModel<FileDocument, Guid?>
