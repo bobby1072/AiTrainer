@@ -15,7 +15,7 @@ using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
-    internal class UserProcessingManager : BaseDomainService, IUserProcessingManager
+    public class UserProcessingManager : BaseDomainService, IUserProcessingManager
     {
         private readonly IRepository<UserEntity, Guid, Models.User> _repo;
         private readonly IUserInfoClient _userInfoClient;
@@ -150,6 +150,8 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 
         public Task<Models.User?> TryGetUserFromCache(string accessToken)
         {
+            _logger.LogInformation("Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}", _httpContextAccessor.HttpContext.GetCorrelationId(), accessToken);
+
             return _cachingService.TryGetObject<Models.User>(GetCacheKey(accessToken));
         }
 
@@ -179,7 +181,6 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 userDto = (
                     new Models.User
                     {
-                        Id = Guid.NewGuid(),
                         Email = userInfo.Email,
                         Name = userInfo.Name,
                         DateCreated = DateTime.UtcNow,
