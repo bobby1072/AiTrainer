@@ -6,7 +6,6 @@ namespace AiTrainer.Web.Domain.Models.Validators
     {
         public FileDocumentValidator()
         {
-            RuleFor(x => x.CollectionId).NotEmpty().WithMessage(ValidatorConstants.InvalidCollectionId);
             RuleFor(x => x.FileType).NotEmpty().WithMessage(ValidatorConstants.InvalidFileType);
             RuleFor(x => x.FileName).Must(IsStringNotNullEmptyOrWhitespace).WithMessage(ValidatorConstants.InvalidFileName);
             RuleFor(x => x.FileName).Must(x => NotLongerThan(x, 150)).WithMessage(ValidatorConstants.InvalidFileName);

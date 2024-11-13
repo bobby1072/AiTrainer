@@ -22,13 +22,13 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         private readonly ICachingService _cachingService;
 
         public UserProcessingManager(
+            IDomainServiceActionExecutor domainServiceActionExecutor,
+            IApiRequestHttpContextService apiRequestService,
             IRepository<UserEntity, Guid, Models.User> repo,
             IUserInfoClient userInfoClient,
             ILogger<UserProcessingManager> logger,
             IValidator<Models.User> userValidator,
-            ICachingService cachingService,
-            IDomainServiceActionExecutor domainServiceActionExecutor,
-            IApiRequestHttpContextService apiRequestService
+            ICachingService cachingService
         )
             : base(domainServiceActionExecutor, apiRequestService)
         {

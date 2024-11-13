@@ -7,7 +7,6 @@ using AiTrainer.Web.Common.Exceptions;
 using System.Net;
 using FluentValidation;
 using AiTrainer.Web.Domain.Services.User.Abstract;
-using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -18,10 +17,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IValidator<FileDocument> _validator;
         public FileDocumentProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
+            IApiRequestHttpContextService apiRequestService,
             ILogger<FileDocumentProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
-            IValidator<FileDocument> validator,
-            IApiRequestHttpContextService apiRequestService
+            IValidator<FileDocument> validator
         )
         : base(domainServiceActionExecutor, apiRequestService)
         {
@@ -30,7 +29,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _validator = validator;
         }
 
-        public async Task<FileDocumentPartial> SaveDocument(FileDocumentFormInput formFile)
+        public async Task<FileDocumentPartial> SaveDocument(FileDocumentFormInput fileToSave)
         {
             var currentUser = await _domainServiceActionExecutor.ExecuteAsync<IUserProcessingManager, Models.User?>(userService => userService.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken));
 
@@ -43,16 +42,17 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             throw new NotImplementedException();
         } 
-        private static FileTypeEnum GetFileType(IFormFile file)
+        private static (string, FileTypeEnum) GetFileType(IFormFile file)
         {
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
-            if (fileExtension != ".pdf" ||
-                fileExtension != ".txt")
-            {
-                throw new ApiException($"{fileExtension} is not a valid file type", HttpStatusCode.BadRequest);
-            }
 
-            return fileExtension == ".pdf" ? FileTypeEnum.Pdf : FileTypeEnum.Text;
+
+            return fileExtension switch
+            {
+                ".pdf" => (Path.GetFileNameWithoutExtension(file.FileName), FileTypeEnum.Pdf),
+                ".txt" => (Path.GetFileNameWithoutExtension(file.FileName), FileTypeEnum.Text),
+                _ => throw new ApiException($"{fileExtension} is not a valid file type", HttpStatusCode.BadRequest)
+            };
         }
     }
 }
