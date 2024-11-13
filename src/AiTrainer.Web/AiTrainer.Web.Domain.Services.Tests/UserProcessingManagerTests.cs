@@ -91,5 +91,33 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _userInfoClient.Verify(x => x.TryInvokeAsync(accessToken), Times.Once);
             _repo.Verify(x => x.Create(It.IsAny<IReadOnlyCollection<Models.User>>()), Times.Once);
         }
+        [Fact]
+        public async Task SaveAndCacheUser_Should_Update_And_Cache_Old_User()
+        {
+            //Arrange
+            var mockedUser = _fixture.Create<Models.User>();
+
+            var userInfoResp = new UserInfoResponse
+            {
+                Email = mockedUser.Email,
+                Name = Faker.Name.FullName()
+            };
+            var accessToken = Faker.Lorem.GetFirstWord();
+            _repo.Setup(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email))).ReturnsAsync(new DbGetOneResult<Models.User>(mockedUser));
+            var validationResult = new FluentValidation.Results.ValidationResult();
+            _userValidator.Setup(x => x.ValidateAsync(It.IsAny<Models.User>(), default)).ReturnsAsync(validationResult);
+            _userInfoClient.Setup(x => x.TryInvokeAsync(accessToken)).ReturnsAsync(userInfoResp);
+            _repo.Setup(x => x.Update(It.IsAny<IReadOnlyCollection<Models.User>>())).ReturnsAsync(new DbSaveResult<Models.User>([mockedUser]));
+
+            //Act
+            var result = await _userProcessingManager.SaveAndCacheUser(accessToken);
+
+            //Assert
+            result.Should().Be(mockedUser);
+            _cachingService.Verify(x => x.TryGetObject<Models.User>($"cacheUser-{accessToken}"), Times.Once);
+            _repo.Verify(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email)), Times.Once);
+            _userInfoClient.Verify(x => x.TryInvokeAsync(accessToken), Times.Once);
+            _repo.Verify(x => x.Update(It.IsAny<IReadOnlyCollection<Models.User>>()), Times.Once);
+        }
     }
 }
