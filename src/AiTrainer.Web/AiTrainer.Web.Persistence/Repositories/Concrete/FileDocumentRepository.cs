@@ -7,6 +7,7 @@ using AiTrainer.Web.Persistence.Repositories.Abstract;
 using BT.Common.FastArray.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using AiTrainer.Web.Domain.Models.Partials;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
