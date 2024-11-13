@@ -3,7 +3,6 @@ using AiTrainer.Web.Domain.Services.Concrete;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using System.Linq.Expressions;
 
 namespace AiTrainer.Web.Domain.Services.Tests
 {

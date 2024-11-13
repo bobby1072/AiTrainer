@@ -4,9 +4,9 @@ using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Extensions;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using BT.Common.FastArray.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using BT.Common.FastArray.Proto;
 
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete

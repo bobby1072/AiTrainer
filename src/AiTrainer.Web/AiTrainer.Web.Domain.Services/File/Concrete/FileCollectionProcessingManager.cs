@@ -6,10 +6,10 @@ using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using AiTrainer.Web.Persistence.Utils;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {

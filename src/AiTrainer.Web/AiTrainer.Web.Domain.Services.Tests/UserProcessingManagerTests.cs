@@ -9,9 +9,7 @@ using AiTrainer.Web.UserInfoClient.Models;
 using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
-using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests

@@ -1,12 +1,12 @@
-﻿using AiTrainer.Web.Domain.Models;
+﻿using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Services.Abstract;
+using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using AiTrainer.Web.Common.Exceptions;
 using System.Net;
-using FluentValidation;
-using AiTrainer.Web.Domain.Services.File.Abstract;
 
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete

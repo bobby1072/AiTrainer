@@ -1,6 +1,4 @@
-using AiTrainer.Web.Domain.Models.Partials;
-
-namespace AiTrainer.Web.Domain.Models
+namespace AiTrainer.Web.Domain.Models.Partials
 {
     public record FileDocumentPartial : DomainModelPartial<FileDocumentPartial, long?>
     {
