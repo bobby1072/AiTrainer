@@ -46,7 +46,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             var entities = await TimeAndLogDbOperation(() => setToQuery
                 .Select(x => new { x.Id, x.CollectionId, x.DateCreated, x.FileName, x.FileType })
-                .Where(x => collectionIds.Contains(x.CollectionId))
+                .Where(x => x.CollectionId != null && collectionIds.Contains((Guid)x.CollectionId))
                 .ToArrayAsync(), nameof(GetManyPartialsByCollectionId), _entityType.Name);
 
             return new DbGetManyResult<FileDocumentPartial>(entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray());

@@ -27,13 +27,13 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public UserProcessingManagerTests(): base()
         {
             _userProcessingManager = new UserProcessingManager(
+                _domainServiceActionExecutor.Object,
+                _mockapiRequestService,
                 _repo.Object,
                 _userInfoClient.Object,
                 _logger.Object,
                 _userValidator.Object,
-                _cachingService.Object,
-                _domainServiceActionExecutor.Object,
-                _mockapiRequestService
+                _cachingService.Object
             );
         }
 
