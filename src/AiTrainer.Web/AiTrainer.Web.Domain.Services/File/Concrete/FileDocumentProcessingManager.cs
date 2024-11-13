@@ -6,11 +6,12 @@ using Microsoft.Extensions.Logging;
 using AiTrainer.Web.Common.Exceptions;
 using System.Net;
 using FluentValidation;
-using AiTrainer.Web.Domain.Services.User.Abstract;
-using AiTrainer.Web.Common.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Services.File.Abstract;
+
+
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
-    internal class FileDocumentProcessingManager: BaseDomainService
+    public class FileDocumentProcessingManager: BaseDomainService, IFileDocumentProcessingManager
     {
         private readonly ILogger<FileDocumentProcessingManager> _logger;
         private readonly IFileDocumentRepository _fileDocumentRepository;
@@ -28,20 +29,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
         }
-
-        public async Task<FileDocumentPartial> SaveDocument(FileDocumentFormInput fileToSave)
-        {
-            var currentUser = await _domainServiceActionExecutor.ExecuteAsync<IUserProcessingManager, Models.User?>(userService => userService.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken));
-
-            if(currentUser is null)
-            {
-                throw new ApiException("User is not logged in", HttpStatusCode.Unauthorized);
-            }
-            
-
-
-            throw new NotImplementedException();
-        } 
         private static (string, FileTypeEnum) GetFileType(IFormFile file)
         {
             var fileExtension = Path.GetExtension(file.FileName).ToLower();

@@ -6,6 +6,7 @@ namespace AiTrainer.Web.Domain.Models
     {
         [LockedProperty]
         public Guid? CollectionId { get; set; }
+        public required Guid UserId { get; set; }
         [LockedProperty]
         public required FileTypeEnum FileType { get; set; }
         public required string FileName { get; set; }
@@ -22,7 +23,8 @@ namespace AiTrainer.Web.Domain.Models
                 && DateCreated == fileDocument.DateCreated
                 && FileType == fileDocument.FileType
                 && FileName == fileDocument.FileName
-                && FileData == fileDocument.FileData;
+                && FileData == fileDocument.FileData
+                && UserId == fileDocument.UserId;
         }
 
         public override void ApplyCreationDefaults()

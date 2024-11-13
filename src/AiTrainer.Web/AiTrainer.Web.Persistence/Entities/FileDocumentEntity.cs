@@ -8,6 +8,7 @@ namespace AiTrainer.Web.Persistence.Entities
     {
         public Guid? CollectionId { get; set; }
         public DateTime DateCreated { get; set; }
+        public required Guid UserId { get; set; }
         public required int FileType { get; set; }
         public required string FileName { get; set; }
         public required byte[] FileData { get; set; }
@@ -20,6 +21,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 DateCreated = DateCreated,
                 FileType = (FileTypeEnum)FileType,
                 FileData = FileData,
+                UserId = UserId,
                 FileName = FileName,
             };
     }

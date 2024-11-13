@@ -7,11 +7,11 @@ namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class DomainModelExtensions
     {
-        public static bool ValidateAgainstOriginal<TModel>(
+        public static bool ValidateAgainstOriginal<TModel, TId>(
             this TModel originalModel,
             TModel checkAgainst
         )
-            where TModel : DomainModel<TModel, object>
+            where TModel : DomainModel<TModel, TId>
         {
             var allPropertiesToCheck = checkAgainst.GetType().GetProperties();
             for (var i = 0; i < allPropertiesToCheck.Length; i++)
