@@ -1,7 +1,6 @@
 ﻿using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using System.Net.Mime;
 
