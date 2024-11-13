@@ -75,7 +75,7 @@ namespace AiTrainer.Web.Persistence
                     FileDocumentRepository
                 >()
                 .AddScoped<
-                    IRepository<FileCollectionEntity, Guid, FileCollection>,
+                    IFileCollectionRepository,
                     FileCollectionRepository
                 >()
                 .AddScoped<IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss>, FileCollectionFaissRepository>();

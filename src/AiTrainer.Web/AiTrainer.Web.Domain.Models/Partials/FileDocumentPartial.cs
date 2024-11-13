@@ -1,10 +1,9 @@
-using AiTrainer.Web.Domain.Models.Partials;
-
-namespace AiTrainer.Web.Domain.Models
+namespace AiTrainer.Web.Domain.Models.Partials
 {
     public record FileDocumentPartial : DomainModelPartial<FileDocumentPartial, long?>
     {
         public required Guid CollectionId { get; init; }
+        public required Guid UserId { get; init; }
         public required FileTypeEnum FileType { get; init; }
         public required string FileName { get; init; }
         public required DateTime DateCreated { get; init; }

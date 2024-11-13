@@ -1,4 +1,6 @@
-﻿namespace AiTrainer.Web.Api.Middlewares
+﻿using AiTrainer.Web.Common;
+
+namespace AiTrainer.Web.Api.Middlewares
 {
     internal class CorrelationIdMiddleware : BaseMiddleware
     {

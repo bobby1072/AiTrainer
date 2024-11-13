@@ -1,10 +1,9 @@
 using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using BT.Common.OperationTimer.Proto;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
@@ -12,29 +11,38 @@ namespace AiTrainer.Web.Domain.Services.Concrete
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DomainServiceActionExecutor> _logger;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-
+        private readonly IApiRequestHttpContextService _apiRequestHttpContextService;
         public DomainServiceActionExecutor(
             IServiceProvider serviceProvider,
             ILogger<DomainServiceActionExecutor> logger,
-            IHttpContextAccessor httpContextAccessor
+            IApiRequestHttpContextService apiRequestHttpContextService
         )
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
+            _apiRequestHttpContextService = apiRequestHttpContextService;
         }
+        public Task<TReturn> ExecuteAsync<TService, TReturn>(
+            Expression<Func<TService, Task<TReturn>>> serviceAction,
+            string? serviceActionName = null
+        )
+            where TService : IDomainService => ExecuteAsync(serviceAction.Compile(), serviceActionName);
+        public TReturn Execute<TService, TReturn>(
+            Expression<Func<TService, TReturn>> serviceAction,
+            string? serviceActionName = null
+        )
+            where TService : IDomainService => Execute(serviceAction.Compile(), serviceActionName);
 
-        public async Task<TReturn> ExecuteAsync<TService, TReturn>(
+        private async Task<TReturn> ExecuteAsync<TService, TReturn>(
             Func<TService, Task<TReturn>> serviceAction,
             string? serviceActionName = null
         )
             where TService : IDomainService
         {
             var actionName = serviceActionName ?? serviceAction.Method.Name;
-            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
             _logger.LogInformation(
-                "-------Entering service action {ServiceAction} for correlationId {CorrelationId}-------",
+                "-------Entering service action executor for {ServiceAction} for correlationId {CorrelationId}-------",
                 actionName,
                 correlationId
             );
@@ -55,15 +63,14 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             );
 
             _logger.LogInformation(
-                "-------Exiting service action {ServiceAction} successfully for correlationId {CorrelationId}-------",
+                "-------Exiting service action executor for {ServiceAction} successfully for correlationId {CorrelationId}-------",
                 actionName,
                 correlationId
             );
 
             return result;
         }
-
-        public TReturn Execute<TService, TReturn>(
+        private TReturn Execute<TService, TReturn>(
             Func<TService, TReturn> serviceAction,
             string? serviceActionName = null
         )
@@ -71,7 +78,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         {
             var actionName = serviceActionName ?? serviceAction.Method.Name;
 
-            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
             _logger.LogInformation(
                 "-------Entering service action {ServiceAction} for correlationId {CorrelationId}-------",
                 actionName,

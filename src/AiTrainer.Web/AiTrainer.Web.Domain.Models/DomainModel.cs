@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using AiTrainer.Web.Domain.Models.Attributes;
+using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Domain.Models
 {
@@ -9,6 +10,7 @@ namespace AiTrainer.Web.Domain.Models
         {
             get => GetType().Name;
         }
+        [LockedProperty]
         public TId Id { get; set; }
 
         public abstract bool Equals(TEquatable? obj);

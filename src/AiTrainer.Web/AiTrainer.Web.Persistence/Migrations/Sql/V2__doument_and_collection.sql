@@ -30,6 +30,7 @@ CREATE TABLE public."file_document" (
     collection_id UUID REFERENCES public."file_collection"(id) 
         ON DELETE CASCADE    
         ON UPDATE CASCADE,    
+    user_id UUID NOT NULL REFERENCES public."user"(id) ON DELETE CASCADE ON UPDATE CASCADE,
     file_type INTEGER NOT NULL,
     file_name TEXT NOT NULL,
     file_data BYTEA NOT NULL,

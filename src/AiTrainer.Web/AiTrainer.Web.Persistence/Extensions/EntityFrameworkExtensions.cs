@@ -27,6 +27,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             var entity = new FileDocumentEntity
             {
                 CollectionId = fileDocument.CollectionId,
+                UserId = fileDocument.UserId,
                 DateCreated = fileDocument.DateCreated,
                 FileType = (int)fileDocument.FileType,
                 FileData = fileDocument.FileData,
