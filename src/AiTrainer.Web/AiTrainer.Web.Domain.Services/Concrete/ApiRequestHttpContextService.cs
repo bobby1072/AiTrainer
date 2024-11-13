@@ -23,8 +23,8 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             }
         }
 
-        private string? _accessToken;
-        public string? AccessToken
+        private string _accessToken;
+        public string AccessToken
         {
             get
             {
