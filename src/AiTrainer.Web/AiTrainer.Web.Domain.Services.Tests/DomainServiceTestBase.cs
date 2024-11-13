@@ -1,4 +1,5 @@
-﻿using AutoFixture;
+﻿using AiTrainer.Web.Domain.Services.Abstract;
+using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Moq;
 
@@ -11,6 +12,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         protected readonly Mock<HttpContext> _mockHttpContext = new();
         protected readonly Mock<HttpRequest> _mockHttpRequest = new();
         protected readonly Mock<HttpResponse> _mockHttpResponse = new();
+        protected readonly Mock<IDomainServiceActionExecutor> _domainServiceActionExecutor = new();
         protected readonly HeaderDictionary _headerDictionary = [];
 
         protected DomainServiceTestBase()
@@ -20,8 +22,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockHttpContext.Setup(x => x.Request.Headers).Returns(_headerDictionary);
             _mockHttpContext.Setup(x => x.Response.Headers).Returns(_headerDictionary);
             _mockHttpContextAccessor.Setup(x => x.HttpContext).Returns(_mockHttpContext.Object);
-
-            
         }
     }
 }

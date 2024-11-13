@@ -20,7 +20,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<ILogger<UserProcessingManager>> _logger = new();
         private readonly Mock<IValidator<Models.User>> _userValidator = new();
         private readonly Mock<ICachingService> _cachingService = new();
-        protected readonly Mock<IDomainServiceActionExecutor> _domainServiceActionExecutor = new();
         private readonly UserProcessingManager _userProcessingManager;
         public UserProcessingManagerTests(): base()
         {
