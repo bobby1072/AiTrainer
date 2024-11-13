@@ -29,8 +29,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _logger.Object,
                 _userValidator.Object,
                 _cachingService.Object,
-                _mockHttpContextAccessor.Object,
-                _domainServiceActionExecutor.Object
+                _domainServiceActionExecutor.Object,
+                _mockapiRequestService
             );
         }
 
