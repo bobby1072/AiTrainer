@@ -9,10 +9,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
     {
         private readonly IFileCollectionRepository _repository;
         public FileCollectionProcessingManager(
+            IFileCollectionRepository repository,
             IDomainServiceActionExecutor domainServiceActionExecutor,
-            IFileCollectionRepository repository
+            IApiRequestHttpContextService apiRequestService
         )
-            : base(domainServiceActionExecutor) 
+            : base(domainServiceActionExecutor, apiRequestService) 
         {
             _repository = repository;
         }

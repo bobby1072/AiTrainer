@@ -1,5 +1,4 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
@@ -9,7 +8,6 @@ using AiTrainer.Web.Persistence.Utils;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 
@@ -22,7 +20,6 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         private readonly ILogger<UserProcessingManager> _logger;
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserProcessingManager(
             IRepository<UserEntity, Guid, Models.User> repo,
@@ -30,22 +27,21 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             ILogger<UserProcessingManager> logger,
             IValidator<Models.User> userValidator,
             ICachingService cachingService,
-            IHttpContextAccessor httpContextAccessor,
-            IDomainServiceActionExecutor domainServiceActionExecutor
+            IDomainServiceActionExecutor domainServiceActionExecutor,
+            IApiRequestHttpContextService apiRequestService
         )
-            : base(domainServiceActionExecutor)
+            : base(domainServiceActionExecutor, apiRequestService)
         {
             _repo = repo;
             _userInfoClient = userInfoClient;
             _logger = logger;
             _userValidator = userValidator;
             _cachingService = cachingService;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Models.User> SaveAndCacheUser(string accessToken)
         {
-            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -150,7 +146,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 
         public Task<Models.User?> TryGetUserFromCache(string accessToken)
         {
-            _logger.LogInformation("Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}", _httpContextAccessor.HttpContext.GetCorrelationId(), accessToken);
+            _logger.LogInformation("Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}", _apiRequestHttpContextService.CorrelationId, accessToken);
 
             return _cachingService.TryGetObject<Models.User>(GetCacheKey(accessToken));
         }

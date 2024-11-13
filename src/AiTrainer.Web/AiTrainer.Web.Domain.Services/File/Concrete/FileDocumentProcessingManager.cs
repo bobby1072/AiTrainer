@@ -8,7 +8,6 @@ using System.Net;
 using FluentValidation;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Common.Extensions;
-using System.ComponentModel.Design;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -23,9 +22,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             ILogger<FileDocumentProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
             IValidator<FileDocument> validator,
-            IHttpContextAccessor contextAccessor
+            IHttpContextAccessor contextAccessor,
+            IApiRequestHttpContextService apiRequestService
         )
-        : base(domainServiceActionExecutor)
+        : base(domainServiceActionExecutor, apiRequestService)
         {
             _logger = logger;
             _fileDocumentRepository = fileDocumentRepository;
