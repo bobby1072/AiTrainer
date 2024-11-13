@@ -17,7 +17,10 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             this IServiceCollection services
         )
         {
-            services.AddSingleton<IValidator<User>, UserValidator>();
+            services
+                .AddSingleton<IValidator<User>, UserValidator>()
+                .AddSingleton<IValidator<FileCollection>, FileCollectionValidator>()
+                .AddSingleton<IValidator<FileDocument>, FileDocumentValidator>();
 
             return services;
         }
