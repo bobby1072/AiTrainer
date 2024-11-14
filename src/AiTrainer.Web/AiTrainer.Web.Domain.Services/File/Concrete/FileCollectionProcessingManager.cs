@@ -48,6 +48,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                  ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var createdCollection = FileCollectionExtensions.FromInput(fileCollectionInput, (Guid)foundCachedUser.Id!);
+
+
             var hasId = createdCollection.Id is not null;
 
             if (!hasId)
@@ -64,6 +66,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (hasId)
             {
+                _logger.LogInformation("Attempting to retrieve collection with id {CreatedCollectionId} for userId {UserId} and correlationId {CorrelationId}", createdCollection.Id, foundCachedUser.Id, _apiRequestHttpContextService.CorrelationId);
                 var foundOne = await _repository.GetOne((Guid)createdCollection.Id!);
                 if(foundOne?.Data is null)
                 {
@@ -72,12 +75,13 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
                 if(!createdCollection.ValidateAgainstOriginal<FileCollection, Guid?>(foundOne.Data))
                 {
-                    throw new ApiException("Cannot those fields");
+                    throw new ApiException("Cannot edit those fields", HttpStatusCode.BadRequest);
                 }
 
                 createdCollection.DateModified = DateTime.UtcNow;
             }
 
+            _logger.LogInformation("{ActionName} attempting to {SaveMode} collection: {CreatedCollection}", nameof(SaveFileCollection), hasId ? "update" : "create", createdCollection);
             var newlySavedCollection = await EntityFrameworkUtils.TryDbOperation(() => hasId ? _repository.Update([createdCollection]): _repository.Create([createdCollection]));
 
             if(newlySavedCollection?.IsSuccessful != true)

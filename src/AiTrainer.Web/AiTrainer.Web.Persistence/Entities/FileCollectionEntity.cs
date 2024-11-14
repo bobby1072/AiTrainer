@@ -15,7 +15,6 @@ namespace AiTrainer.Web.Persistence.Entities
 
         public DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
-        public virtual IReadOnlyCollection<FileCollectionEntity>? Children { get; set; }
         public virtual IReadOnlyCollection<FileCollectionFaissEntity>? FaissStore { get; set; }
         public virtual IReadOnlyCollection<FileDocumentEntity>? Documents { get; set; }
         public override FileCollection ToModel() =>
@@ -27,7 +26,6 @@ namespace AiTrainer.Web.Persistence.Entities
                 DateCreated = DateCreated,
                 DateModified = DateModified,
                 ParentId = ParentId,
-                Children = Children?.FastArraySelect(x => x.ToModel()).ToArray(),
                 FaissStore = FaissStore?.FirstOrDefault()?.ToModel(),
                 Documents = Documents?.FastArraySelect(x => x.ToModel()).ToArray()
             };

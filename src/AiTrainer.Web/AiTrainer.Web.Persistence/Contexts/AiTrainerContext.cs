@@ -14,9 +14,6 @@ namespace AiTrainer.Web.Persistence.Contexts
         public virtual DbSet<FileCollectionFaissEntity> FileCollectionFaiss { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder
-                .Entity<FileCollectionEntity>()
-                .HasMany(fc => fc.Children);
 
             modelBuilder
                 .Entity<FileCollectionEntity>()
