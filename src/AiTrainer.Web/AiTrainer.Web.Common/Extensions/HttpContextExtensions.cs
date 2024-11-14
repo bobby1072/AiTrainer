@@ -23,7 +23,7 @@ namespace AiTrainer.Web.Common.Extensions
                 correlationId = correlationIdFromResponse;
             }
 
-            return !string.IsNullOrEmpty(correlationId) ? Guid.Parse(correlationId!) : null;
+            return !string.IsNullOrEmpty(correlationId.ToString()) ? Guid.Parse(correlationId!) : null;
         }
 
         public static string GetAccessToken(this HttpContext context) =>

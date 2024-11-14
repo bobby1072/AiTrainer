@@ -41,10 +41,9 @@ namespace AiTrainer.Web.Api.Middlewares
             context.Response.Clear();
             context.Response.ContentType = MediaTypeNames.Application.Json;
             context.Response.StatusCode = (int)apiException.StatusCode;
-            var foundCorrelationId = _requestContextService.CorrelationId;
-            if (foundCorrelationId is not null)
+            if (_requestContextService.CorrelationId is not null)
             {
-                context.Response.Headers.TryAdd(ApiConstants.CorrelationIdHeader, foundCorrelationId.ToString());
+                context.Response.Headers.TryAdd(ApiConstants.CorrelationIdHeader, _requestContextService.CorrelationId.ToString());
             }
             else
             {
