@@ -66,6 +66,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (hasId)
             {
+                _logger.LogInformation("Attempting to retrieve collection with id {CreatedCollectionId} for userId {UserId} and correlationId {CorrelationId}", createdCollection.Id, foundCachedUser.Id, _apiRequestHttpContextService.CorrelationId);
                 var foundOne = await _repository.GetOne((Guid)createdCollection.Id!);
                 if(foundOne?.Data is null)
                 {

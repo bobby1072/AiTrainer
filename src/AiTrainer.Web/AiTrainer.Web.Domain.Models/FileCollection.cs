@@ -12,7 +12,6 @@ namespace AiTrainer.Web.Domain.Models
         public required DateTime DateCreated { get; set; }
         public required DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
-        public IReadOnlyCollection<FileCollection>? Children { get; init; }
         public FileCollectionFaiss? FaissStore { get; init; }
         public IReadOnlyCollection<FileDocument>? Documents { get; init; }
         public override bool Equals(FileCollection? other)
