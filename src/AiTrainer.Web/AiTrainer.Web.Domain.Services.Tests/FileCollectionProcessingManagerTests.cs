@@ -10,7 +10,6 @@ using FluentAssertions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace AiTrainer.Web.Domain.Services.Tests
@@ -21,7 +20,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<ILogger<FileCollectionProcessingManager>> _mockLogger = new();
         private readonly Mock<IValidator<FileCollection>> _mockValidator = new();
         private readonly FileCollectionProcessingManager _fileCollectionManager;
-        private IReadOnlyCollection<FileCollection>? _fileCollectionToSave {  get; set; }
         public FileCollectionProcessingManagerTests(): base()
         {
             _fileCollectionManager = new FileCollectionProcessingManager(
@@ -68,9 +66,14 @@ namespace AiTrainer.Web.Domain.Services.Tests
 
             //Assert
             result.Should().NotBeNull();
+            fileCollectionInput.Should().NotBeNull();
             result.CollectionName.Should().Be(fileCollectionInput.CollectionName);
             result.ParentId.Should().Be(fileCollectionInput.ParentId);
             result.UserId.Should().Be((Guid)currentUser.Id!);
+
+            _mockRepository
+                .Verify(x => x.Create(It.Is<IReadOnlyCollection<FileCollection>>(x => x.First().CollectionName == fileCollectionInput.CollectionName)), Times.Once);
+
         }
     }
 }
