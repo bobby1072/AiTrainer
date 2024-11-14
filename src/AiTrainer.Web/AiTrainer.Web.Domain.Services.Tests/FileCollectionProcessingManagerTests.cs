@@ -5,7 +5,6 @@ using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
-using AiTrainer.Web.TestBase;
 using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
 using FluentAssertions;
@@ -74,8 +73,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
 
             _mockDomainServiceActionExecutor.Verify(x => x.ExecuteAsync(It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(), default), Times.Once);
             _mockValidator.Verify(x => x.ValidateAsync(It.Is<FileCollection>(x => x.Id == fileCollectionInput.Id && x.CollectionName == fileCollectionInput.CollectionName), default), Times.Once);
-            _mockRepository
-                .Verify(x => x.Create(It.Is<IReadOnlyCollection<FileCollection>>(x => x.First().CollectionName == fileCollectionInput.CollectionName)), Times.Once);
             _mockRepository.Verify(x => x.GetOne(It.IsAny<Guid>()), Times.Never);
         }
         [Fact]
@@ -121,6 +118,51 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockValidator.Verify(x => x.ValidateAsync(It.Is<FileCollection>(x => x.Id == newFileCollectionInput.Id && x.CollectionName == newFileCollectionInput.CollectionName), default), Times.Once);
             _mockRepository
                 .Verify(x => x.Update(It.Is<IReadOnlyCollection<FileCollection>>(x => x.First().CollectionName == newFileCollectionInput.CollectionName)), Times.Once);
+            _mockRepository.Verify(x => x.GetOne((Guid)newFileCollectionInput.Id!), Times.Once);
+        }
+        [Fact]
+        public async Task SaveFileCollection_Should_Throw_When_New_Model_Changes_LockedProperty()
+        {
+            //Arrange
+            IReadOnlyCollection<FileCollection> fileCollectionToSave = null;
+            var currentUser = _fixture.Build<Models.User>().With(x => x.Id, Guid.NewGuid()).Create();
+            var originalFileCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.DateCreated, RandomUtils.DateInThePast())
+                .With(x => x.DateModified, RandomUtils.DateInThePast())
+                .With(x => x.UserId, currentUser.Id)
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+
+            var newFileCollectionInput = _fixture
+                .Build<FileCollectionSaveInput>()
+                .With(x => x.Id, originalFileCollection.Id)
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.DateCreated, originalFileCollection.DateCreated)
+                .Create();
+
+            _mockDomainServiceActionExecutor.Setup(x => x.ExecuteAsync(It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(), default)).ReturnsAsync(currentUser);
+            _mockValidator.Setup(x => x.ValidateAsync(It.Is<FileCollection>(x => x.Id == newFileCollectionInput.Id && x.CollectionName == newFileCollectionInput.CollectionName), default)).ReturnsAsync(new FluentValidation.Results.ValidationResult());
+            _mockRepository
+                .Setup(x => x.Update(It.Is<IReadOnlyCollection<FileCollection>>(x => x.First().CollectionName == newFileCollectionInput.CollectionName)))
+                .Callback((IReadOnlyCollection<FileCollection> x) => fileCollectionToSave = x)
+                .ReturnsAsync(() => new DbSaveResult<FileCollection>(fileCollectionToSave));
+            _mockRepository.Setup(x => x.GetOne((Guid)newFileCollectionInput.Id!)).ReturnsAsync(new DbGetOneResult<FileCollection>(originalFileCollection));
+
+            //Act
+            var act = () => _fileCollectionManager.SaveFileCollection(newFileCollectionInput);
+
+
+            //Assert
+            await act.Should().ThrowAsync<ApiException>().WithMessage("Cannot edit those fields");
+
+            _mockDomainServiceActionExecutor.Verify(x => x.ExecuteAsync(It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(), default), Times.Once);
+            _mockValidator.Verify(x => x.ValidateAsync(It.Is<FileCollection>(x => x.Id == newFileCollectionInput.Id && x.CollectionName == newFileCollectionInput.CollectionName), default), Times.Once);
+            _mockRepository
+                .Verify(x => x.Update(It.IsAny<IReadOnlyCollection<FileCollection>>()), Times.Never);
+            _mockRepository
+                .Verify(x => x.Create(It.IsAny<IReadOnlyCollection<FileCollection>>()), Times.Never);
             _mockRepository.Verify(x => x.GetOne((Guid)newFileCollectionInput.Id!), Times.Once);
         }
     }
