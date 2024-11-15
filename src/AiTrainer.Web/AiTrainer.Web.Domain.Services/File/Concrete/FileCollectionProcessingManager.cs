@@ -5,6 +5,7 @@ using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
@@ -20,18 +21,21 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileCollectionRepository _repository;
         private readonly ILogger<FileCollectionProcessingManager> _logger;
         private readonly IValidator<FileCollection> _validator;
+        private readonly IFileDocumentRepository _fileDocumentRepository;
         public FileCollectionProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
             IApiRequestHttpContextService apiRequestService,
             IFileCollectionRepository repository,
             ILogger<FileCollectionProcessingManager> logger,
-            IValidator<FileCollection> validator
+            IValidator<FileCollection> validator,
+            IFileDocumentRepository fileDocumentRepository
         )
             : base(domainServiceActionExecutor, apiRequestService) 
         {
             _repository = repository;
             _logger = logger;
             _validator = validator;
+            _fileDocumentRepository = fileDocumentRepository;
         }
 
         public async Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput)
@@ -94,6 +98,44 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
             return newlySavedCollection.Data.First();
+        }
+
+        public async Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(Guid? collectionId = null)
+        {
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(GetOneLayerFileDocPartialsAndCollections),
+                correlationId
+            );
+
+            var foundCachedUser = await _domainServiceActionExecutor.ExecuteAsync<IUserProcessingManager, Models.User?>(userServ => userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken))
+                 ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+
+            var collectionsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
+                _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!) :
+                _repository.GetManyCollectionsForUser((Guid)collectionId!, (Guid)foundCachedUser.Id!)
+            );
+            var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
+                _fileDocumentRepository.GetTopLevelDocumentPartialsForUser((Guid)foundCachedUser.Id!) :
+                _fileDocumentRepository.GetManyDocumentPartialsByCollectionId((Guid)collectionId!, (Guid)foundCachedUser.Id!)
+            );
+
+            await Task.WhenAll(
+                collectionsJob,
+                partialDocumentsJob
+            );
+            var collections = (await collectionsJob)?.Data ?? [];
+            var partialDocuments = (await partialDocumentsJob)?.Data ?? [];
+
+            _logger.LogInformation(
+                "Exiting {Action} for correlationId {CorrelationId}",
+                nameof(GetOneLayerFileDocPartialsAndCollections),
+                correlationId
+            );
+
+            return new FlatFileDocumentPartialCollection { FileCollections = collections, FileDocuments = partialDocuments };
         }
     }
 }

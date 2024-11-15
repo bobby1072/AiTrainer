@@ -8,6 +8,6 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
     public interface IFileDocumentRepository : IRepository<FileDocumentEntity, Guid, FileDocument>
     {
         Task<DbGetManyResult<FileDocumentPartial>> GetTopLevelDocumentPartialsForUser(Guid userId, params string[] relationShips);
-        Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionId(Guid collectionId, params string[] relationShips);
+        Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionId(Guid collectionId, Guid userId, params string[] relationShips);
     }
 }
