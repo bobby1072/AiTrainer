@@ -115,7 +115,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             var collectionsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
                 _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!) :
-                _repository.GetCollectionsForUser(collectionId, (Guid)foundCachedUser.Id!, nameof(FileCollectionEntity.ParentId))
+                _repository.GetCollectionsForUser((Guid)collectionId!, (Guid)foundCachedUser.Id!, nameof(FileCollectionEntity.ParentId))
             );
             var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
                 _fileDocumentRepository.GetTopLevelDocumentPartialsForUser((Guid)foundCachedUser.Id!) :
