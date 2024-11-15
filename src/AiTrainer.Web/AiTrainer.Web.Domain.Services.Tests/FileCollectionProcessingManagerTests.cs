@@ -210,5 +210,47 @@ namespace AiTrainer.Web.Domain.Services.Tests
 
         }
 
+        [Fact]
+        public async Task GetOneLayerFileDocPartialsAndCollections_Given_Collection_Id_Should_Get_Children()
+        {
+            //Arrange
+            var currentUser = _fixture.Build<Models.User>().With(x => x.Id, Guid.NewGuid()).Create();
+            var foundSingleFileCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.DateCreated, RandomUtils.DateInThePast())
+                .With(x => x.DateModified, RandomUtils.DateInThePast())
+                .With(x => x.UserId, currentUser.Id)
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.ParentId, Guid.NewGuid())
+                .Create();
+
+            var foundSingleFileDocument = _fixture
+                .Build<FileDocumentPartial>()
+                .With(x => x.DateCreated, RandomUtils.DateInThePast())
+                .With(x => x.CollectionId, Guid.NewGuid())
+                .Create();
+
+            _mockDomainServiceActionExecutor.Setup(x => x.ExecuteAsync(It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(), default)).ReturnsAsync(currentUser);
+            _mockRepository
+                .Setup(x => x.GetManyCollectionsForUser((Guid)foundSingleFileDocument.CollectionId!, (Guid)currentUser.Id!))
+                .ReturnsAsync(new DbGetManyResult<FileCollection>([foundSingleFileCollection]));
+
+            _mockFileDocumentRepository
+                .Setup(x => x.GetManyDocumentPartialsByCollectionId((Guid)foundSingleFileDocument.CollectionId!, (Guid)currentUser.Id!))
+                .ReturnsAsync(new DbGetManyResult<FileDocumentPartial>([foundSingleFileDocument]));
+
+            //Act
+            await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollections(foundSingleFileCollection.Id);
+
+            //Assert
+            _mockRepository
+                .Verify(x => x.GetManyCollectionsForUser((Guid)foundSingleFileCollection.Id!, (Guid)currentUser.Id!), Times.Once);
+
+            _mockFileDocumentRepository
+                .Verify(x => x.GetManyDocumentPartialsByCollectionId((Guid)foundSingleFileCollection.Id!, (Guid)currentUser.Id!), Times.Once);
+
+        }
+
     }
 }
