@@ -20,6 +20,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<IFileCollectionRepository> _mockRepository = new();
         private readonly Mock<ILogger<FileCollectionProcessingManager>> _mockLogger = new();
         private readonly Mock<IValidator<FileCollection>> _mockValidator = new();
+        private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
         private readonly FileCollectionProcessingManager _fileCollectionManager;
         public FileCollectionProcessingManagerTests(): base()
         {
@@ -28,7 +29,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockapiRequestService,
                 _mockRepository.Object,
                 _mockLogger.Object,
-                _mockValidator.Object
+                _mockValidator.Object,
+                _mockFileDocumentRepository.Object
             );
         }
 
