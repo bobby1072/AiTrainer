@@ -5,6 +5,7 @@ using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
@@ -99,21 +100,27 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             return newlySavedCollection.Data.First();
         }
 
-        public async Task<FlatFileDocumentPartialCollection> GetTopLevelFileDocsAndCollections()
+        public async Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(Guid? collectionId)
         {
             var correlationId = _apiRequestHttpContextService.CorrelationId;
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
-                nameof(GetTopLevelFileDocsAndCollections),
+                nameof(GetOneLayerFileDocPartialsAndCollections),
                 correlationId
             );
 
             var foundCachedUser = await _domainServiceActionExecutor.ExecuteAsync<IUserProcessingManager, Models.User?>(userServ => userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken))
                  ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
-            var collectionsJob = EntityFrameworkUtils.TryDbOperation(() => _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!));
-            var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.GetTopLevelDocumentPartialsForUser((Guid)foundCachedUser.Id!));
+            var collectionsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
+                _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!) :
+                _repository.GetMany(collectionId, nameof(FileCollectionEntity.ParentId))
+            );
+            var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
+                _fileDocumentRepository.GetTopLevelDocumentPartialsForUser((Guid)foundCachedUser.Id!) :
+                _fileDocumentRepository.GetManyDocumentPartialsByCollectionId((Guid)collectionId!)
+            );
 
             await Task.WhenAll(
                 collectionsJob,
@@ -124,7 +131,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
-                nameof(GetTopLevelFileDocsAndCollections),
+                nameof(GetOneLayerFileDocPartialsAndCollections),
                 correlationId
             );
 
