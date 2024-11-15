@@ -17,7 +17,7 @@ builder
     .AddResponseCompression()
     .AddRequestTimeouts(opts =>
     {
-        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(60) };
+        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(90) };
     })
     .AddLogging()
     .AddEndpointsApiExplorer()
@@ -66,7 +66,7 @@ else
 app.UseRouting();
 app.UseResponseCompression();
 app.UseAuthorization();
-
+app.UseAuthentication();
 app.AddAiTrainerDefaultMiddlewares();
 
 app.MapControllers();

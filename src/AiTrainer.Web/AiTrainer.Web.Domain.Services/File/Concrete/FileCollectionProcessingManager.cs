@@ -20,18 +20,21 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileCollectionRepository _repository;
         private readonly ILogger<FileCollectionProcessingManager> _logger;
         private readonly IValidator<FileCollection> _validator;
+        private readonly IFileDocumentRepository _fileDocumentRepository;
         public FileCollectionProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
             IApiRequestHttpContextService apiRequestService,
             IFileCollectionRepository repository,
             ILogger<FileCollectionProcessingManager> logger,
-            IValidator<FileCollection> validator
+            IValidator<FileCollection> validator,
+            IFileDocumentRepository fileDocumentRepository
         )
             : base(domainServiceActionExecutor, apiRequestService) 
         {
             _repository = repository;
             _logger = logger;
             _validator = validator;
+            _fileDocumentRepository = fileDocumentRepository;
         }
 
         public async Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput)
@@ -94,6 +97,38 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
             return newlySavedCollection.Data.First();
+        }
+
+        public async Task<FlatFileDocumentPartialCollection> GetTopLevelFileDocsAndCollections()
+        {
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(GetTopLevelFileDocsAndCollections),
+                correlationId
+            );
+
+            var foundCachedUser = await _domainServiceActionExecutor.ExecuteAsync<IUserProcessingManager, Models.User?>(userServ => userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken))
+                 ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+
+            var collectionsJob = EntityFrameworkUtils.TryDbOperation(() => _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!));
+            var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.GetTopLevelDocumentPartialsForUser((Guid)foundCachedUser.Id!));
+
+            await Task.WhenAll(
+                collectionsJob,
+                partialDocumentsJob
+            );
+            var collections = (await collectionsJob)?.Data ?? [];
+            var partialDocuments = (await partialDocumentsJob)?.Data ?? [];
+
+            _logger.LogInformation(
+                "Exiting {Action} for correlationId {CorrelationId}",
+                nameof(GetTopLevelFileDocsAndCollections),
+                correlationId
+            );
+
+            return new FlatFileDocumentPartialCollection { FileCollections = collections, FileDocuments = partialDocuments };
         }
     }
 }
