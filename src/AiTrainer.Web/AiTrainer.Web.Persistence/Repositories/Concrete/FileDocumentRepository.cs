@@ -37,7 +37,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             return new DbGetManyResult<FileDocumentPartial>(entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray());
         }
-        public async Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionId(Guid collectionId, params string[] relationShips)
+        public async Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionId(Guid collectionId, Guid userId, params string[] relationShips)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
 
@@ -46,7 +46,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             var entities = await TimeAndLogDbOperation(() => setToQuery
                 .Select(x => new { x.Id, x.CollectionId, x.DateCreated, x.FileName, x.FileType, x.UserId })
-                .Where(x => x.CollectionId == collectionId)
+                .Where(x => x.CollectionId == collectionId && x.UserId == userId)
                 .ToArrayAsync(), nameof(GetManyDocumentPartialsByCollectionId), _entityType.Name);
 
             return new DbGetManyResult<FileDocumentPartial>(entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray());

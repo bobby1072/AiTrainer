@@ -36,5 +36,16 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             return new DbGetManyResult<FileCollection>(entities?.FastArraySelect(x => x.ToModel()).ToArray());
         }
+        public async Task<DbGetManyResult<FileCollection>> GetCollectionsForUser(Guid parentId, Guid userId, params string[] relationShips)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var setToQuery = AddRelationsToSet(dbContext.FileCollections, relationShips);
+
+            var entities = await TimeAndLogDbOperation(() => setToQuery
+                .Where(x => x.UserId == userId && x.ParentId == parentId)
+                .ToArrayAsync(), nameof(GetTopLevelCollectionsForUser), _entityType.Name);
+
+            return new DbGetManyResult<FileCollection>(entities?.FastArraySelect(x => x.ToModel()).ToArray());
+        }
     }
 }
