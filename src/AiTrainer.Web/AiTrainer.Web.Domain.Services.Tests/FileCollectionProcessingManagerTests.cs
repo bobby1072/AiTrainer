@@ -180,7 +180,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.DateModified, RandomUtils.DateInThePast())
                 .With(x => x.UserId, currentUser.Id)
                 .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.ParentId, (Guid?)null)
                 .Create();
+
             var foundSingleFileDocument  = _fixture
                 .Build<FileDocumentPartial>()
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -192,6 +194,19 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Setup(x => x.GetTopLevelCollectionsForUser((Guid)currentUser.Id!))
                 .ReturnsAsync(new DbGetManyResult<FileCollection>([foundSingleFileCollection]));
 
+            _mockFileDocumentRepository
+                .Setup(x => x.GetTopLevelDocumentPartialsForUser((Guid)currentUser.Id!))
+                .ReturnsAsync(new DbGetManyResult<FileDocumentPartial>([foundSingleFileDocument]));
+
+            //Act
+            await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollections();
+
+            //Assert
+            _mockRepository
+                .Verify(x => x.GetTopLevelCollectionsForUser((Guid)currentUser.Id!), Times.Once);
+
+            _mockFileDocumentRepository
+                .Verify(x => x.GetTopLevelDocumentPartialsForUser((Guid)currentUser.Id!), Times.Once);
 
         }
 

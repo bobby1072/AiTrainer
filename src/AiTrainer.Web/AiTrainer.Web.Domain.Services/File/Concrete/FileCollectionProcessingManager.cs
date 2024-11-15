@@ -100,7 +100,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             return newlySavedCollection.Data.First();
         }
 
-        public async Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(Guid? collectionId)
+        public async Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(Guid? collectionId = null)
         {
             var correlationId = _apiRequestHttpContextService.CorrelationId;
 
