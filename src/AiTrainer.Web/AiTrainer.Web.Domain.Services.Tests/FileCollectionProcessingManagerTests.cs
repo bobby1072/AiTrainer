@@ -1,6 +1,7 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Models;
@@ -167,5 +168,32 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Verify(x => x.Create(It.IsAny<IReadOnlyCollection<FileCollection>>()), Times.Never);
             _mockRepository.Verify(x => x.GetOne((Guid)newFileCollectionInput.Id!), Times.Once);
         }
+        [Fact]
+        public async Task GetOneLayerFileDocPartialsAndCollections_Given_Null_Collection_Id_Should_Get_Top_Levels()
+        {
+            //Arrange
+            var currentUser = _fixture.Build<Models.User>().With(x => x.Id, Guid.NewGuid()).Create();
+            var foundSingleFileCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.DateCreated, RandomUtils.DateInThePast())
+                .With(x => x.DateModified, RandomUtils.DateInThePast())
+                .With(x => x.UserId, currentUser.Id)
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            var foundSingleFileDocument  = _fixture
+                .Build<FileDocumentPartial>()
+                .With(x => x.DateCreated, RandomUtils.DateInThePast())
+                .With(x => x.CollectionId, (Guid?)null)
+                .Create();
+
+            _mockDomainServiceActionExecutor.Setup(x => x.ExecuteAsync(It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(), default)).ReturnsAsync(currentUser);
+            _mockRepository
+                .Setup(x => x.GetTopLevelCollectionsForUser((Guid)currentUser.Id!))
+                .ReturnsAsync(new DbGetManyResult<FileCollection>([foundSingleFileCollection]));
+
+
+        }
+
     }
 }
