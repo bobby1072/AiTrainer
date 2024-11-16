@@ -46,6 +46,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                  ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var newFileDoc = await fileDocumentSaveFormInput.ToDocumentModel((Guid)foundCachedUser.Id!);
+            throw new NotImplementedException();
     
         }
     }
