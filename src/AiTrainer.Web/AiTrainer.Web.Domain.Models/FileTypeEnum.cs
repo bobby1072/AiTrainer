@@ -3,6 +3,7 @@
     public enum FileTypeEnum
     {
         Pdf,
-        Text
+        Text,
+        Null
     }
 }

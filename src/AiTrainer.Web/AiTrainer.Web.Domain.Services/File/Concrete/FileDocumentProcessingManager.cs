@@ -1,7 +1,10 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
+using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -29,17 +32,21 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
         }
-        private static (string, FileTypeEnum) GetFileType(IFormFile file)
+        public async Task<FileDocument> UploadFile(FileDocumentSaveFormInput fileDocumentSaveFormInput)
         {
-            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
 
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(UploadFile),
+                correlationId
+            );
 
-            return fileExtension switch
-            {
-                ".pdf" => (Path.GetFileNameWithoutExtension(file.FileName), FileTypeEnum.Pdf),
-                ".txt" => (Path.GetFileNameWithoutExtension(file.FileName), FileTypeEnum.Text),
-                _ => throw new ApiException($"{fileExtension} is not a valid file type", HttpStatusCode.BadRequest)
-            };
+            var foundCachedUser = await _domainServiceActionExecutor.ExecuteAsync<IUserProcessingManager, Models.User?>(userServ => userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken))
+                 ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+
+            var newFileDoc = await fileDocumentSaveFormInput.ToDocumentModel((Guid)foundCachedUser.Id!);
+    
         }
     }
 }
