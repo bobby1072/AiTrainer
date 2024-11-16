@@ -15,9 +15,9 @@ namespace AiTrainer.Web.Api.Controllers
             _appSettings = appSettings.Value;
         }
         [HttpGet]
-        public Task<IActionResult> Health()
+        public async Task<ActionResult<ApplicationSettingsConfiguration>> Health()
         {
-            return Task.FromResult((IActionResult)Ok(_appSettings));
+            return _appSettings;
         }
     }
 }

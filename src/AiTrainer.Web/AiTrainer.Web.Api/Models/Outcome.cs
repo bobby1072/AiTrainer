@@ -1,12 +1,12 @@
 ﻿namespace AiTrainer.Web.Api.Models
 {
-    internal class Outcome
+    public class Outcome
     {
-        public bool IsSuccess { get; init; }
+        public required bool IsSuccess { get; init; }
         public string? ExceptionMessage { get; init; }
     }
 
-    internal class Outcome<T> : Outcome
+    public class Outcome<T> : Outcome
     {
         public T? Data { get; init; }
     }
