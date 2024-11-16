@@ -15,7 +15,7 @@ namespace AiTrainer.Web.Domain.Services
                 .AddFileServices()
                 .AddTransient<IApiRequestHttpContextService, ApiRequestHttpContextService>()
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
-                .AddTransient<ICachingService, DistributedCachingService>();
+                .AddScoped<ICachingService, DistributedCachingService>();
 
             return services;
         }

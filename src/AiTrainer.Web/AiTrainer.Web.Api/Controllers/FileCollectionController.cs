@@ -14,7 +14,7 @@ namespace AiTrainer.Web.Api.Controllers
     public class FileCollectionController: BaseController
     {
         public FileCollectionController(IDomainServiceActionExecutor actionExecutor): base(actionExecutor) { }
-        [HttpPost("save")]
+        [HttpPost("Save")]
         public async Task<ActionResult<Outcome<FileCollection>>> SaveCollection([FromBody] FileCollectionSaveInput fileCollection)
         {
             var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, FileCollection>(service => service.SaveFileCollection(fileCollection));
