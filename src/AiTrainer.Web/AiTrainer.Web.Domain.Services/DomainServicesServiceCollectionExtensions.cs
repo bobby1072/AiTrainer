@@ -1,5 +1,6 @@
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.Concrete;
+using AiTrainer.Web.Domain.Services.File;
 using AiTrainer.Web.Domain.Services.User;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,9 +12,10 @@ namespace AiTrainer.Web.Domain.Services
         {
             services
                 .AddUserServices()
-                .AddScoped<IApiRequestHttpContextService, ApiRequestHttpContextService>()
+                .AddFileServices()
+                .AddTransient<IApiRequestHttpContextService, ApiRequestHttpContextService>()
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
-                .AddTransient<ICachingService, DistributedCachingService>();
+                .AddScoped<ICachingService, DistributedCachingService>();
 
             return services;
         }

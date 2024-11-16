@@ -85,8 +85,17 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 createdCollection.DateModified = DateTime.UtcNow;
             }
 
+            if(createdCollection.ParentId is not null)
+            {
+                var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(() => _repository.GetOne(createdCollection.ParentId, nameof(FileCollectionEntity.ParentId)), _logger);
+                if(foundSingleParent?.Data?.UserId != foundCachedUser.Id)
+                {
+                    throw new ApiException("Collection is not valid", HttpStatusCode.BadRequest);
+                }
+            }
+
             _logger.LogInformation("{ActionName} attempting to {SaveMode} collection: {CreatedCollection}", nameof(SaveFileCollection), hasId ? "update" : "create", createdCollection);
-            var newlySavedCollection = await EntityFrameworkUtils.TryDbOperation(() => hasId ? _repository.Update([createdCollection]): _repository.Create([createdCollection]));
+            var newlySavedCollection = await EntityFrameworkUtils.TryDbOperation(() => hasId ? _repository.Update([createdCollection]): _repository.Create([createdCollection]), _logger);
 
             if(newlySavedCollection?.IsSuccessful != true)
             {
@@ -115,11 +124,13 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             var collectionsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
                 _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!) :
-                _repository.GetManyCollectionsForUser((Guid)collectionId!, (Guid)foundCachedUser.Id!)
+                _repository.GetManyCollectionsForUser((Guid)collectionId!, (Guid)foundCachedUser.Id!),
+                _logger
             );
             var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
                 _fileDocumentRepository.GetTopLevelDocumentPartialsForUser((Guid)foundCachedUser.Id!) :
-                _fileDocumentRepository.GetManyDocumentPartialsByCollectionId((Guid)collectionId!, (Guid)foundCachedUser.Id!)
+                _fileDocumentRepository.GetManyDocumentPartialsByCollectionId((Guid)collectionId!, (Guid)foundCachedUser.Id!),
+                _logger
             );
 
             await Task.WhenAll(

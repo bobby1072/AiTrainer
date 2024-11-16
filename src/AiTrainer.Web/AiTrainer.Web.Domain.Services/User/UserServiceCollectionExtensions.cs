@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.Domain.Services.User
 {
-    public static class UserServiceCollectionExtensions
+    internal static class UserServiceCollectionExtensions
     {
         public static IServiceCollection AddUserServices(this IServiceCollection services)
         {

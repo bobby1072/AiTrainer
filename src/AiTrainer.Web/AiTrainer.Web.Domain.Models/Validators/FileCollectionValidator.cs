@@ -13,7 +13,6 @@ namespace AiTrainer.Web.Domain.Models.Validators
             RuleFor(x => x.DateCreated).Must(IsDateNowOrInThePast).WithMessage(ValidatorConstants.InvalidDate);
             RuleFor(x => x.DateModified).NotEmpty().WithMessage(ValidatorConstants.InvalidDate);
             RuleFor(x => x.DateModified).Must(IsDateNowOrInThePast).WithMessage(ValidatorConstants.InvalidDate);
-            RuleFor(x => x.ParentId).NotEmpty().WithMessage(ValidatorConstants.InvalidParentId);
         }
     }
 }

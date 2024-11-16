@@ -4,6 +4,7 @@ using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.User.Abstract;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.TestBase.Utils;
@@ -55,15 +56,24 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             IReadOnlyCollection<FileCollection> fileCollectionToSave = null;
             var currentUser = _fixture.Build<Models.User>().With(x => x.Id, Guid.NewGuid()).Create();
-            var fileCollectionInput = _fixture.Build<FileCollectionSaveInput>().With(x => x.Id, (Guid?)null).Create();
-
+            var parentCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.ParentId, (Guid?)null)
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            var fileCollectionInput = _fixture
+                .Build<FileCollectionSaveInput>()
+                .With(x => x.Id, (Guid?)null)
+                .With(x => x.ParentId, parentCollection.Id)
+                .Create();
             _mockDomainServiceActionExecutor.Setup(x => x.ExecuteAsync(It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(), default)).ReturnsAsync(currentUser);
             _mockValidator.Setup(x => x.ValidateAsync(It.Is<FileCollection>(x => x.Id == fileCollectionInput.Id && x.CollectionName == fileCollectionInput.CollectionName), default)).ReturnsAsync(new FluentValidation.Results.ValidationResult());
             _mockRepository
                 .Setup(x => x.Create(It.Is<IReadOnlyCollection<FileCollection>>(x => x.First().CollectionName == fileCollectionInput.CollectionName)))
                 .Callback((IReadOnlyCollection<FileCollection> x) => fileCollectionToSave = x)
                 .ReturnsAsync(() => new DbSaveResult<FileCollection>(fileCollectionToSave));
-
+            _mockRepository.Setup(x => x.GetOne(fileCollectionInput.ParentId, nameof(FileCollectionEntity.ParentId))).ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
             //Act
             var result = await _fileCollectionManager.SaveFileCollection(fileCollectionInput);
 
@@ -90,6 +100,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.DateModified, RandomUtils.DateInThePast())
                 .With(x => x.UserId, currentUser.Id)
+                .With(x => x.ParentId, (Guid?)null)
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
                  
@@ -97,6 +108,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<FileCollectionSaveInput>()
                 .With(x => x.Id, originalFileCollection.Id)
                 .With(x => x.DateCreated, originalFileCollection.DateCreated)
+                .With(x => x.ParentId, (Guid?)null)
                 .Create();
 
             _mockDomainServiceActionExecutor.Setup(x => x.ExecuteAsync(It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(), default)).ReturnsAsync(currentUser);
