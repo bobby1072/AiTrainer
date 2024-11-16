@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AiTrainer.Web.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("Api/[controller]")]
     public abstract class BaseController : ControllerBase
     {
         protected IDomainServiceActionExecutor _actionExecutor;

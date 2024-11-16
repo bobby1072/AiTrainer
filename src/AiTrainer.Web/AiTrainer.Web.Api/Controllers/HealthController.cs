@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Models.Configuration;
+﻿using AiTrainer.Web.Api.Models;
+using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +16,9 @@ namespace AiTrainer.Web.Api.Controllers
             _appSettings = appSettings.Value;
         }
         [HttpGet]
-        public async Task<ActionResult<ApplicationSettingsConfiguration>> Health()
+        public Task<ActionResult<Outcome<ApplicationSettingsConfiguration>>> Health()
         {
-            return _appSettings;
+            return Task.FromResult((ActionResult<Outcome<ApplicationSettingsConfiguration>>)(new Outcome<ApplicationSettingsConfiguration>{IsSuccess = true, Data = _appSettings }));
         }
     }
 }
