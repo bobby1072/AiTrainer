@@ -3,6 +3,7 @@ using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Extensions;
+using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
@@ -35,7 +36,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileCollectionRepository = fileCollectionRepository;
         }
 
-        public async Task<FileDocument> UploadFile(
+        public async Task<FileDocumentPartial> UploadFile(
             FileDocumentSaveFormInput fileDocumentSaveFormInput
         )
         {
@@ -88,7 +89,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFile),
                 correlationId
             );
-            return createdFile.Data.First();
+            return createdFile.Data.First().ToPartial();
         }
     }
 }
