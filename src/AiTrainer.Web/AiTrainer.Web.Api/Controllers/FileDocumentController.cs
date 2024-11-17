@@ -11,13 +11,20 @@ namespace AiTrainer.Web.Api.Controllers
 {
     [Authorize]
     [RequireLogin]
-    public class FileDocumentController: BaseController
+    public class FileDocumentController : BaseController
     {
-        public FileDocumentController(IDomainServiceActionExecutor actionExecutor): base(actionExecutor) { }
+        public FileDocumentController(IDomainServiceActionExecutor actionExecutor)
+            : base(actionExecutor) { }
+
         [HttpPost("Upload")]
-        public async Task<ActionResult<Outcome<FileDocumentPartial>>> Upload([FromForm] FileDocumentSaveFormInput formInput)
+        public async Task<ActionResult<Outcome<FileDocumentPartial>>> Upload(
+            [FromForm] FileDocumentSaveFormInput formInput
+        )
         {
-            var result = await _actionExecutor.ExecuteAsync<IFileDocumentProcessingManager, FileDocumentPartial>(sevrice => sevrice.UploadFile(formInput));
+            var result = await _actionExecutor.ExecuteAsync<
+                IFileDocumentProcessingManager,
+                FileDocumentPartial
+            >(service => service.UploadFileDocument(formInput));
 
             return new Outcome<FileDocumentPartial> { IsSuccess = true, Data = result };
         }

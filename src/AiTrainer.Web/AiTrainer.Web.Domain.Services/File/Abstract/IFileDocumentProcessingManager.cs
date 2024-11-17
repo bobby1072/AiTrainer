@@ -4,8 +4,11 @@ using AiTrainer.Web.Domain.Services.Abstract;
 
 namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
-    public interface IFileDocumentProcessingManager: IDomainService
+    public interface IFileDocumentProcessingManager : IDomainService
     {
-        Task<FileDocumentPartial> UploadFile(FileDocumentSaveFormInput fileDocumentSaveFormInput);
+        Task<Guid> DeleteFileDocument(Guid documentId);
+        Task<FileDocumentPartial> UploadFileDocument(
+            FileDocumentSaveFormInput fileDocumentSaveFormInput
+        );
     }
 }

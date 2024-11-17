@@ -4,9 +4,12 @@ using AiTrainer.Web.Domain.Services.Abstract;
 
 namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
-    public interface IFileCollectionProcessingManager : IDomainService 
+    public interface IFileCollectionProcessingManager : IDomainService
     {
         Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput);
-        Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(Guid? collectionId = null);
+        Task<Guid> DeleteFileCollection(Guid collectionId);
+        Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(
+            Guid? collectionId = null
+        );
     }
 }

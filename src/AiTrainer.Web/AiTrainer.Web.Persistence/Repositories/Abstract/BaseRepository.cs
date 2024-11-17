@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using AiTrainer.Web.Persistence.Contexts;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
@@ -5,8 +7,6 @@ using BT.Common.FastArray.Proto;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
-using System.Text;
 
 namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {
@@ -67,6 +67,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
                 foundOne?.FastArraySelect(x => x.ToModel()).ToArray()
             );
         }
+
         public virtual async Task<DbGetManyResult<TModel>> GetMany(params TEntId[] entityIds)
         {
             if (entityIds.Length > 1)
@@ -83,8 +84,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
                 _entityType.Name
             );
 
-            return new DbGetManyResult<TModel>(foundOne?.FastArraySelect(x => x.ToModel()).ToArray());
+            return new DbGetManyResult<TModel>(
+                foundOne?.FastArraySelect(x => x.ToModel()).ToArray()
+            );
         }
+
         public virtual async Task<DbGetManyResult<TModel>> GetMany(
             TEntId entityId,
             params string[] relations
@@ -173,7 +177,6 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
         public virtual async Task<DbSaveResult<TModel>> Create(IReadOnlyCollection<TModel> entObj)
         {
-
             if (entObj.Count < 1)
             {
                 return new DbSaveResult<TModel>();
@@ -264,7 +267,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             string? entityId = null
         )
         {
-            var logMessageBuilder = new StringBuilder("performing {OperationName} on {EntityName}");
+            var logMessageBuilder = new StringBuilder("Performing {OperationName} on {EntityName}");
             if (entityId != null)
             {
                 logMessageBuilder.Append(" with id {EntityId}");

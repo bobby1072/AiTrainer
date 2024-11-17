@@ -8,11 +8,11 @@ using BT.Common.FastArray.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
     internal class FileCollectionRepository
-        : BaseRepository<FileCollectionEntity, Guid, FileCollection>, IFileCollectionRepository
+        : BaseRepository<FileCollectionEntity, Guid, FileCollection>,
+            IFileCollectionRepository
     {
         public FileCollectionRepository(
             IDbContextFactory<AiTrainerContext> dbContextFactory,
@@ -25,27 +25,63 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
-        public async Task<DbGetManyResult<FileCollection>> GetTopLevelCollectionsForUser(Guid userId, params string[] relationShips)
+        public async Task<DbGetManyResult<FileCollection>> GetTopLevelCollectionsForUser(
+            Guid userId,
+            params string[] relationShips
+        )
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var setToQuery = AddRelationsToSet(dbContext.FileCollections, relationShips);
 
-            var entities = await TimeAndLogDbOperation(() => setToQuery
-                .Where(x => x.UserId == userId && x.ParentId == null)
-                .ToArrayAsync(), nameof(GetTopLevelCollectionsForUser), _entityType.Name);
+            var entities = await TimeAndLogDbOperation(
+                () =>
+                    setToQuery.Where(x => x.UserId == userId && x.ParentId == null).ToArrayAsync(),
+                nameof(GetTopLevelCollectionsForUser),
+                _entityType.Name
+            );
 
-            return new DbGetManyResult<FileCollection>(entities?.FastArraySelect(x => x.ToModel()).ToArray());
+            return new DbGetManyResult<FileCollection>(
+                entities?.FastArraySelect(x => x.ToModel()).ToArray()
+            );
         }
-        public async Task<DbGetManyResult<FileCollection>> GetManyCollectionsForUser(Guid parentId, Guid userId, params string[] relationShips)
+
+        public async Task<DbGetManyResult<FileCollection>> GetManyCollectionsForUser(
+            Guid parentId,
+            Guid userId,
+            params string[] relationShips
+        )
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var setToQuery = AddRelationsToSet(dbContext.FileCollections, relationShips);
 
-            var entities = await TimeAndLogDbOperation(() => setToQuery
-                .Where(x => x.UserId == userId && x.ParentId == parentId)
-                .ToArrayAsync(), nameof(GetTopLevelCollectionsForUser), _entityType.Name);
+            var entities = await TimeAndLogDbOperation(
+                () =>
+                    setToQuery
+                        .Where(x => x.UserId == userId && x.ParentId == parentId)
+                        .ToArrayAsync(),
+                nameof(GetTopLevelCollectionsForUser),
+                _entityType.Name
+            );
 
-            return new DbGetManyResult<FileCollection>(entities?.FastArraySelect(x => x.ToModel()).ToArray());
+            return new DbGetManyResult<FileCollection>(
+                entities?.FastArraySelect(x => x.ToModel()).ToArray()
+            );
+        }
+
+        public async Task<DbDeleteResult<Guid>> Delete(Guid collectionId, Guid userId)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+
+            var deleted = await TimeAndLogDbOperation(
+                () =>
+                    dbContext
+                        .FileCollections.Where(x => x.Id == collectionId && x.UserId == userId)
+                        .ExecuteDeleteAsync(),
+                nameof(Delete),
+                _entityType.Name
+            );
+
+            return new DbDeleteResult<Guid>([collectionId]);
         }
     }
 }

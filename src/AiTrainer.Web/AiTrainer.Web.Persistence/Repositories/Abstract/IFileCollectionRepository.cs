@@ -4,9 +4,18 @@ using AiTrainer.Web.Persistence.Models;
 
 namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {
-    public interface IFileCollectionRepository : IRepository<FileCollectionEntity, Guid, FileCollection>
+    public interface IFileCollectionRepository
+        : IRepository<FileCollectionEntity, Guid, FileCollection>
     {
-        Task<DbGetManyResult<FileCollection>> GetTopLevelCollectionsForUser(Guid userId, params string[] relationShips);
-        Task<DbGetManyResult<FileCollection>> GetManyCollectionsForUser(Guid parentId,Guid userId, params string[] relationShips);
+        Task<DbGetManyResult<FileCollection>> GetTopLevelCollectionsForUser(
+            Guid userId,
+            params string[] relationShips
+        );
+        Task<DbGetManyResult<FileCollection>> GetManyCollectionsForUser(
+            Guid parentId,
+            Guid userId,
+            params string[] relationShips
+        );
+        Task<DbDeleteResult<Guid>> Delete(Guid collectionId, Guid userId);
     }
 }
