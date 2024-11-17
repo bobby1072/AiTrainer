@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Faker.Net" Version="2.0.163" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.34" />
+    <PackageReference Include="System.Text.Encodings.Web" Version="9.0.0" />
+  </ItemGroup>
+
 </Project>

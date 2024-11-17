@@ -5,7 +5,7 @@ namespace AiTrainer.Web.Domain.Models
 {
     public abstract record DomainModel<TEquatable, TId> : IEquatable<TEquatable>
     {
-        [JsonPropertyName("$type")]
+        [JsonPropertyName("type")]
         public string TypeName
         {
             get => GetType().Name;

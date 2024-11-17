@@ -42,7 +42,7 @@ builder
     .AddSqlPersistence(builder.Configuration)
     .AddUserInfoClient()
     .AddDomainModelServices()
-    .AddDomainServices();
+    .AddDomainServices(builder.Configuration);
 
 builder.Services.AddCors(p =>
     p.AddPolicy(
