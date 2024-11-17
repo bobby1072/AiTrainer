@@ -7,8 +7,8 @@ using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
@@ -18,19 +18,21 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly ILogger<FileDocumentProcessingManager> _logger;
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IValidator<FileDocument> _validator;
-
+        private readonly IFileCollectionRepository _fileCollectionRepository;
         public FileDocumentProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
             IApiRequestHttpContextService apiRequestService,
             ILogger<FileDocumentProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
-            IValidator<FileDocument> validator
+            IValidator<FileDocument> validator,
+            IFileCollectionRepository fileCollectionRepository
         )
             : base(domainServiceActionExecutor, apiRequestService)
         {
             _logger = logger;
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
+            _fileCollectionRepository = fileCollectionRepository;
         }
 
         public async Task<FileDocument> UploadFile(
@@ -64,12 +66,29 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 throw new ApiException("Invalid file document", HttpStatusCode.BadRequest);
             }
 
+            if(newFileDoc.CollectionId is not null)
+            {
+                var foundParent = await EntityFrameworkUtils.TryDbOperation(() => _fileCollectionRepository.GetOne((Guid)newFileDoc.Id!), _logger);
+
+                if(foundParent?.Data?.UserId != foundCachedUser.Id)
+                {
+                    throw new ApiException("Invalid file document", HttpStatusCode.BadRequest);
+                }
+            }
+
+            var createdFile = await EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.Create([newFileDoc]), _logger);
+
+            if(createdFile?.IsSuccessful != true)
+            {
+                throw new ApiException("Invalid file document", HttpStatusCode.BadRequest);
+            }
+
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
                 nameof(UploadFile),
                 correlationId
             );
-            throw new NotImplementedException();
+            return createdFile.Data.First();
         }
     }
 }
