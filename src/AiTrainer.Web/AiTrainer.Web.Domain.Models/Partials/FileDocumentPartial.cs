@@ -1,6 +1,6 @@
 namespace AiTrainer.Web.Domain.Models.Partials
 {
-    public record FileDocumentPartial : DomainModelPartial<FileDocumentPartial, long?>
+    public record FileDocumentPartial : DomainModelPartial<FileDocumentPartial, Guid?>
     {
         public Guid? CollectionId { get; init; }
         public required Guid UserId { get; init; }

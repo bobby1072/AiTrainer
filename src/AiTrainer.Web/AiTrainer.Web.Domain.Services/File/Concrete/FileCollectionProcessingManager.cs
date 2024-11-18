@@ -1,3 +1,4 @@
+using System.Net;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
@@ -10,7 +11,6 @@ using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -22,6 +22,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly ILogger<FileCollectionProcessingManager> _logger;
         private readonly IValidator<FileCollection> _validator;
         private readonly IFileDocumentRepository _fileDocumentRepository;
+
         public FileCollectionProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
             IApiRequestHttpContextService apiRequestService,
@@ -30,7 +31,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             IValidator<FileCollection> validator,
             IFileDocumentRepository fileDocumentRepository
         )
-            : base(domainServiceActionExecutor, apiRequestService) 
+            : base(domainServiceActionExecutor, apiRequestService)
         {
             _repository = repository;
             _logger = logger;
@@ -38,7 +39,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
         }
 
-        public async Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput)
+        public async Task<FileCollection> SaveFileCollection(
+            FileCollectionSaveInput fileCollectionInput
+        )
         {
             var correlationId = _apiRequestHttpContextService.CorrelationId;
 
@@ -48,11 +51,18 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
 
-            var foundCachedUser = await _domainServiceActionExecutor.ExecuteAsync<IUserProcessingManager, Models.User?>(userServ => userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken))
-                 ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+            var foundCachedUser =
+                await _domainServiceActionExecutor.ExecuteAsync<
+                    IUserProcessingManager,
+                    Models.User?
+                >(userServ =>
+                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
-            var createdCollection = FileCollectionExtensions.FromInput(fileCollectionInput, (Guid)foundCachedUser.Id!);
-
+            var createdCollection = FileCollectionExtensions.FromInput(
+                fileCollectionInput,
+                (Guid)foundCachedUser.Id!
+            );
 
             var hasId = createdCollection.Id is not null;
 
@@ -70,14 +80,24 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (hasId)
             {
-                _logger.LogInformation("Attempting to retrieve collection with id {CreatedCollectionId} for userId {UserId} and correlationId {CorrelationId}", createdCollection.Id, foundCachedUser.Id, _apiRequestHttpContextService.CorrelationId);
+                _logger.LogInformation(
+                    "Attempting to retrieve collection with id {CreatedCollectionId} for userId {UserId} and correlationId {CorrelationId}",
+                    createdCollection.Id,
+                    foundCachedUser.Id,
+                    _apiRequestHttpContextService.CorrelationId
+                );
                 var foundOne = await _repository.GetOne((Guid)createdCollection.Id!);
-                if(foundOne?.Data is null)
+                if (foundOne?.Data is null)
                 {
-                    throw new ApiException("Cannot find collection to update", HttpStatusCode.BadRequest);
+                    throw new ApiException(
+                        "Cannot find collection to update",
+                        HttpStatusCode.BadRequest
+                    );
                 }
 
-                if(!createdCollection.ValidateAgainstOriginal<FileCollection, Guid?>(foundOne.Data))
+                if (
+                    !createdCollection.ValidateAgainstOriginal<FileCollection, Guid?>(foundOne.Data)
+                )
                 {
                     throw new ApiException("Cannot edit those fields", HttpStatusCode.BadRequest);
                 }
@@ -85,21 +105,42 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 createdCollection.DateModified = DateTime.UtcNow;
             }
 
-            if(createdCollection.ParentId is not null)
+            if (createdCollection.ParentId is not null)
             {
-                var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(() => _repository.GetOne(createdCollection.ParentId, nameof(FileCollectionEntity.ParentId)), _logger);
-                if(foundSingleParent?.Data?.UserId != foundCachedUser.Id)
+                var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(
+                    () =>
+                        _repository.GetOne(
+                            createdCollection.ParentId,
+                            nameof(FileCollectionEntity.ParentId)
+                        ),
+                    _logger
+                );
+                if (foundSingleParent?.Data?.UserId != foundCachedUser.Id)
                 {
                     throw new ApiException("Collection is not valid", HttpStatusCode.BadRequest);
                 }
             }
 
-            _logger.LogInformation("{ActionName} attempting to {SaveMode} collection: {CreatedCollection}", nameof(SaveFileCollection), hasId ? "update" : "create", createdCollection);
-            var newlySavedCollection = await EntityFrameworkUtils.TryDbOperation(() => hasId ? _repository.Update([createdCollection]): _repository.Create([createdCollection]), _logger);
+            _logger.LogInformation(
+                "{ActionName} attempting to {SaveMode} collection: {CreatedCollection}",
+                nameof(SaveFileCollection),
+                hasId ? "update" : "create",
+                createdCollection
+            );
+            var newlySavedCollection = await EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    hasId
+                        ? _repository.Update([createdCollection])
+                        : _repository.Create([createdCollection]),
+                _logger
+            );
 
-            if(newlySavedCollection?.IsSuccessful != true)
+            if (newlySavedCollection?.IsSuccessful != true)
             {
-                throw new ApiException($"Failed to {(hasId ? "update" : "create")} file collection", HttpStatusCode.InternalServerError);
+                throw new ApiException(
+                    $"Failed to {(hasId ? "update" : "create")} file collection",
+                    HttpStatusCode.InternalServerError
+                );
             }
             _logger.LogInformation(
                 "Exiting {Action} successfully for correlationId {CorrelationId}",
@@ -109,7 +150,47 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             return newlySavedCollection.Data.First();
         }
 
-        public async Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(Guid? collectionId = null)
+        public async Task<Guid> DeleteFileCollection(Guid collectionId)
+        {
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(DeleteFileCollection),
+                correlationId
+            );
+
+            var foundCachedUser =
+                await _domainServiceActionExecutor.ExecuteAsync<
+                    IUserProcessingManager,
+                    Models.User?
+                >(userServ =>
+                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+
+            var deletedId = await EntityFrameworkUtils.TryDbOperation(
+                () => _repository.Delete(collectionId, (Guid)foundCachedUser.Id!),
+                _logger
+            );
+
+            if (deletedId?.IsSuccessful != true)
+            {
+                throw new ApiException(
+                    "Could not delete document",
+                    HttpStatusCode.InternalServerError
+                );
+            }
+            _logger.LogInformation(
+                "Exiting {Action} for correlationId {CorrelationId}",
+                nameof(DeleteFileCollection),
+                correlationId
+            );
+            return deletedId.Data.First();
+        }
+
+        public async Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(
+            Guid? collectionId = null
+        )
         {
             var correlationId = _apiRequestHttpContextService.CorrelationId;
 
@@ -119,24 +200,38 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
 
-            var foundCachedUser = await _domainServiceActionExecutor.ExecuteAsync<IUserProcessingManager, Models.User?>(userServ => userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken))
-                 ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+            var foundCachedUser =
+                await _domainServiceActionExecutor.ExecuteAsync<
+                    IUserProcessingManager,
+                    Models.User?
+                >(userServ =>
+                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
-            var collectionsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
-                _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!) :
-                _repository.GetManyCollectionsForUser((Guid)collectionId!, (Guid)foundCachedUser.Id!),
+            var collectionsJob = EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    collectionId is null
+                        ? _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!)
+                        : _repository.GetManyCollectionsForUser(
+                            (Guid)collectionId!,
+                            (Guid)foundCachedUser.Id!
+                        ),
                 _logger
             );
-            var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(() => collectionId is null ? 
-                _fileDocumentRepository.GetTopLevelDocumentPartialsForUser((Guid)foundCachedUser.Id!) :
-                _fileDocumentRepository.GetManyDocumentPartialsByCollectionId((Guid)collectionId!, (Guid)foundCachedUser.Id!),
+            var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    collectionId is null
+                        ? _fileDocumentRepository.GetTopLevelDocumentPartialsForUser(
+                            (Guid)foundCachedUser.Id!
+                        )
+                        : _fileDocumentRepository.GetManyDocumentPartialsByCollectionId(
+                            (Guid)collectionId!,
+                            (Guid)foundCachedUser.Id!
+                        ),
                 _logger
             );
 
-            await Task.WhenAll(
-                collectionsJob,
-                partialDocumentsJob
-            );
+            await Task.WhenAll(collectionsJob, partialDocumentsJob);
             var collections = (await collectionsJob)?.Data ?? [];
             var partialDocuments = (await partialDocumentsJob)?.Data ?? [];
 
@@ -146,7 +241,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
 
-            return new FlatFileDocumentPartialCollection { FileCollections = collections, FileDocuments = partialDocuments };
+            return new FlatFileDocumentPartialCollection
+            {
+                FileCollections = collections,
+                FileDocuments = partialDocuments,
+            };
         }
     }
 }

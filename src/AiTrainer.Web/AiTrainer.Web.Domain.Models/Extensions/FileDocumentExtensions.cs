@@ -1,5 +1,6 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Models.Partials;
 using Microsoft.AspNetCore.Http;
 using System.Net;
 
@@ -38,6 +39,19 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             await using var memoryStream = new MemoryStream();
             await file.CopyToAsync(memoryStream);
             return memoryStream.ToArray();
+        }
+
+        public static FileDocumentPartial ToPartial(this FileDocument fileDocument)
+        {
+            return new FileDocumentPartial
+            {
+                DateCreated = fileDocument.DateCreated,
+                FileName = fileDocument.FileName,
+                FileType = fileDocument.FileType,
+                CollectionId = fileDocument.CollectionId,
+                UserId = fileDocument.UserId,
+                Id = fileDocument.Id,
+            };
         }
     }
 }

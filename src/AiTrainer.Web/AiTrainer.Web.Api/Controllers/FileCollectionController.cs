@@ -21,5 +21,12 @@ namespace AiTrainer.Web.Api.Controllers
 
             return new Outcome<FileCollection> { IsSuccess = true, Data = result};
         }
+        [HttpPost("GetOneLayer")]
+        public async Task<ActionResult<Outcome<FlatFileDocumentPartialCollection>>> GetOneLayer([FromBody] GetFileCollectionOneLayerInput input)
+        {
+            var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, FlatFileDocumentPartialCollection>(service => service.GetOneLayerFileDocPartialsAndCollections(input.CollectionId));
+
+            return new Outcome<FlatFileDocumentPartialCollection> { IsSuccess = true, Data = result };
+        }
     }
 }

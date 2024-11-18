@@ -8,17 +8,30 @@ using Microsoft.Extensions.Options;
 namespace AiTrainer.Web.Api.Controllers
 {
     [AllowAnonymous]
-    public class HealthController: BaseController
+    public class HealthController : BaseController
     {
         private readonly ApplicationSettingsConfiguration _appSettings;
-        public HealthController(IOptions<ApplicationSettingsConfiguration> appSettings, IDomainServiceActionExecutor actionExecutor): base(actionExecutor)
+
+        public HealthController(
+            IOptions<ApplicationSettingsConfiguration> appSettings,
+            IDomainServiceActionExecutor actionExecutor
+        )
+            : base(actionExecutor)
         {
             _appSettings = appSettings.Value;
         }
+
         [HttpGet]
         public Task<ActionResult<Outcome<ApplicationSettingsConfiguration>>> Health()
         {
-            return Task.FromResult((ActionResult<Outcome<ApplicationSettingsConfiguration>>)(new Outcome<ApplicationSettingsConfiguration>{IsSuccess = true, Data = _appSettings }));
+            return Task.FromResult(
+                (ActionResult<Outcome<ApplicationSettingsConfiguration>>)
+                    new Outcome<ApplicationSettingsConfiguration>
+                    {
+                        IsSuccess = true,
+                        Data = _appSettings,
+                    }
+            );
         }
     }
 }
