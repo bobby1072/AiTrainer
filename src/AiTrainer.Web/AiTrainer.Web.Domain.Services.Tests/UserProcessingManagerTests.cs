@@ -38,12 +38,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
         }
 
         [Fact]
-        public async Task SaveAndCacheUser_Should_Cache_And_Return_User_If_Db_And_Info_Repsonse_Match()
+        public async Task SaveAndCacheUser_Should_Cache_And_Return_User_If_Db_And_Info_Response_Match()
         {
             //Arrange
             var mockedUser = _fixture.Create<Models.User>();
 
-            var userInfoResp = new UserInfoResponse
+            var userInfoResponse = new UserInfoResponse
             {
                 Email = mockedUser.Email,
                 Name = mockedUser.Name!,
@@ -53,7 +53,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Setup(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email)))
                 .ReturnsAsync(new DbGetOneResult<Models.User>(mockedUser));
 
-            _userInfoClient.Setup(x => x.TryInvokeAsync(accessToken)).ReturnsAsync(userInfoResp);
+            _userInfoClient
+                .Setup(x => x.TryInvokeAsync(accessToken))
+                .ReturnsAsync(userInfoResponse);
 
             //Act
             var result = await _userProcessingManager.SaveAndCacheUser(accessToken);
@@ -83,7 +85,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var mockedUser = _fixture.Create<Models.User>();
 
-            var userInfoResp = new UserInfoResponse
+            var userInfoResponse = new UserInfoResponse
             {
                 Email = mockedUser.Email,
                 Name = mockedUser.Name!,
@@ -96,7 +98,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _userValidator
                 .Setup(x => x.ValidateAsync(It.IsAny<Models.User>(), default))
                 .ReturnsAsync(validationResult);
-            _userInfoClient.Setup(x => x.TryInvokeAsync(accessToken)).ReturnsAsync(userInfoResp);
+            _userInfoClient
+                .Setup(x => x.TryInvokeAsync(accessToken))
+                .ReturnsAsync(userInfoResponse);
             _repo
                 .Setup(x => x.Create(It.IsAny<IReadOnlyCollection<Models.User>>()))
                 .ReturnsAsync(new DbSaveResult<Models.User>([mockedUser]));
@@ -121,7 +125,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var mockedUser = _fixture.Create<Models.User>();
 
-            var userInfoResp = new UserInfoResponse
+            var userInfoResponse = new UserInfoResponse
             {
                 Email = mockedUser.Email,
                 Name = Faker.Name.FullName(),
@@ -134,7 +138,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _userValidator
                 .Setup(x => x.ValidateAsync(It.IsAny<Models.User>(), default))
                 .ReturnsAsync(validationResult);
-            _userInfoClient.Setup(x => x.TryInvokeAsync(accessToken)).ReturnsAsync(userInfoResp);
+            _userInfoClient
+                .Setup(x => x.TryInvokeAsync(accessToken))
+                .ReturnsAsync(userInfoResponse);
             _repo
                 .Setup(x => x.Update(It.IsAny<IReadOnlyCollection<Models.User>>()))
                 .ReturnsAsync(new DbSaveResult<Models.User>([mockedUser]));

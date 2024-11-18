@@ -11,22 +11,49 @@ namespace AiTrainer.Web.Api.Controllers
 {
     [Authorize]
     [RequireLogin]
-    public class FileCollectionController: BaseController
+    public class FileCollectionController : BaseController
     {
-        public FileCollectionController(IDomainServiceActionExecutor actionExecutor): base(actionExecutor) { }
+        public FileCollectionController(IDomainServiceActionExecutor actionExecutor)
+            : base(actionExecutor) { }
+
         [HttpPost("Save")]
-        public async Task<ActionResult<Outcome<FileCollection>>> SaveCollection([FromBody] FileCollectionSaveInput fileCollection)
+        public async Task<ActionResult<Outcome<FileCollection>>> SaveCollection(
+            [FromBody] FileCollectionSaveInput fileCollection
+        )
         {
-            var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, FileCollection>(service => service.SaveFileCollection(fileCollection));
+            var result = await _actionExecutor.ExecuteAsync<
+                IFileCollectionProcessingManager,
+                FileCollection
+            >(service => service.SaveFileCollection(fileCollection));
 
-            return new Outcome<FileCollection> { IsSuccess = true, Data = result};
+            return new Outcome<FileCollection> { IsSuccess = true, Data = result };
         }
-        [HttpPost("GetOneLayer")]
-        public async Task<ActionResult<Outcome<FlatFileDocumentPartialCollection>>> GetOneLayer([FromBody] GetFileCollectionOneLayerInput input)
-        {
-            var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, FlatFileDocumentPartialCollection>(service => service.GetOneLayerFileDocPartialsAndCollections(input.CollectionId));
 
-            return new Outcome<FlatFileDocumentPartialCollection> { IsSuccess = true, Data = result };
+        [HttpPost("GetOneLayer")]
+        public async Task<ActionResult<Outcome<FlatFileDocumentPartialCollection>>> GetOneLayer(
+            [FromBody] OptionalIdInput input
+        )
+        {
+            var result = await _actionExecutor.ExecuteAsync<
+                IFileCollectionProcessingManager,
+                FlatFileDocumentPartialCollection
+            >(service => service.GetOneLayerFileDocPartialsAndCollections(input.Id));
+
+            return new Outcome<FlatFileDocumentPartialCollection>
+            {
+                IsSuccess = true,
+                Data = result,
+            };
+        }
+
+        [HttpPost("Delete")]
+        public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredIdInput input)
+        {
+            var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, Guid>(
+                service => service.DeleteFileCollection(input.Id)
+            );
+
+            return new Outcome<Guid> { IsSuccess = true, Data = result };
         }
     }
 }

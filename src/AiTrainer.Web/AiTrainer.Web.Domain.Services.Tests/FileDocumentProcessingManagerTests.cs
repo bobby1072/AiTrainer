@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Text;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
@@ -10,7 +9,6 @@ using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 

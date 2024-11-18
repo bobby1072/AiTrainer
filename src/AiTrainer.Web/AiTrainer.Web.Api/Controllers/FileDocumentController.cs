@@ -28,5 +28,15 @@ namespace AiTrainer.Web.Api.Controllers
 
             return new Outcome<FileDocumentPartial> { IsSuccess = true, Data = result };
         }
+
+        [HttpPost("Delete")]
+        public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredIdInput input)
+        {
+            var result = await _actionExecutor.ExecuteAsync<IFileDocumentProcessingManager, Guid>(
+                service => service.DeleteFileDocument(input.Id)
+            );
+
+            return new Outcome<Guid> { IsSuccess = true, Data = result };
+        }
     }
 }
