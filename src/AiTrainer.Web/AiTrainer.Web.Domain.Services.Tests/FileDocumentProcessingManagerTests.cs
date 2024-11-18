@@ -29,7 +29,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             _fileDocumentProcessingManager = new FileDocumentProcessingManager(
                 _mockDomainServiceActionExecutor.Object,
-                _mockapiRequestService,
+                _mockApiRequestService,
                 _mockLogger.Object,
                 _mockFileDocumentRepository.Object,
                 _mockValidator.Object,
