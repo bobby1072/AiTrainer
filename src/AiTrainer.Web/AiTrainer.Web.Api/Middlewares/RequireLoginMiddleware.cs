@@ -21,7 +21,9 @@ namespace AiTrainer.Web.Api.Middlewares
 
         public override async Task InvokeAsync(HttpContext context)
         {
-            if (context.GetEndpoint()?.Metadata.GetMetadata<RequireLoginAttribute>() is not null)
+            if (
+                context.GetEndpoint()?.Metadata.GetMetadata<RequireUserLoginAttribute>() is not null
+            )
             {
                 var accessToken = context.GetAccessToken();
                 await _domainServiceExecutor.ExecuteAsync<IUserProcessingManager, User>(
