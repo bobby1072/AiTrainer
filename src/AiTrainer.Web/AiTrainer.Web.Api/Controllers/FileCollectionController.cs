@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AiTrainer.Web.Api.Controllers
 {
     [Authorize]
-    [RequireLogin]
+    [RequireUserLogin]
     public class FileCollectionController : BaseController
     {
         public FileCollectionController(IDomainServiceActionExecutor actionExecutor)
