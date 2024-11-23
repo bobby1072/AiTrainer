@@ -12,16 +12,13 @@ dist/
 expressappsettings.json
 
 filestore/
-
+.config/
 
 /.pnp
 .pnp.js
 
 # testing
 /coverage
-
-# production
-/build
 
 # misc
 .DS_Store
