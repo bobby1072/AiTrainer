@@ -15,7 +15,7 @@ pr:
       - "bugfix/*"
 
 pool:
-  vmImage: "windows-latest"
+  vmImage: "ubuntu-latest"
 
 stages:
   - stage: Build
@@ -44,6 +44,7 @@ stages:
             inputs:
               folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Web/AiTrainer.Web.Api"
               fileType: "json"
+              xmlTransformationRules:
               jsonTargetFiles: "appsettings.json"
 
           - task: Docker@2
@@ -59,6 +60,14 @@ stages:
           - task: NodeTool@0
             inputs:
               versionSpec: 22.x
+
+          - task: FileTransform@2
+            displayName: "Transform JSON Configuration"
+            inputs:
+              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core/src/Data"
+              fileType: "json"
+              xmlTransformationRules:
+              jsonTargetFiles: "expressappsettings.json"
 
           - task: Npm@1
             displayName: "NPM install"
@@ -81,13 +90,6 @@ stages:
           #     customCommand: "test --watchAll=false --coverage --ci"
           #     workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
 
-          - task: FileTransform@2
-            displayName: "Transform JSON Configuration"
-            inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core/src/Data"
-              fileType: "json"
-              jsonTargetFiles: "expressappsettings.json"
-
           - task: Npm@1
             displayName: "Build"
             inputs:
@@ -107,6 +109,13 @@ stages:
             inputs:
               versionSpec: 22.x
 
+          - task: FileTransform@2
+            displayName: "Transform JSON Configuration"
+            inputs:
+              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-chrome-ext/src/Data"
+              fileType: "json"
+              xmlTransformationRules:
+              jsonTargetFiles: "reactappsettings.json"
           - task: Npm@1
             displayName: "NPM install"
             inputs:
@@ -127,13 +136,6 @@ stages:
           #     command: "custom"
           #     customCommand: "test --watchAll=false --coverage --ci"
           #     workingDir: $(Build.SourcesDirectory)/src/aitrainer-chrome-ext
-
-          - task: FileTransform@2
-            displayName: "Transform JSON Configuration"
-            inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-chrome-ext/src/Data"
-              fileType: "json"
-              jsonTargetFiles: "reactappsettings.json"
 
           - task: Npm@1
             displayName: "Build"
