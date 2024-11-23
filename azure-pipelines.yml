@@ -65,12 +65,20 @@ stages:
               versionSpec: 22.x
 
           - task: FileTransform@2
-            displayName: "Transform JSON Configuration"
+            displayName: "Transform express app settings"
             inputs:
               folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core/src/Data"
               fileType: "json"
               xmlTransformationRules:
               jsonTargetFiles: "expressappsettings.json"
+
+          - task: FileTransform@2
+            displayName: "Transform package json"
+            inputs:
+              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core"
+              fileType: "json"
+              xmlTransformationRules:
+              jsonTargetFiles: "package.json"
 
           - task: Npm@1
             displayName: "NPM install"
@@ -116,12 +124,21 @@ stages:
               versionSpec: 22.x
 
           - task: FileTransform@2
-            displayName: "Transform JSON Configuration"
+            displayName: "Transform react app settings"
             inputs:
               folderPath: "$(Build.SourcesDirectory)/src/aitrainer-chrome-ext/src/Data"
               fileType: "json"
               xmlTransformationRules:
               jsonTargetFiles: "reactappsettings.json"
+
+          - task: FileTransform@2
+            displayName: "Transform package json"
+            inputs:
+              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-chrome-ext"
+              fileType: "json"
+              xmlTransformationRules:
+              jsonTargetFiles: "package.json"
+
           - task: Npm@1
             displayName: "NPM install"
             inputs:
