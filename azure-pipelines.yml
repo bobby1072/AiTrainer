@@ -56,6 +56,9 @@ stages:
 
       - job: build_core_api
         displayName: "Build core api"
+        variables:
+          - name: version
+            value: $(Build.BuildNumber)
         steps:
           - task: NodeTool@0
             inputs:
@@ -104,6 +107,9 @@ stages:
 
       - job: build_chrome_extension
         displayName: "Build chrome extension"
+        variables:
+          - name: version
+            value: $(Build.BuildNumber)
         steps:
           - task: NodeTool@0
             inputs:
