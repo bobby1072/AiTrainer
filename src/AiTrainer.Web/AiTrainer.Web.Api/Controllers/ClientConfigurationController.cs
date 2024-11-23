@@ -3,6 +3,7 @@ using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.Api.Controllers
 {
@@ -13,11 +14,11 @@ namespace AiTrainer.Web.Api.Controllers
 
         public ClientConfigurationController(
             IDomainServiceActionExecutor actionExecutor,
-            ClientSettingsConfiguration clientSettingsConfiguration
+            IOptions<ClientSettingsConfiguration> clientSettingsConfiguration
         )
             : base(actionExecutor)
         {
-            _clientSettingsConfiguration = clientSettingsConfiguration;
+            _clientSettingsConfiguration = clientSettingsConfiguration.Value;
         }
 
         [HttpGet]

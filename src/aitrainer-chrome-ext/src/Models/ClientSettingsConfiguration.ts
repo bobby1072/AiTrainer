@@ -1,6 +1,6 @@
 export type ClientSettingsConfiguration = {
-  Scope: string;
-  UserInfoEndpoint: string;
-  AuthorityHost: string;
-  AuthorityClientId: string;
+  scope: string;
+  userInfoEndpoint: string;
+  authorityHost: string;
+  authorityClientId: string;
 };

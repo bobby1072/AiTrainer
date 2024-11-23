@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import AppSettingsProvider from "./AppSettingsProvider";
 import AppSettingsKeys from "./AppSettingsKeys";
 import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
@@ -6,18 +6,19 @@ import Constants from "../Constants";
 import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfiguration";
 
 export default abstract class AiTrainerWebClient {
-  private static readonly _httpClient = axios.create({
-    baseURL:
-      AppSettingsProvider.TryGetValue(AppSettingsKeys.AiTrainerWebEndpoint) ??
-      "http://localhost:5007",
+  private static readonly baseUrl = AppSettingsProvider.TryGetValue(
+    AppSettingsKeys.AiTrainerWebEndpoint
+  );
+  private static readonly _httpClient: AxiosInstance = axios.create({
+    baseURL: AiTrainerWebClient.baseUrl ?? "http://localhost:5007",
   });
   public static async GetClientConfiguration(): Promise<ClientSettingsConfiguration> {
-    const response = await this._httpClient
+    const response = await AiTrainerWebClient._httpClient
       .get<AiTrainerWebOutcome<ClientSettingsConfiguration>>(
         "Api/ClientConfiguration"
       )
-      .catch(this.HandleError)
-      .then(this.HandleThen);
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
     if (!response) {
       throw new Error(Constants.ErrorMessages.InternalServerError);
     }
