@@ -1,8 +1,8 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import AppSettingsProvider from "./AppSettingsProvider";
 import AppSettingsKeys from "./AppSettingsKeys";
 import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
-import ErrorConstants from "./ErrorConstants";
+import Constants from "../Constants";
 import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfiguration";
 
 export default abstract class AiTrainerWebClient {
@@ -11,6 +11,19 @@ export default abstract class AiTrainerWebClient {
       AppSettingsProvider.TryGetValue(AppSettingsKeys.AiTrainerWebEndpoint) ??
       "http://localhost:5007",
   });
+  public static async GetClientConfiguration(): Promise<ClientSettingsConfiguration> {
+    const response = await this._httpClient
+      .get<AiTrainerWebOutcome<ClientSettingsConfiguration>>(
+        "Api/ClientConfiguration"
+      )
+      .catch(this.HandleError)
+      .then(this.HandleThen);
+    if (!response) {
+      throw new Error(Constants.ErrorMessages.InternalServerError);
+    }
+
+    return response;
+  }
   private static HandleError(e: any): PromiseLike<never> {
     if (e instanceof AxiosError) {
       const axiosError = e as AxiosError;
@@ -20,21 +33,24 @@ export default abstract class AiTrainerWebClient {
         responseException.exceptionMessage &&
         responseException.exceptionMessage?.length > 0
           ? responseException.exceptionMessage
-          : ErrorConstants.InternalServerError
+          : Constants.ErrorMessages.InternalServerError
       );
     } else {
-      throw new Error(ErrorConstants.InternalServerError);
+      throw new Error(Constants.ErrorMessages.InternalServerError);
     }
   }
-  public static async GetClientConfiguration(): Promise<
-    ClientSettingsConfiguration | undefined | null
-  > {
-    const response = await this._httpClient
-      .get("Api/ClientConfiguration")
-      .catch(this.HandleError);
-    const outcome =
-      response.data as AiTrainerWebOutcome<ClientSettingsConfiguration>;
+  private static HandleThen<T>(
+    response: AxiosResponse<AiTrainerWebOutcome<T>, any>
+  ): T | null | undefined {
+    if (response.data.isSuccess === false) {
+      throw new Error(
+        response.data.exceptionMessage &&
+        response.data.exceptionMessage?.length > 0
+          ? response.data.exceptionMessage
+          : Constants.ErrorMessages.InternalServerError
+      );
+    }
 
-    return outcome.data as ClientSettingsConfiguration;
+    return response.data.data;
   }
 }
