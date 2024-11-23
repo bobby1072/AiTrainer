@@ -1,6 +1,6 @@
 import { useGetClientConfigurationQuery } from "../../Hooks/useGetClientConfigurationQuery";
 import { Loading } from "../Common/Loading";
-
+import "./../../App.css";
 export const LoginPage: React.FC = () => {
   const { isLoading } = useGetClientConfigurationQuery();
 

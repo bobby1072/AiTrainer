@@ -31,9 +31,9 @@ export default abstract class AiTrainerWebClient {
       const responseException = axiosError.response
         ?.data as AiTrainerWebOutcome<null>;
       throw new Error(
-        responseException.exceptionMessage &&
-        responseException.exceptionMessage?.length > 0
-          ? responseException.exceptionMessage
+        responseException?.exceptionMessage &&
+        responseException?.exceptionMessage?.length > 0
+          ? responseException?.exceptionMessage
           : Constants.ErrorMessages.InternalServerError
       );
     } else {
@@ -45,9 +45,9 @@ export default abstract class AiTrainerWebClient {
   ): T | null | undefined {
     if (response.data.isSuccess === false) {
       throw new Error(
-        response.data.exceptionMessage &&
-        response.data.exceptionMessage?.length > 0
-          ? response.data.exceptionMessage
+        response.data?.exceptionMessage &&
+        response.data?.exceptionMessage?.length > 0
+          ? response.data?.exceptionMessage
           : Constants.ErrorMessages.InternalServerError
       );
     }
