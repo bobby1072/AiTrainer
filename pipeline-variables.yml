@@ -10,4 +10,4 @@ variables:
   - name: AiTrainerCore.ApiKey
     value: $(pipeline.AiTrainerCore.ApiKey)
   - name: AiTrainerCore.BaseEndpoint
-    value: $(pipeline.AiTrainerCore.BasEndpoint)
+    value: $(pipeline.AiTrainerCore.BaseEndpoint)

@@ -12,7 +12,7 @@ dist/
 expressappsettings.json
 
 filestore/
-
+.config/
 
 /.pnp
 .pnp.js
