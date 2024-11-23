@@ -26,7 +26,7 @@ namespace AiTrainer.Web.Api.Controllers
                 FileDocumentPartial
             >(service => service.UploadFileDocument(formInput));
 
-            return new Outcome<FileDocumentPartial> { IsSuccess = true, Data = result };
+            return new Outcome<FileDocumentPartial> { Data = result };
         }
 
         [HttpPost("Delete")]
@@ -36,7 +36,7 @@ namespace AiTrainer.Web.Api.Controllers
                 service => service.DeleteFileDocument(input.Id)
             );
 
-            return new Outcome<Guid> { IsSuccess = true, Data = result };
+            return new Outcome<Guid> { Data = result };
         }
     }
 }

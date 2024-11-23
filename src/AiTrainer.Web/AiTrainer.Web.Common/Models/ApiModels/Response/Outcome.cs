@@ -2,7 +2,7 @@
 {
     public record Outcome
     {
-        public required bool IsSuccess { get; init; }
+        public bool IsSuccess => ExceptionMessage is null;
         public string? ExceptionMessage { get; init; }
     }
 
