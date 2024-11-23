@@ -3,6 +3,7 @@ using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Services.Abstract;
+using BT.Common.OperationTimer.Proto;
 
 namespace AiTrainer.Web.Api.Middlewares
 {
@@ -10,7 +11,6 @@ namespace AiTrainer.Web.Api.Middlewares
     {
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
         private readonly IApiRequestHttpContextService _requestContextService;
-
         public ExceptionHandlingMiddleware(
             RequestDelegate requestDelegate,
             ILogger<ExceptionHandlingMiddleware> logger,
@@ -21,8 +21,14 @@ namespace AiTrainer.Web.Api.Middlewares
             _logger = logger;
             _requestContextService = requestContextService;
         }
-
         public override async Task InvokeAsync(HttpContext context)
+        {
+            var time = await OperationTimerUtils.TimeAsync(() => TryInvokeAsync(context));
+
+            _logger.LogInformation("Request with correlationId {CorrelationId} took {TimeTaken}ms to complete", _requestContextService.CorrelationId, time.Milliseconds);
+        }
+
+        public async Task TryInvokeAsync(HttpContext context)
         {
             try
             {

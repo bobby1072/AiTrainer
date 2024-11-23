@@ -47,12 +47,12 @@ stages:
               Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Web/dockerfile"
               buildContext: "$(Build.SourcesDirectory)"
 
-      - job: build_frontend
+      - job: build_core_api
         displayName: "Build core api"
         steps:
           - task: NodeTool@0
             inputs:
-              versionSpec: 20.x
+              versionSpec: 22.x
 
           - task: Npm@1
             displayName: "NPM install"
@@ -84,8 +84,48 @@ stages:
 
           - publish: "$(Build.SourcesDirectory)/src/AiTrainer.Core/build"
             condition: eq(variables.isMain, true)
-            displayName: "Publish client files"
-            artifact: client
+            displayName: "Publish core api files"
+            artifact: core-api
+
+      - job: build_chrome_extension
+        displayName: "Build chrome extension"
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: 22.x
+
+          - task: Npm@1
+            displayName: "NPM install"
+            inputs:
+              command: "custom"
+              customCommand: "ci"
+              workingDir: $(Build.SourcesDirectory)/src/aitrainer-chrome-ext
+
+          - task: Npm@1
+            displayName: "Check types"
+            inputs:
+              commands: "custom"
+              customCommand: "run check-types"
+              workingDir: $(Build.SourcesDirectory)/src/aitrainer-chrome-ext
+
+          # - task: Npm@1
+          #   displayName: "Test"
+          #   inputs:
+          #     command: "custom"
+          #     customCommand: "test --watchAll=false --coverage --ci"
+          #     workingDir: $(Build.SourcesDirectory)/src/aitrainer-chrome-ext
+
+          - task: Npm@1
+            displayName: "Build"
+            inputs:
+              command: "custom"
+              customCommand: "run build"
+              workingDir: $(Build.SourcesDirectory)/src/aitrainer-chrome-ext
+
+          - publish: "$(Build.SourcesDirectory)/src/aitrainer-chrome-ext/build"
+            condition: eq(variables.isMain, true)
+            displayName: "Publish chrome extension files"
+            artifact: chrome-ext
 
   # - stage: Publish
   #   condition: eq(variables.isMain, true)
