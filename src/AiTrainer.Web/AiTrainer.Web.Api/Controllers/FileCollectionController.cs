@@ -26,7 +26,7 @@ namespace AiTrainer.Web.Api.Controllers
                 FileCollection
             >(service => service.SaveFileCollection(fileCollection));
 
-            return new Outcome<FileCollection> { IsSuccess = true, Data = result };
+            return new Outcome<FileCollection> { Data = result };
         }
 
         [HttpPost("GetOneLayer")]
@@ -39,11 +39,7 @@ namespace AiTrainer.Web.Api.Controllers
                 FlatFileDocumentPartialCollection
             >(service => service.GetOneLayerFileDocPartialsAndCollections(input.Id));
 
-            return new Outcome<FlatFileDocumentPartialCollection>
-            {
-                IsSuccess = true,
-                Data = result,
-            };
+            return new Outcome<FlatFileDocumentPartialCollection> { Data = result };
         }
 
         [HttpPost("Delete")]
@@ -53,7 +49,7 @@ namespace AiTrainer.Web.Api.Controllers
                 service => service.DeleteFileCollection(input.Id)
             );
 
-            return new Outcome<Guid> { IsSuccess = true, Data = result };
+            return new Outcome<Guid> { Data = result };
         }
     }
 }

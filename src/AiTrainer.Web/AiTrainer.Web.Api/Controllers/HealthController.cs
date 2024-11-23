@@ -26,11 +26,7 @@ namespace AiTrainer.Web.Api.Controllers
         {
             return Task.FromResult(
                 (ActionResult<Outcome<ApplicationSettingsConfiguration>>)
-                    new Outcome<ApplicationSettingsConfiguration>
-                    {
-                        IsSuccess = true,
-                        Data = _appSettings,
-                    }
+                    new Outcome<ApplicationSettingsConfiguration> { Data = _appSettings }
             );
         }
     }

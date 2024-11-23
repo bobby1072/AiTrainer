@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: src/AiTrainer.Web/dockerfile
     ports:
-      - 5234:80
+      - 5222:80
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+80
