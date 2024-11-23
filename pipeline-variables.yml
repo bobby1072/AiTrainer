@@ -9,3 +9,6 @@ variables:
     value: $(pipeline.AiTrainerCore.ApiKey)
   - name: AiTrainerCore.BaseEndpoint
     value: $(pipeline.AiTrainerCore.BaseEndpoint)
+
+  - name: AiTrainerWebEndpoint
+    value: $(pipeline.AiTrainerWebEndpoint)
