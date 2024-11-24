@@ -3,7 +3,7 @@ export default abstract class AppSettingsProvider {
   public static TryGetValue(key: string): string | undefined | null {
     try {
       const keys = key.split(".");
-      let result: any = this._appSettingsJson;
+      let result: any = AppSettingsProvider._appSettingsJson;
 
       for (const k of keys) {
         if (result[k] === undefined) {
