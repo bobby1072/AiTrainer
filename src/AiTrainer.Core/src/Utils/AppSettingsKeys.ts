@@ -1,3 +1,6 @@
-export default abstract class AppSettingsKeys {
-  public static readonly ApiKey: string = "AiTrainerCore.ApiKey";
+export enum AppSettingsKeys {
+  ApiKey = "AiTrainerCore.ApiKey",
+  DocumentChunkerChunkSize = "DocumentChunker.ChunkSize",
+  DocumentChunkerChunkOverlap = "DocumentChunker.ChunkOverlap",
+  ExpressPort = "ExpressPort",
 }

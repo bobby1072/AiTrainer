@@ -1,4 +1,5 @@
 import ExceptionConstants from "../../Exceptions/ExceptionConstants";
+import { AppSettingsKeys } from "../../Utils/AppSettingsKeys";
 import AppSettingsProvider from "../../Utils/AppSettingsProvider";
 import { Request, Response, NextFunction } from "express";
 export default abstract class ApiKeyHeaderMiddleware {
@@ -12,7 +13,7 @@ export default abstract class ApiKeyHeaderMiddleware {
         });
         return;
       } else if (
-        foundHeader !== AppSettingsProvider.TryGetValue<string>("ApiKey")
+        foundHeader !== AppSettingsProvider.TryGetValue(AppSettingsKeys.ApiKey)
       ) {
         res.status(200).json({
           isSuccess: false,

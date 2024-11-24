@@ -2,15 +2,22 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import AppSettingsProvider from "../Utils/AppSettingsProvider";
 import ApiException from "../Exceptions/ApiException";
 import ExceptionConstants from "../Exceptions/ExceptionConstants";
+import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 
 export default abstract class Chunker {
   private static readonly _splitter = new RecursiveCharacterTextSplitter({
     chunkSize:
-      AppSettingsProvider.TryGetValue<number>("DocumentChunker.ChunkSize") ||
-      512,
+      Number(
+        AppSettingsProvider.TryGetValue(
+          AppSettingsKeys.DocumentChunkerChunkSize
+        )
+      ) || 512,
     chunkOverlap:
-      AppSettingsProvider.TryGetValue<number>("DocumentChunker.ChunkOverlap") ||
-      128,
+      Number(
+        AppSettingsProvider.TryGetValue(
+          AppSettingsKeys.DocumentChunkerChunkOverlap
+        )
+      ) || 128,
   });
   public static Chunk(text: string): Promise<string[]> {
     try {
