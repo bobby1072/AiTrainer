@@ -40,7 +40,7 @@ stages:
               arguments: "-c Release"
 
           - task: FileTransform@2
-            displayName: "Transform JSON Configuration"
+            displayName: "Transform app settings"
             inputs:
               folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Web/AiTrainer.Web.Api"
               fileType: "json"

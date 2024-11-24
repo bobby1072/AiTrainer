@@ -1,9 +1,9 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import AppSettingsProvider from "./AppSettingsProvider";
-import AppSettingsKeys from "./AppSettingsKeys";
 import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
-import Constants from "../Constants";
 import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfiguration";
+import { ErrorMessages } from "../Constants";
+import { AppSettingsKeys } from "./AppSettingsKeys";
 
 export default abstract class AiTrainerWebClient {
   private static readonly baseUrl = AppSettingsProvider.TryGetValue(
@@ -20,7 +20,7 @@ export default abstract class AiTrainerWebClient {
       .catch(AiTrainerWebClient.HandleError)
       .then(AiTrainerWebClient.HandleThen);
     if (!response) {
-      throw new Error(Constants.ErrorMessages.InternalServerError);
+      throw new Error(ErrorMessages.InternalServerError);
     }
 
     return response;
@@ -34,10 +34,10 @@ export default abstract class AiTrainerWebClient {
         responseException?.exceptionMessage &&
         responseException?.exceptionMessage?.length > 0
           ? responseException?.exceptionMessage
-          : Constants.ErrorMessages.InternalServerError
+          : ErrorMessages.InternalServerError
       );
     } else {
-      throw new Error(Constants.ErrorMessages.InternalServerError);
+      throw new Error(ErrorMessages.InternalServerError);
     }
   }
   private static HandleThen<T>(
@@ -48,7 +48,7 @@ export default abstract class AiTrainerWebClient {
         response.data?.exceptionMessage &&
         response.data?.exceptionMessage?.length > 0
           ? response.data?.exceptionMessage
-          : Constants.ErrorMessages.InternalServerError
+          : ErrorMessages.InternalServerError
       );
     }
 
