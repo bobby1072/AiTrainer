@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { MemoryRouter, Navigate, Route, Routes } from "react-router-dom";
 import { UserManager } from "oidc-client-ts";
 import { useAuthentication } from "./Components/Contexts/AuthenticationContext";
 import { AuthenticatedRouteWrapper } from "./Components/Authentication/AuthenticatedRouteWrapper";
@@ -43,7 +43,7 @@ const AppRoutes = [
   },
   {
     path: "/Home",
-    element: <Navigate to="/FileHome" />,
+    element: <Navigate to="/TestHome" />,
   },
   {
     path: "/oidc-signin",
@@ -65,7 +65,7 @@ const AppRoutes = [
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      refetchOnWindowFocus: true,
       retry: (count) => (count >= 1 ? false : true),
     },
   },
@@ -82,13 +82,13 @@ if (window.location.pathname === "/oidc-silent-renew") {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <ClientSettingsConfigurationContextProvider>
-          <BrowserRouter>
+          <MemoryRouter>
             <Routes>
               {AppRoutes?.map((r) => (
                 <Route element={r.element} path={r.path} />
               ))}
             </Routes>
-          </BrowserRouter>
+          </MemoryRouter>
         </ClientSettingsConfigurationContextProvider>
       </QueryClientProvider>
     </React.StrictMode>
