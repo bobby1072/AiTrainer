@@ -1,7 +1,7 @@
-﻿using AiTrainer.Web.Common.Exceptions;
+﻿using System.Net;
+using AiTrainer.Web.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using System.Net;
 
 namespace AiTrainer.Web.Common.Extensions
 {
@@ -9,21 +9,18 @@ namespace AiTrainer.Web.Common.Extensions
     {
         public static Guid? GetCorrelationId(this HttpContext context)
         {
-            context.Request.Headers.TryGetValue(
-                ApiConstants.CorrelationIdHeader,
-                out var correlationId
-            );
+            string correlationId;
+
+            correlationId = context.Request.Headers[ApiConstants.CorrelationIdHeader].ToString();
 
             if (string.IsNullOrEmpty(correlationId))
             {
-                context.Response.Headers.TryGetValue(
-                    ApiConstants.CorrelationIdHeader,
-                    out var correlationIdFromResponse
-                );
-                correlationId = correlationIdFromResponse;
+                correlationId = context
+                    .Response.Headers[ApiConstants.CorrelationIdHeader]
+                    .ToString();
             }
 
-            return !string.IsNullOrEmpty(correlationId.ToString()) ? Guid.Parse(correlationId!) : null;
+            return !string.IsNullOrEmpty(correlationId) ? Guid.Parse(correlationId!) : null;
         }
 
         public static string GetAccessToken(this HttpContext context) =>

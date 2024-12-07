@@ -13,7 +13,8 @@
       "http://localhost:5234/oidc-signout",
       "chrome-extension://ifiladbhealbdlnmmkkknobahmacdejm/oidc-signin",
       "chrome-extension://ifiladbhealbdlnmmkkknobahmacdejm/oidc-silent-renew",
-      "chrome-extension://ifiladbhealbdlnmmkkknobahmacdejm/oidc-signout"
+      "chrome-extension://ifiladbhealbdlnmmkkknobahmacdejm/oidc-signout",
+      "*"
     ],
     "AllowedScopes": ["openid", "profile", "email"],
     "RequireClientSecret": false,

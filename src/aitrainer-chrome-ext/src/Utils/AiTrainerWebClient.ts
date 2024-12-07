@@ -1,7 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import AppSettingsProvider from "./AppSettingsProvider";
 import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
-import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfiguration";
 import { ErrorMessages } from "../Constants";
 import { AppSettingsKeys } from "./AppSettingsKeys";
 
@@ -12,19 +11,19 @@ export default abstract class AiTrainerWebClient {
   private static readonly _httpClient: AxiosInstance = axios.create({
     baseURL: AiTrainerWebClient._baseUrl || "http://localhost:5007",
   });
-  public static async GetClientConfiguration(): Promise<ClientSettingsConfiguration> {
-    const response = await AiTrainerWebClient._httpClient
-      .get<AiTrainerWebOutcome<ClientSettingsConfiguration>>(
-        "Api/ClientConfiguration"
-      )
-      .catch(AiTrainerWebClient.HandleError)
-      .then(AiTrainerWebClient.HandleThen);
-    if (!response) {
-      throw new Error(ErrorMessages.InternalServerError);
-    }
+  // public static async GetClientConfiguration(): Promise<ClientSettingsConfiguration> {
+  //   const response = await AiTrainerWebClient._httpClient
+  //     .get<AiTrainerWebOutcome<ClientSettingsConfiguration>>(
+  //       "Api/ClientConfiguration"
+  //     )
+  //     .catch(AiTrainerWebClient.HandleError)
+  //     .then(AiTrainerWebClient.HandleThen);
+  //   if (!response) {
+  //     throw new Error(ErrorMessages.InternalServerError);
+  //   }
 
-    return response;
-  }
+  //   return response;
+  // }
   private static HandleError(e: any): PromiseLike<never> {
     if (e instanceof AxiosError) {
       const axiosError = e as AxiosError;

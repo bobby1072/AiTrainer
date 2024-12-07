@@ -1,6 +1,6 @@
 import { TestHome } from "../Pages/TestHome";
 
-export const AuthenticatedRoutes: {
+export const Routes: {
   link: string;
   component: () => JSX.Element;
 }[] = [

@@ -3,63 +3,16 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { MemoryRouter, Navigate, Route, Routes } from "react-router-dom";
-import { UserManager } from "oidc-client-ts";
-import { useAuthentication } from "./Components/Contexts/AuthenticationContext";
-import { AuthenticatedRouteWrapper } from "./Components/Authentication/AuthenticatedRouteWrapper";
-import { ClientSettingsConfigurationContextProvider } from "./Components/Contexts/ClientSettingsConfigurationContext";
-import { SignInCallback } from "./Components/Authentication/SignInCallback";
-import { LandingPage } from "./Components/Pages/LandingPage";
-import { App } from "./App";
-import { AuthenticatedRoutes } from "./Components/Authentication/AutheticatedRoutes";
-const FallbackRoute: React.FC = () => {
-  const { isLoggedIn } = useAuthentication();
-  return isLoggedIn ? (
-    <Navigate to={`/oidc-signin`} />
-  ) : (
-    <Navigate to={`/login`} />
-  );
-};
+import { Routes as AppRoutes } from "./Components/Common/Routes";
 
-const Wrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <App>{children}</App>
-);
-
-const AppRoutes = [
+const AppComps = [
   {
     path: "/",
-    element: (
-      <Wrapper>
-        <FallbackRoute />
-      </Wrapper>
-    ),
-  },
-  {
-    path: "/login",
-    element: (
-      <Wrapper>
-        <LandingPage />
-      </Wrapper>
-    ),
-  },
-  {
-    path: "/Home",
     element: <Navigate to="/TestHome" />,
   },
-  {
-    path: "/oidc-signin",
-    element: (
-      <Wrapper>
-        <SignInCallback />
-      </Wrapper>
-    ),
-  },
-  ...AuthenticatedRoutes?.map(({ link, component }) => ({
+  ...AppRoutes?.map(({ link, component }) => ({
     path: link,
-    element: (
-      <Wrapper>
-        <AuthenticatedRouteWrapper>{component()}</AuthenticatedRouteWrapper>
-      </Wrapper>
-    ),
+    element: component(),
   })),
 ];
 const queryClient = new QueryClient({
@@ -70,27 +23,19 @@ const queryClient = new QueryClient({
     },
   },
 });
-if (window.location.pathname === "/oidc-silent-renew") {
-  new UserManager({} as any).signinSilentCallback().catch((error: any) => {
-    console.error(error);
-  });
-} else {
-  const container = document.getElementById("root");
-  const root = createRoot(container!);
+const container = document.getElementById("root");
+const root = createRoot(container!);
 
-  root.render(
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ClientSettingsConfigurationContextProvider>
-          <MemoryRouter>
-            <Routes>
-              {AppRoutes?.map((r) => (
-                <Route element={r.element} path={r.path} />
-              ))}
-            </Routes>
-          </MemoryRouter>
-        </ClientSettingsConfigurationContextProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
-  );
-}
+root.render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <Routes>
+          {AppComps?.map((r) => (
+            <Route element={r.element} path={r.path} />
+          ))}
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
+  </React.StrictMode>
+);
