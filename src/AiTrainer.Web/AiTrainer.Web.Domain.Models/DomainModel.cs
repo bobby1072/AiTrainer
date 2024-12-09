@@ -11,7 +11,7 @@ namespace AiTrainer.Web.Domain.Models
             get => GetType().Name;
         }
         [LockedProperty]
-        public TId Id { get; set; }
+        public virtual TId Id { get; set; }
 
         public abstract bool Equals(TEquatable? obj);
 

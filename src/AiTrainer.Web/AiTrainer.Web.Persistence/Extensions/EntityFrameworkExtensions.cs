@@ -74,5 +74,16 @@ namespace AiTrainer.Web.Persistence.Extensions
 
             return entity;
         }
+        public static SolicitedDeviceTokenEntity ToEntity(this SolicitedDeviceToken deviceToken)
+        {
+            var entity = new SolicitedDeviceTokenEntity { InUse = deviceToken.InUse, SolicitedAt = deviceToken.SolicitedAt };
+
+            if (deviceToken.Id is not null)
+            {
+                entity.Id = (Guid)deviceToken.Id!;
+            }
+
+            return entity;
+        }
     }
 }

@@ -56,7 +56,6 @@ builder.Services.AddCors(p =>
     )
 );
 
-builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
