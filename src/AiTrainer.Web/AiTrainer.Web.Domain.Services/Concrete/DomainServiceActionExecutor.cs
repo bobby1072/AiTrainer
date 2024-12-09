@@ -1,9 +1,9 @@
+using System.Linq.Expressions;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Linq.Expressions;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
@@ -12,6 +12,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DomainServiceActionExecutor> _logger;
         private readonly IApiRequestHttpContextService _apiRequestHttpContextService;
+
         public DomainServiceActionExecutor(
             IServiceProvider serviceProvider,
             ILogger<DomainServiceActionExecutor> logger,
@@ -22,18 +23,8 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             _logger = logger;
             _apiRequestHttpContextService = apiRequestHttpContextService;
         }
-        public Task<TReturn> ExecuteAsync<TService, TReturn>(
-            Expression<Func<TService, Task<TReturn>>> serviceAction,
-            string? serviceActionName = null
-        )
-            where TService : IDomainService => ExecuteAsync(serviceAction.Compile(), serviceActionName);
-        public TReturn Execute<TService, TReturn>(
-            Expression<Func<TService, TReturn>> serviceAction,
-            string? serviceActionName = null
-        )
-            where TService : IDomainService => Execute(serviceAction.Compile(), serviceActionName);
 
-        private async Task<TReturn> ExecuteAsync<TService, TReturn>(
+        public async Task<TReturn> ExecuteAsync<TService, TReturn>(
             Func<TService, Task<TReturn>> serviceAction,
             string? serviceActionName = null
         )
@@ -70,7 +61,8 @@ namespace AiTrainer.Web.Domain.Services.Concrete
 
             return result;
         }
-        private TReturn Execute<TService, TReturn>(
+
+        public TReturn Execute<TService, TReturn>(
             Func<TService, TReturn> serviceAction,
             string? serviceActionName = null
         )

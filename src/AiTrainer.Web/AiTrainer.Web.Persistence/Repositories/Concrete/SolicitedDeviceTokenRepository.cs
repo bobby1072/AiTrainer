@@ -9,8 +9,7 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
     internal class SolicitedDeviceTokenRepository
-        : BaseRepository<SolicitedDeviceTokenEntity, Guid, SolicitedDeviceToken>,
-            ISolicitedDeviceTokenRepository
+        : BaseRepository<SolicitedDeviceTokenEntity, Guid, SolicitedDeviceToken>
     {
         public SolicitedDeviceTokenRepository(
             IDbContextFactory<AiTrainerContext> dbContextFactory,

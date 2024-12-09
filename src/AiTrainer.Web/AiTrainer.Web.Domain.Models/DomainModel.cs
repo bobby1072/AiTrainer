@@ -1,5 +1,5 @@
-﻿using AiTrainer.Web.Domain.Models.Attributes;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models
 {
@@ -10,6 +10,7 @@ namespace AiTrainer.Web.Domain.Models
         {
             get => GetType().Name;
         }
+
         [LockedProperty]
         public virtual TId Id { get; set; }
 

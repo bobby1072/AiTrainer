@@ -8,10 +8,52 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
-    internal class UserRepository : BaseRepository<UserEntity, Guid, User>
+    internal class UserRepository : BaseRepository<UserEntity, Guid, User>, IUserRepository
     {
-        public UserRepository(IDbContextFactory<AiTrainerContext> dbContextFactory, ILogger<UserRepository> logger) : base(dbContextFactory, logger) { }
+        private readonly ILogger<UserRepository> _logger;
+
+        public UserRepository(
+            IDbContextFactory<AiTrainerContext> dbContextFactory,
+            ILogger<UserRepository> logger
+        )
+            : base(dbContextFactory, logger)
+        {
+            _logger = logger;
+        }
 
         protected override UserEntity RuntimeToEntity(User runtimeObj) => runtimeObj.ToEntity();
+
+        public async Task ConfirmAndBuildUserTransaction(User user)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                var userEntity = RuntimeToEntity(user);
+
+                var solicitedTokenOperationJOb = dbContext
+                    .SolicitedDeviceTokens.Where(x => x.Id == user.Id)
+                    .ExecuteUpdateAsync(x => x.SetProperty(y => y.InUse, true));
+
+                var addAsyncJob = dbContext.Users.AddAsync(userEntity);
+
+                await Task.WhenAll(solicitedTokenOperationJOb, addAsyncJob.AsTask());
+
+                await dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(
+                    e,
+                    "Error occurred while trying to confirm and build user transaction with message {EMessage}",
+                    e.Message
+                );
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
     }
 }

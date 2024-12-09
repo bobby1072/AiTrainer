@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
@@ -12,20 +14,28 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
     public class UserProcessingManager : BaseDomainService, IUserProcessingManager
     {
-        private readonly IRepository<UserEntity, Guid, Models.User> _repo;
+        private readonly IUserRepository _repo;
         private readonly ILogger<UserProcessingManager> _logger;
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
-        private readonly ISolicitedDeviceTokenRepository _solicitedDeviceTokenRepository;
+        private readonly IRepository<
+            SolicitedDeviceTokenEntity,
+            Guid,
+            SolicitedDeviceToken
+        > _solicitedDeviceTokenRepository;
 
         public UserProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
             IApiRequestHttpContextService apiRequestService,
-            IRepository<UserEntity, Guid, Models.User> repo,
+            IUserRepository repo,
             ILogger<UserProcessingManager> logger,
             IValidator<Models.User> userValidator,
             ICachingService cachingService,
-            ISolicitedDeviceTokenRepository solicitedDeviceTokenRepository
+            IRepository<
+                SolicitedDeviceTokenEntity,
+                Guid,
+                SolicitedDeviceToken
+            > solicitedDeviceTokenRepository
         )
             : base(domainServiceActionExecutor, apiRequestService)
         {
@@ -93,7 +103,111 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             }
         }
 
-        public async Task<Models.SolicitedDeviceToken> IssueDeviceToken()
+        public async Task<Models.User> ConfirmUser(Models.User userToConfirm)
+        {
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(ConfirmUser),
+                correlationId
+            );
+            var foundToken = await EntityFrameworkUtils.TryDbOperation(
+                () => _solicitedDeviceTokenRepository.GetOne((Guid)userToConfirm.Id!),
+                _logger
+            );
+
+            if (foundToken?.IsSuccessful != true || foundToken.Data?.InUse != false)
+            {
+                throw new ApiException(
+                    "Invalid device token to confirm",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            var validationResult = await _userValidator.ValidateAsync(userToConfirm);
+
+            if (!validationResult.IsValid)
+            {
+                throw new ApiException(
+                    validationResult.Errors.ToErrorString(),
+                    HttpStatusCode.BadRequest
+                );
+            }
+
+            await EntityFrameworkUtils.TryDbOperation(
+                () => _repo.ConfirmAndBuildUserTransaction(userToConfirm),
+                _logger
+            );
+
+            _logger.LogInformation(
+                "Exiting {Action} for correlationId {CorrelationId}",
+                nameof(ConfirmUser),
+                correlationId
+            );
+            return userToConfirm;
+        }
+
+        public async Task<Models.User> UpdateUser(Models.User userToSave, Guid deviceToken)
+        {
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(UpdateUser),
+                correlationId
+            );
+            var foundUser = await EntityFrameworkUtils.TryDbOperation(
+                () => _repo.GetOne(deviceToken),
+                _logger
+            );
+
+            if (foundUser?.IsSuccessful != true || foundUser?.Data is null)
+            {
+                throw new ApiException("User not found", HttpStatusCode.NotFound);
+            }
+
+            userToSave.DateModified = DateTime.UtcNow;
+
+            var validationResult = await _userValidator.ValidateAsync(userToSave);
+
+            if (!validationResult.IsValid)
+            {
+                throw new ApiException(
+                    validationResult.Errors.ToErrorString(),
+                    HttpStatusCode.BadRequest
+                );
+            }
+
+            if (foundUser.Data.ValidateAgainstOriginal<Models.User, Guid?>(userToSave) is false)
+            {
+                throw new ApiException("Cannot edit those fields", HttpStatusCode.BadRequest);
+            }
+
+            var updatedUser = await EntityFrameworkUtils.TryDbOperation(
+                () => _repo.Update([userToSave]),
+                _logger
+            );
+
+            if (
+                updatedUser?.IsSuccessful is true
+                && updatedUser.Data.First() is Models.User newUser
+            )
+            {
+                _logger.LogInformation(
+                    "Exiting {Action} successfully for correlationId {CorrelationId}",
+                    nameof(UpdateUser),
+                    correlationId
+                );
+                return newUser;
+            }
+            else
+            {
+                throw new ApiException("Failed to update user", HttpStatusCode.InternalServerError);
+            }
+        }
+
+        public async Task<SolicitedDeviceToken> IssueDeviceToken()
         {
             var correlationId = _apiRequestHttpContextService.CorrelationId;
 
@@ -103,11 +217,17 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 correlationId
             );
 
-            var solicitedDeviceToken = new Models.SolicitedDeviceToken
+            var solicitedDeviceToken = new SolicitedDeviceToken
             {
                 InUse = false,
                 SolicitedAt = DateTime.UtcNow,
             };
+
+            _logger.LogInformation(
+                "Attempting to create a solicited device token {DeviceToken} for correlationId {CorrelationId}",
+                solicitedDeviceToken,
+                correlationId
+            );
 
             var createdEntity = await EntityFrameworkUtils.TryDbOperation(
                 () => _solicitedDeviceTokenRepository.Create([solicitedDeviceToken]),

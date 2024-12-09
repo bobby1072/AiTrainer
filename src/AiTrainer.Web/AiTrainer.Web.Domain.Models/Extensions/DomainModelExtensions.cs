@@ -1,7 +1,7 @@
-﻿using AiTrainer.Web.Common.Extensions;
-using AiTrainer.Web.Domain.Models.Attributes;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Text.Json;
+using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models.Extensions
 {
@@ -76,6 +76,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             value.RemoveSensitive();
             return JsonSerializer.Serialize(value);
         }
+
         public static string JsonSerialise(this IEnumerable<DomainModel<object, object>> value)
         {
             value.RemoveSensitive();
