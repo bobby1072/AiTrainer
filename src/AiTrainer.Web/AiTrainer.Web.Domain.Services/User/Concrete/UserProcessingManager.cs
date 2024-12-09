@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Exceptions;
+﻿using System.Net;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
@@ -6,7 +7,6 @@ using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
@@ -16,6 +16,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         private readonly ILogger<UserProcessingManager> _logger;
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
+        private readonly ISolicitedDeviceTokenRepository _solicitedDeviceTokenRepository;
 
         public UserProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
@@ -23,7 +24,8 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             IRepository<UserEntity, Guid, Models.User> repo,
             ILogger<UserProcessingManager> logger,
             IValidator<Models.User> userValidator,
-            ICachingService cachingService
+            ICachingService cachingService,
+            ISolicitedDeviceTokenRepository solicitedDeviceTokenRepository
         )
             : base(domainServiceActionExecutor, apiRequestService)
         {
@@ -31,6 +33,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             _logger = logger;
             _userValidator = userValidator;
             _cachingService = cachingService;
+            _solicitedDeviceTokenRepository = solicitedDeviceTokenRepository;
         }
 
         public async Task<Models.User> FindAndCacheUser(Guid deviceToken)
@@ -80,7 +83,6 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                     correlationId
                 );
                 return foundUserFromDb.Data;
-
             }
             else
             {
@@ -91,14 +93,62 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             }
         }
 
+        public async Task<Models.SolicitedDeviceToken> IssueDeviceToken()
+        {
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(IssueDeviceToken),
+                correlationId
+            );
+
+            var solicitedDeviceToken = new Models.SolicitedDeviceToken
+            {
+                InUse = false,
+                SolicitedAt = DateTime.UtcNow,
+            };
+
+            var createdEntity = await EntityFrameworkUtils.TryDbOperation(
+                () => _solicitedDeviceTokenRepository.Create([solicitedDeviceToken]),
+                _logger
+            );
+
+            if (
+                createdEntity?.IsSuccessful is true
+                && createdEntity?.Data.FirstOrDefault() is Models.SolicitedDeviceToken createdToken
+                && createdToken.Id is not null
+                && createdToken.Id != Guid.Empty
+            )
+            {
+                _logger.LogInformation(
+                    "Exiting {Action} successfully for correlationId {CorrelationId}",
+                    nameof(IssueDeviceToken),
+                    correlationId
+                );
+                return createdToken;
+            }
+            else
+            {
+                throw new ApiException(
+                    "Failed to issue device token",
+                    HttpStatusCode.InternalServerError
+                );
+            }
+        }
+
         public Task<Models.User?> TryGetUserFromCache(Guid deviceToken)
         {
-            _logger.LogInformation("Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}", _apiRequestHttpContextService.CorrelationId, deviceToken);
+            _logger.LogInformation(
+                "Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}",
+                _apiRequestHttpContextService.CorrelationId,
+                deviceToken
+            );
 
             return _cachingService.TryGetObject<Models.User>(GetCacheKey(deviceToken));
         }
 
-        private static string GetCacheKey(Guid deviceToken) => $"{_cacheKey}{deviceToken.ToString()}";
+        private static string GetCacheKey(Guid deviceToken) => $"{_cacheKey}{deviceToken}";
 
         private const string _cacheKey = "cacheUser-";
     }

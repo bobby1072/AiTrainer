@@ -8,13 +8,15 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
-    internal class SolicitedDeviceTokenRepository: BaseRepository<SolicitedDeviceTokenEntity, Guid, SolicitedDeviceToken>
+    internal class SolicitedDeviceTokenRepository
+        : BaseRepository<SolicitedDeviceTokenEntity, Guid, SolicitedDeviceToken>,
+            ISolicitedDeviceTokenRepository
     {
         public SolicitedDeviceTokenRepository(
             IDbContextFactory<AiTrainerContext> dbContextFactory,
             ILogger<SolicitedDeviceTokenRepository> logger
         )
-        : base(dbContextFactory, logger) { }
+            : base(dbContextFactory, logger) { }
 
         protected override SolicitedDeviceTokenEntity RuntimeToEntity(SolicitedDeviceToken runtime)
         {
