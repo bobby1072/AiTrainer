@@ -19,7 +19,6 @@ COPY src/AiTrainer.Web/AiTrainer.Web.CoreClient/*.csproj ./AiTrainer.Web/AiTrain
 COPY src/AiTrainer.Web/AiTrainer.Web.Persistence/*.csproj ./AiTrainer.Web/AiTrainer.Web.Persistence/
 COPY src/AiTrainer.Web/AiTrainer.Web.Domain.Models/*.csproj ./AiTrainer.Web/AiTrainer.Web.Domain.Models/
 COPY src/AiTrainer.Web/AiTrainer.Web.Domain.Services/*.csproj ./AiTrainer.Web/AiTrainer.Web.Domain.Services/
-COPY src/AiTrainer.Web/AiTrainer.Web.UserInfoClient/*.csproj ./AiTrainer.Web/AiTrainer.Web.UserInfoClient/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.FastArray/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.OperationTimer/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.Helpers/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.Helpers/
@@ -32,7 +31,6 @@ COPY src/AiTrainer.Web/AiTrainer.Web.CoreClient/ ./AiTrainer.Web/AiTrainer.Web.C
 COPY src/AiTrainer.Web/AiTrainer.Web.Persistence/ ./AiTrainer.Web/AiTrainer.Web.Persistence/
 COPY src/AiTrainer.Web/AiTrainer.Web.Domain.Models/ ./AiTrainer.Web/AiTrainer.Web.Domain.Models/
 COPY src/AiTrainer.Web/AiTrainer.Web.Domain.Services/ ./AiTrainer.Web/AiTrainer.Web.Domain.Services/
-COPY src/AiTrainer.Web/AiTrainer.Web.UserInfoClient/ ./AiTrainer.Web/AiTrainer.Web.UserInfoClient/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/ ./Submodules/BT/src/BT.Common/BT.Common.FastArray/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/ ./Submodules/BT/src/BT.Common/BT.Common.OperationTimer/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.Helpers/ ./Submodules/BT/src/BT.Common/BT.Common.Helpers/

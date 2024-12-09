@@ -4,13 +4,15 @@ using Microsoft.AspNetCore.Http;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
-    public class ApiRequestHttpContextService: IApiRequestHttpContextService
+    public class ApiRequestHttpContextService : IApiRequestHttpContextService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
+
         public ApiRequestHttpContextService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }
+
         public HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private Guid? _correlationId;
         public Guid? CorrelationId
@@ -23,14 +25,14 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             }
         }
 
-        private string _accessToken;
-        public string AccessToken
+        private Guid? _deviceToken;
+        public Guid DeviceToken
         {
             get
             {
-                _accessToken ??= HttpContext.GetAccessToken();
+                _deviceToken ??= HttpContext.GetDeviceToken();
 
-                return _accessToken;
+                return (Guid)_deviceToken!;
             }
         }
     }

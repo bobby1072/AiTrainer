@@ -29,5 +29,14 @@ namespace AiTrainer.Web.Common.Extensions
                 ExceptionConstants.NotAuthorized,
                 HttpStatusCode.Unauthorized
             );
+
+        public static Guid GetDeviceToken(this HttpContext context) =>
+            Guid.Parse(
+                context.Request.Headers[ApiConstants.DeviceTokenHeader].ToString()
+                    ?? throw new ApiException(
+                        ExceptionConstants.NoDeviceTokenFound,
+                        HttpStatusCode.BadRequest
+                    )
+            );
     }
 }

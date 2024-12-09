@@ -6,7 +6,6 @@ namespace AiTrainer.Web.Domain.Services.Abstract
     {
         HttpContext HttpContext { get; }
         Guid? CorrelationId { get; }
-        string AccessToken { get; }
-
+        Guid DeviceToken { get; }
     }
 }

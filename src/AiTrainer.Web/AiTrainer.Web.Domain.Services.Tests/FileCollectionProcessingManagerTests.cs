@@ -46,7 +46,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     )
                 )
@@ -82,7 +82,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     )
                 )
@@ -125,7 +125,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor.Verify(
                 x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     ),
                 Times.Once
@@ -173,7 +173,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     )
                 )
@@ -215,7 +215,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor.Verify(
                 x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     ),
                 Times.Once
@@ -271,7 +271,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     )
                 )
@@ -310,7 +310,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor.Verify(
                 x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     ),
                 Times.Once
@@ -364,7 +364,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     )
                 )
@@ -419,7 +419,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
+                        It.IsAny<Func<IUserProcessingManager, Task<Models.User?>>>(),
                         default
                     )
                 )

@@ -1,12 +1,10 @@
 using System.Text.Json;
-using AiTrainer.Web.Api.Auth;
 using AiTrainer.Web.Api.Middlewares;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services;
 using AiTrainer.Web.Persistence;
-using AiTrainer.Web.UserInfoClient;
 using Microsoft.AspNetCore.Http.Timeouts;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,7 +37,6 @@ builder
 builder
     .Services.AddCoreClient(builder.Configuration)
     .AddSqlPersistence(builder.Configuration)
-    .AddUserInfoClient()
     .AddDomainModelServices()
     .AddDomainServices(builder.Configuration);
 

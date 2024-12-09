@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using BT.Common.OperationTimer.Proto;

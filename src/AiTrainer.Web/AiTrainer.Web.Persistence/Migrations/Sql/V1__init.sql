@@ -10,5 +10,6 @@ CREATE TABLE public."user" (
     name TEXT,
     date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     date_modified TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
-    CONSTRAINT fk_device_token FOREIGN KEY (id) REFERENCES public."solicited_device_token"(device_token)
+    CONSTRAINT fk_device_token FOREIGN KEY (id) REFERENCES public."solicited_device_token"(device_token)  ON DELETE CASCADE     
+        ON UPDATE CASCADE
 );

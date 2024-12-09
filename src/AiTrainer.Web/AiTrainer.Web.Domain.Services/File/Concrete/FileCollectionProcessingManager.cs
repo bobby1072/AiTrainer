@@ -56,7 +56,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     IUserProcessingManager,
                     Models.User?
                 >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
+                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.DeviceToken)
                 ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var createdCollection = FileCollectionExtensions.FromInput(
@@ -165,7 +165,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     IUserProcessingManager,
                     Models.User?
                 >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
+                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.DeviceToken)
                 ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var deletedId = await EntityFrameworkUtils.TryDbOperation(
@@ -205,7 +205,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     IUserProcessingManager,
                     Models.User?
                 >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
+                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.DeviceToken)
                 ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var collectionsJob = EntityFrameworkUtils.TryDbOperation(
