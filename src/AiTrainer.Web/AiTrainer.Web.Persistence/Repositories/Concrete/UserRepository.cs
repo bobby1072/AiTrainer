@@ -32,17 +32,22 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             {
                 var userEntity = RuntimeToEntity(user);
 
-                var solicitedTokenOperationJOb = dbContext
-                    .SolicitedDeviceTokens.Where(x => x.Id == user.Id)
-                    .ExecuteUpdateAsync(x => x.SetProperty(y => y.InUse, true));
+                var wholeOperation = async () =>
+                {
+                    var solicitedTokenOperationJOb = dbContext
+                        .SolicitedDeviceTokens.Where(x => x.Id == user.Id)
+                        .ExecuteUpdateAsync(x => x.SetProperty(y => y.InUse, true));
 
-                var addAsyncJob = dbContext.Users.AddAsync(userEntity);
+                    var addAsyncJob = dbContext.Users.AddAsync(userEntity);
 
-                await Task.WhenAll(solicitedTokenOperationJOb, addAsyncJob.AsTask());
+                    await Task.WhenAll(solicitedTokenOperationJOb, addAsyncJob.AsTask());
 
-                await dbContext.SaveChangesAsync();
+                    await dbContext.SaveChangesAsync();
 
-                await transaction.CommitAsync();
+                    await transaction.CommitAsync();
+                };
+
+                await TimeAndLogDbOperation(wholeOperation, nameof(ConfirmAndBuildUserTransaction), _entityType.Name);
             }
             catch (Exception e)
             {

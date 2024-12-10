@@ -6,20 +6,19 @@ namespace AiTrainer.Web.Domain.Services.Concrete
 {
     public class ApiRequestHttpContextService : IApiRequestHttpContextService
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ApiRequestHttpContextService(IHttpContextAccessor httpContextAccessor)
+        private HttpContext? _httpContext;
+        public ApiRequestHttpContextService(HttpContext? httpContext)
         {
-            _httpContextAccessor = httpContextAccessor;
+            _httpContext = httpContext;
         }
 
-        public HttpContext HttpContext => _httpContextAccessor.HttpContext;
         private Guid? _correlationId;
         public Guid? CorrelationId
         {
             get
             {
-                _correlationId ??= HttpContext.GetCorrelationId();
+                _correlationId ??= _httpContext?.GetCorrelationId();
 
                 return _correlationId;
             }
@@ -30,7 +29,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         {
             get
             {
-                _deviceToken ??= HttpContext.GetDeviceToken();
+                _deviceToken ??= _httpContext.GetDeviceToken();
 
                 return (Guid)_deviceToken!;
             }

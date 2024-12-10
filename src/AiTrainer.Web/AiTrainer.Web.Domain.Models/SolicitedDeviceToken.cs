@@ -8,6 +8,7 @@ namespace AiTrainer.Web.Domain.Models
 
         [LockedProperty]
         public required DateTime SolicitedAt { get; set; }
+        public DateTime ExpiresAt => SolicitedAt.AddHours(1);
 
         public override bool Equals(SolicitedDeviceToken? obj)
         {

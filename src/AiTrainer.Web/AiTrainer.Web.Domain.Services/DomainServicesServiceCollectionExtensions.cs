@@ -1,3 +1,4 @@
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.Concrete;
 using AiTrainer.Web.Domain.Services.File;
@@ -5,6 +6,7 @@ using AiTrainer.Web.Domain.Services.Hangfire;
 using AiTrainer.Web.Domain.Services.User;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,7 +33,11 @@ namespace AiTrainer.Web.Domain.Services
             services
                 .AddUserServices()
                 .AddFileServices()
-                .AddTransient<IApiRequestHttpContextService, ApiRequestHttpContextService>()
+                .AddTransient<IApiRequestHttpContextService>(serviceProvider =>
+                {
+                    var foundContextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
+                    return new ApiRequestHttpContextService(foundContextAccessor.HttpContext);
+                })
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
                 .AddScoped<ICachingService, DistributedCachingService>();
 

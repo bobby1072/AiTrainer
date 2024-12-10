@@ -117,14 +117,17 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 _logger
             );
 
-            if (foundToken?.IsSuccessful != true || foundToken.Data?.InUse != false)
+            if (
+                foundToken?.IsSuccessful != true
+                || foundToken.Data?.InUse != false
+                || foundToken.Data?.ExpiresAt < DateTime.UtcNow
+            )
             {
                 throw new ApiException(
                     "Invalid device token to confirm",
                     HttpStatusCode.Unauthorized
                 );
             }
-
             var validationResult = await _userValidator.ValidateAsync(userToConfirm);
 
             if (!validationResult.IsValid)

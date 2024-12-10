@@ -21,9 +21,9 @@ namespace AiTrainer.Web.Common.Extensions
 
             return !string.IsNullOrEmpty(correlationId) ? Guid.Parse(correlationId!) : null;
         }
-        public static Guid GetDeviceToken(this HttpContext context)
+        public static Guid GetDeviceToken(this HttpContext? context)
         {
-            var deviceTokenHeader = context.Request.Headers[ApiConstants.DeviceTokenHeader].ToString();
+            var deviceTokenHeader = context?.Request.Headers[ApiConstants.DeviceTokenHeader].ToString();
 
             if (string.IsNullOrEmpty(deviceTokenHeader))
             {

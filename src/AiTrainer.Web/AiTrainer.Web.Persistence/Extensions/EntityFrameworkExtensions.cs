@@ -49,7 +49,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 DateModified = fileCollection.DateModified,
                 CollectionName = fileCollection.CollectionName,
                 UserId = fileCollection.UserId,
-                ParentId = fileCollection.ParentId
+                ParentId = fileCollection.ParentId,
             };
             if (fileCollection.Id is not null)
             {
@@ -59,13 +59,15 @@ namespace AiTrainer.Web.Persistence.Extensions
             return entity;
         }
 
-        public static FileCollectionFaissEntity ToEntity(this FileCollectionFaiss fileCollectionFaiss)
+        public static FileCollectionFaissEntity ToEntity(
+            this FileCollectionFaiss fileCollectionFaiss
+        )
         {
             var entity = new FileCollectionFaissEntity
             {
                 CollectionId = fileCollectionFaiss.CollectionId,
                 FaissIndex = fileCollectionFaiss.FaissIndex,
-                FaissJson = fileCollectionFaiss.FaissJson
+                FaissJson = fileCollectionFaiss.FaissJson,
             };
             if (fileCollectionFaiss.Id is not null)
             {
@@ -74,9 +76,15 @@ namespace AiTrainer.Web.Persistence.Extensions
 
             return entity;
         }
+
         public static SolicitedDeviceTokenEntity ToEntity(this SolicitedDeviceToken deviceToken)
         {
-            var entity = new SolicitedDeviceTokenEntity { InUse = deviceToken.InUse, SolicitedAt = deviceToken.SolicitedAt };
+            var entity = new SolicitedDeviceTokenEntity
+            {
+                InUse = deviceToken.InUse,
+                SolicitedAt = deviceToken.SolicitedAt,
+                ExpiresAt = deviceToken.ExpiresAt,
+            };
 
             if (deviceToken.Id is not null)
             {

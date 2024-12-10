@@ -1,7 +1,8 @@
 CREATE TABLE public."solicited_device_token"(
     device_token UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     in_use BOOLEAN NOT NULL DEFAULT FALSE,
-    solicited_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now()
+    solicited_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    expires_at TIMESTAMP WITHOUT TIME ZONE NOT NULL
 );
 
 CREATE TABLE public."user" (

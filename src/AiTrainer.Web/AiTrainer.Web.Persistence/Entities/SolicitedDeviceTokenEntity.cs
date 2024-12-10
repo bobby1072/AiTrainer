@@ -14,6 +14,7 @@ namespace AiTrainer.Web.Persistence.Entities
         }
         public required bool InUse { get; set; }
         public required DateTime SolicitedAt { get; set; }
+        public required DateTime ExpiresAt { get; set; }
 
         public override SolicitedDeviceToken ToModel()
         {
