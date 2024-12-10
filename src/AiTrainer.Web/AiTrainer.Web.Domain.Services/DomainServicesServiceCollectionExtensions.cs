@@ -35,7 +35,7 @@ namespace AiTrainer.Web.Domain.Services
                 .AddFileServices()
                 .AddTransient<IApiRequestHttpContextService>(serviceProvider =>
                 {
-                    var foundContextAccessor = serviceProvider.GetService<IHttpContextAccessor>();
+                    var foundContextAccessor = serviceProvider.GetService<IHttpContextAccessor>() ?? throw new InvalidOperationException(ExceptionConstants.NoService);
                     return new ApiRequestHttpContextService(foundContextAccessor.HttpContext);
                 })
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
