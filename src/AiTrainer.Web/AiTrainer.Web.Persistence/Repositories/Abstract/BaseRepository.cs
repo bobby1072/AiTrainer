@@ -279,18 +279,19 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             _logger.LogDebug(
                 "finished {OperationName} on {EntityName} in {TimeTaken}ms",
                 operationName,
-                entityId is not null ? entityId : entityName,
+                entityId is not null ? $"{entityName} with id {entityId}" : entityName,
                 timeTaken.TotalMilliseconds
             );
 
             return result;
         }
+
         protected async Task TimeAndLogDbOperation(
-                Func<Task> func,
-                string operationName,
-                string entityName,
-                string? entityId = null
-            )
+            Func<Task> func,
+            string operationName,
+            string entityName,
+            string? entityId = null
+        )
         {
             var logMessageBuilder = new StringBuilder("Performing {OperationName} on {EntityName}");
             if (entityId != null)
@@ -304,7 +305,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             _logger.LogDebug(
                 "finished {OperationName} on {EntityName} in {TimeTaken}ms",
                 operationName,
-                entityId is not null ? entityId : entityName,
+                entityId is not null ? $"{entityName} with id {entityId}" : entityName,
                 timeTaken.TotalMilliseconds
             );
         }

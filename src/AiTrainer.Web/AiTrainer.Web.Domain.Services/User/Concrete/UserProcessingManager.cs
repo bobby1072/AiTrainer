@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
@@ -103,7 +104,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             }
         }
 
-        public async Task<Models.User> ConfirmUser(Models.User userToConfirm)
+        public async Task<Models.User> ConfirmUser(SaveUserInput userToConfirm, Guid deviceToken)
         {
             var correlationId = _apiRequestHttpContextService.CorrelationId;
 
@@ -113,14 +114,14 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 correlationId
             );
             var foundToken = await EntityFrameworkUtils.TryDbOperation(
-                () => _solicitedDeviceTokenRepository.GetOne((Guid)userToConfirm.Id!),
+                () => _solicitedDeviceTokenRepository.GetOne(deviceToken),
                 _logger
             );
 
             if (
                 foundToken?.IsSuccessful != true
                 || foundToken.Data?.InUse != false
-                || foundToken.Data?.ExpiresAt < DateTime.UtcNow
+                || foundToken.Data?.ExpiresAt <= DateTime.UtcNow
             )
             {
                 throw new ApiException(
@@ -128,7 +129,8 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                     HttpStatusCode.Unauthorized
                 );
             }
-            var validationResult = await _userValidator.ValidateAsync(userToConfirm);
+            var newUserToConfirm = userToConfirm.ToNewUserModel(deviceToken);
+            var validationResult = await _userValidator.ValidateAsync(newUserToConfirm);
 
             if (!validationResult.IsValid)
             {
@@ -139,7 +141,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             }
 
             await EntityFrameworkUtils.TryDbOperation(
-                () => _repo.ConfirmAndBuildUserTransaction(userToConfirm),
+                () => _repo.ConfirmAndBuildUserTransaction(newUserToConfirm),
                 _logger
             );
 
@@ -148,10 +150,13 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 nameof(ConfirmUser),
                 correlationId
             );
-            return userToConfirm;
+            return newUserToConfirm;
         }
 
-        public async Task<Models.User> UpdateUser(Models.User userToSave, Guid deviceToken)
+        public async Task<Models.User> UpdateUser(
+            SaveUserInput userToSave,
+            Guid historicDeviceToken
+        )
         {
             var correlationId = _apiRequestHttpContextService.CorrelationId;
 
@@ -161,7 +166,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 correlationId
             );
             var foundUser = await EntityFrameworkUtils.TryDbOperation(
-                () => _repo.GetOne(deviceToken),
+                () => _repo.GetOne(historicDeviceToken),
                 _logger
             );
 
@@ -169,10 +174,16 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             {
                 throw new ApiException("User not found", HttpStatusCode.NotFound);
             }
-
-            userToSave.DateModified = DateTime.UtcNow;
-
-            var validationResult = await _userValidator.ValidateAsync(userToSave);
+            var newUser = userToSave.ToUserModel(
+                foundUser.Data.DateCreated,
+                foundUser.Data.DateModified,
+                historicDeviceToken
+            );
+            if (foundUser.Data.Equals(newUser))
+            {
+                return foundUser.Data;
+            }
+            var validationResult = await _userValidator.ValidateAsync(newUser);
 
             if (!validationResult.IsValid)
             {
@@ -182,19 +193,20 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 );
             }
 
-            if (foundUser.Data.ValidateAgainstOriginal<Models.User, Guid?>(userToSave) is false)
+            if (foundUser.Data.ValidateAgainstOriginal<Models.User, Guid?>(newUser) is false)
             {
                 throw new ApiException("Cannot edit those fields", HttpStatusCode.BadRequest);
             }
 
+            newUser.DateModified = DateTime.UtcNow;
             var updatedUser = await EntityFrameworkUtils.TryDbOperation(
-                () => _repo.Update([userToSave]),
+                () => _repo.Update([newUser]),
                 _logger
             );
 
             if (
                 updatedUser?.IsSuccessful is true
-                && updatedUser.Data.First() is Models.User newUser
+                && updatedUser.Data.First() is Models.User dbNewUser
             )
             {
                 _logger.LogInformation(
@@ -202,7 +214,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                     nameof(UpdateUser),
                     correlationId
                 );
-                return newUser;
+                return dbNewUser;
             }
             else
             {

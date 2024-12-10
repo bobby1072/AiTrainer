@@ -10,7 +10,9 @@
             }
 
             var valType = value.GetType();
-            var correctProperties = valType.GetProperties().SingleOrDefault(x => x.Name == propertyName && x.PropertyType == typeof(T));
+            var correctProperties = valType
+                .GetProperties()
+                .SingleOrDefault(x => x.Name == propertyName && x.PropertyType == typeof(T));
 
             return correctProperties?.GetValue(value) is T result ? result : default;
         }

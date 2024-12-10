@@ -1,6 +1,5 @@
-﻿
+﻿using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
-using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Common.Models.ApiModels.Request
 {
@@ -8,6 +7,7 @@ namespace AiTrainer.Web.Common.Models.ApiModels.Request
     {
         [JsonPropertyName("collectionId")]
         public Guid? CollectionId { get; init; }
+
         [JsonPropertyName("fileToCreate")]
         public required IFormFile FileToCreate { get; init; }
     }
