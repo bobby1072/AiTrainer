@@ -1,10 +1,10 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using AiTrainer.Web.Domain.Models;
 using BT.Common.FastArray.Proto;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
-    [Table("file_collection_faiss", Schema = DbConstants.PublicSchema)]
+    [Table("file_collection", Schema = DbConstants.PublicSchema)]
     public record FileCollectionEntity : BaseEntity<Guid, FileCollection>
     {
         public required Guid UserId { get; set; }
@@ -17,6 +17,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public Guid? ParentId { get; set; }
         public virtual IReadOnlyCollection<FileCollectionFaissEntity>? FaissStore { get; set; }
         public virtual IReadOnlyCollection<FileDocumentEntity>? Documents { get; set; }
+
         public override FileCollection ToModel() =>
             new FileCollection
             {
@@ -27,7 +28,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 DateModified = DateModified,
                 ParentId = ParentId,
                 FaissStore = FaissStore?.FirstOrDefault()?.ToModel(),
-                Documents = Documents?.FastArraySelect(x => x.ToModel()).ToArray()
+                Documents = Documents?.FastArraySelect(x => x.ToModel()).ToArray(),
             };
     }
 }

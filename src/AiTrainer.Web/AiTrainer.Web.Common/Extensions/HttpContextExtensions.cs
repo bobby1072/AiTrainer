@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using AiTrainer.Web.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
 
 namespace AiTrainer.Web.Common.Extensions
 {
@@ -22,21 +21,18 @@ namespace AiTrainer.Web.Common.Extensions
 
             return !string.IsNullOrEmpty(correlationId) ? Guid.Parse(correlationId!) : null;
         }
+        public static Guid GetDeviceToken(this HttpContext context)
+        {
+            var deviceTokenHeader = context.Request.Headers[ApiConstants.DeviceTokenHeader].ToString();
 
-        public static string GetAccessToken(this HttpContext context) =>
-            context.Request.Headers[HeaderNames.Authorization].ToString()
-            ?? throw new ApiException(
-                ExceptionConstants.NotAuthorized,
-                HttpStatusCode.Unauthorized
-            );
-
-        public static Guid GetDeviceToken(this HttpContext context) =>
-            Guid.Parse(
-                context.Request.Headers[ApiConstants.DeviceTokenHeader].ToString()
-                    ?? throw new ApiException(
+            if (string.IsNullOrEmpty(deviceTokenHeader))
+            {
+                throw new ApiException(
                         ExceptionConstants.NoDeviceTokenFound,
                         HttpStatusCode.BadRequest
-                    )
-            );
+                    );
+            }
+            return Guid.Parse(deviceTokenHeader);
+        }
     }
 }

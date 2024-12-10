@@ -1,12 +1,17 @@
-﻿using AiTrainer.Web.Domain.Models;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
-    public record SolicitedDeviceTokenEntity: BaseEntity<Guid, SolicitedDeviceToken>
+    [Table("solicited_device_token", Schema = DbConstants.PublicSchema)]
+    public record SolicitedDeviceTokenEntity : BaseEntity<Guid, SolicitedDeviceToken>
     {
         [Column("device_token")]
-        public override Guid Id { get => base.Id; set => base.Id = value; }
+        public override Guid Id
+        {
+            get => base.Id;
+            set => base.Id = value;
+        }
         public required bool InUse { get; set; }
         public required DateTime SolicitedAt { get; set; }
 
@@ -16,7 +21,7 @@ namespace AiTrainer.Web.Persistence.Entities
             {
                 InUse = InUse,
                 SolicitedAt = SolicitedAt,
-                Id = Id
+                Id = Id,
             };
         }
     }

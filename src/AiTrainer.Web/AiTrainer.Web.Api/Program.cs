@@ -13,7 +13,7 @@ var appSettings = builder.Configuration.GetSection(ApplicationSettingsConfigurat
 
 if (!appSettings.Exists())
 {
-    throw new Exception("ApplicationSettingsConfigurationS not found in configuration");
+    throw new Exception("ApplicationSettingsConfiguration not found in configuration");
 }
 builder.Services.Configure<ApplicationSettingsConfiguration>(appSettings);
 
@@ -70,7 +70,6 @@ else
 app.UseRouting();
 app.UseResponseCompression();
 app.UseAuthorization();
-app.UseAuthentication();
 app.AddAiTrainerDefaultMiddlewares();
 
 app.MapControllers();

@@ -6,8 +6,10 @@ namespace AiTrainer.Web.Api.Middlewares
             this IApplicationBuilder app
         )
         {
-            app.UseMiddleware<ExceptionHandlingMiddleware>()
-                .UseMiddleware<CorrelationIdMiddleware>();
+            app
+                .UseMiddleware<ExceptionHandlingMiddleware>()
+                .UseMiddleware<CorrelationIdMiddleware>()
+                .UseMiddleware<RequireLoginMiddleware>();
 
             return app;
         }
