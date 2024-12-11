@@ -6,11 +6,7 @@ export const ErrorComponent: React.FC<{
   fullScreen?: boolean;
   errorMessage?: string;
   fontSize?: number;
-}> = ({
-  fullScreen = false,
-  errorMessage = "An error has occurred",
-  fontSize = 30,
-}) => {
+}> = ({ fullScreen = false, errorMessage, fontSize = 30 }) => {
   return fullScreen ? (
     <PageBase>
       <Grid2
@@ -27,7 +23,9 @@ export const ErrorComponent: React.FC<{
             severity="error"
             icon={<ErrorIcon color="inherit" fontSize="large" />}
           >
-            <Typography fontSize={fontSize}>{errorMessage}</Typography>
+            <Typography fontSize={fontSize}>
+              {errorMessage ? errorMessage : "An error has occurred"}
+            </Typography>
           </Alert>
         </Grid2>
       </Grid2>

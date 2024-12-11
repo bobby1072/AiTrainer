@@ -3,6 +3,7 @@ import AppSettingsProvider from "./AppSettingsProvider";
 import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
 import { ErrorMessages } from "../Constants";
 import { AppSettingsKeys } from "./AppSettingsKeys";
+import { SolicitedDeviceToken } from "../Models/SolicitedDeviceToken";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl = AppSettingsProvider.TryGetValue(
@@ -24,6 +25,19 @@ export default abstract class AiTrainerWebClient {
 
   //   return response;
   // }
+  public static async IssueDeviceToken(): Promise<SolicitedDeviceToken> {
+    const response = await AiTrainerWebClient._httpClient
+      .get<AiTrainerWebOutcome<SolicitedDeviceToken>>(
+        "Api/User/IssueDeviceToken"
+      )
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
+    if (!response) {
+      throw new Error(ErrorMessages.InternalServerError);
+    }
+
+    return response;
+  }
   private static HandleError(e: any): PromiseLike<never> {
     if (e instanceof AxiosError) {
       const axiosError = e as AxiosError;

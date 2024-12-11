@@ -13,7 +13,7 @@ expressappsettings.json
 
 filestore/
 .config/
-
+.idea/
 /.pnp
 .pnp.js
 
