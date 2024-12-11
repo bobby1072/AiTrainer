@@ -1,6 +1,6 @@
 import { createContext, useContext } from "react";
 import { SolicitedDeviceToken } from "../../Models/SolicitedDeviceToken";
-import { useGetDeviceToken } from "../Hooks/IssueTokenMutation";
+import { useGetDeviceToken } from "../Hooks/GetDeviceToken";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
 

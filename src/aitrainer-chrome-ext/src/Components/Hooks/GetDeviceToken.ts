@@ -12,7 +12,6 @@ export const useGetDeviceToken = () => {
     localStorageError,
     isInitialStateResolved,
   ] = useChromeStorageLocal<string>("deviceToken");
-
   const {
     data: mutationData,
     error: mutationError,
@@ -22,11 +21,21 @@ export const useGetDeviceToken = () => {
     AiTrainerWebClient.IssueDeviceToken()
   );
 
+  const parsedLocalValue = localValue
+    ? (JSON.parse(localValue) as SolicitedDeviceToken)
+    : undefined;
+
   useEffect(() => {
-    if (isInitialStateResolved && !localValue) {
+    if (
+      isInitialStateResolved &&
+      (!parsedLocalValue ||
+        (parsedLocalValue &&
+          parsedLocalValue.inUse === false &&
+          new Date(parsedLocalValue.expiresAt).getTime() <= Date.now()))
+    ) {
       mutate();
     }
-  }, [localValue, mutate, isInitialStateResolved]);
+  }, [parsedLocalValue, mutate, isInitialStateResolved]);
 
   useEffect(() => {
     if (mutationData) {
@@ -35,7 +44,7 @@ export const useGetDeviceToken = () => {
   }, [mutationData, setValue]);
 
   return {
-    data: localValue ? JSON.parse(localValue) : null,
+    data: parsedLocalValue,
     errorMessage: mutationError?.message || localStorageError,
     isLoading: mutationLoading,
     setValue: (val: {}) => setValue(JSON.stringify(val)),

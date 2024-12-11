@@ -4,6 +4,8 @@ import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
 import { ErrorMessages } from "../Constants";
 import { AppSettingsKeys } from "./AppSettingsKeys";
 import { SolicitedDeviceToken } from "../Models/SolicitedDeviceToken";
+import { SaveUserInput } from "../Models/SaveUserInput";
+import { User } from "../Models/User";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl = AppSettingsProvider.TryGetValue(
@@ -32,6 +34,19 @@ export default abstract class AiTrainerWebClient {
       )
       .catch(AiTrainerWebClient.HandleError)
       .then(AiTrainerWebClient.HandleThen);
+
+    if (!response) {
+      throw new Error(ErrorMessages.InternalServerError);
+    }
+
+    return response;
+  }
+  public static async ConfirmUser(userInput: SaveUserInput): Promise<User> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcome<User>>("Api/User/ConfirmUser", userInput)
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
+
     if (!response) {
       throw new Error(ErrorMessages.InternalServerError);
     }
