@@ -31,34 +31,53 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         {
             var actionName = serviceActionName ?? serviceAction.Method.Name;
             var correlationId = _apiRequestHttpContextService.CorrelationId;
-            _logger.LogInformation(
-                "-------Entering service action executor for {ServiceAction} for correlationId {CorrelationId}-------",
-                actionName,
-                correlationId
-            );
+            try
+            {
+                _logger.LogInformation(
+                    "-------Entering service action executor for {ServiceAction} for correlationId {CorrelationId}-------",
+                    actionName,
+                    correlationId
+                );
 
-            var service =
-                _serviceProvider.GetService<TService>()
-                ?? throw new InvalidOperationException(ExceptionConstants.NoService);
+                var service =
+                    _serviceProvider.GetService<TService>()
+                    ?? throw new InvalidOperationException(ExceptionConstants.NoService);
 
-            var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(
-                () => serviceAction.Invoke(service)
-            );
+                var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(
+                    () => serviceAction.Invoke(service)
+                );
 
-            _logger.LogInformation(
-                "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
-                actionName,
-                correlationId,
-                timeTaken.Milliseconds
-            );
+                _logger.LogInformation(
+                    "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
+                    actionName,
+                    correlationId,
+                    timeTaken.Milliseconds
+                );
 
-            _logger.LogInformation(
-                "-------Exiting service action executor for {ServiceAction} successfully for correlationId {CorrelationId}-------",
-                actionName,
-                correlationId
-            );
+                _logger.LogInformation(
+                    "-------Exiting service action executor for {ServiceAction} successfully for correlationId {CorrelationId}-------",
+                    actionName,
+                    correlationId
+                );
 
-            return result;
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(
+                    e,
+                    "Error occurred in service action executor with message {Message}",
+                    e.Message
+                );
+
+                _logger.LogInformation(
+                    "-------Exiting service action executor for {ServiceAction} unsuccessfully for correlationId {CorrelationId}-------",
+                    actionName,
+                    correlationId
+                );
+
+                throw;
+            }
         }
 
         public TReturn Execute<TService, TReturn>(
@@ -68,36 +87,54 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             where TService : IDomainService
         {
             var actionName = serviceActionName ?? serviceAction.Method.Name;
-
             var correlationId = _apiRequestHttpContextService.CorrelationId;
-            _logger.LogInformation(
-                "-------Entering service action {ServiceAction} for correlationId {CorrelationId}-------",
-                actionName,
-                correlationId
-            );
+            try
+            {
+                _logger.LogInformation(
+                    "-------Entering service action executor for {ServiceAction} for correlationId {CorrelationId}-------",
+                    actionName,
+                    correlationId
+                );
 
-            var service =
-                _serviceProvider.GetService<TService>()
-                ?? throw new InvalidOperationException(ExceptionConstants.NoService);
+                var service =
+                    _serviceProvider.GetService<TService>()
+                    ?? throw new InvalidOperationException(ExceptionConstants.NoService);
 
-            var (timeTaken, result) = OperationTimerUtils.TimeWithResults(
-                () => serviceAction.Invoke(service)
-            );
+                var (timeTaken, result) = OperationTimerUtils.TimeWithResults(
+                    () => serviceAction.Invoke(service)
+                );
 
-            _logger.LogInformation(
-                "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
-                actionName,
-                correlationId,
-                timeTaken.Milliseconds
-            );
+                _logger.LogInformation(
+                    "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
+                    actionName,
+                    correlationId,
+                    timeTaken.Milliseconds
+                );
 
-            _logger.LogInformation(
-                "-------Exiting service action {ServiceAction} for correlationId {CorrelationId}-------",
-                actionName,
-                correlationId
-            );
+                _logger.LogInformation(
+                    "-------Exiting service action executor for {ServiceAction} successfully for correlationId {CorrelationId}-------",
+                    actionName,
+                    correlationId
+                );
 
-            return result;
+                return result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(
+                    e,
+                    "Error occurred in service action executor with message {Message}",
+                    e.Message
+                );
+
+                _logger.LogInformation(
+                    "-------Exiting service action executor for {ServiceAction} unsuccessfully for correlationId {CorrelationId}-------",
+                    actionName,
+                    correlationId
+                );
+
+                throw;
+            }
         }
     }
 }

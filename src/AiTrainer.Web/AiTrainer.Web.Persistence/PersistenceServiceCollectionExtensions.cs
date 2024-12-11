@@ -76,10 +76,7 @@ namespace AiTrainer.Web.Persistence
                     IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss>,
                     FileCollectionFaissRepository
                 >()
-                .AddScoped<
-                    IRepository<SolicitedDeviceTokenEntity, Guid, SolicitedDeviceToken>,
-                    SolicitedDeviceTokenRepository
-                >();
+                .AddScoped<ISolicitedDeviceTokenRepository, SolicitedDeviceTokenRepository>();
 
             return services;
         }

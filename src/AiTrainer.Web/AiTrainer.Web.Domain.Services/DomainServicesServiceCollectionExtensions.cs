@@ -14,28 +14,34 @@ namespace AiTrainer.Web.Domain.Services
 {
     public static class DomainServicesServiceCollectionExtensions
     {
-        public static IServiceCollection AddDomainServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddDomainServices(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
         {
-            //var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
 
-            //services.AddHangfire(configuration =>
-            //        configuration
-            //            ?.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-            //            .UseSimpleAssemblyNameTypeSerializer()
-            //            .UseRecommendedSerializerSettings()
-            //            .UsePostgreSqlStorage(x => x.UseNpgsqlConnection(connectionString))
-            //    )
-            //    .AddHangfireServer(options =>
-            //    {
-            //        options.Queues = HangfireConstants.Queues.FullQueueList;
-            //    });
+            services
+                .AddHangfire(configuration =>
+                    configuration
+                        ?.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                        .UseSimpleAssemblyNameTypeSerializer()
+                        .UseRecommendedSerializerSettings()
+                        .UsePostgreSqlStorage(x => x.UseNpgsqlConnection(connectionString))
+                )
+                .AddHangfireServer(options =>
+                {
+                    options.Queues = HangfireConstants.Queues.FullQueueList;
+                });
 
             services
                 .AddUserServices()
                 .AddFileServices()
                 .AddTransient<IApiRequestHttpContextService>(serviceProvider =>
                 {
-                    var foundContextAccessor = serviceProvider.GetService<IHttpContextAccessor>() ?? throw new InvalidOperationException(ExceptionConstants.NoService);
+                    var foundContextAccessor =
+                        serviceProvider.GetService<IHttpContextAccessor>()
+                        ?? throw new InvalidOperationException(ExceptionConstants.NoService);
                     return new ApiRequestHttpContextService(foundContextAccessor.HttpContext);
                 })
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()

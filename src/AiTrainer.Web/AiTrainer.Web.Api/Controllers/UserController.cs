@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Api.Models;
+﻿using AiTrainer.Web.Api.Attributes;
+using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Services.Abstract;
@@ -10,8 +11,11 @@ namespace AiTrainer.Web.Api.Controllers
     public class UserController : BaseController
     {
         private readonly IApiRequestHttpContextService _httpContextService;
-        public UserController(IDomainServiceActionExecutor actionExecutor,
-            IApiRequestHttpContextService httpContextService)
+
+        public UserController(
+            IDomainServiceActionExecutor actionExecutor,
+            IApiRequestHttpContextService httpContextService
+        )
             : base(actionExecutor)
         {
             _httpContextService = httpContextService;
@@ -27,14 +31,30 @@ namespace AiTrainer.Web.Api.Controllers
 
             return new Outcome<SolicitedDeviceToken> { Data = deviceToken };
         }
+
         [HttpPost("ConfirmUser")]
-        public async Task<User> ConfirmUser([FromBody]SaveUserInput userToConfirm)
+        public async Task<ActionResult<Outcome<User>>> ConfirmUser(
+            [FromBody] SaveUserInput userToConfirm
+        )
         {
             var confirmedUser = await _actionExecutor.ExecuteAsync<IUserProcessingManager, User>(
                 service => service.ConfirmUser(userToConfirm, _httpContextService.DeviceToken)
             );
 
-            return confirmedUser;
+            return new Outcome<User> { Data = confirmedUser };
+        }
+
+        [RequireUserLogin]
+        [HttpPost("UpdateUser")]
+        public async Task<ActionResult<Outcome<User>>> UpdateUser(
+            [FromBody] SaveUserInput userToConfirm
+        )
+        {
+            var updatedUser = await _actionExecutor.ExecuteAsync<IUserProcessingManager, User>(
+                service => service.UpdateUser(userToConfirm, _httpContextService.DeviceToken)
+            );
+
+            return new Outcome<User> { Data = updatedUser };
         }
     }
 }

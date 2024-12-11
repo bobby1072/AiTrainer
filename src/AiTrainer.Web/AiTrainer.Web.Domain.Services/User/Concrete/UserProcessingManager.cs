@@ -9,6 +9,7 @@ using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
@@ -19,11 +20,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         private readonly ILogger<UserProcessingManager> _logger;
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
-        private readonly IRepository<
-            SolicitedDeviceTokenEntity,
-            Guid,
-            SolicitedDeviceToken
-        > _solicitedDeviceTokenRepository;
+        private readonly ISolicitedDeviceTokenRepository _solicitedDeviceTokenRepository;
 
         public UserProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
@@ -32,11 +29,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             ILogger<UserProcessingManager> logger,
             IValidator<Models.User> userValidator,
             ICachingService cachingService,
-            IRepository<
-                SolicitedDeviceTokenEntity,
-                Guid,
-                SolicitedDeviceToken
-            > solicitedDeviceTokenRepository
+            ISolicitedDeviceTokenRepository solicitedDeviceTokenRepository
         )
             : base(domainServiceActionExecutor, apiRequestService)
         {
@@ -165,23 +158,18 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 nameof(UpdateUser),
                 correlationId
             );
-            var foundUser = await EntityFrameworkUtils.TryDbOperation(
-                () => _repo.GetOne(historicDeviceToken),
-                _logger
-            );
+            var foundUser =
+                await TryGetUserFromCache(historicDeviceToken)
+                ?? throw new ApiException("User not found", HttpStatusCode.Unauthorized);
 
-            if (foundUser?.IsSuccessful != true || foundUser?.Data is null)
-            {
-                throw new ApiException("User not found", HttpStatusCode.NotFound);
-            }
             var newUser = userToSave.ToUserModel(
-                foundUser.Data.DateCreated,
-                foundUser.Data.DateModified,
+                foundUser.DateCreated,
+                foundUser.DateModified,
                 historicDeviceToken
             );
-            if (foundUser.Data.Equals(newUser))
+            if (foundUser.Equals(newUser))
             {
-                return foundUser.Data;
+                return foundUser;
             }
             var validationResult = await _userValidator.ValidateAsync(newUser);
 
@@ -193,7 +181,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 );
             }
 
-            if (foundUser.Data.ValidateAgainstOriginal<Models.User, Guid?>(newUser) is false)
+            if (foundUser.ValidateAgainstOriginal<Models.User, Guid?>(newUser) is false)
             {
                 throw new ApiException("Cannot edit those fields", HttpStatusCode.BadRequest);
             }
@@ -270,6 +258,37 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                     HttpStatusCode.InternalServerError
                 );
             }
+        }
+
+        public async Task CleanUpDeviceTokens()
+        {
+            _logger.LogInformation("Entering {CleanUpDeviceTokens}", nameof(CleanUpDeviceTokens));
+
+            var previousTokenCount = await EntityFrameworkUtils.TryDbOperation(
+                _solicitedDeviceTokenRepository.GetCount,
+                _logger
+            );
+            await Task.Delay(3000);
+
+            await EntityFrameworkUtils.TryDbOperation(
+                _solicitedDeviceTokenRepository.CleanUp,
+                _logger
+            );
+
+            await Task.Delay(3000);
+
+            var newTokenCount = await EntityFrameworkUtils.TryDbOperation(
+                _solicitedDeviceTokenRepository.GetCount,
+                _logger
+            );
+
+            _logger.LogInformation(
+                "Token count went from {PreviousTokenCount} to {NewTokenCount}",
+                previousTokenCount,
+                newTokenCount
+            );
+
+            _logger.LogInformation("Exiting {CleanUpDeviceTokens}", nameof(CleanUpDeviceTokens));
         }
 
         public Task<Models.User?> TryGetUserFromCache(Guid deviceToken)
