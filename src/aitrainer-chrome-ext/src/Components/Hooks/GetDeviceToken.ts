@@ -12,6 +12,7 @@ export const useGetDeviceToken = () => {
     localStorageError,
     isInitialStateResolved,
   ] = useChromeStorageLocal<string>("deviceToken");
+
   const {
     data: mutationData,
     error: mutationError,
@@ -47,6 +48,6 @@ export const useGetDeviceToken = () => {
     data: parsedLocalValue,
     errorMessage: mutationError?.message || localStorageError,
     isLoading: mutationLoading,
-    setValue: (val: {}) => setValue(JSON.stringify(val)),
+    setValue: (val: SolicitedDeviceToken) => setValue(JSON.stringify(val)),
   };
 };

@@ -14,19 +14,6 @@ export default abstract class AiTrainerWebClient {
   private static readonly _httpClient: AxiosInstance = axios.create({
     baseURL: AiTrainerWebClient._baseUrl || "http://localhost:5007",
   });
-  // public static async GetClientConfiguration(): Promise<ClientSettingsConfiguration> {
-  //   const response = await AiTrainerWebClient._httpClient
-  //     .get<AiTrainerWebOutcome<ClientSettingsConfiguration>>(
-  //       "Api/ClientConfiguration"
-  //     )
-  //     .catch(AiTrainerWebClient.HandleError)
-  //     .then(AiTrainerWebClient.HandleThen);
-  //   if (!response) {
-  //     throw new Error(ErrorMessages.InternalServerError);
-  //   }
-
-  //   return response;
-  // }
   public static async IssueDeviceToken(): Promise<SolicitedDeviceToken> {
     const response = await AiTrainerWebClient._httpClient
       .get<AiTrainerWebOutcome<SolicitedDeviceToken>>(
