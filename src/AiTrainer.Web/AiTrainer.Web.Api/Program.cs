@@ -3,7 +3,7 @@ using AiTrainer.Web.Api.Middlewares;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient;
 using AiTrainer.Web.Domain.Models.Extensions;
-using AiTrainer.Web.Domain.Services;
+using AiTrainer.Web.Domain.Services.Extensions;
 using AiTrainer.Web.Persistence;
 using Microsoft.AspNetCore.Http.Timeouts;
 
@@ -45,14 +45,10 @@ builder.Services.AddCors(p =>
         "corsapp",
         builder =>
         {
-            builder
-            .AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
+            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
         }
     )
 );
-
 
 var app = builder.Build();
 

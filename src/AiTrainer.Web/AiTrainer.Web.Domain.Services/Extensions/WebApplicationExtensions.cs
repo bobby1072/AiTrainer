@@ -1,15 +1,27 @@
+using AiTrainer.Web.Domain.Services.Hangfire.Abstract;
+using Hangfire;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-namespace AiTrainer.Web.Domain.Services;
+namespace AiTrainer.Web.Domain.Services.Extensions;
 
-public static class ApplicationBuilderExtensions
+public static class WebApplicationExtensions
 {
-    public static IApplicationBuilder UseHangfire(this IApplicationBuilder app)
+    public static async Task<WebApplication> UseHangfireAsync(this WebApplication app)
     {
-        using (var scope = app.Services.CreateScope())
+        await using var scope = app.Services.CreateAsyncScope();
+        var hangfireService = scope.ServiceProvider.GetRequiredService<IHangfireJobService>();
+        hangfireService.RegisterJobs();
+
+        if (app.Environment.IsDevelopment())
         {
-            var hangfireService = scope.ServiceProvider.GetRequiredService<IHangfireJobsService>();
-            hangfireService.RegisterJobs();
+            app.UseHangfireDashboard("api/hangfire", new DashboardOptions
+            {
+                DarkModeEnabled = true
+            });
         }
+        
+        return app;
     }
 }

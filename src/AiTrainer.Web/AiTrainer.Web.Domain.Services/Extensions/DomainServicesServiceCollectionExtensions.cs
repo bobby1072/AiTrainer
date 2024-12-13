@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AiTrainer.Web.Domain.Services
+namespace AiTrainer.Web.Domain.Services.Extensions
 {
     public static class DomainServicesServiceCollectionExtensions
     {
@@ -22,8 +22,8 @@ namespace AiTrainer.Web.Domain.Services
             var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             services
-                .AddHangfire(configuration =>
-                    configuration
+                .AddHangfire(config =>
+                    config
                         ?.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                         .UseSimpleAssemblyNameTypeSerializer()
                         .UseRecommendedSerializerSettings()
