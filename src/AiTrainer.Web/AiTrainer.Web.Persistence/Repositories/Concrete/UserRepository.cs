@@ -47,7 +47,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                     await transaction.CommitAsync();
                 };
 
-                await TimeAndLogDbOperation(wholeOperation, nameof(ConfirmAndBuildUserTransaction), _entityType.Name);
+                await TimeAndLogDbOperation(
+                    wholeOperation,
+                    nameof(ConfirmAndBuildUserTransaction),
+                    _entityType.Name
+                );
             }
             catch (Exception e)
             {

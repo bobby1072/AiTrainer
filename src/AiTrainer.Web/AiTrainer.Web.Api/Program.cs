@@ -52,6 +52,8 @@ builder.Services.AddCors(p =>
 
 var app = builder.Build();
 
+await app.UseHangfireAsync();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

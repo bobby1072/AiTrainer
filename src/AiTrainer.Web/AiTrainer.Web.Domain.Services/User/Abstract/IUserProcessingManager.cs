@@ -18,6 +18,6 @@ namespace AiTrainer.Web.Domain.Services.User.Abstract
             DelaysInSeconds = [10],
             OnAttemptsExceeded = AttemptsExceededAction.Delete
         )]
-        internal Task CleanUpDeviceTokens();
+        Task CleanUpDeviceTokens();
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System.Net.Mime;
-using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.Common.Models.ApiModels.Response;
 using AiTrainer.Web.Domain.Services.Abstract;
 using BT.Common.OperationTimer.Proto;
 

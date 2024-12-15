@@ -268,14 +268,14 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 _solicitedDeviceTokenRepository.GetCount,
                 _logger
             );
-            await Task.Delay(3000);
+            await Task.Delay(1000);
 
             await EntityFrameworkUtils.TryDbOperation(
                 _solicitedDeviceTokenRepository.CleanUp,
                 _logger
             );
 
-            await Task.Delay(3000);
+            await Task.Delay(1000);
 
             var newTokenCount = await EntityFrameworkUtils.TryDbOperation(
                 _solicitedDeviceTokenRepository.GetCount,

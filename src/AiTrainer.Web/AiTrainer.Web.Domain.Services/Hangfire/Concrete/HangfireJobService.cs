@@ -32,22 +32,21 @@ namespace AiTrainer.Web.Domain.Services.Hangfire.Concrete
             RegisterStartupJobs();
         }
 
-        public void RegisterHourlyJobs() { }
-
-        public void RegisterDailyJobs()
+        public void RegisterHourlyJobs()
         {
+            _recurringJobManager.RemoveIfExists(HangfireConstants.JobNames.CleanUpExpiredDeviceTokens);
+            
             _recurringJobManager.AddOrUpdate<IUserProcessingManager>(
-                $"{HangfireConstants.JobNames.CleanUpExpiredDeviceTokens}-{Guid.NewGuid()}",
+                HangfireConstants.JobNames.CleanUpExpiredDeviceTokens,
                 HangfireConstants.Queues.CleanerQueue,
                 x => x.CleanUpDeviceTokens(),
-                Cron.Daily
+                Cron.Hourly
             );
         }
 
-        public void RegisterWeeklyJobs() { }
-
-        public void RegisterMonthlyJobs() { }
-
-        public void RegisterStartupJobs() { }
+        private void RegisterDailyJobs() { }
+        private void RegisterWeeklyJobs() { }
+        private void RegisterMonthlyJobs() { }
+        private void RegisterStartupJobs() { }
     }
 }

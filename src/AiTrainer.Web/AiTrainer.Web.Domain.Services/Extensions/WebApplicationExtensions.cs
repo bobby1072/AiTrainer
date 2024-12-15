@@ -16,7 +16,7 @@ public static class WebApplicationExtensions
 
         if (app.Environment.IsDevelopment())
         {
-            app.UseHangfireDashboard("api/hangfire", new DashboardOptions
+            app.UseHangfireDashboard("/api/hangfire", new DashboardOptions
             {
                 DarkModeEnabled = true
             });

@@ -3,6 +3,8 @@ using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.Concrete;
 using AiTrainer.Web.Domain.Services.File;
 using AiTrainer.Web.Domain.Services.Hangfire;
+using AiTrainer.Web.Domain.Services.Hangfire.Abstract;
+using AiTrainer.Web.Domain.Services.Hangfire.Concrete;
 using AiTrainer.Web.Domain.Services.User;
 using Hangfire;
 using Hangfire.PostgreSql;
@@ -37,11 +39,11 @@ namespace AiTrainer.Web.Domain.Services.Extensions
             services
                 .AddUserServices()
                 .AddFileServices()
+                .AddTransient<IHangfireJobService, HangfireJobService>()
                 .AddTransient<IApiRequestHttpContextService>(serviceProvider =>
                 {
                     var foundContextAccessor =
-                        serviceProvider.GetService<IHttpContextAccessor>()
-                        ?? throw new InvalidOperationException(ExceptionConstants.NoService);
+                        serviceProvider.GetRequiredService<IHttpContextAccessor>();
                     return new ApiRequestHttpContextService(foundContextAccessor.HttpContext);
                 })
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
