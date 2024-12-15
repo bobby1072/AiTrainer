@@ -2,11 +2,8 @@ import { z } from "zod";
 import { User } from "../../Models/User";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useConfirmUser } from "../Hooks/ConfirmUser";
 import { Button, Grid2, TextField } from "@mui/material";
 import { ErrorComponent } from "../Common/ErrorComponent";
-import { useGetDeviceToken } from "../Hooks/GetDeviceToken";
-import { SolicitedDeviceToken } from "../../Models/SolicitedDeviceToken";
 
 const userFormSchema = z.object({
   id: z.string().uuid().optional().nullable(),
@@ -23,7 +20,12 @@ const mapDefaultValues = (user?: User | null): Partial<SaveUserFormInput> => {
   };
 };
 
-export const SaveUserForm: React.FC<{ user?: User | null }> = ({ user }) => {
+export const SaveUserForm: React.FC<{
+  user?: User | null;
+  handleSubmit: (x: SaveUserFormInput) => void;
+  isLoading: boolean;
+  error?: Error | null;
+}> = ({ user, handleSubmit: userHandlerFunc, isLoading, error }) => {
   const {
     register,
     handleSubmit,
@@ -32,29 +34,8 @@ export const SaveUserForm: React.FC<{ user?: User | null }> = ({ user }) => {
     defaultValues: mapDefaultValues(user),
     resolver: zodResolver(userFormSchema),
   });
-
-  const {
-    isLoading,
-    error,
-    confirmUser,
-    reset: resetMutation,
-  } = useConfirmUser({
-    onSuccess: (successData, successVariables, successContext) => {
-      const clone = { ...deviceToken };
-      clone.inUse = true;
-      setDeviceToken(clone as SolicitedDeviceToken);
-    },
-  });
-  const { setValue: setDeviceToken, data: deviceToken } = useGetDeviceToken();
-
   return (
-    <form
-      id="save-user-form"
-      onSubmit={handleSubmit((submitVals) => {
-        resetMutation();
-        confirmUser(submitVals);
-      })}
-    >
+    <form id="save-user-form" onSubmit={handleSubmit(userHandlerFunc)}>
       <Grid2
         container
         justifyContent="center"

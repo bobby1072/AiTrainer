@@ -27,13 +27,7 @@ export const useGetDeviceToken = () => {
     : undefined;
 
   useEffect(() => {
-    if (
-      isInitialStateResolved &&
-      (!parsedLocalValue ||
-        (parsedLocalValue &&
-          parsedLocalValue.inUse === false &&
-          new Date(parsedLocalValue.expiresAt).getTime() <= Date.now()))
-    ) {
+    if (isInitialStateResolved && !parsedLocalValue) {
       mutate();
     }
   }, [parsedLocalValue, mutate, isInitialStateResolved]);
