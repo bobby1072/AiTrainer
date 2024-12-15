@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { MemoryRouter, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { UserManager } from "oidc-client-ts";
 import { useAuthentication } from "./Components/Contexts/AuthenticationContext";
 import { AuthenticatedRouteWrapper } from "./Components/Authentication/AuthenticatedRouteWrapper";
@@ -82,13 +82,13 @@ if (window.location.pathname === "/oidc-silent-renew") {
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <ClientSettingsConfigurationContextProvider>
-          <MemoryRouter>
+          <BrowserRouter>
             <Routes>
               {AppRoutes?.map((r) => (
                 <Route element={r.element} path={r.path} />
               ))}
             </Routes>
-          </MemoryRouter>
+          </BrowserRouter>
         </ClientSettingsConfigurationContextProvider>
       </QueryClientProvider>
     </React.StrictMode>
