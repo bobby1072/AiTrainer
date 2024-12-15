@@ -6,7 +6,10 @@ import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfigurati
 export const useGetClientConfigurationQuery = () => {
   const query = useQuery<ClientSettingsConfiguration, Error>(
     QueryKeys.GetClientConfiguration,
-    AiTrainerWebClient.GetClientConfiguration
+    AiTrainerWebClient.GetClientConfiguration,
+    {
+      retry: (count) => count < 3,
+    }
   );
 
   return { ...query };

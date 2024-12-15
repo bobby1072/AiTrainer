@@ -65,8 +65,9 @@ const AppRoutes = [
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: true,
-      retry: (count) => (count >= 1 ? false : true),
+      refetchOnWindowFocus:
+        process.env.NODE_ENV === "development" ? true : false,
+      retry: () => false,
     },
   },
 });

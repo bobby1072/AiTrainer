@@ -15,6 +15,7 @@ export const ErrorComponent: React.FC<{
     <PageBase>
       <Grid2
         container
+        height={"100vh"}
         justifyContent="center"
         alignItems="center"
         direction="column"

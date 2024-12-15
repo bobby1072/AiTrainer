@@ -29,8 +29,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
             : base()
         {
             _fileCollectionManager = new FileCollectionProcessingManager(
-                _mockDomainServiceActionExecutor.Object,
-                _mockApiRequestService,
+                MockDomainServiceActionExecutor.Object,
+                MockApiRequestService,
                 _mockRepository.Object,
                 _mockLogger.Object,
                 _mockValidator.Object,
@@ -42,8 +42,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task SaveFileCollection_Should_Stop_Unauthorized_Users_From_Saving()
         {
             //Arrange
-            var fileCollectionInput = _fixture.Create<FileCollectionSaveInput>();
-            _mockDomainServiceActionExecutor
+            var fileCollectionInput = Fixture.Create<FileCollectionSaveInput>();
+            MockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
@@ -64,22 +64,22 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             IReadOnlyCollection<FileCollection> fileCollectionToSave = null;
-            var currentUser = _fixture
+            var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var parentCollection = _fixture
+            var parentCollection = Fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.ParentId, (Guid?)null)
                 .With(x => x.UserId, currentUser.Id)
                 .Create();
-            var fileCollectionInput = _fixture
+            var fileCollectionInput = Fixture
                 .Build<FileCollectionSaveInput>()
                 .With(x => x.Id, (Guid?)null)
                 .With(x => x.ParentId, parentCollection.Id)
                 .Create();
-            _mockDomainServiceActionExecutor
+            MockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
@@ -122,7 +122,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             result.ParentId.Should().Be(fileCollectionInput.ParentId);
             result.UserId.Should().Be((Guid)currentUser.Id!);
 
-            _mockDomainServiceActionExecutor.Verify(
+            MockDomainServiceActionExecutor.Verify(
                 x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
@@ -149,11 +149,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             IReadOnlyCollection<FileCollection> fileCollectionToSave = null;
-            var currentUser = _fixture
+            var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var originalFileCollection = _fixture
+            var originalFileCollection = Fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -163,14 +163,14 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
 
-            var newFileCollectionInput = _fixture
+            var newFileCollectionInput = Fixture
                 .Build<FileCollectionSaveInput>()
                 .With(x => x.Id, originalFileCollection.Id)
                 .With(x => x.DateCreated, originalFileCollection.DateCreated)
                 .With(x => x.ParentId, (Guid?)null)
                 .Create();
 
-            _mockDomainServiceActionExecutor
+            MockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
@@ -212,7 +212,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             result.ParentId.Should().Be(newFileCollectionInput.ParentId);
             result.UserId.Should().Be((Guid)currentUser.Id!);
 
-            _mockDomainServiceActionExecutor.Verify(
+            MockDomainServiceActionExecutor.Verify(
                 x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
@@ -248,11 +248,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             IReadOnlyCollection<FileCollection> fileCollectionToSave = null;
-            var currentUser = _fixture
+            var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var originalFileCollection = _fixture
+            var originalFileCollection = Fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -261,14 +261,14 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
 
-            var newFileCollectionInput = _fixture
+            var newFileCollectionInput = Fixture
                 .Build<FileCollectionSaveInput>()
                 .With(x => x.Id, originalFileCollection.Id)
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.DateCreated, originalFileCollection.DateCreated)
                 .Create();
 
-            _mockDomainServiceActionExecutor
+            MockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
@@ -307,7 +307,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Assert
             await act.Should().ThrowAsync<ApiException>().WithMessage("Cannot edit those fields");
 
-            _mockDomainServiceActionExecutor.Verify(
+            MockDomainServiceActionExecutor.Verify(
                 x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
@@ -341,11 +341,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task GetOneLayerFileDocPartialsAndCollections_Given_Null_Collection_Id_Should_Get_Top_Levels()
         {
             //Arrange
-            var currentUser = _fixture
+            var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var foundSingleFileCollection = _fixture
+            var foundSingleFileCollection = Fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -355,13 +355,13 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.ParentId, (Guid?)null)
                 .Create();
 
-            var foundSingleFileDocument = _fixture
+            var foundSingleFileDocument = Fixture
                 .Build<FileDocumentPartial>()
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.CollectionId, (Guid?)null)
                 .Create();
 
-            _mockDomainServiceActionExecutor
+            MockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
@@ -396,11 +396,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task GetOneLayerFileDocPartialsAndCollections_Given_Collection_Id_Should_Get_Children()
         {
             //Arrange
-            var currentUser = _fixture
+            var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var foundSingleFileCollection = _fixture
+            var foundSingleFileCollection = Fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -410,13 +410,13 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.ParentId, Guid.NewGuid())
                 .Create();
 
-            var foundSingleFileDocument = _fixture
+            var foundSingleFileDocument = Fixture
                 .Build<FileDocumentPartial>()
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.CollectionId, Guid.NewGuid())
                 .Create();
 
-            _mockDomainServiceActionExecutor
+            MockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),

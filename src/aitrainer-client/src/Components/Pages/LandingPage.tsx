@@ -19,6 +19,7 @@ export const LandingPage: React.FC = () => {
         spacing={4}
         textAlign="center"
         width="100%"
+        height={"100vh"}
       >
         <Grid2 width={"15%"}>
           <Paper>

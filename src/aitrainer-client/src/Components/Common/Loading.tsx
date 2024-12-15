@@ -7,6 +7,7 @@ export const Loading: React.FC<{ fullScreen?: boolean }> = ({
   return fullScreen ? (
     <PageBase>
       <Grid2
+        height={"100vh"}
         container
         justifyContent="center"
         alignItems="center"

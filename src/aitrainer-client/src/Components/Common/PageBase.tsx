@@ -1,9 +1,8 @@
 import { styled } from "@mui/material";
 
 const StyledPageDiv = styled("div")(() => ({
-  height: "20rem",
-  width: "30rem",
-  display: "flex",
+  minHeight: "100vh",
+  width: "100%",
   backgroundColor: "#F0F0F0",
 }));
 
