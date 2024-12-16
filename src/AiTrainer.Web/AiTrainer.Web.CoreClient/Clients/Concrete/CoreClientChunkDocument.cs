@@ -1,4 +1,6 @@
-﻿using AiTrainer.Web.Common.Models.Configuration;
+﻿using System.Net.Http.Json;
+using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -10,16 +12,27 @@ namespace AiTrainer.Web.CoreClient.Clients.Concrete
 {
     internal class CoreClientChunkDocument : BaseCoreClient<DocumentToChunk, ChunkedDocument>
     {
-        protected override string _endpoint => "api/chunkingrouter/chunkdocument";
-        protected override CoreClientRequestType _requestType =>
-            CoreClientRequestType.ApplicationJson;
-        protected override HttpMethod _httpMethod => HttpMethod.Post;
-
+        private const string _endpoint = "api/chunkingrouter/chunkdocument";
         public CoreClientChunkDocument(
             HttpClient httpClient,
             ILogger<CoreClientChunkDocument> logger,
             IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
         )
             : base(httpClient, aiTrainerCoreConfig, logger) { }
+
+        protected override HttpRequestMessage BuildMessage(DocumentToChunk param)
+        {
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                Content = JsonContent.Create(param),
+                RequestUri = _aiTrainerCoreConfiguration.BaseEndpoint.AppendPathToUrl(
+                    _endpoint
+                ),
+            };
+            AddApiKeyHeader(request);
+            
+            return request;
+        }
     }
 }

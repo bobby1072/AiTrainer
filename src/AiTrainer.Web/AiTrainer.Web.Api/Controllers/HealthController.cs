@@ -1,4 +1,5 @@
 ﻿using AiTrainer.Web.Api.Models;
+using AiTrainer.Web.Common.Models.ApiModels.Response;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
@@ -22,11 +23,15 @@ namespace AiTrainer.Web.Api.Controllers
         }
 
         [HttpGet]
-        public Task<ActionResult<Outcome<ApplicationSettingsConfiguration>>> Health()
+        public Task<ActionResult<Outcome<HealthResponse>>> Health()
         {
             return Task.FromResult(
-                (ActionResult<Outcome<ApplicationSettingsConfiguration>>)
-                    new Outcome<ApplicationSettingsConfiguration> { Data = _appSettings }
+                (ActionResult<Outcome<HealthResponse>>)
+                    new Outcome<HealthResponse> { Data = new HealthResponse
+                    {
+                        Name = _appSettings.Name,
+                        ReleaseVersion = _appSettings.ReleaseVersion
+                    } }
             );
         }
     }

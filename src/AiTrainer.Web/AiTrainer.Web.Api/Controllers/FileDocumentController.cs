@@ -1,6 +1,7 @@
 ﻿using AiTrainer.Web.Api.Attributes;
-using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
+using AiTrainer.Web.Common.Models.ApiModels.Response;
+using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
@@ -15,12 +16,18 @@ namespace AiTrainer.Web.Api.Controllers
     {
         public FileDocumentController(IDomainServiceActionExecutor actionExecutor)
             : base(actionExecutor) { }
-
         [HttpPost("Upload")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<Outcome<FileDocumentPartial>>> Upload(
-            [FromForm] FileDocumentSaveFormInput formInput
+            [FromForm] Guid? collectionId,
+            [FromForm] IFormFile file
         )
         {
+            var formInput = new FileDocumentSaveFormInput
+            {
+                CollectionId = collectionId,
+                FileToCreate = file
+            };
             var result = await _actionExecutor.ExecuteAsync<
                 IFileDocumentProcessingManager,
                 FileDocumentPartial
