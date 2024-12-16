@@ -2,6 +2,7 @@
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Common.Models.ApiModels.Response;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
@@ -22,10 +23,12 @@ namespace AiTrainer.Web.Api.Controllers
         {
             var result = await _actionExecutor.ExecuteAsync<
                 IFileDocumentProcessingManager,
-                System.Web.Mvc.FileContentResult
+                FileDocument
             >(service => service.GetFileDocumentForDownload(input.Id));
 
-            return Ok(result);
+            await using var memoryStream = new MemoryStream(result.FileData);
+
+            return File(memoryStream, result.GetMimeType(), result.FileName);
         }
 
         [HttpPost("Upload")]

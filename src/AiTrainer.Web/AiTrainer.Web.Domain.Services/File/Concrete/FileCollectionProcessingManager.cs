@@ -1,5 +1,4 @@
 using System.Net;
-using System.Web.Mvc;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;

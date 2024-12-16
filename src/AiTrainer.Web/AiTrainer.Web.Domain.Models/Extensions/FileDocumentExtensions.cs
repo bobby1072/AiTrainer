@@ -1,5 +1,4 @@
-﻿using System.Web.Mvc;
-using AiTrainer.Web.Common.Models.ApiModels.Request;
+﻿using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Partials;
 using Microsoft.AspNetCore.Http;
 
@@ -13,16 +12,9 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 { FileTypeEnum.Pdf, "application/pdf" },
                 { FileTypeEnum.Text, "text/plain" },
             };
-
-        public static FileContentResult ToFileContentResult(this FileDocument fileDocument)
+        public static string GetMimeType(this FileDocument document) 
         {
-            return new FileContentResult(
-                fileDocument.FileData,
-                _fileTypeToMimeType[fileDocument.FileType]
-            )
-            {
-                FileDownloadName = fileDocument.FileName,
-            };
+            return _fileTypeToMimeType[document.FileType];
         }
 
         public static async Task<FileDocument> ToDocumentModel(

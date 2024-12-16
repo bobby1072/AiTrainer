@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Web.Mvc;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
@@ -38,7 +37,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileCollectionRepository = fileCollectionRepository;
         }
 
-        public async Task<FileContentResult> GetFileDocumentForDownload(Guid documentId)
+        public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId)
         {
             var correlationId = _apiRequestHttpContextService.CorrelationId;
 
@@ -72,7 +71,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
 
-            return foundDocument.Data.ToFileContentResult();
+            return foundDocument.Data;
         }
 
         public async Task<FileDocumentPartial> UploadFileDocument(
