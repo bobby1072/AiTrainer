@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Web.Mvc;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
@@ -35,6 +36,43 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
             _fileCollectionRepository = fileCollectionRepository;
+        }
+
+        public async Task<FileContentResult> GetFileDocumentForDownload(Guid documentId)
+        {
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(GetFileDocumentForDownload),
+                correlationId
+            );
+
+            var foundCachedUser =
+                await _domainServiceActionExecutor.ExecuteAsync<
+                    IUserProcessingManager,
+                    Models.User?
+                >(userServ =>
+                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+
+            var foundDocument = await EntityFrameworkUtils.TryDbOperation(
+                () => _fileDocumentRepository.GetOne(documentId, (Guid)foundCachedUser.Id!),
+                _logger
+            );
+
+            if (foundDocument?.IsSuccessful is not true || foundDocument.Data is null)
+            {
+                throw new ApiException("Cannot find document", HttpStatusCode.NotFound);
+            }
+
+            _logger.LogInformation(
+                "Exiting {Action} for correlationId {CorrelationId}",
+                nameof(GetFileDocumentForDownload),
+                correlationId
+            );
+
+            return foundDocument.Data.ToFileContentResult();
         }
 
         public async Task<FileDocumentPartial> UploadFileDocument(

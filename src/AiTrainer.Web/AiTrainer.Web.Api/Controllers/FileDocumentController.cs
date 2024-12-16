@@ -16,6 +16,18 @@ namespace AiTrainer.Web.Api.Controllers
     {
         public FileDocumentController(IDomainServiceActionExecutor actionExecutor)
             : base(actionExecutor) { }
+
+        [HttpPost("Download")]
+        public async Task<IActionResult> Download([FromBody] RequiredGuidIdInput input)
+        {
+            var result = await _actionExecutor.ExecuteAsync<
+                IFileDocumentProcessingManager,
+                System.Web.Mvc.FileContentResult
+            >(service => service.GetFileDocumentForDownload(input.Id));
+
+            return Ok(result);
+        }
+
         [HttpPost("Upload")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<Outcome<FileDocumentPartial>>> Upload(
@@ -26,7 +38,7 @@ namespace AiTrainer.Web.Api.Controllers
             var formInput = new FileDocumentSaveFormInput
             {
                 CollectionId = collectionId,
-                FileToCreate = file
+                FileToCreate = file,
             };
             var result = await _actionExecutor.ExecuteAsync<
                 IFileDocumentProcessingManager,
@@ -37,7 +49,7 @@ namespace AiTrainer.Web.Api.Controllers
         }
 
         [HttpPost("Delete")]
-        public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredIdInput input)
+        public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredGuidIdInput input)
         {
             var result = await _actionExecutor.ExecuteAsync<IFileDocumentProcessingManager, Guid>(
                 service => service.DeleteFileDocument(input.Id)

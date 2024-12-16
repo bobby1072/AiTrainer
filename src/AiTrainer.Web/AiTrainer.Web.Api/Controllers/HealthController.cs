@@ -27,11 +27,14 @@ namespace AiTrainer.Web.Api.Controllers
         {
             return Task.FromResult(
                 (ActionResult<Outcome<HealthResponse>>)
-                    new Outcome<HealthResponse> { Data = new HealthResponse
+                    new Outcome<HealthResponse>
                     {
-                        Name = _appSettings.Name,
-                        ReleaseVersion = _appSettings.ReleaseVersion
-                    } }
+                        Data = new HealthResponse
+                        {
+                            Name = _appSettings.Name,
+                            ReleaseVersion = _appSettings.ReleaseVersion,
+                        },
+                    }
             );
         }
     }

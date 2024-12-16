@@ -9,3 +9,6 @@ if ($debug -eq $false) {
 else {
     docker compose up -d --build
 }
+
+
+npm start --prefix src/aitrainer-client
