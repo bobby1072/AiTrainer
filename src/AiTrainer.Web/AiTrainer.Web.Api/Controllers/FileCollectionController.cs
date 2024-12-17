@@ -1,6 +1,6 @@
 ﻿using AiTrainer.Web.Api.Attributes;
-using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
+using AiTrainer.Web.Common.Models.ApiModels.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
@@ -43,7 +43,7 @@ namespace AiTrainer.Web.Api.Controllers
         }
 
         [HttpPost("Delete")]
-        public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredIdInput input)
+        public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredGuidIdInput input)
         {
             var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, Guid>(
                 service => service.DeleteFileCollection(input.Id)

@@ -1,6 +1,8 @@
 ﻿using AiTrainer.Web.Api.Attributes;
-using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
+using AiTrainer.Web.Common.Models.ApiModels.Response;
+using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
@@ -16,11 +18,31 @@ namespace AiTrainer.Web.Api.Controllers
         public FileDocumentController(IDomainServiceActionExecutor actionExecutor)
             : base(actionExecutor) { }
 
+        [HttpPost("Download")]
+        public async Task<IActionResult> Download([FromBody] RequiredGuidIdInput input)
+        {
+            var result = await _actionExecutor.ExecuteAsync<
+                IFileDocumentProcessingManager,
+                FileDocument
+            >(service => service.GetFileDocumentForDownload(input.Id));
+
+            await using var memoryStream = new MemoryStream(result.FileData);
+
+            return File(memoryStream, result.GetMimeType(), result.FileName);
+        }
+
         [HttpPost("Upload")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<Outcome<FileDocumentPartial>>> Upload(
-            [FromForm] FileDocumentSaveFormInput formInput
+            [FromForm] Guid? collectionId,
+            [FromForm] IFormFile file
         )
         {
+            var formInput = new FileDocumentSaveFormInput
+            {
+                CollectionId = collectionId,
+                FileToCreate = file,
+            };
             var result = await _actionExecutor.ExecuteAsync<
                 IFileDocumentProcessingManager,
                 FileDocumentPartial
@@ -30,7 +52,7 @@ namespace AiTrainer.Web.Api.Controllers
         }
 
         [HttpPost("Delete")]
-        public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredIdInput input)
+        public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredGuidIdInput input)
         {
             var result = await _actionExecutor.ExecuteAsync<IFileDocumentProcessingManager, Guid>(
                 service => service.DeleteFileDocument(input.Id)

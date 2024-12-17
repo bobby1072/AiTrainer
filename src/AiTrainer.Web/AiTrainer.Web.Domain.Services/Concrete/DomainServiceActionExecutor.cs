@@ -48,8 +48,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             );
 
             var service =
-                _serviceProvider.GetService<TService>()
-                ?? throw new InvalidOperationException(ExceptionConstants.NoService);
+                _serviceProvider.GetRequiredService<TService>();
 
             var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(
                 () => serviceAction.Invoke(service)
@@ -86,8 +85,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             );
 
             var service =
-                _serviceProvider.GetService<TService>()
-                ?? throw new InvalidOperationException(ExceptionConstants.NoService);
+                _serviceProvider.GetRequiredService<TService>();
 
             var (timeTaken, result) = OperationTimerUtils.TimeWithResults(
                 () => serviceAction.Invoke(service)

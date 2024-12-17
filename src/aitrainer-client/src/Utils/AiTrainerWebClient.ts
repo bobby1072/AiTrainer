@@ -6,11 +6,11 @@ import { ErrorMessages } from "../Constants";
 import { AppSettingsKeys } from "./AppSettingsKeys";
 
 export default abstract class AiTrainerWebClient {
-  private static readonly baseUrl = AppSettingsProvider.TryGetValue(
+  private static readonly _baseUrl = AppSettingsProvider.TryGetValue(
     AppSettingsKeys.AiTrainerWebEndpoint
   );
   private static readonly _httpClient: AxiosInstance = axios.create({
-    baseURL: AiTrainerWebClient.baseUrl ?? "http://localhost:5007",
+    baseURL: AiTrainerWebClient._baseUrl || "http://localhost:5007",
   });
   public static async GetClientConfiguration(): Promise<ClientSettingsConfiguration> {
     const response = await AiTrainerWebClient._httpClient

@@ -1,8 +1,8 @@
 ﻿using System.Net.Mime;
-using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Domain.Services.Abstract;
+using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.Common.Models.ApiModels.Response;
 using BT.Common.OperationTimer.Proto;
 
 namespace AiTrainer.Web.Api.Middlewares
@@ -10,30 +10,51 @@ namespace AiTrainer.Web.Api.Middlewares
     internal class ExceptionHandlingMiddleware : BaseMiddleware
     {
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-        private readonly IApiRequestHttpContextService _requestContextService;
         public ExceptionHandlingMiddleware(
             RequestDelegate requestDelegate,
-            ILogger<ExceptionHandlingMiddleware> logger,
-            IApiRequestHttpContextService requestContextService
+            ILogger<ExceptionHandlingMiddleware> logger
         )
             : base(requestDelegate)
         {
             _logger = logger;
-            _requestContextService = requestContextService;
         }
         public override async Task InvokeAsync(HttpContext context)
         {
-            var time = await OperationTimerUtils.TimeAsync(() => TryInvokeAsync(context));
+            var correlationId = context.GetCorrelationId();
+            var time = await OperationTimerUtils.TimeAsync(() => TryInvokeAsync(context, correlationId?.ToString()));
 
-            _logger.LogInformation("Request with correlationId {CorrelationId} took {TimeTaken}ms to complete", _requestContextService.CorrelationId, time.Milliseconds);
+            _logger.LogInformation("Request with correlationId {CorrelationId} took {TimeTaken}ms to complete", correlationId, time.Milliseconds);
         }
 
-        public async Task TryInvokeAsync(HttpContext context)
+        public async Task TryInvokeAsync(HttpContext context, string? correlationId = null)
         {
             try
             {
-                await _next.Invoke(context);
-                return;
+                try
+                {
+                    await _next.Invoke(context);
+                }
+                catch (OperationCanceledException e)
+                {
+                    if (e.InnerException is not null)
+                    {
+                        throw e.InnerException;
+                    }
+
+                    throw;
+                }
+            }
+            catch (OperationCanceledException e)
+            {
+                _logger.LogError(
+                    e,
+                    "Uncaught exception occured during request for {Route} with message {Message} for correlationId {CorrelationId}",
+                    context.Request.Path,
+                    e.Message,
+                    correlationId
+                );
+
+                await RespondWithException(context, new ApiException(), correlationId);
             }
             catch (ApiException e)
             {
@@ -44,10 +65,10 @@ namespace AiTrainer.Web.Api.Middlewares
                     context.Request.Path,
                     e.Message,
                     e.StatusCode,
-                    _requestContextService.CorrelationId
+                    correlationId
                 );
 
-                await RespondWithException(context, e);
+                await RespondWithException(context, e, correlationId);
             }
             catch (Exception e)
             {
@@ -56,23 +77,23 @@ namespace AiTrainer.Web.Api.Middlewares
                     "Uncaught exception occured during request for {Route} with message {Message} for correlationId {CorrelationId}",
                     context.Request.Path,
                     e.Message,
-                    _requestContextService.CorrelationId
+                    correlationId
                 );
 
-                await RespondWithException(context, new ApiException());
+                await RespondWithException(context, new ApiException(), correlationId);
             }
         }
 
-        private async Task RespondWithException(HttpContext context, ApiException apiException)
+        private async Task RespondWithException(HttpContext context, ApiException apiException, string? correlationId = null)
         {
             context.Response.Clear();
             context.Response.ContentType = MediaTypeNames.Application.Json;
             context.Response.StatusCode = (int)apiException.StatusCode;
-            if (_requestContextService.CorrelationId is not null)
+            if (correlationId is not null)
             {
                 context.Response.Headers.TryAdd(
                     ApiConstants.CorrelationIdHeader,
-                    _requestContextService.CorrelationId.ToString()
+                    correlationId
                 );
             }
             else

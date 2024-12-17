@@ -26,6 +26,22 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+
+            var entity = await TimeAndLogDbOperation(
+                () =>
+                    dbContext
+                        .FileDocuments.Where(x => x.Id == documentId && x.UserId == userId)
+                        .FirstOrDefaultAsync(),
+                nameof(GetOne),
+                _entityType.Name
+            );
+
+            return new DbGetOneResult<FileDocument>(entity?.ToModel());
+        }
+
         public async Task<DbGetManyResult<FileDocumentPartial>> GetTopLevelDocumentPartialsForUser(
             Guid userId,
             params string[] relationShips

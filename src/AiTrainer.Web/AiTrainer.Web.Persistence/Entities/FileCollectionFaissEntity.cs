@@ -1,5 +1,5 @@
-using AiTrainer.Web.Domain.Models;
 using System.Text.Json;
+using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
@@ -15,7 +15,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 Id = Id,
                 CollectionId = CollectionId,
                 FaissIndex = FaissIndex,
-                FaissJson = FaissJson
+                FaissJson = FaissJson,
             };
     }
 }

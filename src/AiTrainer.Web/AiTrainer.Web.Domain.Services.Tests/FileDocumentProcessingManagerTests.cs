@@ -26,8 +26,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
             : base()
         {
             _fileDocumentProcessingManager = new FileDocumentProcessingManager(
-                _mockDomainServiceActionExecutor.Object,
-                _mockApiRequestService,
+                MockDomainServiceActionExecutor.Object,
+                MockApiRequestService,
                 _mockLogger.Object,
                 _mockFileDocumentRepository.Object,
                 _mockValidator.Object,
@@ -39,18 +39,18 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task UploadFile_Should_Throw_If_No_Entities_Returned_From_Save()
         {
             //Arrange
-            var currentUser = _fixture
+            var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var mockForm = FormFileUtils.CreateFromFile();
-            var fileDocInput = _fixture
+            var fileDocInput = Fixture
                 .Build<FileDocumentSaveFormInput>()
                 .With(x => x.CollectionId, (Guid?)null)
                 .With(x => x.FileToCreate, mockForm)
                 .Create();
 
-            _mockDomainServiceActionExecutor
+            MockDomainServiceActionExecutor
                 .Setup(x =>
                     x.ExecuteAsync(
                         It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),

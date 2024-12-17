@@ -1,7 +1,5 @@
-﻿using AiTrainer.Web.Common.Extensions;
-using AiTrainer.Web.Common.Models.Configuration;
+﻿using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Extensions;
-using AiTrainer.Web.CoreClient.Models;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.OperationTimer.Proto;
@@ -11,33 +9,90 @@ using System.Net.Http.Json;
 
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {
-    internal abstract class BaseCoreClient<TReturn> : ICoreClient<TReturn>
-        where TReturn : BaseCoreClientResponseBody
+    internal abstract class BaseCoreClient
     {
+        private readonly ILogger<BaseCoreClient> _logger;
         protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
         protected readonly HttpClient _httpClient;
         protected string _operationName => GetType().Name;
-        protected abstract string _endpoint { get; }
-        protected ILogger<BaseCoreClient<TReturn>> _logger { get; init; }
-        protected abstract CoreClientRequestType _requestType { get; }
-        protected abstract HttpMethod _httpMethod { get; }
 
         protected BaseCoreClient(
             HttpClient httpClient,
             IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
-            ILogger<BaseCoreClient<TReturn>> logger
-        )
+            ILogger<BaseCoreClient> logger)
         {
             _httpClient = httpClient;
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
             _logger = logger;
         }
 
+        protected async Task<TReturn> InvokeCoreRequest<TReturn>(HttpRequestMessage request) where TReturn : BaseCoreClientResponseBody
+        {
+            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request));
+
+            response.EnsureSuccessStatusCodeAndThrowCoreClientException();
+
+            var data = await response.Content.ReadFromJsonAsync<CoreResponse<TReturn>>();
+
+            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
+
+            return actualData;
+        }
+
+        protected void AddApiKeyHeader(HttpRequestMessage requestMessage)
+        {
+            if (!requestMessage.Headers.Contains(CoreClientConstants.ApiKeyHeader))
+            {
+                requestMessage.Headers.Add(
+                    CoreClientConstants.ApiKeyHeader,
+                    _aiTrainerCoreConfiguration.ApiKey
+                );
+            }
+        }
+
+        protected void LogCoreError(Exception exception)
+        {
+            _logger.LogError(
+                exception,
+                "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
+                _operationName,
+                exception.Message
+            );
+        }
+        private async Task<T> TimeAndExecuteRequest<T>(Func<Task<T>> request)
+        {
+            var (time, result) = await OperationTimerUtils.TimeWithResultsAsync(request);
+
+            _logger.LogDebug(
+                "Core request {MethodName} took {ElapsedMilliseconds}ms to complete",
+                _operationName,
+                time.Milliseconds
+            );
+
+            return result;
+        }
+    }
+    internal abstract class BaseCoreClient<TReturn> : BaseCoreClient ,ICoreClient<TReturn> 
+        where TReturn : BaseCoreClientResponseBody
+    {
+
+        private ILogger<BaseCoreClient<TReturn>> _logger { get; init; }
+        protected BaseCoreClient(
+            HttpClient httpClient,
+            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            ILogger<BaseCoreClient<TReturn>> logger
+        ): base(httpClient, aiTrainerCoreConfig, logger)
+        {
+            _logger = logger;
+        }
+        protected abstract HttpRequestMessage BuildMessage();
+
         public virtual async Task<TReturn> InvokeAsync()
         {
-            var requestMessage = BuildHttpMessage();
-
-            var data = await InvokeCoreRequest(requestMessage);
+            var message = BuildMessage();
+            AddApiKeyHeader(message);
+            
+            var data = await InvokeCoreRequest<TReturn>(BuildMessage());
 
             return data;
         }
@@ -55,65 +110,11 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
             }
         }
 
-        protected async Task<T> TimeAndExecuteRequest<T>(Func<Task<T>> request)
-        {
-            var (time, result) = await OperationTimerUtils.TimeWithResultsAsync(request);
-
-            _logger.LogDebug(
-                "Core request {MethodName} took {ElapsedMilliseconds}ms to complete",
-                _operationName,
-                time.Milliseconds
-            );
-
-            return result;
-        }
-
-        protected async Task<TReturn> InvokeCoreRequest(HttpRequestMessage request)
-        {
-            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request));
-
-            response.EnsureSuccessStatusCodeAndThrowCoreClientException();
-
-            var data = await response.Content.ReadFromJsonAsync<CoreResponse<TReturn>>();
-
-            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
-
-            return actualData;
-        }
-
-        protected HttpRequestMessage BuildHttpMessage()
-        {
-            HttpRequestMessage request;
-            request = new HttpRequestMessage
-            {
-                Method = _httpMethod,
-                RequestUri = _aiTrainerCoreConfiguration.BaseEndpoint.AppendPathToUrl(_endpoint),
-            };
-
-            return request;
-        }
-
-        protected void AddApiKeyHeader(HttpRequestMessage requestMessage)
-        {
-            requestMessage?.Headers.Add(
-                CoreClientConstants.ApiKeyHeader,
-                _aiTrainerCoreConfiguration.ApiKey
-            );
-        }
-
-        protected void LogCoreError(Exception exception)
-        {
-            _logger.LogError(
-                exception,
-                "Exception in core occurred while making {MethodName} request. With exception message {ExceptionMessage}",
-                _operationName,
-                exception.Message
-            );
-        }
+        
     }
 
     internal abstract class BaseCoreClient<TParam, TReturn>
-        : BaseCoreClient<TReturn>,
+        : BaseCoreClient,
             ICoreClient<TParam, TReturn>
         where TParam : BaseCoreClientRequestBody
         where TReturn : BaseCoreClientResponseBody
@@ -121,13 +122,16 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
         protected BaseCoreClient(
             HttpClient httpClient,
             IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
-            ILogger<BaseCoreClient<TReturn>> logger
+            ILogger<BaseCoreClient<TParam ,TReturn>> logger
         )
             : base(httpClient, aiTrainerCoreConfig, logger) { }
-
+        protected abstract HttpRequestMessage BuildMessage(TParam param);
         public virtual async Task<TReturn> InvokeAsync(TParam param)
         {
-            var data = await ExecuteRequest(param);
+            var message = BuildMessage(param);
+            AddApiKeyHeader(message);
+            
+            var data = await InvokeCoreRequest<TReturn>(message);
 
             return data;
         }
@@ -143,35 +147,6 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
                 LogCoreError(coreClientException);
                 return null;
             }
-        }
-
-        protected async Task<TReturn> ExecuteRequest(TParam param)
-        {
-            var requestMessage = BuildHttpMessage(param);
-
-            var data = await InvokeCoreRequest(requestMessage);
-
-            return data;
-        }
-
-        protected HttpRequestMessage BuildHttpMessage(TParam param)
-        {
-            if (_requestType == CoreClientRequestType.ApplicationJson)
-            {
-                var request = new HttpRequestMessage
-                {
-                    Method = _httpMethod,
-                    Content = JsonContent.Create(param),
-                    RequestUri = _aiTrainerCoreConfiguration.BaseEndpoint.AppendPathToUrl(
-                        _endpoint
-                    ),
-                };
-                AddApiKeyHeader(request);
-
-                return request;
-            }
-
-            throw new NotImplementedException("Request type not implemented");
         }
     }
 }
