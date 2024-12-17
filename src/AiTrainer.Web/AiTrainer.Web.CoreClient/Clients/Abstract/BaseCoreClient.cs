@@ -5,6 +5,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Polly;
 using System.Net.Http.Json;
 
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
@@ -21,22 +22,26 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
             IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
             ILogger<BaseCoreClient> logger)
         {
-            _httpClient = httpClient;
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
             _logger = logger;
+            _httpClient = httpClient;
         }
 
         protected async Task<TReturn> InvokeCoreRequest<TReturn>(HttpRequestMessage request) where TReturn : BaseCoreClientResponseBody
         {
-            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request));
+            var totalAttempts = _aiTrainerCoreConfiguration.TotalAttempts > 1 ? _aiTrainerCoreConfiguration.TotalAttempts : 2;
+            var timeoutInSeconds = _aiTrainerCoreConfiguration.TimeoutInSeconds > 3 ? _aiTrainerCoreConfiguration.TimeoutInSeconds : 90;
+            var delay = _aiTrainerCoreConfiguration.DelayBetweenAttemptsInSeconds >= 0 ? _aiTrainerCoreConfiguration.DelayBetweenAttemptsInSeconds : 1;
+            var pipeline = new ResiliencePipelineBuilder()
+                .AddTimeout(TimeSpan.FromSeconds(timeoutInSeconds))
+                .AddRetry(new Polly.Retry.RetryStrategyOptions
+                {
+                    MaxRetryAttempts = totalAttempts - 1,
+                    Delay = TimeSpan.FromSeconds(delay)
+                })
+                .Build();
 
-            response.EnsureSuccessStatusCodeAndThrowCoreClientException();
-
-            var data = await response.Content.ReadFromJsonAsync<CoreResponse<TReturn>>();
-
-            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
-
-            return actualData;
+            return await pipeline.ExecuteAsync(async ct => await FullRequest<TReturn>(request));
         }
 
         protected void AddApiKeyHeader(HttpRequestMessage requestMessage)
@@ -71,6 +76,18 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
 
             return result;
         }
+        private async Task<TReturn> FullRequest<TReturn>(HttpRequestMessage request) where TReturn : BaseCoreClientResponseBody
+        {
+            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request));
+
+            response.EnsureSuccessStatusCodeAndThrowCoreClientException();
+
+            var data = await response.Content.ReadFromJsonAsync<CoreResponse<TReturn>>();
+
+            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
+
+            return actualData;
+        }
     }
     internal abstract class BaseCoreClient<TReturn> : BaseCoreClient ,ICoreClient<TReturn> 
         where TReturn : BaseCoreClientResponseBody
@@ -92,7 +109,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
             var message = BuildMessage();
             AddApiKeyHeader(message);
             
-            var data = await InvokeCoreRequest<TReturn>(BuildMessage());
+            var data = await InvokeCoreRequest<TReturn>(message);
 
             return data;
         }

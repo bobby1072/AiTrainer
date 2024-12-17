@@ -113,8 +113,8 @@ stages:
             displayName: "Publish core api files"
             artifact: core-api
 
-      - job: build_chrome_extension
-        displayName: "Build chrome extension"
+      - job: build_frontend
+        displayName: "Build frontend"
         variables:
           - name: version
             value: $(Build.BuildNumber)
