@@ -6,8 +6,8 @@ namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class FileDocumentExtensions
     {
-        private static readonly IDictionary<FileTypeEnum, string> _fileTypeToMimeType =
-            new Dictionary<FileTypeEnum, string>
+        private static readonly Dictionary<FileTypeEnum, string> _fileTypeToMimeType =
+            new()
             {
                 { FileTypeEnum.Pdf, "application/pdf" },
                 { FileTypeEnum.Text, "text/plain" },

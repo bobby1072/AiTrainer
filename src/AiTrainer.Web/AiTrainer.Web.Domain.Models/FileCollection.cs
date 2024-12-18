@@ -10,6 +10,7 @@ namespace AiTrainer.Web.Domain.Models
         public required string CollectionName { get; set; }
         [LockedProperty]
         public required DateTime DateCreated { get; set; }
+        [LockedProperty]
         public required DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
         public FileCollectionFaiss? FaissStore { get; init; }

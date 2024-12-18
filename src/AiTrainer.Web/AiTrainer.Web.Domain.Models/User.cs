@@ -9,6 +9,7 @@ namespace AiTrainer.Web.Domain.Models
         public string? Name { get; set; }
         [LockedProperty]
         public required DateTime DateCreated { get; set; }
+        [LockedProperty]
         public required DateTime DateModified { get; set; }
 
         public override bool Equals(User? other)

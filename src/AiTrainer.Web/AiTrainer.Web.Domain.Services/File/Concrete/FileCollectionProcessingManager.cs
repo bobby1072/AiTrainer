@@ -39,6 +39,52 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
         }
 
+        public async Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId)
+        {
+            var correlationId = _apiRequestHttpContextService.CorrelationId;
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(GetFileCollectionWithContents),
+                correlationId
+            );
+
+            var foundCachedUser =
+                await _domainServiceActionExecutor.ExecuteAsync<
+                    IUserProcessingManager,
+                    Models.User?
+                >(userServ =>
+                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+            
+            
+            var foundCollection=  await EntityFrameworkUtils.TryDbOperation(() => _repository.GetOne(fileCollectionId, nameof(FileCollectionEntity.Documents)));
+
+
+            if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
+            {
+                throw new ApiException("Could not find file collection with that id");
+            }
+
+            if (foundCollection.Data.UserId != foundCachedUser.Id)
+            {
+                throw new ApiException("You do not have permission to access this file collection", HttpStatusCode.Unauthorized);
+            }
+
+            if (foundCollection.Data.Documents is null || foundCollection.Data.Documents.Count < 1 )
+            {
+                throw new ApiException("No documents within file collection", HttpStatusCode.BadRequest);
+            }
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(GetFileCollectionWithContents),
+                correlationId
+            );
+            
+            
+            return foundCollection.Data;
+        }   
         public async Task<FileCollection> SaveFileCollection(
             FileCollectionSaveInput fileCollectionInput
         )
@@ -138,8 +184,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             if (newlySavedCollection?.IsSuccessful != true)
             {
                 throw new ApiException(
-                    $"Failed to {(hasId ? "update" : "create")} file collection",
-                    HttpStatusCode.InternalServerError
+                    $"Failed to {(hasId ? "update" : "create")} file collection"
                 );
             }
             _logger.LogInformation(
