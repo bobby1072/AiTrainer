@@ -27,7 +27,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
             : base()
         {
             _userProcessingManager = new UserProcessingManager(
-                MockDomainServiceActionExecutor.Object,
                 MockApiRequestService,
                 _repo.Object,
                 _userInfoClient.Object,

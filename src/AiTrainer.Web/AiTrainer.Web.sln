@@ -31,6 +31,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Domain.Servic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.TestBase", "AiTrainer.Web.TestBase\AiTrainer.Web.TestBase.csproj", "{20A83B6F-5165-4938-BF00-4F357CB03C87}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BT.Common.HttpClient", "..\Submodules\BT\src\BT.Common\BT.Common.HttpClient\BT.Common.HttpClient.csproj", "{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{20A83B6F-5165-4938-BF00-4F357CB03C87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{20A83B6F-5165-4938-BF00-4F357CB03C87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{20A83B6F-5165-4938-BF00-4F357CB03C87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,6 +101,7 @@ Global
 		{839DE74E-EC72-41FC-AC60-AE7DF48C0B82} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 		{866D229F-6546-4445-9F4C-7DCF19D1DB94} = {B217D078-5937-47CF-9CA3-8C5443E7F9BF}
 		{20A83B6F-5165-4938-BF00-4F357CB03C87} = {B217D078-5937-47CF-9CA3-8C5443E7F9BF}
+		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0EA356DC-E454-4B7C-909C-B1CB96C96363}

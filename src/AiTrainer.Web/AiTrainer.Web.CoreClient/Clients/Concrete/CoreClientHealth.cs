@@ -13,7 +13,7 @@ internal class CoreClientHealth: BaseCoreClient<CoreClientHealthResponse>
     public CoreClientHealth(
         HttpClient httpClient,
         ILogger<CoreClientHealth> logger,
-        IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
     )
         : base(httpClient, aiTrainerCoreConfig, logger) { }
 

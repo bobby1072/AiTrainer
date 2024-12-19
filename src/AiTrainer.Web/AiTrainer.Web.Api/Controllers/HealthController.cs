@@ -11,31 +11,23 @@ namespace AiTrainer.Web.Api.Controllers
     [AllowAnonymous]
     public class HealthController : BaseController
     {
-        private readonly ApplicationSettingsConfiguration _appSettings;
-
+        
         public HealthController(
-            IOptions<ApplicationSettingsConfiguration> appSettings,
             IDomainServiceActionExecutor actionExecutor
         )
-            : base(actionExecutor)
-        {
-            _appSettings = appSettings.Value;
-        }
+            : base(actionExecutor) { }
 
-        [HttpGet]
-        public Task<ActionResult<Outcome<HealthResponse>>> Health()
-        {
-            return Task.FromResult(
-                (ActionResult<Outcome<HealthResponse>>)
-                    new Outcome<HealthResponse>
-                    {
-                        Data = new HealthResponse
-                        {
-                            Name = _appSettings.Name,
-                            ReleaseVersion = _appSettings.ReleaseVersion,
-                        },
-                    }
-            );
-        }
+        // [HttpGet]
+        // public async Task<ActionResult<Outcome<HealthResponse>>> Health()
+        // {
+        //     return new Outcome<HealthResponse>
+        //     {
+        //         Data = new HealthResponse
+        //         {
+        //             Name = _appSettings.Name,
+        //             ReleaseVersion = _appSettings.ReleaseVersion,
+        //         },
+        //     };
+        // }
     }
 }

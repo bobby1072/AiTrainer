@@ -13,16 +13,15 @@ using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
-    public class UserProcessingManager : BaseDomainService, IUserProcessingManager
+    public class UserProcessingManager : IUserProcessingManager
     {
         private readonly IRepository<UserEntity, Guid, Models.User> _repo;
         private readonly IUserInfoClient _userInfoClient;
         private readonly ILogger<UserProcessingManager> _logger;
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
-
+        private readonly IApiRequestHttpContextService _apiRequestHttpContextService;
         public UserProcessingManager(
-            IDomainServiceActionExecutor domainServiceActionExecutor,
             IApiRequestHttpContextService apiRequestService,
             IRepository<UserEntity, Guid, Models.User> repo,
             IUserInfoClient userInfoClient,
@@ -30,8 +29,8 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             IValidator<Models.User> userValidator,
             ICachingService cachingService
         )
-            : base(domainServiceActionExecutor, apiRequestService)
         {
+            _apiRequestHttpContextService = apiRequestService;
             _repo = repo;
             _userInfoClient = userInfoClient;
             _logger = logger;

@@ -5,8 +5,9 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Polly;
 using System.Net.Http.Json;
+using BT.Common.HttpClient.Extensions;
+using BT.Common.HttpClient.Models;
 
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {
@@ -19,7 +20,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
 
         protected BaseCoreClient(
             HttpClient httpClient,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
             ILogger<BaseCoreClient> logger)
         {
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
@@ -29,19 +30,25 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
 
         protected async Task<TReturn> InvokeCoreRequest<TReturn>(HttpRequestMessage request) where TReturn : BaseCoreClientResponseBody
         {
+            
             var totalAttempts = _aiTrainerCoreConfiguration.TotalAttempts > 1 ? _aiTrainerCoreConfiguration.TotalAttempts : 2;
             var timeoutInSeconds = _aiTrainerCoreConfiguration.TimeoutInSeconds > 3 ? _aiTrainerCoreConfiguration.TimeoutInSeconds : 90;
             var delay = _aiTrainerCoreConfiguration.DelayBetweenAttemptsInSeconds >= 0 ? _aiTrainerCoreConfiguration.DelayBetweenAttemptsInSeconds : 1;
-            var pipeline = new ResiliencePipelineBuilder()
-                .AddTimeout(TimeSpan.FromSeconds(timeoutInSeconds))
-                .AddRetry(new Polly.Retry.RetryStrategyOptions
-                {
-                    MaxRetryAttempts = totalAttempts - 1,
-                    Delay = TimeSpan.FromSeconds(delay)
-                })
-                .Build();
+            
+            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request, new PollyRetrySettings()
+            {
+                TotalAttempts = totalAttempts,
+                DelayBetweenAttemptsInSeconds = delay,
+                TimeoutInSeconds = timeoutInSeconds,
+            }));
 
-            return await pipeline.ExecuteAsync(async ct => await FullRequest<TReturn>(request));
+            response.EnsureSuccessStatusCodeAndThrowCoreClientException();
+
+            var data = await response.Content.ReadFromJsonAsync<CoreResponse<TReturn>>();
+
+            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
+
+            return actualData;
         }
 
         protected void AddApiKeyHeader(HttpRequestMessage requestMessage)
@@ -76,18 +83,6 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
 
             return result;
         }
-        private async Task<TReturn> FullRequest<TReturn>(HttpRequestMessage request) where TReturn : BaseCoreClientResponseBody
-        {
-            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request));
-
-            response.EnsureSuccessStatusCodeAndThrowCoreClientException();
-
-            var data = await response.Content.ReadFromJsonAsync<CoreResponse<TReturn>>();
-
-            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
-
-            return actualData;
-        }
     }
     internal abstract class BaseCoreClient<TReturn> : BaseCoreClient ,ICoreClient<TReturn> 
         where TReturn : BaseCoreClientResponseBody
@@ -96,7 +91,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
         private ILogger<BaseCoreClient<TReturn>> _logger { get; init; }
         protected BaseCoreClient(
             HttpClient httpClient,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
             ILogger<BaseCoreClient<TReturn>> logger
         ): base(httpClient, aiTrainerCoreConfig, logger)
         {
@@ -138,7 +133,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
     {
         protected BaseCoreClient(
             HttpClient httpClient,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
             ILogger<BaseCoreClient<TParam ,TReturn>> logger
         )
             : base(httpClient, aiTrainerCoreConfig, logger) { }

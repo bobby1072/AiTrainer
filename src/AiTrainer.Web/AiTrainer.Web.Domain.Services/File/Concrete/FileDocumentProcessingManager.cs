@@ -14,13 +14,14 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
-    public class FileDocumentProcessingManager : BaseDomainService, IFileDocumentProcessingManager
+    public class FileDocumentProcessingManager : IFileDocumentProcessingManager
     {
         private readonly ILogger<FileDocumentProcessingManager> _logger;
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IValidator<FileDocument> _validator;
         private readonly IFileCollectionRepository _fileCollectionRepository;
-
+        private readonly IDomainServiceActionExecutor _domainServiceActionExecutor;
+        private readonly IApiRequestHttpContextService _apiRequestHttpContextService;
         public FileDocumentProcessingManager(
             IDomainServiceActionExecutor domainServiceActionExecutor,
             IApiRequestHttpContextService apiRequestService,
@@ -29,8 +30,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             IValidator<FileDocument> validator,
             IFileCollectionRepository fileCollectionRepository
         )
-            : base(domainServiceActionExecutor, apiRequestService)
         {
+            _domainServiceActionExecutor = domainServiceActionExecutor;
+            _apiRequestHttpContextService = apiRequestService;
             _logger = logger;
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
