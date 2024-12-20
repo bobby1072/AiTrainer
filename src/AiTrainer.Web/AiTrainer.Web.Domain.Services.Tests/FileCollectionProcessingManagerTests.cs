@@ -153,6 +153,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
+            
             var originalFileCollection = Fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
@@ -167,6 +168,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<FileCollectionSaveInput>()
                 .With(x => x.Id, originalFileCollection.Id)
                 .With(x => x.DateCreated, originalFileCollection.DateCreated)
+                .With(x => x.DateModified, originalFileCollection.DateModified)
                 .With(x => x.ParentId, (Guid?)null)
                 .Create();
 
