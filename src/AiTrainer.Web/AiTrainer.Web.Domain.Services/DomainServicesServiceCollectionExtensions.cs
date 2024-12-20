@@ -38,6 +38,7 @@ namespace AiTrainer.Web.Domain.Services
                     return new ApiRequestHttpContextService(httpContextAccessor.HttpContext);
                 })
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
+                .AddScoped<IHealthService, HealthService>()
                 .AddScoped<ICachingService, DistributedCachingService>();
 
             return services;

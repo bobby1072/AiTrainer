@@ -17,17 +17,16 @@ namespace AiTrainer.Web.Api.Controllers
         )
             : base(actionExecutor) { }
 
-        // [HttpGet]
-        // public async Task<ActionResult<Outcome<HealthResponse>>> Health()
-        // {
-        //     return new Outcome<HealthResponse>
-        //     {
-        //         Data = new HealthResponse
-        //         {
-        //             Name = _appSettings.Name,
-        //             ReleaseVersion = _appSettings.ReleaseVersion,
-        //         },
-        //     };
-        // }
+        [HttpGet]
+        public async Task<ActionResult<Outcome<AiTrainerHealth>>> Health()
+        {
+            var result = await _actionExecutor.ExecuteAsync<IHealthService, AiTrainerHealth>(service =>
+                service.GetHealth()
+            );
+            
+            return new Outcome<AiTrainerHealth> {
+                Data = result
+            };
+        }
     }
 }

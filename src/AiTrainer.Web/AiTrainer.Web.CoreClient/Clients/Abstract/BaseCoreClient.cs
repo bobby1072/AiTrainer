@@ -71,7 +71,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
                 exception.Message
             );
         }
-        private async Task<T> TimeAndExecuteRequest<T>(Func<Task<T>> request)
+        protected async Task<T> TimeAndExecuteRequest<T>(Func<Task<T>> request)
         {
             var (time, result) = await OperationTimerUtils.TimeWithResultsAsync(request);
 
