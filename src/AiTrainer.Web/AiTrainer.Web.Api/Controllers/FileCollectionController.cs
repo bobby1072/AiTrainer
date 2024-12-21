@@ -25,7 +25,13 @@ namespace AiTrainer.Web.Api.Controllers
             >(service => service.GetFileCollectionWithContents(input.Id));
 
             await using var memoryStream = new MemoryStream();
-            using (var archive = new System.IO.Compression.ZipArchive(memoryStream, System.IO.Compression.ZipArchiveMode.Create, true))
+            using (
+                var archive = new System.IO.Compression.ZipArchive(
+                    memoryStream,
+                    System.IO.Compression.ZipArchiveMode.Create,
+                    true
+                )
+            )
             {
                 foreach (var doc in result.Documents ?? [])
                 {
@@ -38,7 +44,7 @@ namespace AiTrainer.Web.Api.Controllers
             memoryStream.Seek(0, SeekOrigin.Begin);
             return File(memoryStream, "application/zip", $"{result.CollectionName}.zip");
         }
-        
+
         [HttpPost("Save")]
         public async Task<ActionResult<Outcome<FileCollection>>> SaveCollection(
             [FromBody] FileCollectionSaveInput fileCollection

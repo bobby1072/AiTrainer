@@ -10,7 +10,7 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
         Task<Guid> DeleteFileCollection(Guid collectionId);
         Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(
             Guid? collectionId = null
-        ); 
+        );
         Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId);
     }
 }

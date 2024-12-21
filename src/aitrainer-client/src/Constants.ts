@@ -3,4 +3,5 @@ export enum ErrorMessages {
 }
 export enum QueryKeys {
   GetClientConfiguration = "get-client-configuration",
+  GetTopLayerOfFile = "get-top-layer-of-file",
 }

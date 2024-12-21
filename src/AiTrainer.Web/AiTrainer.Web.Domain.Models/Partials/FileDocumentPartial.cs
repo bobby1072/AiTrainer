@@ -7,6 +7,7 @@ namespace AiTrainer.Web.Domain.Models.Partials
         public required FileTypeEnum FileType { get; init; }
         public required string FileName { get; init; }
         public required DateTime DateCreated { get; init; }
+
         public override bool Equals(FileDocumentPartial? other)
         {
             return other is FileDocumentPartial fileDocumentPartial
