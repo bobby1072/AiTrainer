@@ -11,16 +11,13 @@ namespace AiTrainer.Web.Domain.Services.Concrete
 {
     internal class DomainServiceActionExecutor : IDomainServiceActionExecutor
     {
-        private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DomainServiceActionExecutor> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public DomainServiceActionExecutor(
-            IServiceProvider serviceProvider,
             ILogger<DomainServiceActionExecutor> logger,
             IHttpContextAccessor httpContextAccessor
         )
         {
-            _serviceProvider = serviceProvider;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
@@ -49,8 +46,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
                 correlationId
             );
 
-            var service =
-                _serviceProvider.GetRequiredService<TService>();
+            var service = _httpContextAccessor.HttpContext!.RequestServices.GetService<TService>() ?? throw new InvalidOperationException("No service");
 
             var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(
                 () => serviceAction.Invoke(service)
@@ -86,8 +82,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
                 correlationId
             );
 
-            var service =
-                _serviceProvider.GetService<TService>();
+            var service = _httpContextAccessor.HttpContext!.RequestServices.GetService<TService>() ?? throw new InvalidOperationException("No service");
 
             var (timeTaken, result) = OperationTimerUtils.TimeWithResults(
                 () => serviceAction.Invoke(service)

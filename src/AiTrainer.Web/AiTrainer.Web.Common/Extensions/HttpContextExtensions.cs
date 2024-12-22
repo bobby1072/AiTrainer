@@ -26,11 +26,18 @@ namespace AiTrainer.Web.Common.Extensions
             return !string.IsNullOrEmpty(correlationId.ToString()) ? Guid.Parse(correlationId!) : null;
         }
 
-        public static string GetAccessToken(this HttpContext? context) =>
-            context?.Request.Headers[HeaderNames.Authorization].ToString()
-            ?? throw new ApiException(
-                ExceptionConstants.NotAuthorized,
-                HttpStatusCode.Unauthorized
-            );
+        public static string GetAccessToken(this HttpContext? context)
+        {
+            var token = context?.Request.Headers[HeaderNames.Authorization].ToString();
+            if (string.IsNullOrEmpty(token))
+            {   
+                throw new ApiException(
+                    ExceptionConstants.NotAuthorized,
+                    HttpStatusCode.Unauthorized
+                );
+            }
+            
+            return token;
+        }
     }
 }
