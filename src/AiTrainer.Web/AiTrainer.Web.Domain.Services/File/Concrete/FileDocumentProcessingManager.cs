@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Extensions;
@@ -10,6 +11,7 @@ using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
@@ -20,19 +22,19 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IValidator<FileDocument> _validator;
         private readonly IFileCollectionRepository _fileCollectionRepository;
-        private readonly IDomainServiceActionExecutor _domainServiceActionExecutor;
-        private readonly IApiRequestHttpContextService _apiRequestHttpContextService;
+        private readonly IUserProcessingManager _userProcessingManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         public FileDocumentProcessingManager(
-            IDomainServiceActionExecutor domainServiceActionExecutor,
-            IApiRequestHttpContextService apiRequestService,
+            IUserProcessingManager userProcessingManager,
+            IHttpContextAccessor httpContextAccessor,
             ILogger<FileDocumentProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
             IValidator<FileDocument> validator,
             IFileCollectionRepository fileCollectionRepository
         )
         {
-            _domainServiceActionExecutor = domainServiceActionExecutor;
-            _apiRequestHttpContextService = apiRequestService;
+            _userProcessingManager = userProcessingManager;
+            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
@@ -41,7 +43,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
         public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId)
         {
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -50,12 +52,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _domainServiceActionExecutor.ExecuteAsync<
-                    IUserProcessingManager,
-                    Models.User?
-                >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var foundDocument = await EntityFrameworkUtils.TryDbOperation(
                 () => _fileDocumentRepository.GetOne(documentId, (Guid)foundCachedUser.Id!),
@@ -80,7 +77,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             FileDocumentSaveFormInput fileDocumentSaveFormInput
         )
         {
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -89,12 +86,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _domainServiceActionExecutor.ExecuteAsync<
-                    IUserProcessingManager,
-                    Models.User?
-                >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var newFileDoc = await fileDocumentSaveFormInput.ToDocumentModel(
                 (Guid)foundCachedUser.Id!
@@ -140,7 +132,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
         public async Task<Guid> DeleteFileDocument(Guid documentId)
         {
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -149,12 +141,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _domainServiceActionExecutor.ExecuteAsync<
-                    IUserProcessingManager,
-                    Models.User?
-                >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var deletedId = await EntityFrameworkUtils.TryDbOperation(
                 () => _fileDocumentRepository.Delete(documentId, (Guid)foundCachedUser.Id!),

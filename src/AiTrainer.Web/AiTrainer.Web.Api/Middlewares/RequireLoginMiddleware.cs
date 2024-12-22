@@ -8,15 +8,14 @@ namespace AiTrainer.Web.Api.Middlewares
 {
     internal class RequireLoginMiddleware : BaseMiddleware
     {
-        private readonly IDomainServiceActionExecutor _domainServiceExecutor;
-
+        private readonly IUserProcessingManager _userProcessingManager;
         public RequireLoginMiddleware(
             RequestDelegate next,
-            IDomainServiceActionExecutor domainServiceExecutor
+            IUserProcessingManager userProcessingManager
         )
             : base(next)
         {
-            _domainServiceExecutor = domainServiceExecutor;
+            _userProcessingManager = userProcessingManager;
         }
 
         public override async Task InvokeAsync(HttpContext context)
@@ -26,9 +25,7 @@ namespace AiTrainer.Web.Api.Middlewares
             )
             {
                 var accessToken = context.GetAccessToken();
-                await _domainServiceExecutor.ExecuteAsync<IUserProcessingManager, User>(
-                    (userService) => userService.SaveAndCacheUser(accessToken)
-                );
+                await _userProcessingManager.SaveAndCacheUser(accessToken);
             }
             await _next.Invoke(context);
         }

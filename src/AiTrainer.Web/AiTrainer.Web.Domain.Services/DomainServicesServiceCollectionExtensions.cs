@@ -1,8 +1,12 @@
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.Concrete;
 using AiTrainer.Web.Domain.Services.File;
+using AiTrainer.Web.Domain.Services.File.Abstract;
+using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.Hangfire;
 using AiTrainer.Web.Domain.Services.User;
+using AiTrainer.Web.Domain.Services.User.Abstract;
+using AiTrainer.Web.Domain.Services.User.Concrete;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Http;
@@ -30,16 +34,12 @@ namespace AiTrainer.Web.Domain.Services
             //    });
 
             services
-                .AddUserServices()
-                .AddFileServices()
-                .AddTransient<IApiRequestHttpContextService>(sp =>
-                {
-                    var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
-                    return new ApiRequestHttpContextService(httpContextAccessor.HttpContext);
-                })
-                .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>()
+                .AddScoped<IUserProcessingManager, UserProcessingManager>()
+                .AddScoped<IFileCollectionProcessingManager, FileCollectionProcessingManager>()
+                .AddScoped<IFileDocumentProcessingManager, FileDocumentProcessingManager>()
                 .AddScoped<IHealthService, HealthService>()
-                .AddScoped<ICachingService, DistributedCachingService>();
+                .AddScoped<ICachingService, DistributedCachingService>()
+                .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>();
 
             return services;
         }

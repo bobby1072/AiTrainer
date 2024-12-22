@@ -4,6 +4,8 @@ using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
+using AiTrainer.Web.Common.Extensions;
+using Microsoft.AspNetCore.Http;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
@@ -11,16 +13,16 @@ namespace AiTrainer.Web.Domain.Services.Concrete
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<DomainServiceActionExecutor> _logger;
-        private readonly IApiRequestHttpContextService _apiRequestHttpContextService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         public DomainServiceActionExecutor(
             IServiceProvider serviceProvider,
             ILogger<DomainServiceActionExecutor> logger,
-            IApiRequestHttpContextService apiRequestHttpContextService
+            IHttpContextAccessor httpContextAccessor
         )
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
-            _apiRequestHttpContextService = apiRequestHttpContextService;
+            _httpContextAccessor = httpContextAccessor;
         }
         public Task<TReturn> ExecuteAsync<TService, TReturn>(
             Expression<Func<TService, Task<TReturn>>> serviceAction,
@@ -40,7 +42,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             where TService : IDomainService
         {
             var actionName = serviceActionName ?? serviceAction.Method.Name;
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
             _logger.LogInformation(
                 "-------Entering service action executor for {ServiceAction} for correlationId {CorrelationId}-------",
                 actionName,
@@ -77,7 +79,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         {
             var actionName = serviceActionName ?? serviceAction.Method.Name;
 
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
             _logger.LogInformation(
                 "-------Entering service action {ServiceAction} for correlationId {CorrelationId}-------",
                 actionName,
@@ -85,7 +87,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             );
 
             var service =
-                _serviceProvider.GetRequiredService<TService>();
+                _serviceProvider.GetService<TService>();
 
             var (timeTaken, result) = OperationTimerUtils.TimeWithResults(
                 () => serviceAction.Invoke(service)

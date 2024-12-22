@@ -26,8 +26,8 @@ namespace AiTrainer.Web.Common.Extensions
             return !string.IsNullOrEmpty(correlationId.ToString()) ? Guid.Parse(correlationId!) : null;
         }
 
-        public static string GetAccessToken(this HttpContext context) =>
-            context.Request.Headers[HeaderNames.Authorization].ToString()
+        public static string GetAccessToken(this HttpContext? context) =>
+            context?.Request.Headers[HeaderNames.Authorization].ToString()
             ?? throw new ApiException(
                 ExceptionConstants.NotAuthorized,
                 HttpStatusCode.Unauthorized
