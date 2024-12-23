@@ -22,7 +22,6 @@ namespace AiTrainer.Web.Api.Attributes
                 return;
             }
             context.Result = new UnauthorizedResult();
-            return;
         }
     }
 }

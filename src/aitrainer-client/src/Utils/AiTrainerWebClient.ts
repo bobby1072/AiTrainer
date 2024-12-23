@@ -32,7 +32,12 @@ export default abstract class AiTrainerWebClient {
     const response = await AiTrainerWebClient._httpClient
       .post<AiTrainerWebOutcome<FlatFileDocumentPartialCollection>>(
         "Api/FileCollection/GetOneLayer",
-        { id: null }
+        { id: null },
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
       )
       .catch(AiTrainerWebClient.HandleError)
       .then(AiTrainerWebClient.HandleThen);
@@ -71,5 +76,10 @@ export default abstract class AiTrainerWebClient {
     }
 
     return response.data.data;
+  }
+  private static FormatAccessToken(accessToken: string) {
+    return `Bearer ${accessToken
+      .replaceAll("Bearer ", "")
+      .replaceAll("bearer ", "")}`;
   }
 }

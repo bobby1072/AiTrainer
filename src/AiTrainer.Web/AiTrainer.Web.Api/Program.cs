@@ -36,6 +36,8 @@ builder
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     );
 
+builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environment);
+
 builder
     .Services.AddCoreClient(builder.Configuration)
     .AddSqlPersistence(builder.Configuration)
@@ -56,7 +58,6 @@ builder.Services.AddCors(p =>
     )
 );
 
-builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
