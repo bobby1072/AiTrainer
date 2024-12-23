@@ -2,6 +2,7 @@
 using AiTrainer.Web.Domain.Services.Concrete;
 using AutoFixture;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests
@@ -15,7 +16,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         protected readonly Mock<IDomainServiceActionExecutor> MockDomainServiceActionExecutor =
             new();
         protected readonly HeaderDictionary HeaderDictionary = [];
-        protected readonly ApiRequestHttpContextService MockApiRequestService;
+        protected readonly Mock<IHttpContextAccessor> MockContextAccessor = new();
 
         protected DomainServiceTestBase()
         {
@@ -23,10 +24,13 @@ namespace AiTrainer.Web.Domain.Services.Tests
             MockHttpContext.Setup(x => x.Response).Returns(MockHttpResponse.Object);
             MockHttpContext.Setup(x => x.Request.Headers).Returns(HeaderDictionary);
             MockHttpContext.Setup(x => x.Response.Headers).Returns(HeaderDictionary);
+            
+            MockContextAccessor.Setup(x => x.HttpContext).Returns(MockHttpContext.Object);
+        }
 
-            MockApiRequestService = new ApiRequestHttpContextService(
-                    MockHttpContext.Object
-                );
+        protected void AddAccessTokenToRequestHeaders()
+        {
+            HeaderDictionary[HeaderNames.Authorization] = $"Bearer {Guid.NewGuid()}";
         }
     }
 }

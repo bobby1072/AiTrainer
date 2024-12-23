@@ -24,18 +24,19 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<IValidator<FileCollection>> _mockValidator = new();
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
         private readonly FileCollectionProcessingManager _fileCollectionManager;
-
+        private readonly Mock<IUserProcessingManager> _mockUserProcessingManager = new();
         public FileCollectionProcessingManagerTests()
             : base()
         {
             _fileCollectionManager = new FileCollectionProcessingManager(
-                MockDomainServiceActionExecutor.Object,
-                MockApiRequestService,
+                _mockUserProcessingManager.Object,
                 _mockRepository.Object,
                 _mockLogger.Object,
                 _mockValidator.Object,
-                _mockFileDocumentRepository.Object
+                _mockFileDocumentRepository.Object,
+                MockContextAccessor.Object
             );
+            AddAccessTokenToRequestHeaders();
         }
 
         [Fact]
@@ -43,15 +44,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var fileCollectionInput = Fixture.Create<FileCollectionSaveInput>();
-            MockDomainServiceActionExecutor
-                .Setup(x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    )
-                )
-                .ReturnsAsync((Models.User?)null);
-
+            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync((Models.User?)null);
             //Act
             var act = () => _fileCollectionManager.SaveFileCollection(fileCollectionInput);
 
@@ -79,14 +72,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.Id, (Guid?)null)
                 .With(x => x.ParentId, parentCollection.Id)
                 .Create();
-            MockDomainServiceActionExecutor
-                .Setup(x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    )
-                )
-                .ReturnsAsync(currentUser);
+            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
+
             _mockValidator
                 .Setup(x =>
                     x.ValidateAsync(
@@ -122,14 +109,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             result.ParentId.Should().Be(fileCollectionInput.ParentId);
             result.UserId.Should().Be((Guid)currentUser.Id!);
 
-            MockDomainServiceActionExecutor.Verify(
-                x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    ),
-                Times.Once
-            );
+            _mockUserProcessingManager.Verify(x => x.TryGetUserFromCache(It.IsAny<string>()), Times.Once);
             _mockValidator.Verify(
                 x =>
                     x.ValidateAsync(
@@ -172,14 +152,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.ParentId, (Guid?)null)
                 .Create();
 
-            MockDomainServiceActionExecutor
-                .Setup(x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    )
-                )
-                .ReturnsAsync(currentUser);
+            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
+
             _mockValidator
                 .Setup(x =>
                     x.ValidateAsync(
@@ -214,14 +188,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
             result.ParentId.Should().Be(newFileCollectionInput.ParentId);
             result.UserId.Should().Be((Guid)currentUser.Id!);
 
-            MockDomainServiceActionExecutor.Verify(
-                x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    ),
-                Times.Once
-            );
+            _mockUserProcessingManager.Verify(x => x.TryGetUserFromCache(It.IsAny<string>()), Times.Once);
+
             _mockValidator.Verify(
                 x =>
                     x.ValidateAsync(
@@ -270,14 +238,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.DateCreated, originalFileCollection.DateCreated)
                 .Create();
 
-            MockDomainServiceActionExecutor
-                .Setup(x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    )
-                )
-                .ReturnsAsync(currentUser);
+            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
+
             _mockValidator
                 .Setup(x =>
                     x.ValidateAsync(
@@ -309,14 +271,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Assert
             await act.Should().ThrowAsync<ApiException>().WithMessage("Cannot edit those fields");
 
-            MockDomainServiceActionExecutor.Verify(
-                x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    ),
-                Times.Once
-            );
+            _mockUserProcessingManager.Verify(x => x.TryGetUserFromCache(It.IsAny<string>()), Times.Once);
+
             _mockValidator.Verify(
                 x =>
                     x.ValidateAsync(
@@ -362,15 +318,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.CollectionId, (Guid?)null)
                 .Create();
+            
+            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
-            MockDomainServiceActionExecutor
-                .Setup(x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    )
-                )
-                .ReturnsAsync(currentUser);
             _mockRepository
                 .Setup(x => x.GetTopLevelCollectionsForUser((Guid)currentUser.Id!))
                 .ReturnsAsync(new DbGetManyResult<FileCollection>([foundSingleFileCollection]));
@@ -417,15 +367,10 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.CollectionId, Guid.NewGuid())
                 .Create();
+            
+            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
-            MockDomainServiceActionExecutor
-                .Setup(x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    )
-                )
-                .ReturnsAsync(currentUser);
+            
             _mockRepository
                 .Setup(x =>
                     x.GetManyCollectionsForUser(
