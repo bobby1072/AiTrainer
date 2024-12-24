@@ -11,7 +11,7 @@ import { StyledDialogTitle } from "../Common/StyledDialogTitle";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ErrorComponent } from "../Common/ErrorComponent";
 import { useSnackbar } from "notistack";
 
@@ -25,7 +25,6 @@ export const AddFileCollectionModal: React.FC<{
   closeModal: () => void;
 }> = ({ closeModal }) => {
   const {
-    watch,
     handleSubmit,
     register,
     reset: formReset,
@@ -36,14 +35,14 @@ export const AddFileCollectionModal: React.FC<{
   const { mutate, error, data, isLoading, reset } =
     useSaveFileCollectionMutation();
   const { enqueueSnackbar } = useSnackbar();
+  const [isCollectionNamePresent, setIsCollectionNamePresent] =
+    useState<boolean>(false);
   useEffect(() => {
     if (data) {
       closeModal();
       enqueueSnackbar("Collection added successfully", { variant: "success" });
     }
   }, [data, closeModal, enqueueSnackbar]);
-
-  const { collectionName: liveCollectionNameState } = watch();
 
   return (
     <Dialog open onClose={closeModal}>
@@ -73,7 +72,12 @@ export const AddFileCollectionModal: React.FC<{
               <TextField
                 {...register("collectionName", { required: true })}
                 disabled={isLoading}
-                onChange={() => reset()}
+                onChange={(e) => {
+                  reset();
+                  if (e.target.value?.length > 0) {
+                    setIsCollectionNamePresent(true);
+                  }
+                }}
                 label="Collection name"
                 fullWidth
                 multiline
@@ -101,7 +105,10 @@ export const AddFileCollectionModal: React.FC<{
             direction={"row"}
             width="100%"
           >
-            <Grid2 width={"50%"}>
+            <Grid2
+              width={"50%"}
+              sx={{ display: "flex", justifyContent: "flex-start" }}
+            >
               <Button
                 variant="outlined"
                 color="primary"
@@ -111,13 +118,16 @@ export const AddFileCollectionModal: React.FC<{
                 Cancel
               </Button>
             </Grid2>
-            <Grid2 width={"50%"}>
+            <Grid2
+              width={"50%"}
+              sx={{ display: "flex", justifyContent: "flex-end" }}
+            >
               <Button
                 variant="contained"
                 color="primary"
                 type="submit"
                 disabled={
-                  !liveCollectionNameState ||
+                  !isCollectionNamePresent ||
                   !isDirty ||
                   isLoading ||
                   !!formErrors.collectionName
