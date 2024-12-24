@@ -1,15 +1,15 @@
-import { TestHome } from "../Pages/TestHome";
+import { CollectionHome } from "../Pages/CollectionHome";
 
 export const AuthenticatedRoutes: {
   link: string;
   component: () => JSX.Element;
 }[] = [
   {
-    component: () => <TestHome />,
+    component: () => <CollectionHome />,
     link: "/collection/home/:id",
   },
   {
-    component: () => <TestHome />,
+    component: () => <CollectionHome />,
     link: "/collection/home",
   },
 ];

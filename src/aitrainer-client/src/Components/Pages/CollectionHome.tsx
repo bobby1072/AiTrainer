@@ -6,7 +6,7 @@ import { ErrorComponent } from "../Common/ErrorComponent";
 import { useParams } from "react-router-dom";
 import { CollectionDocumentTable } from "../File/CollectionDocumentTable";
 
-export const TestHome: React.FC = () => {
+export const CollectionHome: React.FC = () => {
   const { id: groupId } = useParams<{ id?: string }>();
   const { data, error, isLoading } = useGetTopLayerOfFileQuery(groupId);
 
@@ -22,13 +22,8 @@ export const TestHome: React.FC = () => {
         justifyContent="center"
         alignItems="center"
         direction="column"
-        spacing={4}
-        textAlign="center"
         width="100%"
       >
-        <Grid2 width={"50%"}>
-          <h1>Test Home</h1>
-        </Grid2>
         <Grid2 width={"100%"}>
           <CollectionDocumentTable flatCollection={data} />
         </Grid2>

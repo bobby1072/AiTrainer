@@ -11,6 +11,7 @@ import { SignInCallback } from "./Components/Authentication/SignInCallback";
 import { LandingPage } from "./Components/Pages/LandingPage";
 import { App } from "./App";
 import { AuthenticatedRoutes } from "./Components/Authentication/AutheticatedRoutes";
+import { SnackbarProvider } from "notistack";
 const FallbackRoute: React.FC = () => {
   const { isLoggedIn } = useAuthentication();
   return isLoggedIn ? (
@@ -82,15 +83,17 @@ if (window.location.pathname === "/oidc-silent-renew") {
   root.render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <ClientSettingsConfigurationContextProvider>
-          <BrowserRouter>
-            <Routes>
-              {AppRoutes?.map((r) => (
-                <Route element={r.element} path={r.path} />
-              ))}
-            </Routes>
-          </BrowserRouter>
-        </ClientSettingsConfigurationContextProvider>
+        <SnackbarProvider>
+          <ClientSettingsConfigurationContextProvider>
+            <BrowserRouter>
+              <Routes>
+                {AppRoutes?.map((r) => (
+                  <Route element={r.element} path={r.path} />
+                ))}
+              </Routes>
+            </BrowserRouter>
+          </ClientSettingsConfigurationContextProvider>
+        </SnackbarProvider>
       </QueryClientProvider>
     </React.StrictMode>
   );

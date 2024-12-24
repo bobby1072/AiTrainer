@@ -14,9 +14,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { ErrorComponent } from "../Common/ErrorComponent";
+import { useSnackbar } from "notistack";
 
 const fileCollectionFormSchema = z.object({
-  collectionName: z.string(),
+  collectionName: z.string().max(100).nonempty("Collection name is required"),
 });
 
 type FileCollectionFormSchemaType = z.infer<typeof fileCollectionFormSchema>;
@@ -28,17 +29,20 @@ export const AddFileCollectionModal: React.FC<{
     watch,
     handleSubmit,
     register,
+    reset: formReset,
     formState: { errors: formErrors, isDirty },
   } = useForm<FileCollectionFormSchemaType>({
     resolver: zodResolver(fileCollectionFormSchema),
   });
-  const { mutate, error, data, isLoading } = useSaveFileCollectionMutation();
-
+  const { mutate, error, data, isLoading, reset } =
+    useSaveFileCollectionMutation();
+  const { enqueueSnackbar } = useSnackbar();
   useEffect(() => {
     if (data) {
       closeModal();
+      enqueueSnackbar("Collection added successfully", { variant: "success" });
     }
-  }, [data, closeModal]);
+  }, [data, closeModal, enqueueSnackbar]);
 
   const { collectionName: liveCollectionNameState } = watch();
 
@@ -47,11 +51,13 @@ export const AddFileCollectionModal: React.FC<{
       <form
         id="addFileCollectionForm"
         onSubmit={handleSubmit((formVals) => {
+          reset();
           mutate({
             fileColInput: {
               collectionName: formVals.collectionName,
             },
           });
+          formReset();
         })}
       >
         <StyledDialogTitle>
@@ -69,6 +75,8 @@ export const AddFileCollectionModal: React.FC<{
             <Grid2 width={"60%"}>
               <TextField
                 {...register("collectionName", { required: true })}
+                disabled={isLoading}
+                onChange={() => reset()}
                 label="Collection name"
                 fullWidth
                 multiline
