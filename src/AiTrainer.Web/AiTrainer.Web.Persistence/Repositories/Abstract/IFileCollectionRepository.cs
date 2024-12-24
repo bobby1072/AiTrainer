@@ -11,7 +11,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             Guid userId,
             params string[] relationShips
         );
-        Task<DbGetManyResult<FileCollection>> GetManyCollectionsForUser(
+        Task<DbGetManyResult<FileCollection>> GetManyCollectionsForUserIncludingSelf(
             Guid parentId,
             Guid userId,
             params string[] relationShips

@@ -6,8 +6,7 @@ import { AddFileCollectionModal } from "./AddFileCollectionModal";
 
 export const CollectionDocumentTable: React.FC<{
   flatCollection?: FlatFileDocumentPartialCollection | null;
-  parentCollectionName?: string | null;
-}> = ({ flatCollection, parentCollectionName }) => {
+}> = ({ flatCollection }) => {
   const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
   return (
     <>
@@ -45,9 +44,9 @@ export const CollectionDocumentTable: React.FC<{
                 width={"90%"}
                 sx={{ display: "flex", justifyContent: "flex-start" }}
               >
-                {parentCollectionName ? (
+                {flatCollection?.self ? (
                   <Typography variant="subtitle1">
-                    {`Parent Folder: ${parentCollectionName}`}
+                    {`Parent Folder: ${flatCollection?.self.collectionName}`}
                   </Typography>
                 ) : null}
               </Grid2>

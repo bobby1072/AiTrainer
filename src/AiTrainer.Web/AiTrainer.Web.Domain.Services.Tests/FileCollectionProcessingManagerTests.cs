@@ -372,7 +372,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             
             _mockRepository
                 .Setup(x =>
-                    x.GetManyCollectionsForUser(
+                    x.GetManyCollectionsForUserIncludingSelf(
                         (Guid)foundSingleFileDocument.CollectionId!,
                         (Guid)currentUser.Id!
                     )
@@ -396,7 +396,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Assert
             _mockRepository.Verify(
                 x =>
-                    x.GetManyCollectionsForUser(
+                    x.GetManyCollectionsForUserIncludingSelf(
                         (Guid)foundSingleFileCollection.Id!,
                         (Guid)currentUser.Id!
                     ),
