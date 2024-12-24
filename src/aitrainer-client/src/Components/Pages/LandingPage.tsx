@@ -22,7 +22,7 @@ export const LandingPage: React.FC = () => {
         height={"100vh"}
       >
         <Grid2 width={"15%"}>
-          <Paper>
+          <Paper elevation={1}>
             <Button
               variant="contained"
               color="primary"

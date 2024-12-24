@@ -1,9 +1,18 @@
 import { Grid2 } from "@mui/material";
 import { PageBase } from "../Common/PageBase";
 import { useGetTopLayerOfFile } from "../../Hooks/useGetTopLayerOfFile";
+import { Loading } from "../Common/Loading";
+import { ErrorComponent } from "../Common/ErrorComponent";
+import { useParams } from "react-router-dom";
+import { CollectionDocumentTable } from "../File/CollectionDocumentTable";
 
 export const TestHome: React.FC = () => {
+  const { id: groupId } = useParams<{ id?: string }>();
   const { data, error, isLoading } = useGetTopLayerOfFile();
+
+  if (isLoading) return <Loading fullScreen />;
+  else if (error || !data)
+    return <ErrorComponent errorMessage={error?.message} fullScreen />;
   return (
     <PageBase>
       <Grid2
@@ -18,6 +27,9 @@ export const TestHome: React.FC = () => {
       >
         <Grid2 width={"50%"}>
           <h1>Test Home</h1>
+        </Grid2>
+        <Grid2 width={"100%"}>
+          <CollectionDocumentTable flatCollection={data} />
         </Grid2>
       </Grid2>
     </PageBase>
