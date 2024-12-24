@@ -16,11 +16,11 @@ internal class HealthService: IHealthService
         _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration.Value;
     }
 
-    public async Task<AiTrainerHealth> GetHealth()
+    public async Task<Models.AiTrainerHealth> GetHealth()
     {
         var coreHealth = await _coreClient.TryInvokeAsync();
 
-        return new AiTrainerHealth
+        return new Models.AiTrainerHealth
         {
             Name = _aiTrainerCoreConfiguration.Name,
             ReleaseVersion = _aiTrainerCoreConfiguration.ReleaseVersion,

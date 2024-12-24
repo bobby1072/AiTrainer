@@ -15,13 +15,13 @@ namespace AiTrainer.Web.Api.Controllers
             : base(actionExecutor) { }
 
         [HttpGet]
-        public async Task<ActionResult<Outcome<AiTrainerHealth>>> Health()
+        public async Task<ActionResult<Outcome<Domain.Models.AiTrainerHealth>>> Health()
         {
-            var result = await _actionExecutor.ExecuteAsync<IHealthService, AiTrainerHealth>(service =>
+            var result = await _actionExecutor.ExecuteAsync<IHealthService, Domain.Models.AiTrainerHealth>(service =>
                 service.GetHealth()
             );
             
-            return new Outcome<AiTrainerHealth> {
+            return new Outcome<Domain.Models.AiTrainerHealth> {
                 Data = result
             };
         }
