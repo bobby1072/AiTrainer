@@ -24,7 +24,7 @@ export const CollectionHome: React.FC = () => {
         direction="column"
         width="100%"
       >
-        <Grid2 width={"100%"}>
+        <Grid2 width={"90%"}>
           <CollectionDocumentTable flatCollection={data} />
         </Grid2>
       </Grid2>

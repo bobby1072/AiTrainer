@@ -69,7 +69,7 @@ export const AddFileCollectionModal: React.FC<{
             padding={1}
             width="100%"
           >
-            <Grid2 width={"60%"}>
+            <Grid2 width={"90%"}>
               <TextField
                 {...register("collectionName", { required: true })}
                 disabled={isLoading}
@@ -87,7 +87,7 @@ export const AddFileCollectionModal: React.FC<{
               />
             </Grid2>
             {error && (
-              <Grid2 width={"100%"}>
+              <Grid2 width={"90%"}>
                 <ErrorComponent errorMessage={error.message} />
               </Grid2>
             )}

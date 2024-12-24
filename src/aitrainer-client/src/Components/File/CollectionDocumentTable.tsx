@@ -1,4 +1,11 @@
-import { Divider, Grid2, IconButton, Paper, Typography } from "@mui/material";
+import {
+  Divider,
+  Grid2,
+  IconButton,
+  Paper,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { FlatFileDocumentPartialCollection } from "../../Models/FlatFileDocumentPartialCollection";
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
@@ -20,15 +27,14 @@ export const CollectionDocumentTable: React.FC<{
       >
         <Grid2
           container
-          height={"60vh"}
+          height={"90vh"}
           overflow={"auto"}
-          justifyContent="center"
           alignItems="center"
           direction="column"
           spacing={4}
           padding={1}
           textAlign="center"
-          width="70%"
+          width="100%"
         >
           <Grid2 width={"100%"}>
             <Grid2
@@ -36,27 +42,31 @@ export const CollectionDocumentTable: React.FC<{
               justifyContent="center"
               alignItems="center"
               direction="row"
-              spacing={2}
-              padding={0.5}
               width="100%"
             >
-              <Grid2
-                width={"90%"}
-                sx={{ display: "flex", justifyContent: "flex-start" }}
-              >
-                {flatCollection?.self ? (
-                  <Typography variant="subtitle1">
-                    {`Parent Folder: ${flatCollection?.self.collectionName}`}
+              {flatCollection?.self?.collectionName && (
+                <Grid2
+                  width={"90%"}
+                  sx={{ display: "flex", justifyContent: "flex-start" }}
+                >
+                  <Typography gutterBottom variant="subtitle2" fontSize={20}>
+                    {`Parent Folder: ${flatCollection?.self?.collectionName}`}
                   </Typography>
-                ) : null}
-              </Grid2>
+                </Grid2>
+              )}
               <Grid2
-                width={"10%"}
+                width={flatCollection?.self?.collectionName ? "10%" : "100%"}
                 sx={{ display: "flex", justifyContent: "flex-end" }}
               >
-                <IconButton color="inherit" size="medium">
-                  <AddIcon />
-                </IconButton>
+                <Tooltip title="Add new folder">
+                  <IconButton
+                    color="inherit"
+                    size="small"
+                    onClick={() => setAddModalOpen(true)}
+                  >
+                    <AddIcon />
+                  </IconButton>
+                </Tooltip>
               </Grid2>
             </Grid2>
           </Grid2>
@@ -74,10 +84,10 @@ export const CollectionDocumentTable: React.FC<{
               width="100%"
             >
               {!flatCollection ||
-              (flatCollection.fileCollections.length === 0 &&
-                flatCollection.fileDocuments.length === 0) ? (
+              ((flatCollection.fileCollections?.length ?? 0) === 0 &&
+                (flatCollection.fileDocuments?.length ?? 0) === 0) ? (
                 <Grid2 width={"100%"} textAlign={"center"}>
-                  <Typography variant="subtitle2" fontSize={20}>
+                  <Typography variant="subtitle2" fontSize={30}>
                     No documents or folders found...
                   </Typography>
                 </Grid2>
