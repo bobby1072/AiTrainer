@@ -8,17 +8,14 @@ namespace AiTrainer.Web.Persistence.Entities
     public record FileCollectionEntity : BaseEntity<Guid, FileCollection>
     {
         public required Guid UserId { get; set; }
-
         public required string CollectionName { get; set; }
-
         public DateTime DateCreated { get; set; }
-
         public DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
         public virtual IReadOnlyCollection<FileCollectionFaissEntity>? FaissStore { get; set; }
         public virtual IReadOnlyCollection<FileDocumentEntity>? Documents { get; set; }
         public override FileCollection ToModel() =>
-            new FileCollection
+            new()
             {
                 Id = Id,
                 UserId = UserId,

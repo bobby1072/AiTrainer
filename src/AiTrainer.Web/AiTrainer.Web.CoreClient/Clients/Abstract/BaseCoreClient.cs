@@ -6,6 +6,8 @@ using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using BT.Common.HttpClient.Extensions;
+using BT.Common.HttpClient.Models;
 
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {
@@ -18,17 +20,27 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
 
         protected BaseCoreClient(
             HttpClient httpClient,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
             ILogger<BaseCoreClient> logger)
         {
-            _httpClient = httpClient;
             _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
             _logger = logger;
+            _httpClient = httpClient;
         }
 
         protected async Task<TReturn> InvokeCoreRequest<TReturn>(HttpRequestMessage request) where TReturn : BaseCoreClientResponseBody
         {
-            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request));
+            
+            var totalAttempts = _aiTrainerCoreConfiguration.TotalAttempts > 1 ? _aiTrainerCoreConfiguration.TotalAttempts : 2;
+            var timeoutInSeconds = _aiTrainerCoreConfiguration.TimeoutInSeconds > 3 ? _aiTrainerCoreConfiguration.TimeoutInSeconds : 90;
+            var delay = _aiTrainerCoreConfiguration.DelayBetweenAttemptsInSeconds >= 0 ? _aiTrainerCoreConfiguration.DelayBetweenAttemptsInSeconds : 1;
+            
+            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request, new PollyRetrySettings()
+            {
+                TotalAttempts = totalAttempts,
+                DelayBetweenAttemptsInSeconds = delay,
+                TimeoutInSeconds = timeoutInSeconds,
+            }));
 
             response.EnsureSuccessStatusCodeAndThrowCoreClientException();
 
@@ -59,7 +71,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
                 exception.Message
             );
         }
-        private async Task<T> TimeAndExecuteRequest<T>(Func<Task<T>> request)
+        protected async Task<T> TimeAndExecuteRequest<T>(Func<Task<T>> request)
         {
             var (time, result) = await OperationTimerUtils.TimeWithResultsAsync(request);
 
@@ -79,7 +91,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
         private ILogger<BaseCoreClient<TReturn>> _logger { get; init; }
         protected BaseCoreClient(
             HttpClient httpClient,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
             ILogger<BaseCoreClient<TReturn>> logger
         ): base(httpClient, aiTrainerCoreConfig, logger)
         {
@@ -92,7 +104,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
             var message = BuildMessage();
             AddApiKeyHeader(message);
             
-            var data = await InvokeCoreRequest<TReturn>(BuildMessage());
+            var data = await InvokeCoreRequest<TReturn>(message);
 
             return data;
         }
@@ -121,7 +133,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
     {
         protected BaseCoreClient(
             HttpClient httpClient,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+            IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
             ILogger<BaseCoreClient<TParam ,TReturn>> logger
         )
             : base(httpClient, aiTrainerCoreConfig, logger) { }

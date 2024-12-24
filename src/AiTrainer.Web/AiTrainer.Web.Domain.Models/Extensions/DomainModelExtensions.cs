@@ -1,7 +1,5 @@
-﻿using AiTrainer.Web.Common.Extensions;
-using AiTrainer.Web.Domain.Models.Attributes;
+﻿using AiTrainer.Web.Domain.Models.Attributes;
 using System.Reflection;
-using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Models.Extensions
 {
@@ -59,27 +57,6 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             {
                 model.RemoveSensitive();
             }
-        }
-
-        public static T? GetPropertyValue<T>(this object? value, string propertyName)
-        {
-            if (value is not DomainModel<object, object> || propertyName.ToLower() != "Id")
-            {
-                return ObjectExtensions.GetPropertyValue<T>(value, propertyName);
-            }
-
-            return (T?)((DomainModel<object, object>)value).Id;
-        }
-
-        public static string JsonSerialise(this DomainModel<object, object> value)
-        {
-            value.RemoveSensitive();
-            return JsonSerializer.Serialize(value);
-        }
-        public static string JsonSerialise(this IEnumerable<DomainModel<object, object>> value)
-        {
-            value.RemoveSensitive();
-            return JsonSerializer.Serialize(value);
         }
     }
 }

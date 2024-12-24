@@ -4,6 +4,7 @@ import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
 import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfiguration";
 import { ErrorMessages } from "../Constants";
 import { AppSettingsKeys } from "./AppSettingsKeys";
+import { FlatFileDocumentPartialCollection } from "../Models/FlatFileDocumentPartialCollection";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl = AppSettingsProvider.TryGetValue(
@@ -19,6 +20,28 @@ export default abstract class AiTrainerWebClient {
       )
       .catch(AiTrainerWebClient.HandleError)
       .then(AiTrainerWebClient.HandleThen);
+    if (!response) {
+      throw new Error(ErrorMessages.InternalServerError);
+    }
+
+    return response;
+  }
+  public static async GetTopLayerOfFile(
+    accessToken: string
+  ): Promise<FlatFileDocumentPartialCollection> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcome<FlatFileDocumentPartialCollection>>(
+        "Api/FileCollection/GetOneLayer",
+        { id: null },
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
+      )
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
+
     if (!response) {
       throw new Error(ErrorMessages.InternalServerError);
     }
@@ -53,5 +76,10 @@ export default abstract class AiTrainerWebClient {
     }
 
     return response.data.data;
+  }
+  private static FormatAccessToken(accessToken: string) {
+    return `Bearer ${accessToken
+      .replaceAll("Bearer ", "")
+      .replaceAll("bearer ", "")}`;
   }
 }

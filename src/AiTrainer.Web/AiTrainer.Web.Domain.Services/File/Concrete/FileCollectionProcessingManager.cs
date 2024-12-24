@@ -1,5 +1,6 @@
 using System.Net;
 using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Extensions;
@@ -10,40 +11,89 @@ using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
-    public class FileCollectionProcessingManager
-        : BaseDomainService,
-            IFileCollectionProcessingManager
+    public class FileCollectionProcessingManager : IFileCollectionProcessingManager
     {
+        private readonly IUserProcessingManager _userProcessingManager;
         private readonly IFileCollectionRepository _repository;
         private readonly ILogger<FileCollectionProcessingManager> _logger;
         private readonly IValidator<FileCollection> _validator;
         private readonly IFileDocumentRepository _fileDocumentRepository;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
         public FileCollectionProcessingManager(
-            IDomainServiceActionExecutor domainServiceActionExecutor,
-            IApiRequestHttpContextService apiRequestService,
+            IUserProcessingManager userProcessingManager,
             IFileCollectionRepository repository,
             ILogger<FileCollectionProcessingManager> logger,
             IValidator<FileCollection> validator,
-            IFileDocumentRepository fileDocumentRepository
+            IFileDocumentRepository fileDocumentRepository,
+            IHttpContextAccessor httpContextAccessor
         )
-            : base(domainServiceActionExecutor, apiRequestService)
         {
+            _userProcessingManager = userProcessingManager;
             _repository = repository;
+            _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _validator = validator;
             _fileDocumentRepository = fileDocumentRepository;
+        }
+
+        public async Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId)
+        {
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(GetFileCollectionWithContents),
+                correlationId
+            );
+
+            var foundCachedUser =
+                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+
+            var foundCollection = await EntityFrameworkUtils.TryDbOperation(
+                () => _repository.GetOne(fileCollectionId, nameof(FileCollectionEntity.Documents))
+            );
+
+            if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
+            {
+                throw new ApiException("Could not find file collection with that id");
+            }
+
+            if (foundCollection.Data.UserId != foundCachedUser.Id)
+            {
+                throw new ApiException(
+                    "You do not have permission to access this file collection",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            if (foundCollection.Data.Documents is null || foundCollection.Data.Documents.Count < 1)
+            {
+                throw new ApiException(
+                    "No documents within file collection",
+                    HttpStatusCode.BadRequest
+                );
+            }
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(GetFileCollectionWithContents),
+                correlationId
+            );
+
+            return foundCollection.Data;
         }
 
         public async Task<FileCollection> SaveFileCollection(
             FileCollectionSaveInput fileCollectionInput
         )
         {
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -52,12 +102,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _domainServiceActionExecutor.ExecuteAsync<
-                    IUserProcessingManager,
-                    Models.User?
-                >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var createdCollection = FileCollectionExtensions.FromInput(
                 fileCollectionInput,
@@ -84,7 +129,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     "Attempting to retrieve collection with id {CreatedCollectionId} for userId {UserId} and correlationId {CorrelationId}",
                     createdCollection.Id,
                     foundCachedUser.Id,
-                    _apiRequestHttpContextService.CorrelationId
+                    correlationId
                 );
                 var foundOne = await _repository.GetOne((Guid)createdCollection.Id!);
                 if (foundOne?.Data is null)
@@ -138,8 +183,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             if (newlySavedCollection?.IsSuccessful != true)
             {
                 throw new ApiException(
-                    $"Failed to {(hasId ? "update" : "create")} file collection",
-                    HttpStatusCode.InternalServerError
+                    $"Failed to {(hasId ? "update" : "create")} file collection"
                 );
             }
             _logger.LogInformation(
@@ -152,7 +196,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
         public async Task<Guid> DeleteFileCollection(Guid collectionId)
         {
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -161,12 +205,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _domainServiceActionExecutor.ExecuteAsync<
-                    IUserProcessingManager,
-                    Models.User?
-                >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var deletedId = await EntityFrameworkUtils.TryDbOperation(
                 () => _repository.Delete(collectionId, (Guid)foundCachedUser.Id!),
@@ -192,7 +231,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             Guid? collectionId = null
         )
         {
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -201,12 +240,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _domainServiceActionExecutor.ExecuteAsync<
-                    IUserProcessingManager,
-                    Models.User?
-                >(userServ =>
-                    userServ.TryGetUserFromCache(_apiRequestHttpContextService.AccessToken)
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var collectionsJob = EntityFrameworkUtils.TryDbOperation(
                 () =>

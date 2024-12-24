@@ -16,7 +16,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Concrete
         public CoreClientChunkDocument(
             HttpClient httpClient,
             ILogger<CoreClientChunkDocument> logger,
-            IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+            IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
         )
             : base(httpClient, aiTrainerCoreConfig, logger) { }
 

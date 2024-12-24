@@ -6,14 +6,19 @@ namespace AiTrainer.Web.Domain.Models
     {
         [LockedProperty]
         public Guid? CollectionId { get; set; }
+
         [LockedProperty]
         public required Guid UserId { get; set; }
+
         [LockedProperty]
         public required FileTypeEnum FileType { get; set; }
+
         [LockedProperty]
         public required string FileName { get; set; }
+
         [LockedProperty]
         public required byte[] FileData { get; set; }
+
         [LockedProperty]
         public required DateTime DateCreated { get; set; }
 

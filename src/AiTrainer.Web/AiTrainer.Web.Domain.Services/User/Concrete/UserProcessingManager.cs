@@ -10,28 +10,29 @@ using AiTrainer.Web.UserInfoClient.Models;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using AiTrainer.Web.Common.Extensions;
+using Microsoft.AspNetCore.Http;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
-    public class UserProcessingManager : BaseDomainService, IUserProcessingManager
+    public class UserProcessingManager : IUserProcessingManager
     {
         private readonly IRepository<UserEntity, Guid, Models.User> _repo;
         private readonly IUserInfoClient _userInfoClient;
         private readonly ILogger<UserProcessingManager> _logger;
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
-
+        private readonly IHttpContextAccessor _httpContextAccessor;
         public UserProcessingManager(
-            IDomainServiceActionExecutor domainServiceActionExecutor,
-            IApiRequestHttpContextService apiRequestService,
+            IHttpContextAccessor httpContextAccessor,
             IRepository<UserEntity, Guid, Models.User> repo,
             IUserInfoClient userInfoClient,
             ILogger<UserProcessingManager> logger,
             IValidator<Models.User> userValidator,
             ICachingService cachingService
         )
-            : base(domainServiceActionExecutor, apiRequestService)
         {
+            _httpContextAccessor = httpContextAccessor;
             _repo = repo;
             _userInfoClient = userInfoClient;
             _logger = logger;
@@ -41,7 +42,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 
         public async Task<Models.User> SaveAndCacheUser(string accessToken)
         {
-            var correlationId = _apiRequestHttpContextService.CorrelationId;
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -146,7 +147,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 
         public Task<Models.User?> TryGetUserFromCache(string accessToken)
         {
-            _logger.LogInformation("Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}", _apiRequestHttpContextService.CorrelationId, accessToken);
+            _logger.LogInformation("Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}", _httpContextAccessor.HttpContext?.GetCorrelationId(), accessToken);
 
             return _cachingService.TryGetObject<Models.User>(GetCacheKey(accessToken));
         }

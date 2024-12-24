@@ -11,5 +11,6 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
         Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(
             Guid? collectionId = null
         );
+        Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId);
     }
 }

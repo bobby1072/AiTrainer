@@ -1,4 +1,3 @@
-
 using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models
@@ -8,12 +7,16 @@ namespace AiTrainer.Web.Domain.Models
         [LockedProperty]
         public required Guid UserId { get; set; }
         public required string CollectionName { get; set; }
+
         [LockedProperty]
         public required DateTime DateCreated { get; set; }
+
+        [LockedProperty]
         public required DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
         public FileCollectionFaiss? FaissStore { get; init; }
         public IReadOnlyCollection<FileDocument>? Documents { get; init; }
+
         public override bool Equals(FileCollection? other)
         {
             return other is FileCollection fileCollection

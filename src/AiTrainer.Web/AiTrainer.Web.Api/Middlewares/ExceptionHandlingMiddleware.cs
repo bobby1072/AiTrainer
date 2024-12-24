@@ -3,6 +3,7 @@ using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.ApiModels.Response;
+using BT.Common.OperationTimer.Common;
 using BT.Common.OperationTimer.Proto;
 
 namespace AiTrainer.Web.Api.Middlewares
@@ -34,7 +35,7 @@ namespace AiTrainer.Web.Api.Middlewares
                 {
                     await _next.Invoke(context);
                 }
-                catch (OperationCanceledException e)
+                catch (OperationTimerException e)
                 {
                     if (e.InnerException is not null)
                     {
@@ -44,7 +45,7 @@ namespace AiTrainer.Web.Api.Middlewares
                     throw;
                 }
             }
-            catch (OperationCanceledException e)
+            catch (OperationTimerException e)
             {
                 _logger.LogError(
                     e,

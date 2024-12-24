@@ -7,8 +7,11 @@ namespace AiTrainer.Web.Domain.Models
         public required string Email { get; set; }
 
         public string? Name { get; set; }
+
         [LockedProperty]
         public required DateTime DateCreated { get; set; }
+
+        [LockedProperty]
         public required DateTime DateModified { get; set; }
 
         public override bool Equals(User? other)

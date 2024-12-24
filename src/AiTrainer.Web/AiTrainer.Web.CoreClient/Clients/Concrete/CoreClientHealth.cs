@@ -1,7 +1,11 @@
+using System.Net.Http.Json;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
+using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Response;
+using BT.Common.HttpClient.Extensions;
+using BT.Common.HttpClient.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -13,9 +17,35 @@ internal class CoreClientHealth: BaseCoreClient<CoreClientHealthResponse>
     public CoreClientHealth(
         HttpClient httpClient,
         ILogger<CoreClientHealth> logger,
-        IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
     )
         : base(httpClient, aiTrainerCoreConfig, logger) { }
+
+    public override async Task<CoreClientHealthResponse?> TryInvokeAsync()
+    {
+        try
+        {
+            var result = await TimeAndExecuteRequest(() => _httpClient.SendAsync(BuildMessage(), new PollyRetrySettings
+            {
+                TotalAttempts = 1,
+                TimeoutInSeconds = 3,
+            }));
+            
+            result.EnsureSuccessStatusCodeAndThrowCoreClientException();
+
+            var data = await result.Content.ReadFromJsonAsync<CoreResponse<CoreClientHealthResponse>>();
+
+            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
+
+            return actualData;
+        }
+        catch (Exception e)
+        {
+            LogCoreError(e);
+            return null;
+        }
+        
+    }
 
     protected override HttpRequestMessage BuildMessage()
     {

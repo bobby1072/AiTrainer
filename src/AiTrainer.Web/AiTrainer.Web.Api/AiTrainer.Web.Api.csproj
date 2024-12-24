@@ -22,4 +22,8 @@
     <ProjectReference Include="..\AiTrainer.Web.UserInfoClient\AiTrainer.Web.UserInfoClient.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

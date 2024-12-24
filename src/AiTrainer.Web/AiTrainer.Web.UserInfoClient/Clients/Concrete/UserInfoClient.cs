@@ -16,7 +16,7 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
 
         public UserInfoClient(
             HttpClient httpClient,
-            IOptions<ClientSettingsConfiguration> options,
+            IOptionsSnapshot<ClientSettingsConfiguration> options,
             ILogger<UserInfoClient> logger
         )
         {

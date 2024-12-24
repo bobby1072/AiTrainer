@@ -30,6 +30,8 @@ namespace AiTrainer.Web.CoreClient
                 CoreClientChunkDocument
             >();
 
+            serviceCollection.AddHttpClient<ICoreClient<CoreClientHealthResponse>, CoreClientHealth>();
+
             return serviceCollection;
         }
     }

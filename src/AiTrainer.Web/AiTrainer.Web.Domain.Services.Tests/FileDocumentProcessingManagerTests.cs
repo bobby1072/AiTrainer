@@ -21,18 +21,19 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<IValidator<FileDocument>> _mockValidator = new();
         private readonly Mock<IFileCollectionRepository> _mockFileCollectionRepository = new();
         private readonly FileDocumentProcessingManager _fileDocumentProcessingManager;
-
+        private readonly Mock<IUserProcessingManager> _mockUserProcessingManager = new();
         public FileDocumentProcessingManagerTests()
             : base()
         {
             _fileDocumentProcessingManager = new FileDocumentProcessingManager(
-                MockDomainServiceActionExecutor.Object,
-                MockApiRequestService,
+                _mockUserProcessingManager.Object,
+                MockContextAccessor.Object,
                 _mockLogger.Object,
                 _mockFileDocumentRepository.Object,
                 _mockValidator.Object,
                 _mockFileCollectionRepository.Object
             );
+            AddAccessTokenToRequestHeaders();
         }
 
         [Fact]
@@ -49,15 +50,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.CollectionId, (Guid?)null)
                 .With(x => x.FileToCreate, mockForm)
                 .Create();
+            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
-            MockDomainServiceActionExecutor
-                .Setup(x =>
-                    x.ExecuteAsync(
-                        It.IsAny<Expression<Func<IUserProcessingManager, Task<Models.User?>>>>(),
-                        default
-                    )
-                )
-                .ReturnsAsync(currentUser);
             _mockValidator
                 .Setup(x => x.ValidateAsync(It.IsAny<FileDocument>(), default))
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
