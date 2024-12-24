@@ -5,7 +5,6 @@ import {
   DialogContent,
   Grid2,
   TextField,
-  Typography,
 } from "@mui/material";
 import { useSaveFileCollectionMutation } from "../../Hooks/useSaveFileCollectionMutation";
 import { StyledDialogTitle } from "../Common/StyledDialogTitle";
@@ -60,9 +59,7 @@ export const AddFileCollectionModal: React.FC<{
           formReset();
         })}
       >
-        <StyledDialogTitle>
-          <Typography variant="h6">Add file collection</Typography>
-        </StyledDialogTitle>
+        <StyledDialogTitle title="Add file collection" />
         <DialogContent dividers>
           <Grid2
             container
