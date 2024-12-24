@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using AiTrainer.Web.Common.Exceptions;
+﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Partials;

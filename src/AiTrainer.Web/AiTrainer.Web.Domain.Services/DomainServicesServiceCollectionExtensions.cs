@@ -1,15 +1,9 @@
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.Concrete;
-using AiTrainer.Web.Domain.Services.File;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
-using AiTrainer.Web.Domain.Services.Hangfire;
-using AiTrainer.Web.Domain.Services.User;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Domain.Services.User.Concrete;
-using Hangfire;
-using Hangfire.PostgreSql;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

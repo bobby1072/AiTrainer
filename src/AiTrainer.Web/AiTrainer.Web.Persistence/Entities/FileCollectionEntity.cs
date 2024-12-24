@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
-    [Table("file_collection_faiss", Schema = DbConstants.PublicSchema)]
+    [Table("file_collection", Schema = DbConstants.PublicSchema)]
     public record FileCollectionEntity : BaseEntity<Guid, FileCollection>
     {
         public required Guid UserId { get; set; }

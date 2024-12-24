@@ -2,12 +2,12 @@
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
+using BT.Common.HttpClient.Extensions;
+using BT.Common.HttpClient.Models;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
-using BT.Common.HttpClient.Extensions;
-using BT.Common.HttpClient.Models;
 
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {

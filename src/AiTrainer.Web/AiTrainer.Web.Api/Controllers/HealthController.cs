@@ -1,10 +1,7 @@
-﻿using AiTrainer.Web.Api.Models;
-using AiTrainer.Web.Common.Models.ApiModels.Response;
-using AiTrainer.Web.Common.Models.Configuration;
+﻿using AiTrainer.Web.Common.Models.ApiModels.Response;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.Api.Controllers
 {
@@ -18,13 +15,13 @@ namespace AiTrainer.Web.Api.Controllers
             : base(actionExecutor) { }
 
         [HttpGet]
-        public async Task<ActionResult<Outcome<AiTrainerHealth>>> Health()
+        public async Task<ActionResult<Outcome<Domain.Models.AiTrainerHealth>>> Health()
         {
-            var result = await _actionExecutor.ExecuteAsync<IHealthService, AiTrainerHealth>(service =>
+            var result = await _actionExecutor.ExecuteAsync<IHealthService, Domain.Models.AiTrainerHealth>(service =>
                 service.GetHealth()
             );
             
-            return new Outcome<AiTrainerHealth> {
+            return new Outcome<Domain.Models.AiTrainerHealth> {
                 Data = result
             };
         }

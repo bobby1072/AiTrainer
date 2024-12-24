@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
@@ -8,6 +7,7 @@ using BT.Common.HttpClient.Extensions;
 using BT.Common.HttpClient.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Json;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
