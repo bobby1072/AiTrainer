@@ -22,6 +22,7 @@ export default abstract class AiTrainerWebClient {
       )
       .catch(AiTrainerWebClient.HandleError)
       .then(AiTrainerWebClient.HandleThen);
+
     if (!response) {
       throw new Error(ErrorMessages.InternalServerError);
     }
