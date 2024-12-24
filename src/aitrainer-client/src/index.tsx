@@ -43,7 +43,7 @@ const AppRoutes = [
   },
   {
     path: "/Home",
-    element: <Navigate to="/TestHome" />,
+    element: <Navigate to="/collection/home" />,
   },
   {
     path: "/oidc-signin",

@@ -5,6 +5,8 @@ import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfigurati
 import { ErrorMessages } from "../Constants";
 import { AppSettingsKeys } from "./AppSettingsKeys";
 import { FlatFileDocumentPartialCollection } from "../Models/FlatFileDocumentPartialCollection";
+import { FileCollectionSaveInput } from "../Models/FileCollectionSaveInput";
+import { FileCollection } from "../Models/FileCollection";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl = AppSettingsProvider.TryGetValue(
@@ -26,13 +28,37 @@ export default abstract class AiTrainerWebClient {
 
     return response;
   }
-  public static async GetTopLayerOfFile(
-    accessToken: string
+  public static async GetLayerOfFile(
+    accessToken: string,
+    parentId?: string | null
   ): Promise<FlatFileDocumentPartialCollection> {
     const response = await AiTrainerWebClient._httpClient
       .post<AiTrainerWebOutcome<FlatFileDocumentPartialCollection>>(
         "Api/FileCollection/GetOneLayer",
-        { id: null },
+        { id: parentId ? parentId : null },
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
+      )
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
+
+    if (!response) {
+      throw new Error(ErrorMessages.InternalServerError);
+    }
+
+    return response;
+  }
+  public static async SaveFileCollection(
+    fileInput: FileCollectionSaveInput,
+    accessToken: string
+  ): Promise<FileCollection> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcome<FileCollection>>(
+        "Api/FileCollection/Save",
+        fileInput,
         {
           headers: {
             Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),

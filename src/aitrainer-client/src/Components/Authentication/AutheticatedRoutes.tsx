@@ -6,6 +6,10 @@ export const AuthenticatedRoutes: {
 }[] = [
   {
     component: () => <TestHome />,
-    link: "/TestHome",
+    link: "/collection/home/:id",
+  },
+  {
+    component: () => <TestHome />,
+    link: "/collection/home",
   },
 ];
