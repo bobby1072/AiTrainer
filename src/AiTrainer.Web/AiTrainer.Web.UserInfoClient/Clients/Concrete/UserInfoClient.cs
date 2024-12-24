@@ -5,6 +5,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Json;
+using BT.Common.HttpClient.Extensions;
+using BT.Common.HttpClient.Models;
 
 namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
 {
@@ -13,16 +15,18 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
         private readonly string _userInfoEndpoint;
         private HttpClient _client;
         private readonly ILogger<UserInfoClient> _logger;
-
+        private readonly UserInfoClientConfiguration _userInfoClientConfiguration;
         public UserInfoClient(
             HttpClient httpClient,
             IOptionsSnapshot<ClientSettingsConfiguration> options,
+            IOptions<UserInfoClientConfiguration> userInfoClientConfiguration,
             ILogger<UserInfoClient> logger
         )
         {
             _userInfoEndpoint = options.Value.UserInfoEndpoint;
             _client = httpClient;
             _logger = logger;
+            _userInfoClientConfiguration = userInfoClientConfiguration.Value;
         }
 
         public async Task<UserInfoResponse?> TryInvokeAsync(string accessToken)
@@ -60,7 +64,12 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
                 },
             };
 
-            var response = await _client.SendAsync(request);
+            var response = await _client.SendAsync(request, new PollyRetrySettings
+            {
+                TotalAttempts = _userInfoClientConfiguration.TotalAttempts,
+                TimeoutInSeconds = _userInfoClientConfiguration.TimeoutInSeconds,
+                DelayBetweenAttemptsInSeconds = _userInfoClientConfiguration.DelayBetweenAttemptsInSeconds
+            });
 
             response.EnsureSuccessStatusCode();
 

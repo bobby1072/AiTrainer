@@ -41,7 +41,7 @@ builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environ
 builder
     .Services.AddCoreClient(builder.Configuration)
     .AddSqlPersistence(builder.Configuration)
-    .AddUserInfoClient()
+    .AddUserInfoClient(builder.Configuration)
     .AddDomainModelServices()
     .AddDomainServices(builder.Configuration);
 
