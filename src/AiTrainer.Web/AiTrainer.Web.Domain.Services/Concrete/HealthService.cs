@@ -1,5 +1,3 @@
-
-using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Response;

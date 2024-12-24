@@ -1,7 +1,7 @@
-using System.Net;
 using AiTrainer.Web.Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Net;
 
 namespace AiTrainer.Web.Api.Attributes
 {

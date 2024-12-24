@@ -1,12 +1,12 @@
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
+using BT.Common.HttpClient.Extensions;
+using BT.Common.HttpClient.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Net.Http.Json;
-using BT.Common.HttpClient.Extensions;
-using BT.Common.HttpClient.Models;
 
 namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
 {
