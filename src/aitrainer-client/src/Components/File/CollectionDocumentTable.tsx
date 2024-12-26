@@ -84,8 +84,8 @@ export const CollectionDocumentTable: React.FC<{
               width="100%"
             >
               {!flatCollection ||
-              ((flatCollection.fileCollections?.length ?? 0) === 0 &&
-                (flatCollection.fileDocuments?.length ?? 0) === 0) ? (
+              ((flatCollection.fileCollections?.length ?? 0) < 1 &&
+                (flatCollection.fileDocuments?.length ?? 0) < 1) ? (
                 <Grid2 width={"100%"} textAlign={"center"}>
                   <Typography variant="subtitle2" fontSize={30}>
                     No documents or folders found...

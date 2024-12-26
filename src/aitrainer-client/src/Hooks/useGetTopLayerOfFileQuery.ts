@@ -10,7 +10,7 @@ export const useGetTopLayerOfFileQuery = (parentId?: string | null) => {
     QueryKeys.GetTopLayerOfFile,
     () => {
       if (!user) throw new Error("User is not authenticated");
-      return AiTrainerWebClient.GetLayerOfFile(user.access_token);
+      return AiTrainerWebClient.GetLayerOfFile(user.access_token, parentId);
     }
   );
 
