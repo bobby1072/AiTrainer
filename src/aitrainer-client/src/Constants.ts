@@ -1,5 +1,5 @@
 export enum ErrorMessages {
-  InternalServerError = "Internal server error",
+  ErrorHasOccurred = "An error has occurred",
 }
 export enum QueryKeys {
   GetClientConfiguration = "get-client-configuration",

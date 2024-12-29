@@ -1,5 +1,15 @@
-import { Box, ButtonBase, Grid2, Tooltip, Typography } from "@mui/material";
+import {
+  Box,
+  ButtonBase,
+  Grid2,
+  IconButton,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { FileCollection } from "../../Models/FileCollection";
+import { useDeleteFileCollectionMutation } from "../../Hooks/useDeleteFileCollectionMutation";
+import DeleteIcon from "@mui/icons-material/Delete";
+
 const fileCol = require("./fileCol.png");
 
 export const FileCollectionTableTab: React.FC<{
@@ -7,6 +17,7 @@ export const FileCollectionTableTab: React.FC<{
 }> = ({ fileCollection }) => {
   const dateCreated = new Date(fileCollection.dateCreated);
   const dateModified = new Date(fileCollection.dateModified);
+  const { mutate, isLoading } = useDeleteFileCollectionMutation();
   return (
     <Grid2
       container
@@ -51,12 +62,24 @@ export const FileCollectionTableTab: React.FC<{
           </Typography>
         </Tooltip>
       </Grid2>
-      <Grid2 width={"15%"}>
+      <Grid2 width={"12.5%"}>
         <Tooltip title={`${dateCreated.toISOString()}`}>
           <Typography variant="subtitle2" fontSize={18}>
             {dateModified.toDateString()}
           </Typography>
         </Tooltip>
+      </Grid2>
+      <Grid2 width={"2.5%"}>
+        <IconButton
+          color="inherit"
+          size="small"
+          disabled={isLoading}
+          onClick={() => {
+            mutate({ id: fileCollection.id! });
+          }}
+        >
+          <DeleteIcon />
+        </IconButton>
       </Grid2>
     </Grid2>
   );

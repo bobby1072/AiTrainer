@@ -59,26 +59,26 @@ export const CollectionDocumentTable: React.FC<{
                   </IconButton>
                 </Tooltip>
               </Grid2>
-              <Grid2 width="2%"></Grid2>
+              <Grid2 width={"2%"} />
               <Grid2
-                width="54%"
+                width="53.5%"
                 sx={{ display: "flex", justifyContent: "flex-start" }}
               >
                 <Typography variant="subtitle2" fontSize={16}>
                   Name
                 </Typography>
               </Grid2>
-              <Grid2 width="16%">
+              <Grid2 width="18%">
                 <Typography variant="subtitle2" fontSize={16}>
                   Date created
                 </Typography>
               </Grid2>
-              <Grid2 width="3%" />
-              <Grid2 width="12%">
+              <Grid2 width="12.5%">
                 <Typography variant="subtitle2" fontSize={16}>
                   Date modified
                 </Typography>
               </Grid2>
+              <Grid2 width="3%" />
             </Grid2>
           </Grid2>
           <Grid2 width={"100%"}>
@@ -114,7 +114,10 @@ export const CollectionDocumentTable: React.FC<{
         </Grid2>
       </Paper>
       {addModalOpen && (
-        <AddFileCollectionModal closeModal={() => setAddModalOpen(false)} />
+        <AddFileCollectionModal
+          closeModal={() => setAddModalOpen(false)}
+          parentId={flatCollection?.self?.id}
+        />
       )}
     </>
   );

@@ -9,6 +9,7 @@ using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
+using BT.Common.FastArray.Proto;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -284,8 +285,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             return new FlatFileDocumentPartialCollection
             {
-                Self = collections.FirstOrDefault(x => x.Id == collectionId),
-                FileCollections = collections,
+                Self = collections.FastArrayFirstOrDefault(x => x.Id == collectionId),
+                FileCollections = collections.FastArrayWhere(x => x.Id != collectionId).ToArray(),
                 FileDocuments = partialDocuments,
             };
         }

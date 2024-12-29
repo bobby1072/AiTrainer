@@ -17,13 +17,23 @@ import { useSnackbar } from "notistack";
 
 const fileCollectionFormSchema = z.object({
   collectionName: z.string().max(100).nonempty("Collection name is required"),
+  parentId: z.string().uuid().optional().nullable(),
 });
 
 type FileCollectionFormSchemaType = z.infer<typeof fileCollectionFormSchema>;
 
+const mapToDefaultValues = (
+  parentId?: string | null
+): Partial<FileCollectionFormSchemaType> => {
+  return {
+    parentId: parentId,
+  };
+};
+
 export const AddFileCollectionModal: React.FC<{
   closeModal: () => void;
-}> = ({ closeModal }) => {
+  parentId?: string | null;
+}> = ({ closeModal, parentId }) => {
   const {
     handleSubmit,
     register,
@@ -31,6 +41,7 @@ export const AddFileCollectionModal: React.FC<{
     formState: { errors: formErrors, isDirty },
   } = useForm<FileCollectionFormSchemaType>({
     resolver: zodResolver(fileCollectionFormSchema),
+    defaultValues: mapToDefaultValues(parentId),
   });
   const { mutate, error, data, isLoading, reset } =
     useSaveFileCollectionMutation();
