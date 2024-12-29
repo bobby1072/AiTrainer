@@ -10,6 +10,7 @@ import { FlatFileDocumentPartialCollection } from "../../Models/FlatFileDocument
 import AddIcon from "@mui/icons-material/Add";
 import { useState } from "react";
 import { AddFileCollectionModal } from "./AddFileCollectionModal";
+import { FileCollectionTableTab } from "./FileCollectionTableTab";
 
 export const CollectionDocumentTable: React.FC<{
   flatCollection?: FlatFileDocumentPartialCollection | null;
@@ -44,29 +45,39 @@ export const CollectionDocumentTable: React.FC<{
               direction="row"
               width="100%"
             >
-              {flatCollection?.self?.collectionName && (
-                <Grid2
-                  width={"90%"}
-                  sx={{ display: "flex", justifyContent: "flex-start" }}
-                >
-                  <Typography gutterBottom variant="subtitle2" fontSize={20}>
-                    {`Parent Folder: ${flatCollection?.self?.collectionName}`}
-                  </Typography>
-                </Grid2>
-              )}
               <Grid2
-                width={flatCollection?.self?.collectionName ? "10%" : "100%"}
+                width={"100%"}
                 sx={{ display: "flex", justifyContent: "flex-end" }}
               >
                 <Tooltip title="Add new folder">
                   <IconButton
                     color="inherit"
-                    size="small"
+                    size="large"
                     onClick={() => setAddModalOpen(true)}
                   >
                     <AddIcon />
                   </IconButton>
                 </Tooltip>
+              </Grid2>
+              <Grid2 width="2%"></Grid2>
+              <Grid2
+                width="54%"
+                sx={{ display: "flex", justifyContent: "flex-start" }}
+              >
+                <Typography variant="subtitle2" fontSize={16}>
+                  Name
+                </Typography>
+              </Grid2>
+              <Grid2 width="16%">
+                <Typography variant="subtitle2" fontSize={16}>
+                  Date created
+                </Typography>
+              </Grid2>
+              <Grid2 width="3%" />
+              <Grid2 width="12%">
+                <Typography variant="subtitle2" fontSize={16}>
+                  Date modified
+                </Typography>
               </Grid2>
             </Grid2>
           </Grid2>
@@ -91,7 +102,13 @@ export const CollectionDocumentTable: React.FC<{
                     No documents or folders found...
                   </Typography>
                 </Grid2>
-              ) : null}
+              ) : (
+                flatCollection.fileCollections.map((x) => (
+                  <Grid2 width={"100%"}>
+                    <FileCollectionTableTab fileCollection={x} />
+                  </Grid2>
+                ))
+              )}
             </Grid2>
           </Grid2>
         </Grid2>
