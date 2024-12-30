@@ -96,7 +96,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(() => new DbSaveResult<FileCollection>(fileCollectionToSave));
             _mockRepository
                 .Setup(x =>
-                    x.GetOne(fileCollectionInput.ParentId, nameof(FileCollectionEntity.ParentId))
+                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!))
                 )
                 .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
             //Act
@@ -120,7 +120,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     ),
                 Times.Once
             );
-            _mockRepository.Verify(x => x.GetOne(It.IsAny<Guid>()), Times.Never);
         }
 
         [Fact]
