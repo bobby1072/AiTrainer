@@ -13,7 +13,6 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import { useSnackbar } from "notistack";
-
 const fileCol = require("./fileCol.png");
 
 export const NewFileTableCollectionRow: React.FC<{
@@ -71,6 +70,7 @@ export const NewFileTableCollectionRow: React.FC<{
             <>{prettyDateWithTime(dateModified)}</>
           </Tooltip>
         </TableCell>
+        <TableCell align="right" />
         <TableCell align="right">
           <IconButton
             color="inherit"

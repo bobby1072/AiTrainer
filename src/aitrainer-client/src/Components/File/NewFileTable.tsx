@@ -38,6 +38,7 @@ export const NewFileTable: React.FC<{
           <TableCell align="right">Date Created</TableCell>
           <TableCell align="right">Date Modified</TableCell>
           <TableCell align="right" />
+          <TableCell align="right" />
         </TableHead>
         <TableBody>
           {flatCollection?.fileCollections.map((fileCollection) => (

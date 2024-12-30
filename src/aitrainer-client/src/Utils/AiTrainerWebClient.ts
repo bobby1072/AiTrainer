@@ -57,7 +57,7 @@ export default abstract class AiTrainerWebClient {
     accessToken: string,
     fileColId: string
   ): Promise<string> {
-    var deletedId = await AiTrainerWebClient._httpClient
+    const deletedId = await AiTrainerWebClient._httpClient
       .post<AiTrainerWebOutcome<string>>(
         `Api/FileCollection/Delete`,
         { id: fileColId },
@@ -80,7 +80,7 @@ export default abstract class AiTrainerWebClient {
     accessToken: string,
     fileDocId: string
   ): Promise<string> {
-    var deletedId = await AiTrainerWebClient._httpClient
+    const deletedId = await AiTrainerWebClient._httpClient
       .post<AiTrainerWebOutcome<string>>(
         `Api/FileDocument/Delete`,
         { id: fileDocId },
@@ -98,6 +98,29 @@ export default abstract class AiTrainerWebClient {
     }
 
     return deletedId;
+  }
+  public static async DownloadFileDocument(
+    accessToken: string,
+    fileDocId: string
+  ): Promise<Blob> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<Blob>(
+        "Api/FileDocument/Download",
+        { id: fileDocId },
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+          responseType: "blob",
+        }
+      )
+      .catch(AiTrainerWebClient.HandleError);
+
+    if (!response.data) {
+      throw new Error(ErrorMessages.ErrorHasOccurred);
+    }
+
+    return response.data;
   }
   public static async GetLayerOfFile(
     accessToken: string,
