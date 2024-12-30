@@ -63,7 +63,7 @@ export const CollectionDocumentTable: React.FC<{
                   width="100%"
                 >
                   <Grid2
-                    width={"98%"}
+                    width={"96%"}
                     sx={{ display: "flex", justifyContent: "flex-end" }}
                   >
                     <Tooltip title="Add new folder">
@@ -77,7 +77,7 @@ export const CollectionDocumentTable: React.FC<{
                     </Tooltip>
                   </Grid2>
                   <Grid2
-                    width={"2%"}
+                    width={"3%"}
                     sx={{ display: "flex", justifyContent: "flex-end" }}
                   >
                     <Tooltip title="Add new folder">

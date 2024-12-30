@@ -14,13 +14,20 @@ import { useEffect } from "react";
 import { StyledDialogTitle } from "../Common/StyledDialogTitle";
 import { ErrorComponent } from "../Common/ErrorComponent";
 
+const checkFileSize = (file: File): boolean => {
+  // Convert bytes to megabytes
+  const fileSizeInMegabytes = file.size / (1024 * 1024);
+  return fileSizeInMegabytes <= 3;
+};
+
 const uploadFileDocSchema = z.object({
   collectionId: z.string().uuid().optional().nullable(),
   file: z.any().refine((file) => {
     return (
       file &&
       file instanceof File &&
-      (file.type === "application/pdf" || file.type === "text/plain")
+      (file.type === "application/pdf" || file.type === "text/plain") &&
+      checkFileSize(file)
     );
   }),
 });
@@ -39,7 +46,6 @@ export const AddFileDocumentModal: React.FC<{
 }> = ({ closeModal, collectionId }) => {
   const {
     handleSubmit,
-    reset: formReset,
     setValue,
     watch,
     formState: { errors: formErrors },
@@ -70,7 +76,6 @@ export const AddFileDocumentModal: React.FC<{
             formData.append("collectionId", formVals.collectionId);
           }
           mutate({ saveInput: formData });
-          formReset();
         })}
       >
         <StyledDialogTitle title="Add file document" />

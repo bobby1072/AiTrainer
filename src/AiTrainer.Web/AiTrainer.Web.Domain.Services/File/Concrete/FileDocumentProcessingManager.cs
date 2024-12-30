@@ -101,7 +101,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             if (newFileDoc.CollectionId is not null)
             {
                 var foundParent = await EntityFrameworkUtils.TryDbOperation(
-                    () => _fileCollectionRepository.GetOne((Guid)newFileDoc.Id!),
+                    () => _fileCollectionRepository.GetOne((Guid)newFileDoc.CollectionId!),
                     _logger
                 );
 
