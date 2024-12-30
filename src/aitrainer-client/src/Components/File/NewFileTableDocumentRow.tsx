@@ -92,7 +92,7 @@ export const NewFileTableDocumentRow: React.FC<{
         </TableCell>
         <TableCell align="right">
           <Tooltip title={`${dateCreated.toISOString()}`}>
-            <>{prettyDateWithTime(dateCreated)}</>
+            <Typography>{prettyDateWithTime(dateCreated)}</Typography>
           </Tooltip>
         </TableCell>
         <TableCell align="right" />

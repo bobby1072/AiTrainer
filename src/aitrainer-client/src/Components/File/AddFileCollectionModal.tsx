@@ -11,7 +11,7 @@ import { StyledDialogTitle } from "../Common/StyledDialogTitle";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ErrorComponent } from "../Common/ErrorComponent";
 import { useSnackbar } from "notistack";
 
@@ -38,6 +38,7 @@ export const AddFileCollectionModal: React.FC<{
     handleSubmit,
     register,
     reset: formReset,
+    watch,
     formState: { errors: formErrors, isDirty },
   } = useForm<FileCollectionFormSchemaType>({
     resolver: zodResolver(fileCollectionFormSchema),
@@ -46,15 +47,13 @@ export const AddFileCollectionModal: React.FC<{
   const { mutate, error, data, isLoading, reset } =
     useSaveFileCollectionMutation();
   const { enqueueSnackbar } = useSnackbar();
-  const [isCollectionNamePresent, setIsCollectionNamePresent] =
-    useState<boolean>(false);
   useEffect(() => {
     if (data) {
       closeModal();
       enqueueSnackbar("Collection added successfully", { variant: "success" });
     }
   }, [data, closeModal, enqueueSnackbar]);
-
+  const { collectionName } = watch();
   return (
     <Dialog open onClose={() => !isLoading && closeModal()}>
       <form
@@ -68,7 +67,6 @@ export const AddFileCollectionModal: React.FC<{
             },
           });
           formReset();
-          setIsCollectionNamePresent(false);
         })}
       >
         <StyledDialogTitle title="Add file collection" />
@@ -85,12 +83,6 @@ export const AddFileCollectionModal: React.FC<{
               <TextField
                 {...register("collectionName", { required: true })}
                 disabled={isLoading}
-                onChange={(e) => {
-                  reset();
-                  if (e.target.value?.length > 0) {
-                    setIsCollectionNamePresent(true);
-                  }
-                }}
                 label="Collection name"
                 fullWidth
                 multiline
@@ -140,7 +132,7 @@ export const AddFileCollectionModal: React.FC<{
                 color="primary"
                 type="submit"
                 disabled={
-                  !isCollectionNamePresent ||
+                  !collectionName ||
                   !isDirty ||
                   isLoading ||
                   !!formErrors.collectionName

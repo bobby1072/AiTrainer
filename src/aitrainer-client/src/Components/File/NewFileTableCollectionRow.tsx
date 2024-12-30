@@ -62,12 +62,12 @@ export const NewFileTableCollectionRow: React.FC<{
         </TableCell>
         <TableCell align="right">
           <Tooltip title={`${dateCreated.toISOString()}`}>
-            <>{prettyDateWithTime(dateCreated)}</>
+            <Typography>{prettyDateWithTime(dateCreated)}</Typography>
           </Tooltip>
         </TableCell>
         <TableCell align="right">
           <Tooltip title={`${dateModified.toISOString()}`}>
-            <>{prettyDateWithTime(dateModified)}</>
+            <Typography>{prettyDateWithTime(dateModified)}</Typography>
           </Tooltip>
         </TableCell>
         <TableCell align="right" />
