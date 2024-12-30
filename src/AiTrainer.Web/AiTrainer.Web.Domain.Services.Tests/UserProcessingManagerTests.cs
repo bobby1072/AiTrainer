@@ -66,7 +66,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     x.SetObject(
                         $"cacheUser-{accessToken}",
                         mockedUser,
-                        CacheObjectTimeToLiveInSeconds.ThirtyMinutes
+                        CacheObjectTimeToLiveInSeconds.TenMinutes
                     ),
                 Times.Once
             );

@@ -76,6 +76,29 @@ export default abstract class AiTrainerWebClient {
 
     return deletedId;
   }
+  public static async DeleteFileDocument(
+    accessToken: string,
+    fileDocId: string
+  ): Promise<string> {
+    var deletedId = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcome<string>>(
+        `Api/FileDocument/Delete`,
+        { id: fileDocId },
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
+      )
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
+
+    if (!deletedId) {
+      throw new Error(ErrorMessages.ErrorHasOccurred);
+    }
+
+    return deletedId;
+  }
   public static async GetLayerOfFile(
     accessToken: string,
     parentId?: string | null

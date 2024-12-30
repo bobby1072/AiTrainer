@@ -198,9 +198,8 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         {
             var userInfo =
                 await _userInfoClient.TryInvokeAsync(accessToken)
-                ?? throw new ApiException(
-                    "Can't get user info",
-                    HttpStatusCode.InternalServerError
+                ?? throw new InvalidDataException(
+                    "Can't get user info"
                 );
 
             var foundUserFromDb = await EntityFrameworkUtils.TryDbOperation(

@@ -1,18 +1,11 @@
-import {
-  Divider,
-  Grid2,
-  IconButton,
-  Paper,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Grid2, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import { FlatFileDocumentPartialCollection } from "../../Models/FlatFileDocumentPartialCollection";
 import AddIcon from "@mui/icons-material/Add";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { useState } from "react";
 import { AddFileCollectionModal } from "./AddFileCollectionModal";
-import { FileCollectionTableTab } from "./FileCollectionTableTab";
 import { AddFileDocumentModal } from "./AddFileDocumentModal";
+import { NewFileTable } from "./NewFileTable";
 
 export const CollectionDocumentTable: React.FC<{
   flatCollection?: FlatFileDocumentPartialCollection | null;
@@ -38,7 +31,7 @@ export const CollectionDocumentTable: React.FC<{
           overflow={"auto"}
           alignItems="center"
           direction="column"
-          spacing={4}
+          spacing={1}
           padding={1}
           textAlign="center"
           width="100%"
@@ -52,70 +45,34 @@ export const CollectionDocumentTable: React.FC<{
               width="100%"
             >
               <Grid2
-                width={"100%"}
+                width={"96%"}
                 sx={{ display: "flex", justifyContent: "flex-end" }}
               >
-                <Grid2
-                  container
-                  justifyContent="center"
-                  alignItems="center"
-                  direction="row"
-                  width="100%"
-                >
-                  <Grid2
-                    width={"96%"}
-                    sx={{ display: "flex", justifyContent: "flex-end" }}
+                <Tooltip title="Upload new document">
+                  <IconButton
+                    color="inherit"
+                    size="large"
+                    onClick={() => setAddFileDocumentModalOpen(true)}
                   >
-                    <Tooltip title="Add new folder">
-                      <IconButton
-                        color="inherit"
-                        size="large"
-                        onClick={() => setAddFileDocumentModalOpen(true)}
-                      >
-                        <FileUploadIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Grid2>
-                  <Grid2
-                    width={"3%"}
-                    sx={{ display: "flex", justifyContent: "flex-end" }}
-                  >
-                    <Tooltip title="Add new folder">
-                      <IconButton
-                        color="inherit"
-                        size="large"
-                        onClick={() => setAddFileCollectionModalOpen(true)}
-                      >
-                        <AddIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Grid2>
-                </Grid2>
+                    <FileUploadIcon />
+                  </IconButton>
+                </Tooltip>
               </Grid2>
-              <Grid2 width={"1%"} />
               <Grid2
-                width="53.5%"
-                sx={{ display: "flex", justifyContent: "flex-start" }}
+                width={"3%"}
+                sx={{ display: "flex", justifyContent: "flex-end" }}
               >
-                <Typography variant="subtitle2" fontSize={16}>
-                  Name
-                </Typography>
+                <Tooltip title="Add new folder">
+                  <IconButton
+                    color="inherit"
+                    size="large"
+                    onClick={() => setAddFileCollectionModalOpen(true)}
+                  >
+                    <AddIcon />
+                  </IconButton>
+                </Tooltip>
               </Grid2>
-              <Grid2 width="17%">
-                <Typography variant="subtitle2" fontSize={16}>
-                  Date created
-                </Typography>
-              </Grid2>
-              <Grid2 width="14.4%">
-                <Typography variant="subtitle2" fontSize={16}>
-                  Date modified
-                </Typography>
-              </Grid2>
-              <Grid2 width="1.1%" />
             </Grid2>
-          </Grid2>
-          <Grid2 width={"100%"}>
-            <Divider />
           </Grid2>
           <Grid2 width={"100%"}>
             <Grid2
@@ -136,11 +93,9 @@ export const CollectionDocumentTable: React.FC<{
                   </Typography>
                 </Grid2>
               ) : (
-                flatCollection.fileCollections.map((x) => (
-                  <Grid2 width={"100%"}>
-                    <FileCollectionTableTab fileCollection={x} />
-                  </Grid2>
-                ))
+                <Grid2 width={"100%"}>
+                  <NewFileTable flatCollection={flatCollection} />
+                </Grid2>
               )}
             </Grid2>
           </Grid2>

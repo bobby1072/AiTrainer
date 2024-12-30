@@ -41,9 +41,10 @@ const parseAndValidateDate = (
 
 export const prettyDateWithTime = (date: Date): string => {
   const dateMinutes = date.getUTCMinutes();
-  return `${prettyDateWithYear(date)} ${date.getUTCHours()}:${
-    dateMinutes.toString().length < 2 ? `0${dateMinutes}` : dateMinutes
-  }`;
+  const dateHours = date.getUTCHours();
+  return `${prettyDateWithYear(date)} ${
+    dateHours.toString().length < 2 ? `0${dateHours}` : dateHours
+  }:${dateMinutes.toString().length < 2 ? `0${dateMinutes}` : dateMinutes}`;
 };
 
 export const prettyDateCurrentYearWithTime = (date: Date): string => {
