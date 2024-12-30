@@ -8,14 +8,20 @@ import {
 } from "@mui/material";
 import { FlatFileDocumentPartialCollection } from "../../Models/FlatFileDocumentPartialCollection";
 import AddIcon from "@mui/icons-material/Add";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { useState } from "react";
 import { AddFileCollectionModal } from "./AddFileCollectionModal";
 import { FileCollectionTableTab } from "./FileCollectionTableTab";
+import { AddFileDocumentModal } from "./AddFileDocumentModal";
 
 export const CollectionDocumentTable: React.FC<{
   flatCollection?: FlatFileDocumentPartialCollection | null;
 }> = ({ flatCollection }) => {
-  const [addModalOpen, setAddModalOpen] = useState<boolean>(false);
+  const [addFileCollectionModalOpen, setAddFileCollectionModalOpen] =
+    useState<boolean>(false);
+
+  const [addFileDocumentModalOpen, setAddFileDocumentModalOpen] =
+    useState<boolean>(false);
   return (
     <>
       <Paper
@@ -49,17 +55,44 @@ export const CollectionDocumentTable: React.FC<{
                 width={"100%"}
                 sx={{ display: "flex", justifyContent: "flex-end" }}
               >
-                <Tooltip title="Add new folder">
-                  <IconButton
-                    color="inherit"
-                    size="large"
-                    onClick={() => setAddModalOpen(true)}
+                <Grid2
+                  container
+                  justifyContent="center"
+                  alignItems="center"
+                  direction="row"
+                  width="100%"
+                >
+                  <Grid2
+                    width={"98%"}
+                    sx={{ display: "flex", justifyContent: "flex-end" }}
                   >
-                    <AddIcon />
-                  </IconButton>
-                </Tooltip>
+                    <Tooltip title="Add new folder">
+                      <IconButton
+                        color="inherit"
+                        size="large"
+                        onClick={() => setAddFileDocumentModalOpen(true)}
+                      >
+                        <FileUploadIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid2>
+                  <Grid2
+                    width={"2%"}
+                    sx={{ display: "flex", justifyContent: "flex-end" }}
+                  >
+                    <Tooltip title="Add new folder">
+                      <IconButton
+                        color="inherit"
+                        size="large"
+                        onClick={() => setAddFileCollectionModalOpen(true)}
+                      >
+                        <AddIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid2>
+                </Grid2>
               </Grid2>
-              <Grid2 width={"2%"} />
+              <Grid2 width={"1%"} />
               <Grid2
                 width="53.5%"
                 sx={{ display: "flex", justifyContent: "flex-start" }}
@@ -68,17 +101,17 @@ export const CollectionDocumentTable: React.FC<{
                   Name
                 </Typography>
               </Grid2>
-              <Grid2 width="18%">
+              <Grid2 width="17%">
                 <Typography variant="subtitle2" fontSize={16}>
                   Date created
                 </Typography>
               </Grid2>
-              <Grid2 width="12.5%">
+              <Grid2 width="14.4%">
                 <Typography variant="subtitle2" fontSize={16}>
                   Date modified
                 </Typography>
               </Grid2>
-              <Grid2 width="3%" />
+              <Grid2 width="1.1%" />
             </Grid2>
           </Grid2>
           <Grid2 width={"100%"}>
@@ -113,10 +146,16 @@ export const CollectionDocumentTable: React.FC<{
           </Grid2>
         </Grid2>
       </Paper>
-      {addModalOpen && (
+      {addFileCollectionModalOpen && (
         <AddFileCollectionModal
-          closeModal={() => setAddModalOpen(false)}
+          closeModal={() => setAddFileCollectionModalOpen(false)}
           parentId={flatCollection?.self?.id}
+        />
+      )}
+      {addFileDocumentModalOpen && (
+        <AddFileDocumentModal
+          closeModal={() => setAddFileDocumentModalOpen(false)}
+          collectionId={flatCollection?.self?.id}
         />
       )}
     </>

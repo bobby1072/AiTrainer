@@ -154,13 +154,12 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 createdCollection.DateModified = DateTime.UtcNow;
             }
 
-            if (createdCollection.ParentId is not null)
+            if (createdCollection.ParentId is Guid foundParentId)
             {
                 var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(
                     () =>
                         _repository.GetOne(
-                            createdCollection.ParentId,
-                            nameof(FileCollectionEntity.ParentId)
+                            foundParentId
                         ),
                     _logger
                 );

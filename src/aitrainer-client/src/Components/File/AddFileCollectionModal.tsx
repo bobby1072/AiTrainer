@@ -56,7 +56,7 @@ export const AddFileCollectionModal: React.FC<{
   }, [data, closeModal, enqueueSnackbar]);
 
   return (
-    <Dialog open onClose={closeModal}>
+    <Dialog open onClose={() => !isLoading && closeModal()}>
       <form
         id="addFileCollectionForm"
         onSubmit={handleSubmit((formVals) => {
@@ -64,9 +64,11 @@ export const AddFileCollectionModal: React.FC<{
           mutate({
             fileColInput: {
               collectionName: formVals.collectionName,
+              parentId: parentId,
             },
           });
           formReset();
+          setIsCollectionNamePresent(false);
         })}
       >
         <StyledDialogTitle title="Add file collection" />
@@ -103,7 +105,7 @@ export const AddFileCollectionModal: React.FC<{
             </Grid2>
             {error && (
               <Grid2 width={"90%"}>
-                <ErrorComponent errorMessage={error.message} />
+                <ErrorComponent errorMessage={error.message} fontSize={17} />
               </Grid2>
             )}
           </Grid2>

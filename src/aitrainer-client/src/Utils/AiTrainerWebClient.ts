@@ -7,6 +7,7 @@ import { AppSettingsKeys } from "./AppSettingsKeys";
 import { FlatFileDocumentPartialCollection } from "../Models/FlatFileDocumentPartialCollection";
 import { FileCollectionSaveInput } from "../Models/FileCollectionSaveInput";
 import { FileCollection } from "../Models/FileCollection";
+import { FileDocumentPartial } from "../Models/FileDocument";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl = AppSettingsProvider.TryGetValue(
@@ -19,6 +20,29 @@ export default abstract class AiTrainerWebClient {
     const response = await AiTrainerWebClient._httpClient
       .get<AiTrainerWebOutcome<ClientSettingsConfiguration>>(
         "Api/ClientConfiguration"
+      )
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
+
+    if (!response) {
+      throw new Error(ErrorMessages.ErrorHasOccurred);
+    }
+
+    return response;
+  }
+  public static async SaveFileDocument(
+    accessToken: string,
+    uploadFormData: FormData
+  ): Promise<FileDocumentPartial> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcome<FileDocumentPartial>>(
+        "Api/FileDocument/Upload",
+        uploadFormData,
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
       )
       .catch(AiTrainerWebClient.HandleError)
       .then(AiTrainerWebClient.HandleThen);
