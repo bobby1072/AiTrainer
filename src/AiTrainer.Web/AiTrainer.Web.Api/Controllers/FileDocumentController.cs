@@ -11,7 +11,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AiTrainer.Web.Api.Controllers
 {
-    [Authorize]
     [RequireUserLogin]
     public class FileDocumentController : BaseController
     {

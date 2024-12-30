@@ -45,7 +45,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             );
         }
 
-        public async Task<DbGetManyResult<FileCollection>> GetManyCollectionsForUser(
+        public async Task<DbGetManyResult<FileCollection>> GetManyCollectionsForUserIncludingSelf(
             Guid parentId,
             Guid userId,
             params string[] relationShips
@@ -57,7 +57,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             var entities = await TimeAndLogDbOperation(
                 () =>
                     setToQuery
-                        .Where(x => x.UserId == userId && x.ParentId == parentId)
+                        .Where(x => x.UserId == userId && (x.ParentId == parentId || x.Id == parentId))
                         .ToArrayAsync(),
                 nameof(GetTopLevelCollectionsForUser),
                 _entityType.Name

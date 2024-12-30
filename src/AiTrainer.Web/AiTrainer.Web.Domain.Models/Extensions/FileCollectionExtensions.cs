@@ -4,7 +4,10 @@ namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class FileCollectionExtensions
     {
-        public static FileCollection FromInput(FileCollectionSaveInput fileCollectionInput, Guid userId)
+        public static FileCollection FromInput(
+            FileCollectionSaveInput fileCollectionInput,
+            Guid userId
+        )
         {
             return new FileCollection
             {

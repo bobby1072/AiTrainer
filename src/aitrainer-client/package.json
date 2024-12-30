@@ -5,19 +5,23 @@
   "dependencies": {
     "@emotion/react": "11.13.5",
     "@emotion/styled": "11.13.5",
+    "@hookform/resolvers": "^3.9.1",
     "@mui/icons-material": "6.1.8",
     "@mui/material": "6.1.8",
     "axios": "1.7.7",
+    "notistack": "^3.0.1",
     "oidc-client-ts": "3.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-hook-form": "^7.54.2",
     "react-query": "3.39.3",
     "react-router-dom": "7.0.1",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "zod": "^3.24.1"
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "cross-env INLINE_RUNTIME_CHUNK=false react-scripts build",
+    "build": "react-scripts build",
     "watch": "webpack -w --config webpack.config.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -49,7 +53,6 @@
     "@types/node": "16.18.119",
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
-    "cross-env": "7.0.3",
     "typescript": "4.9.5"
   }
 }

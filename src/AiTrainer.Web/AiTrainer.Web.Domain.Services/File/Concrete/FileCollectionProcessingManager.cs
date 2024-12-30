@@ -1,3 +1,4 @@
+using System.Net;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
@@ -8,10 +9,10 @@ using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
+using BT.Common.FastArray.Proto;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -23,6 +24,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IValidator<FileCollection> _validator;
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+
         public FileCollectionProcessingManager(
             IUserProcessingManager userProcessingManager,
             IFileCollectionRepository repository,
@@ -51,7 +53,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(
+                    _httpContextAccessor.HttpContext.GetAccessToken()
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var foundCollection = await EntityFrameworkUtils.TryDbOperation(
                 () => _repository.GetOne(fileCollectionId, nameof(FileCollectionEntity.Documents))
@@ -93,7 +97,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         {
             var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
-
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
                 nameof(SaveFileCollection),
@@ -101,7 +104,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(
+                    _httpContextAccessor.HttpContext.GetAccessToken()
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var createdCollection = FileCollectionExtensions.FromInput(
                 fileCollectionInput,
@@ -149,13 +154,12 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 createdCollection.DateModified = DateTime.UtcNow;
             }
 
-            if (createdCollection.ParentId is not null)
+            if (createdCollection.ParentId is Guid foundParentId)
             {
                 var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(
                     () =>
                         _repository.GetOne(
-                            createdCollection.ParentId,
-                            nameof(FileCollectionEntity.ParentId)
+                            foundParentId
                         ),
                     _logger
                 );
@@ -204,7 +208,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(
+                    _httpContextAccessor.HttpContext.GetAccessToken()
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var deletedId = await EntityFrameworkUtils.TryDbOperation(
                 () => _repository.Delete(collectionId, (Guid)foundCachedUser.Id!),
@@ -239,13 +245,15 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCachedUser =
-                await _userProcessingManager.TryGetUserFromCache(_httpContextAccessor.HttpContext.GetAccessToken())?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+                await _userProcessingManager.TryGetUserFromCache(
+                    _httpContextAccessor.HttpContext.GetAccessToken()
+                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
             var collectionsJob = EntityFrameworkUtils.TryDbOperation(
                 () =>
                     collectionId is null
                         ? _repository.GetTopLevelCollectionsForUser((Guid)foundCachedUser.Id!)
-                        : _repository.GetManyCollectionsForUser(
+                        : _repository.GetManyCollectionsForUserIncludingSelf(
                             (Guid)collectionId!,
                             (Guid)foundCachedUser.Id!
                         ),
@@ -276,7 +284,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             return new FlatFileDocumentPartialCollection
             {
-                FileCollections = collections,
+                Self = collections.FastArrayFirstOrDefault(x => x.Id == collectionId),
+                FileCollections = collections.FastArrayWhere(x => x.Id != collectionId).ToArray(),
                 FileDocuments = partialDocuments,
             };
         }

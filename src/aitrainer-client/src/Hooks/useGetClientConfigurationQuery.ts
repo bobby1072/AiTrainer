@@ -4,13 +4,13 @@ import AiTrainerWebClient from "../Utils/AiTrainerWebClient";
 import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfiguration";
 
 export const useGetClientConfigurationQuery = () => {
-  const query = useQuery<ClientSettingsConfiguration, Error>(
+  const queryResults = useQuery<ClientSettingsConfiguration, Error>(
     QueryKeys.GetClientConfiguration,
     AiTrainerWebClient.GetClientConfiguration,
     {
-      retry: (count) => count < 3,
+      retry: (count) => count < 2,
     }
   );
 
-  return { ...query };
+  return { ...queryResults };
 };

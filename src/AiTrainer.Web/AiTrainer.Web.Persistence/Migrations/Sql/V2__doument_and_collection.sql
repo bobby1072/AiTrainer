@@ -5,8 +5,6 @@ CREATE TABLE public."file_collection" (
     parent_id UUID, 
     date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     date_modified TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
-    faiss_index BYTEA NOT NULL,
-    faiss_json JSONB NOT NULL,
     FOREIGN KEY (parent_id) REFERENCES public."file_collection"(id) 
         ON DELETE CASCADE     
         ON UPDATE CASCADE,    

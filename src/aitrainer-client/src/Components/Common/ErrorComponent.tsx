@@ -28,7 +28,9 @@ export const ErrorComponent: React.FC<{
             severity="error"
             icon={<ErrorIcon color="inherit" fontSize="large" />}
           >
-            <Typography fontSize={fontSize}>{errorMessage}</Typography>
+            <Typography fontSize={fontSize}>
+              {errorMessage ? errorMessage : "An error has occurred"}
+            </Typography>
           </Alert>
         </Grid2>
       </Grid2>
@@ -48,7 +50,9 @@ export const ErrorComponent: React.FC<{
           severity="error"
           icon={<ErrorIcon color="inherit" fontSize="inherit" />}
         >
-          <Typography fontSize={fontSize}>{errorMessage}</Typography>
+          <Typography fontSize={fontSize}>
+            {errorMessage ? errorMessage : "An error has occurred"}
+          </Typography>
         </Alert>
       </Grid2>
     </Grid2>
