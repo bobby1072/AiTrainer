@@ -53,7 +53,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         public async Task<string> SetObject<T>(
             string key,
             T value,
-            CacheObjectTimeToLiveInSeconds timeToLive = CacheObjectTimeToLiveInSeconds.ThirtyMinutes
+            CacheObjectTimeToLiveInSeconds timeToLive = CacheObjectTimeToLiveInSeconds.TenMinutes
         )
             where T : class
         {

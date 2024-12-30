@@ -33,7 +33,8 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             var entity = await TimeAndLogDbOperation(
                 () =>
                     dbContext
-                        .FileDocuments.Where(x => x.Id == documentId && x.UserId == userId)
+                        .FileDocuments
+                        .Where(x => x.Id == documentId && x.UserId == userId)
                         .FirstOrDefaultAsync(),
                 nameof(GetOne),
                 _entityType.Name

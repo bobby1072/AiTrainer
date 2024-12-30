@@ -8,8 +8,7 @@ CREATE TABLE public."file_collection" (
     FOREIGN KEY (parent_id) REFERENCES public."file_collection"(id) 
         ON DELETE CASCADE     
         ON UPDATE CASCADE,    
-    CONSTRAINT unique_name_with_parent UNIQUE (parent_id, collection_name),
-    CONSTRAINT id_not_equal_parent CHECK (id IS DISTINCT FROM parent_id)
+    CONSTRAINT unique_name_with_parent UNIQUE (parent_id, collection_name)
 );
 
 CREATE UNIQUE INDEX unique_name_with_null_parent
@@ -33,7 +32,7 @@ CREATE TABLE public."file_document" (
     file_name TEXT NOT NULL,
     file_data BYTEA NOT NULL,
     date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
-    CONSTRAINT unique_collection_file_name UNIQUE (collection_id, file_name)
+    CONSTRAINT unique_collection_file_name_type UNIQUE (collection_id, file_name, file_type)
 );
 
 CREATE UNIQUE INDEX unique_name_with_null_collection
