@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDeleteFileCollectionMutation } from "../../Hooks/useDeleteFileCollectionMutation";
 import { FileCollection } from "../../Models/FileCollection";
 import {
@@ -13,13 +13,18 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import { useSnackbar } from "notistack";
+import { MenuPosition } from "../Contexts/FileCollectionContextMenuContext";
+import { SaveFileCollectionModal } from "./SaveFileCollectionModal";
 const fileCol = require("./fileCol.png");
 
 export const NewFileTableCollectionRow: React.FC<{
   fileCollection: FileCollection;
-}> = ({ fileCollection }) => {
-  const dateCreated = new Date(fileCollection.dateCreated);
-  const dateModified = new Date(fileCollection.dateModified);
+  handleRightClick: (event: React.MouseEvent) => void;
+  closeContextMenu: () => void;
+  menuPosition: MenuPosition | null;
+}> = ({ fileCollection, closeContextMenu, handleRightClick, menuPosition }) => {
+  const [isCollectionSaveModalOpen, setIsCollectionSaveModalOpen] =
+    useState<boolean>(false);
   const { mutate, isLoading, data } = useDeleteFileCollectionMutation();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -29,9 +34,11 @@ export const NewFileTableCollectionRow: React.FC<{
     }
   }, [data, enqueueSnackbar]);
 
+  const dateCreated = new Date(fileCollection.dateCreated);
+  const dateModified = new Date(fileCollection.dateModified);
   return (
     <>
-      <TableRow>
+      <TableRow onContextMenu={handleRightClick} onClick={closeContextMenu}>
         <TableCell>
           <Box
             sx={{
@@ -84,6 +91,43 @@ export const NewFileTableCollectionRow: React.FC<{
           </IconButton>
         </TableCell>
       </TableRow>
+      {menuPosition && (
+        <ul
+          style={{
+            position: "absolute",
+            top: menuPosition.y,
+            left: menuPosition.x,
+            backgroundColor: "#fff",
+            border: "1px solid #ccc",
+            padding: "10px",
+            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+            listStyleType: "none",
+            zIndex: 1000,
+          }}
+        >
+          <li
+            style={{ padding: "5px 10px", cursor: "pointer" }}
+            onClick={() => {
+              setIsCollectionSaveModalOpen(true);
+              closeContextMenu();
+            }}
+          >
+            Rename
+          </li>
+        </ul>
+      )}
+      {isCollectionSaveModalOpen && (
+        <SaveFileCollectionModal
+          closeModal={() => setIsCollectionSaveModalOpen(false)}
+          fileCollInput={{
+            collectionName: fileCollection.collectionName,
+            parentId: fileCollection.parentId,
+            id: fileCollection.id,
+            dateCreated: fileCollection.dateCreated,
+            dateModified: fileCollection.dateModified,
+          }}
+        />
+      )}
     </>
   );
 };

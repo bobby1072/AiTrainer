@@ -3,7 +3,7 @@ import { FlatFileDocumentPartialCollection } from "../../Models/FlatFileDocument
 import AddIcon from "@mui/icons-material/Add";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
 import { useState } from "react";
-import { AddFileCollectionModal } from "./AddFileCollectionModal";
+import { SaveFileCollectionModal } from "./SaveFileCollectionModal";
 import { AddFileDocumentModal } from "./AddFileDocumentModal";
 import { NewFileTable } from "./NewFileTable";
 
@@ -102,9 +102,11 @@ export const CollectionDocumentTable: React.FC<{
         </Grid2>
       </Paper>
       {addFileCollectionModalOpen && (
-        <AddFileCollectionModal
+        <SaveFileCollectionModal
           closeModal={() => setAddFileCollectionModalOpen(false)}
-          parentId={flatCollection?.self?.id}
+          fileCollInput={{
+            parentId: flatCollection?.self?.id,
+          }}
         />
       )}
       {addFileDocumentModalOpen && (

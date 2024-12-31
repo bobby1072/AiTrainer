@@ -64,11 +64,8 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    if (!useStaticFiles)
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
+    app.UseSwagger();
+    app.UseSwaggerUI();
     app.UseCors("corsapp");
 }
 else

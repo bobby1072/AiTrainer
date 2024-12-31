@@ -14,8 +14,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { ErrorComponent } from "../Common/ErrorComponent";
 import { useSnackbar } from "notistack";
+import { FileCollectionSaveInput } from "../../Models/FileCollectionSaveInput";
 
 const fileCollectionFormSchema = z.object({
+  id: z.string().uuid().optional().nullable(),
   collectionName: z.string().max(100).nonempty("Collection name is required"),
   parentId: z.string().uuid().optional().nullable(),
 });
@@ -23,17 +25,19 @@ const fileCollectionFormSchema = z.object({
 type FileCollectionFormSchemaType = z.infer<typeof fileCollectionFormSchema>;
 
 const mapToDefaultValues = (
-  parentId?: string | null
+  fileCollInput: Partial<FileCollectionSaveInput>
 ): Partial<FileCollectionFormSchemaType> => {
   return {
-    parentId: parentId,
+    id: fileCollInput.id,
+    collectionName: fileCollInput.collectionName,
+    parentId: fileCollInput.parentId,
   };
 };
 
-export const AddFileCollectionModal: React.FC<{
+export const SaveFileCollectionModal: React.FC<{
   closeModal: () => void;
-  parentId?: string | null;
-}> = ({ closeModal, parentId }) => {
+  fileCollInput: Partial<FileCollectionSaveInput>;
+}> = ({ closeModal, fileCollInput }) => {
   const {
     handleSubmit,
     register,
@@ -42,7 +46,7 @@ export const AddFileCollectionModal: React.FC<{
     formState: { errors: formErrors, isDirty },
   } = useForm<FileCollectionFormSchemaType>({
     resolver: zodResolver(fileCollectionFormSchema),
-    defaultValues: mapToDefaultValues(parentId),
+    defaultValues: mapToDefaultValues(fileCollInput),
   });
   const { mutate, error, data, isLoading, reset } =
     useSaveFileCollectionMutation();
@@ -53,6 +57,7 @@ export const AddFileCollectionModal: React.FC<{
       enqueueSnackbar("Collection added successfully", { variant: "success" });
     }
   }, [data, closeModal, enqueueSnackbar]);
+
   const { collectionName } = watch();
   return (
     <Dialog open onClose={() => !isLoading && closeModal()}>
@@ -63,7 +68,10 @@ export const AddFileCollectionModal: React.FC<{
           mutate({
             fileColInput: {
               collectionName: formVals.collectionName,
-              parentId: parentId,
+              parentId: fileCollInput.parentId,
+              id: fileCollInput.id,
+              dateCreated: fileCollInput.dateCreated,
+              dateModified: fileCollInput.dateModified,
             },
           });
           formReset();

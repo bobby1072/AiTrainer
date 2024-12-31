@@ -1,4 +1,3 @@
-import React from "react";
 import { FlatFileDocumentPartialCollection } from "../../Models/FlatFileDocumentPartialCollection";
 import {
   Box,
@@ -10,10 +9,13 @@ import {
 } from "@mui/material";
 import { NewFileTableCollectionRow } from "./NewFileTableCollectionRow";
 import { NewFileTableDocumentRow } from "./NewFileTableDocumentRow";
+import { useFileCollectionContextMenuContext } from "../Contexts/FileCollectionContextMenuContext";
 
 export const NewFileTable: React.FC<{
   flatCollection?: FlatFileDocumentPartialCollection | null;
 }> = ({ flatCollection }) => {
+  const { menuPosition, handleRightClick, closeContextMenu } =
+    useFileCollectionContextMenuContext();
   return (
     <TableContainer>
       <Table>
@@ -43,6 +45,9 @@ export const NewFileTable: React.FC<{
         <TableBody>
           {flatCollection?.fileCollections.map((fileCollection) => (
             <NewFileTableCollectionRow
+              closeContextMenu={closeContextMenu}
+              handleRightClick={handleRightClick}
+              menuPosition={menuPosition}
               fileCollection={fileCollection}
               key={fileCollection.id}
             />

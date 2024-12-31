@@ -150,8 +150,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 {
                     throw new ApiException("Cannot edit those fields", HttpStatusCode.BadRequest);
                 }
-
-                createdCollection.DateModified = DateTime.UtcNow;
+                createdCollection.DateCreated = foundOne.Data.DateCreated.ToUniversalTime();
+                createdCollection.DateModified = DateTime.UtcNow.ToUniversalTime();
             }
 
             if (createdCollection.ParentId is Guid foundParentId)
