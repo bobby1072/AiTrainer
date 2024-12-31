@@ -2,6 +2,7 @@ CREATE TABLE public."file_collection" (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES public."user"(id) ON DELETE CASCADE ON UPDATE CASCADE,
     collection_name TEXT NOT NULL,
+    collection_description TEXT,
     parent_id UUID, 
     date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     date_modified TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
@@ -30,6 +31,7 @@ CREATE TABLE public."file_document" (
     user_id UUID NOT NULL REFERENCES public."user"(id) ON DELETE CASCADE ON UPDATE CASCADE,
     file_type INTEGER NOT NULL,
     file_name TEXT NOT NULL,
+    file_description TEXT,
     file_data BYTEA NOT NULL,
     date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
     CONSTRAINT unique_collection_file_name_type UNIQUE (collection_id, file_name, file_type)

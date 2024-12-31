@@ -68,7 +68,14 @@ export const NewFileTableDocumentRow: React.FC<{
   return (
     <>
       <TableRow>
-        <TableCell>
+        <TableCell
+          sx={{
+            maxWidth: "200px", // Prevent excessive growth
+            whiteSpace: "nowrap", // Prevent wrapping
+            overflow: "hidden",
+            textOverflow: "ellipsis", // Add ellipsis if text overflows
+          }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -79,7 +86,7 @@ export const NewFileTableDocumentRow: React.FC<{
             <Box
               component="img"
               sx={{
-                width: "2.5%",
+                width: "9%",
               }}
               src={fileDoc}
               alt={`fileDocImage: ${fileDocPartial.id}`}
@@ -90,6 +97,7 @@ export const NewFileTableDocumentRow: React.FC<{
             </Typography>
           </Box>
         </TableCell>
+        <TableCell align="left" />
         <TableCell align="right">
           <Tooltip title={`${dateCreated.toISOString()}`}>
             <Typography>{prettyDateWithTime(dateCreated)}</Typography>

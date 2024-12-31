@@ -17,9 +17,8 @@ import { useSnackbar } from "notistack";
 import { FileCollectionSaveInput } from "../../Models/FileCollectionSaveInput";
 
 const fileCollectionFormSchema = z.object({
-  id: z.string().uuid().optional().nullable(),
   collectionName: z.string().max(100).nonempty("Collection name is required"),
-  parentId: z.string().uuid().optional().nullable(),
+  collectionDescription: z.string().max(500).optional().nullable(),
 });
 
 type FileCollectionFormSchemaType = z.infer<typeof fileCollectionFormSchema>;
@@ -28,9 +27,8 @@ const mapToDefaultValues = (
   fileCollInput: Partial<FileCollectionSaveInput>
 ): Partial<FileCollectionFormSchemaType> => {
   return {
-    id: fileCollInput.id,
     collectionName: fileCollInput.collectionName,
-    parentId: fileCollInput.parentId,
+    collectionDescription: fileCollInput.collectionDescription,
   };
 };
 
@@ -68,6 +66,7 @@ export const SaveFileCollectionModal: React.FC<{
           mutate({
             fileColInput: {
               collectionName: formVals.collectionName,
+              collectionDescription: formVals.collectionDescription,
               parentId: fileCollInput.parentId,
               id: fileCollInput.id,
               dateCreated: fileCollInput.dateCreated,
@@ -83,22 +82,35 @@ export const SaveFileCollectionModal: React.FC<{
             container
             justifyContent="center"
             alignItems="center"
-            spacing={4}
-            padding={1}
+            spacing={1}
             width="100%"
           >
             <Grid2 width={"90%"}>
               <TextField
                 {...register("collectionName", { required: true })}
                 disabled={isLoading}
-                label="Collection name"
+                label="Name..."
                 fullWidth
-                multiline
-                rows={2}
                 error={!!formErrors.collectionName}
                 helperText={
                   formErrors.collectionName
                     ? formErrors.collectionName.message
+                    : undefined
+                }
+              />
+            </Grid2>
+            <Grid2 width={"90%"}>
+              <TextField
+                {...register("collectionDescription", { required: false })}
+                disabled={isLoading}
+                label="Description..."
+                fullWidth
+                multiline
+                rows={2}
+                error={!!formErrors.collectionDescription}
+                helperText={
+                  formErrors.collectionDescription
+                    ? formErrors.collectionDescription.message
                     : undefined
                 }
               />
@@ -143,7 +155,7 @@ export const SaveFileCollectionModal: React.FC<{
                   !collectionName ||
                   !isDirty ||
                   isLoading ||
-                  !!formErrors.collectionName
+                  Object.values(formErrors).some((x) => !!x)
                 }
               >
                 Save

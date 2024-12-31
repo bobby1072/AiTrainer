@@ -9,6 +9,7 @@ namespace AiTrainer.Web.Persistence.Entities
     {
         public required Guid UserId { get; set; }
         public required string CollectionName { get; set; }
+        public string? CollectionDescription { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
@@ -23,6 +24,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 DateCreated = DateCreated,
                 DateModified = DateModified,
                 ParentId = ParentId,
+                CollectionDescription = CollectionDescription,
                 FaissStore = FaissStore?.FirstOrDefault()?.ToModel(),
                 Documents = Documents?.FastArraySelect(x => x.ToModel()).ToArray()
             };

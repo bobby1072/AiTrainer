@@ -17,6 +17,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 DateModified = fileCollectionInput.DateModified ?? DateTime.UtcNow,
                 ParentId = fileCollectionInput.ParentId,
                 Id = fileCollectionInput.Id,
+                CollectionDescription = fileCollectionInput.CollectionDescription,
             };
         }
     }

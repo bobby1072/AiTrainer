@@ -7,7 +7,7 @@ namespace AiTrainer.Web.Domain.Models
         [LockedProperty]
         public required Guid UserId { get; set; }
         public required string CollectionName { get; set; }
-
+        public string? CollectionDescription { get; set; }
         [LockedProperty]
         public required DateTime DateCreated { get; set; }
 
