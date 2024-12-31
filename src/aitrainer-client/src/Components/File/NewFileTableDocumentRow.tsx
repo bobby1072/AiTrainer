@@ -20,7 +20,6 @@ const fileDoc = require("./fileDoc.png");
 export const NewFileTableDocumentRow: React.FC<{
   fileDocPartial: FileDocumentPartial;
 }> = ({ fileDocPartial }) => {
-  const dateCreated = new Date(fileDocPartial.dateCreated);
   const {
     mutate: deleteFile,
     isLoading: isDeleteFileLoading,
@@ -45,7 +44,6 @@ export const NewFileTableDocumentRow: React.FC<{
           const link = document.createElement("a");
           link.href = url;
 
-          // Use the file name from `fileDocPartial` or set a default name
           const fileName = `${fileDocPartial.fileName || "downloaded_file"}${
             getFileExtension(fileDocPartial.fileType) || ""
           }`;
@@ -54,7 +52,6 @@ export const NewFileTableDocumentRow: React.FC<{
           document.body.appendChild(link);
           link.click();
 
-          // Clean up the URL object
           link.parentNode?.removeChild(link);
           window.URL.revokeObjectURL(url);
         },
@@ -65,10 +62,18 @@ export const NewFileTableDocumentRow: React.FC<{
     );
   };
 
+  const dateCreated = new Date(fileDocPartial.dateCreated);
   return (
     <>
       <TableRow>
-        <TableCell>
+        <TableCell
+          sx={{
+            maxWidth: "200px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -79,7 +84,7 @@ export const NewFileTableDocumentRow: React.FC<{
             <Box
               component="img"
               sx={{
-                width: "2.5%",
+                width: "9%",
               }}
               src={fileDoc}
               alt={`fileDocImage: ${fileDocPartial.id}`}
@@ -90,9 +95,10 @@ export const NewFileTableDocumentRow: React.FC<{
             </Typography>
           </Box>
         </TableCell>
+        <TableCell align="left" />
         <TableCell align="right">
           <Tooltip title={`${dateCreated.toISOString()}`}>
-            <>{prettyDateWithTime(dateCreated)}</>
+            <Typography>{prettyDateWithTime(dateCreated)}</Typography>
           </Tooltip>
         </TableCell>
         <TableCell align="right" />

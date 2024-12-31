@@ -13,13 +13,18 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import { useSnackbar } from "notistack";
+import { MenuPosition } from "../Contexts/FileCollectionContextMenuContext";
 const fileCol = require("./fileCol.png");
 
 export const NewFileTableCollectionRow: React.FC<{
   fileCollection: FileCollection;
-}> = ({ fileCollection }) => {
-  const dateCreated = new Date(fileCollection.dateCreated);
-  const dateModified = new Date(fileCollection.dateModified);
+  handleRightClick: (
+    event: React.MouseEvent,
+    fileCollection: FileCollection
+  ) => void;
+  closeContextMenu: () => void;
+  menuPosition: MenuPosition | null;
+}> = ({ fileCollection, closeContextMenu, handleRightClick, menuPosition }) => {
   const { mutate, isLoading, data } = useDeleteFileCollectionMutation();
   const { enqueueSnackbar } = useSnackbar();
 
@@ -29,10 +34,22 @@ export const NewFileTableCollectionRow: React.FC<{
     }
   }, [data, enqueueSnackbar]);
 
+  const dateCreated = new Date(fileCollection.dateCreated);
+  const dateModified = new Date(fileCollection.dateModified);
   return (
     <>
-      <TableRow>
-        <TableCell>
+      <TableRow
+        onContextMenu={(e) => handleRightClick(e, fileCollection)}
+        onClick={closeContextMenu}
+      >
+        <TableCell
+          sx={{
+            maxWidth: "200px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
           <Box
             sx={{
               display: "flex",
@@ -43,7 +60,7 @@ export const NewFileTableCollectionRow: React.FC<{
             <Box
               component="img"
               sx={{
-                width: "3%",
+                width: "10%",
               }}
               src={fileCol}
               alt={`fileColImage: ${fileCollection.id}`}
@@ -60,14 +77,24 @@ export const NewFileTableCollectionRow: React.FC<{
             </ButtonBase>
           </Box>
         </TableCell>
+        <TableCell
+          align="left"
+          sx={{
+            wordWrap: "break-word",
+            whiteSpace: "normal",
+            maxWidth: "500px",
+          }}
+        >
+          {fileCollection.collectionDescription}
+        </TableCell>
         <TableCell align="right">
           <Tooltip title={`${dateCreated.toISOString()}`}>
-            <>{prettyDateWithTime(dateCreated)}</>
+            <Typography>{prettyDateWithTime(dateCreated)}</Typography>
           </Tooltip>
         </TableCell>
         <TableCell align="right">
           <Tooltip title={`${dateModified.toISOString()}`}>
-            <>{prettyDateWithTime(dateModified)}</>
+            <Typography>{prettyDateWithTime(dateModified)}</Typography>
           </Tooltip>
         </TableCell>
         <TableCell align="right" />

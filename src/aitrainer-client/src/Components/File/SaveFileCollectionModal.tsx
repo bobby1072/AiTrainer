@@ -11,43 +11,44 @@ import { StyledDialogTitle } from "../Common/StyledDialogTitle";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ErrorComponent } from "../Common/ErrorComponent";
 import { useSnackbar } from "notistack";
+import { FileCollectionSaveInput } from "../../Models/FileCollectionSaveInput";
 
 const fileCollectionFormSchema = z.object({
   collectionName: z.string().max(100).nonempty("Collection name is required"),
-  parentId: z.string().uuid().optional().nullable(),
+  collectionDescription: z.string().max(500).optional().nullable(),
 });
 
 type FileCollectionFormSchemaType = z.infer<typeof fileCollectionFormSchema>;
 
 const mapToDefaultValues = (
-  parentId?: string | null
+  fileCollInput: Partial<FileCollectionSaveInput>
 ): Partial<FileCollectionFormSchemaType> => {
   return {
-    parentId: parentId,
+    collectionName: fileCollInput.collectionName,
+    collectionDescription: fileCollInput.collectionDescription,
   };
 };
 
-export const AddFileCollectionModal: React.FC<{
+export const SaveFileCollectionModal: React.FC<{
   closeModal: () => void;
-  parentId?: string | null;
-}> = ({ closeModal, parentId }) => {
+  fileCollInput: Partial<FileCollectionSaveInput>;
+}> = ({ closeModal, fileCollInput }) => {
   const {
     handleSubmit,
     register,
     reset: formReset,
+    watch,
     formState: { errors: formErrors, isDirty },
   } = useForm<FileCollectionFormSchemaType>({
     resolver: zodResolver(fileCollectionFormSchema),
-    defaultValues: mapToDefaultValues(parentId),
+    defaultValues: mapToDefaultValues(fileCollInput),
   });
   const { mutate, error, data, isLoading, reset } =
     useSaveFileCollectionMutation();
   const { enqueueSnackbar } = useSnackbar();
-  const [isCollectionNamePresent, setIsCollectionNamePresent] =
-    useState<boolean>(false);
   useEffect(() => {
     if (data) {
       closeModal();
@@ -55,6 +56,7 @@ export const AddFileCollectionModal: React.FC<{
     }
   }, [data, closeModal, enqueueSnackbar]);
 
+  const { collectionName } = watch();
   return (
     <Dialog open onClose={() => !isLoading && closeModal()}>
       <form
@@ -64,11 +66,14 @@ export const AddFileCollectionModal: React.FC<{
           mutate({
             fileColInput: {
               collectionName: formVals.collectionName,
-              parentId: parentId,
+              collectionDescription: formVals.collectionDescription,
+              parentId: fileCollInput.parentId,
+              id: fileCollInput.id,
+              dateCreated: fileCollInput.dateCreated,
+              dateModified: fileCollInput.dateModified,
             },
           });
           formReset();
-          setIsCollectionNamePresent(false);
         })}
       >
         <StyledDialogTitle title="Add file collection" />
@@ -77,28 +82,35 @@ export const AddFileCollectionModal: React.FC<{
             container
             justifyContent="center"
             alignItems="center"
-            spacing={4}
-            padding={1}
+            spacing={1}
             width="100%"
           >
             <Grid2 width={"90%"}>
               <TextField
                 {...register("collectionName", { required: true })}
                 disabled={isLoading}
-                onChange={(e) => {
-                  reset();
-                  if (e.target.value?.length > 0) {
-                    setIsCollectionNamePresent(true);
-                  }
-                }}
-                label="Collection name"
+                label="Name..."
                 fullWidth
-                multiline
-                rows={2}
                 error={!!formErrors.collectionName}
                 helperText={
                   formErrors.collectionName
                     ? formErrors.collectionName.message
+                    : undefined
+                }
+              />
+            </Grid2>
+            <Grid2 width={"90%"}>
+              <TextField
+                {...register("collectionDescription", { required: false })}
+                disabled={isLoading}
+                label="Description..."
+                fullWidth
+                multiline
+                rows={2}
+                error={!!formErrors.collectionDescription}
+                helperText={
+                  formErrors.collectionDescription
+                    ? formErrors.collectionDescription.message
                     : undefined
                 }
               />
@@ -140,10 +152,10 @@ export const AddFileCollectionModal: React.FC<{
                 color="primary"
                 type="submit"
                 disabled={
-                  !isCollectionNamePresent ||
+                  !collectionName ||
                   !isDirty ||
                   isLoading ||
-                  !!formErrors.collectionName
+                  Object.values(formErrors).some((x) => !!x)
                 }
               >
                 Save

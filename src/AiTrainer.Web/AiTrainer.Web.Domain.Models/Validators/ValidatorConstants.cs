@@ -2,6 +2,7 @@
 {
     internal static class ValidatorConstants
     {
+        public const string InvalidDescription = "Invalid description";
         public const string InvalidUserId = "Invalid user id";
         public const string InvalidParentId = "Invalid parent id";
         public const string InvalidEmail = "Invalid email address";

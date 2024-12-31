@@ -25,8 +25,7 @@ namespace AiTrainer.Web.Api.Controllers
                 FileDocument
             >(service => service.GetFileDocumentForDownload(input.Id));
 
-            await using var memoryStream = new MemoryStream(result.FileData);
-
+            var memoryStream = new MemoryStream(result.FileData);
             return File(memoryStream, result.GetMimeType(), result.FileName);
         }
 

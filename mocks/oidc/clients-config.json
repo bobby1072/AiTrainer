@@ -10,7 +10,10 @@
       "http://localhost:3000/oidc-signout",
       "http://localhost:5234/oidc-signin",
       "http://localhost:5234/oidc-silent-renew",
-      "http://localhost:5234/oidc-signout"
+      "http://localhost:5234/oidc-signout",
+      "http://localhost:5222/oidc-signin",
+      "http://localhost:5222/oidc-silent-renew",
+      "http://localhost:5222/oidc-signout"
     ],
     "AllowedScopes": ["openid", "profile", "email"],
     "RequireClientSecret": false,

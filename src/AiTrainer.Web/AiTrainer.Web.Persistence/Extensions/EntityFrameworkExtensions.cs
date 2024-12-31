@@ -49,7 +49,8 @@ namespace AiTrainer.Web.Persistence.Extensions
                 DateModified = fileCollection.DateModified,
                 CollectionName = fileCollection.CollectionName,
                 UserId = fileCollection.UserId,
-                ParentId = fileCollection.ParentId
+                ParentId = fileCollection.ParentId,
+                CollectionDescription = fileCollection.CollectionDescription,
             };
             if (fileCollection.Id is not null)
             {

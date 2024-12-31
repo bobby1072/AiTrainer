@@ -5,6 +5,7 @@ import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
 import { useParams } from "react-router-dom";
 import { CollectionDocumentTable } from "../File/CollectionDocumentTable";
+import { FileCollectionContextMenuContextProvider } from "../Contexts/FileCollectionContextMenuContext";
 
 export const CollectionHome: React.FC = () => {
   const { id: groupId } = useParams<{ id?: string }>();
@@ -16,18 +17,20 @@ export const CollectionHome: React.FC = () => {
   else if (!data) return <ErrorComponent fullScreen />;
   return (
     <PageBase>
-      <Grid2
-        container
-        height={"100vh"}
-        justifyContent="center"
-        alignItems="center"
-        direction="column"
-        width="100%"
-      >
-        <Grid2 width={"90%"}>
-          <CollectionDocumentTable flatCollection={data} />
+      <FileCollectionContextMenuContextProvider>
+        <Grid2
+          container
+          height={"100vh"}
+          justifyContent="center"
+          alignItems="center"
+          direction="column"
+          width="100%"
+        >
+          <Grid2 width={"90%"}>
+            <CollectionDocumentTable flatCollection={data} />
+          </Grid2>
         </Grid2>
-      </Grid2>
+      </FileCollectionContextMenuContextProvider>
     </PageBase>
   );
 };
