@@ -44,10 +44,10 @@ export const NewFileTableCollectionRow: React.FC<{
       >
         <TableCell
           sx={{
-            maxWidth: "200px", // Prevent excessive growth
-            whiteSpace: "nowrap", // Prevent wrapping
+            maxWidth: "200px",
+            whiteSpace: "nowrap",
             overflow: "hidden",
-            textOverflow: "ellipsis", // Add ellipsis if text overflows
+            textOverflow: "ellipsis",
           }}
         >
           <Box
@@ -85,7 +85,7 @@ export const NewFileTableCollectionRow: React.FC<{
             maxWidth: "500px",
           }}
         >
-          <Typography>{fileCollection.collectionDescription}</Typography>
+          {fileCollection.collectionDescription}
         </TableCell>
         <TableCell align="right">
           <Tooltip title={`${dateCreated.toISOString()}`}>

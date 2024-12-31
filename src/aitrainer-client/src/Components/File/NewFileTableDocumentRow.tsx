@@ -20,7 +20,6 @@ const fileDoc = require("./fileDoc.png");
 export const NewFileTableDocumentRow: React.FC<{
   fileDocPartial: FileDocumentPartial;
 }> = ({ fileDocPartial }) => {
-  const dateCreated = new Date(fileDocPartial.dateCreated);
   const {
     mutate: deleteFile,
     isLoading: isDeleteFileLoading,
@@ -45,7 +44,6 @@ export const NewFileTableDocumentRow: React.FC<{
           const link = document.createElement("a");
           link.href = url;
 
-          // Use the file name from `fileDocPartial` or set a default name
           const fileName = `${fileDocPartial.fileName || "downloaded_file"}${
             getFileExtension(fileDocPartial.fileType) || ""
           }`;
@@ -54,7 +52,6 @@ export const NewFileTableDocumentRow: React.FC<{
           document.body.appendChild(link);
           link.click();
 
-          // Clean up the URL object
           link.parentNode?.removeChild(link);
           window.URL.revokeObjectURL(url);
         },
@@ -65,15 +62,16 @@ export const NewFileTableDocumentRow: React.FC<{
     );
   };
 
+  const dateCreated = new Date(fileDocPartial.dateCreated);
   return (
     <>
       <TableRow>
         <TableCell
           sx={{
-            maxWidth: "200px", // Prevent excessive growth
-            whiteSpace: "nowrap", // Prevent wrapping
+            maxWidth: "200px",
+            whiteSpace: "nowrap",
             overflow: "hidden",
-            textOverflow: "ellipsis", // Add ellipsis if text overflows
+            textOverflow: "ellipsis",
           }}
         >
           <Box

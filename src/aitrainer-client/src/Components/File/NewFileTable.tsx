@@ -22,10 +22,10 @@ export const NewFileTable: React.FC<{
         <TableHead>
           <TableCell
             sx={{
-              maxWidth: "200px", // Prevent excessive growth
-              whiteSpace: "nowrap", // Prevent wrapping
+              maxWidth: "200px",
+              whiteSpace: "nowrap",
               overflow: "hidden",
-              textOverflow: "ellipsis", // Add ellipsis if text overflows
+              textOverflow: "ellipsis",
             }}
           >
             <Box

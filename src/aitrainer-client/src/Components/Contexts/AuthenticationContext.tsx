@@ -80,7 +80,6 @@ export const AuthenticationContextProvider: React.FC<Props> = ({
         ) {
           navigate(state.targetUrl, { replace: true });
         } else if (isCodeCallback()) {
-          // remove code query param
           navigate(window.location.pathname, { replace: true });
         }
       }
