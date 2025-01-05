@@ -45,8 +45,8 @@ export const NewFileTableCollectionRow: React.FC<{
         <TableCell
           sx={{
             maxWidth: "200px",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
+            wordWrap: "break-word",
+            whiteSpace: "normal",
             textOverflow: "ellipsis",
           }}
         >
@@ -88,12 +88,12 @@ export const NewFileTableCollectionRow: React.FC<{
           {fileCollection.collectionDescription}
         </TableCell>
         <TableCell align="right">
-          <Tooltip title={`${dateCreated.toISOString()}`}>
+          <Tooltip title={`UTC: ${dateCreated.toISOString()}`}>
             <Typography>{prettyDateWithTime(dateCreated)}</Typography>
           </Tooltip>
         </TableCell>
         <TableCell align="right">
-          <Tooltip title={`${dateModified.toISOString()}`}>
+          <Tooltip title={`UTC: ${dateModified.toISOString()}`}>
             <Typography>{prettyDateWithTime(dateModified)}</Typography>
           </Tooltip>
         </TableCell>

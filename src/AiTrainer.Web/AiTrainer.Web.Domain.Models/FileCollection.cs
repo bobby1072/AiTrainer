@@ -8,6 +8,7 @@ namespace AiTrainer.Web.Domain.Models
         public required Guid UserId { get; set; }
         public required string CollectionName { get; set; }
         public string? CollectionDescription { get; set; }
+
         [LockedProperty]
         public required DateTime DateCreated { get; set; }
 
@@ -25,7 +26,8 @@ namespace AiTrainer.Web.Domain.Models
                 && CollectionName == fileCollection.CollectionName
                 && DateCreated == fileCollection.DateCreated
                 && DateModified == fileCollection.DateModified
-                && ParentId == fileCollection.ParentId;
+                && ParentId == fileCollection.ParentId
+                && CollectionDescription == fileCollection.CollectionDescription;
         }
 
         public override int GetHashCode()

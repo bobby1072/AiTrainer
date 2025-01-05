@@ -6,6 +6,7 @@ namespace AiTrainer.Web.Domain.Models.Partials
         public required Guid UserId { get; init; }
         public required FileTypeEnum FileType { get; init; }
         public required string FileName { get; init; }
+        public string? FileDescription { get; init; }
         public required DateTime DateCreated { get; init; }
 
         public override bool Equals(FileDocumentPartial? other)
@@ -15,7 +16,8 @@ namespace AiTrainer.Web.Domain.Models.Partials
                 && CollectionId == fileDocumentPartial.CollectionId
                 && DateCreated == fileDocumentPartial.DateCreated
                 && FileType == fileDocumentPartial.FileType
-                && FileName == fileDocumentPartial.FileName;
+                && FileName == fileDocumentPartial.FileName
+                && FileDescription == fileDocumentPartial.FileDescription;
         }
 
         public override int GetHashCode()

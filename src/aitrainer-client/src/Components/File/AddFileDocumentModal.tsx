@@ -8,6 +8,7 @@ import {
   DialogActions,
   DialogContent,
   Grid2,
+  TextField,
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useEffect } from "react";
@@ -22,6 +23,7 @@ const checkFileSize = (file: File): boolean => {
 
 const uploadFileDocSchema = z.object({
   collectionId: z.string().uuid().optional().nullable(),
+  fileDescription: z.string().optional().nullable(),
   file: z.any().refine((file) => {
     return (
       file &&
@@ -46,6 +48,7 @@ export const AddFileDocumentModal: React.FC<{
 }> = ({ closeModal, collectionId }) => {
   const {
     handleSubmit,
+    register,
     setValue,
     watch,
     formState: { errors: formErrors },
@@ -75,6 +78,10 @@ export const AddFileDocumentModal: React.FC<{
           if (formVals.collectionId) {
             formData.append("collectionId", formVals.collectionId);
           }
+          if (formVals.fileDescription) {
+            formData.append("fileDescription", formVals.fileDescription);
+          }
+
           mutate({ saveInput: formData });
         })}
       >
@@ -88,7 +95,10 @@ export const AddFileDocumentModal: React.FC<{
             padding={1}
             width="100%"
           >
-            <Grid2 width="90%">
+            <Grid2
+              width="90%"
+              sx={{ display: "flex", justifyContent: "center" }}
+            >
               <input
                 type="file"
                 accept=".pdf,.txt"
@@ -99,6 +109,22 @@ export const AddFileDocumentModal: React.FC<{
                     setValue("file", foundFile);
                   }
                 }}
+              />
+            </Grid2>
+            <Grid2 width={"90%"}>
+              <TextField
+                {...register("fileDescription", { required: false })}
+                disabled={isLoading}
+                label="Description..."
+                fullWidth
+                multiline
+                rows={2}
+                error={!!formErrors.fileDescription}
+                helperText={
+                  formErrors.fileDescription
+                    ? formErrors.fileDescription.message
+                    : undefined
+                }
               />
             </Grid2>
             {error && (
