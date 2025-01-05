@@ -12,6 +12,7 @@ import { LandingPage } from "./Components/Pages/LandingPage";
 import { App } from "./App";
 import { AuthenticatedRoutes } from "./Components/Authentication/AutheticatedRoutes";
 import { SnackbarProvider } from "notistack";
+import { FileCollectionLevelContextProvider } from "./Components/Contexts/FileCollectionLevelContext";
 const FallbackRoute: React.FC = () => {
   const { isLoggedIn } = useAuthentication();
   return isLoggedIn ? (
@@ -84,13 +85,15 @@ if (window.location.pathname === "/oidc-silent-renew") {
       <QueryClientProvider client={queryClient}>
         <SnackbarProvider>
           <ClientSettingsConfigurationContextProvider>
-            <BrowserRouter>
-              <Routes>
-                {AppRoutes?.map((r) => (
-                  <Route element={r.element} path={r.path} />
-                ))}
-              </Routes>
-            </BrowserRouter>
+            <FileCollectionLevelContextProvider>
+              <BrowserRouter>
+                <Routes>
+                  {AppRoutes?.map((r) => (
+                    <Route element={r.element} path={r.path} />
+                  ))}
+                </Routes>
+              </BrowserRouter>
+            </FileCollectionLevelContextProvider>
           </ClientSettingsConfigurationContextProvider>
         </SnackbarProvider>
       </QueryClientProvider>

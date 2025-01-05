@@ -10,7 +10,6 @@ import { FileCollectionContextMenuContextProvider } from "../Contexts/FileCollec
 export const CollectionHome: React.FC = () => {
   const { id: groupId } = useParams<{ id?: string }>();
   const { data, error, isLoading } = useGetTopLayerOfFileQuery(groupId);
-
   if (isLoading) return <Loading fullScreen />;
   else if (error)
     return <ErrorComponent fullScreen errorMessage={error.message} />;
