@@ -2,19 +2,28 @@ import { Grid2, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import { FlatFileDocumentPartialCollection } from "../../Models/FlatFileDocumentPartialCollection";
 import AddIcon from "@mui/icons-material/Add";
 import FileUploadIcon from "@mui/icons-material/FileUpload";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SaveFileCollectionModal } from "./SaveFileCollectionModal";
 import { AddFileDocumentModal } from "./AddFileDocumentModal";
 import { NewFileTable } from "./NewFileTable";
+import { useFileCollectionLevelContext } from "../Contexts/FileCollectionLevelContext";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export const CollectionDocumentTable: React.FC<{
-  flatCollection?: FlatFileDocumentPartialCollection | null;
+  flatCollection: FlatFileDocumentPartialCollection;
 }> = ({ flatCollection }) => {
   const [addFileCollectionModalOpen, setAddFileCollectionModalOpen] =
     useState<boolean>(false);
 
   const [addFileDocumentModalOpen, setAddFileDocumentModalOpen] =
     useState<boolean>(false);
+
+  const { fileColId, setFileColId } = useFileCollectionLevelContext();
+
+  useEffect(() => {
+    setFileColId(flatCollection?.self?.parentId ?? "");
+  }, [flatCollection, setFileColId]);
+
   return (
     <>
       <Paper
@@ -44,8 +53,25 @@ export const CollectionDocumentTable: React.FC<{
               direction="row"
               width="100%"
             >
+              {flatCollection.self && (
+                <Grid2 width={"3%"}>
+                  <Tooltip title="Go back">
+                    <IconButton
+                      color="inherit"
+                      size="large"
+                      href={
+                        fileColId
+                          ? `/collection/home/${fileColId}`
+                          : "/collection/home"
+                      }
+                    >
+                      <ArrowBackIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid2>
+              )}
               <Grid2
-                width={"96%"}
+                width={"93%"}
                 sx={{ display: "flex", justifyContent: "flex-end" }}
               >
                 <Tooltip title="Upload new document">

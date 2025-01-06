@@ -32,6 +32,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 FileType = (int)fileDocument.FileType,
                 FileData = fileDocument.FileData,
                 FileName = fileDocument.FileName,
+                FileDescription = fileDocument.FileDescription,
             };
             if (fileDocument.Id is not null)
             {
@@ -60,13 +61,15 @@ namespace AiTrainer.Web.Persistence.Extensions
             return entity;
         }
 
-        public static FileCollectionFaissEntity ToEntity(this FileCollectionFaiss fileCollectionFaiss)
+        public static FileCollectionFaissEntity ToEntity(
+            this FileCollectionFaiss fileCollectionFaiss
+        )
         {
             var entity = new FileCollectionFaissEntity
             {
                 CollectionId = fileCollectionFaiss.CollectionId,
                 FaissIndex = fileCollectionFaiss.FaissIndex,
-                FaissJson = fileCollectionFaiss.FaissJson
+                FaissJson = fileCollectionFaiss.FaissJson,
             };
             if (fileCollectionFaiss.Id is not null)
             {

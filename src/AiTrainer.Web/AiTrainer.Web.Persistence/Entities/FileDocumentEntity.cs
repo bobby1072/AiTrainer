@@ -1,5 +1,5 @@
-using AiTrainer.Web.Domain.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
@@ -12,6 +12,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public required int FileType { get; set; }
         public required string FileName { get; set; }
         public required byte[] FileData { get; set; }
+        public string? FileDescription { get; set; }
 
         public override FileDocument ToModel() =>
             new FileDocument
@@ -23,6 +24,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 FileData = FileData,
                 UserId = UserId,
                 FileName = FileName,
+                FileDescription = FileDescription,
             };
     }
 }

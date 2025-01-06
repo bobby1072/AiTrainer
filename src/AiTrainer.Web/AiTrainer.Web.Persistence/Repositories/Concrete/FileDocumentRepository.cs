@@ -33,8 +33,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             var entity = await TimeAndLogDbOperation(
                 () =>
                     dbContext
-                        .FileDocuments
-                        .Where(x => x.Id == documentId && x.UserId == userId)
+                        .FileDocuments.Where(x => x.Id == documentId && x.UserId == userId)
                         .FirstOrDefaultAsync(),
                 nameof(GetOne),
                 _entityType.Name
@@ -61,6 +60,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                             x.CollectionId,
                             x.DateCreated,
                             x.FileName,
+                            x.FileDescription,
                             x.FileType,
                             x.UserId,
                         })
@@ -97,6 +97,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                             x.DateCreated,
                             x.FileName,
                             x.FileType,
+                            x.FileDescription,
                             x.UserId,
                         })
                         .Where(x => x.CollectionId == collectionId && x.UserId == userId)
@@ -135,6 +136,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 FileName = x.FileName,
                 FileType = (FileTypeEnum)x.FileType,
                 UserId = x.UserId,
+                FileDescription = x.FileDescription,
                 Id = x.Id,
             };
         }

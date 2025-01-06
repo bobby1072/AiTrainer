@@ -7,12 +7,9 @@ namespace AiTrainer.Web.Domain.Models.Extensions
     public static class FileDocumentExtensions
     {
         private static readonly Dictionary<FileTypeEnum, string> _fileTypeToMimeType =
-            new()
-            {
-                { FileTypeEnum.Pdf, "application/pdf" },
-                { FileTypeEnum.Text, "text/plain" },
-            };
-        public static string GetMimeType(this FileDocument document) 
+            new() { { FileTypeEnum.Pdf, "application/pdf" }, { FileTypeEnum.Text, "text/plain" } };
+
+        public static string GetMimeType(this FileDocument document)
         {
             return _fileTypeToMimeType[document.FileType];
         }
@@ -30,6 +27,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 FileType = fileNameAndType.FileType,
                 CollectionId = formInput.CollectionId,
                 UserId = userId,
+                FileDescription = formInput.FileDescription,
                 FileData = await formInput.FileToCreate.ConvertToByteArrayAsync(),
             };
         }

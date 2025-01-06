@@ -13,11 +13,11 @@ namespace AiTrainer.Web.Domain.Models.Validators
             RuleFor(x => x.CollectionName)
                 .Must(x => NotLongerThan(x, 100))
                 .WithMessage(ValidatorConstants.InvalidName);
-            
+
             RuleFor(x => x.CollectionDescription)
-                .Must(x => NotLongerThan(x,500))
+                .Must(x => NotLongerThan(x, 500))
                 .WithMessage(ValidatorConstants.InvalidDescription);
-            
+
             RuleFor(x => x.DateCreated).NotEmpty().WithMessage(ValidatorConstants.InvalidDate);
             RuleFor(x => x.DateCreated)
                 .Must(IsDateNowOrInThePast)

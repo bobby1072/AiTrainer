@@ -33,6 +33,7 @@ namespace AiTrainer.Web.Api.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<ActionResult<Outcome<FileDocumentPartial>>> Upload(
             [FromForm] Guid? collectionId,
+            [FromForm] string? fileDescription,
             [FromForm] IFormFile file
         )
         {
@@ -40,6 +41,7 @@ namespace AiTrainer.Web.Api.Controllers
             {
                 CollectionId = collectionId,
                 FileToCreate = file,
+                FileDescription = fileDescription,
             };
             var result = await _actionExecutor.ExecuteAsync<
                 IFileDocumentProcessingManager,

@@ -1,6 +1,7 @@
 export type FileDocument = {
   id?: string | null;
   collectionId?: string | null;
+  fileDescription?: string | null;
   userId: string;
   fileType: number;
   fileName: string;

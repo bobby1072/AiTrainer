@@ -69,8 +69,8 @@ export const NewFileTableDocumentRow: React.FC<{
         <TableCell
           sx={{
             maxWidth: "200px",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
+            wordWrap: "break-word",
+            whiteSpace: "normal",
             textOverflow: "ellipsis",
           }}
         >
@@ -95,7 +95,16 @@ export const NewFileTableDocumentRow: React.FC<{
             </Typography>
           </Box>
         </TableCell>
-        <TableCell align="left" />
+        <TableCell
+          align="left"
+          sx={{
+            wordWrap: "break-word",
+            whiteSpace: "normal",
+            maxWidth: "500px",
+          }}
+        >
+          {fileDocPartial.fileDescription}
+        </TableCell>
         <TableCell align="right">
           <Tooltip title={`${dateCreated.toISOString()}`}>
             <Typography>{prettyDateWithTime(dateCreated)}</Typography>

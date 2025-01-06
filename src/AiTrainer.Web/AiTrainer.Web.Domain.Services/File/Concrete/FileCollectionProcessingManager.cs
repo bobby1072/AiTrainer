@@ -157,10 +157,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             if (createdCollection.ParentId is Guid foundParentId)
             {
                 var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(
-                    () =>
-                        _repository.GetOne(
-                            foundParentId
-                        ),
+                    () => _repository.GetOne(foundParentId),
                     _logger
                 );
                 if (foundSingleParent?.Data?.UserId != foundCachedUser.Id)
