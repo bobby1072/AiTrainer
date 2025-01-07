@@ -1,5 +1,5 @@
-using AiTrainer.Web.Domain.Models;
 using System.Text.Json;
+using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
