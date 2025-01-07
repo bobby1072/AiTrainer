@@ -1,10 +1,9 @@
-using AiTrainer.Web.Api.Attributes;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.SignalR;
 
-namespace AiTrainer.Web.Api.Hubs
+namespace AiTrainer.Web.Api.SignalR.Hubs
 {
-    [RequireUserLogin]
+    [Common.Attributes.RequireUserLogin]
     public class AiTrainerHub : Hub
     {
         public const string ConnectionIdUserIdCacheKeyPrefix = "userId-";
@@ -20,8 +19,8 @@ namespace AiTrainer.Web.Api.Hubs
         public override async Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
-            
-            
+
+
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Common.Models.ApiModels.Request
 {

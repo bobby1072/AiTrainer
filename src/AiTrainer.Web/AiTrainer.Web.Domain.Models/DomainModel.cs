@@ -1,5 +1,4 @@
 ﻿using AiTrainer.Web.Domain.Models.Attributes;
-using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Domain.Models
 {

@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using AiTrainer.Web.Domain.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.Entities
 {

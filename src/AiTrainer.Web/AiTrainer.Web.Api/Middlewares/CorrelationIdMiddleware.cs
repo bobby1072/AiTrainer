@@ -8,10 +8,10 @@ namespace AiTrainer.Web.Api.Middlewares
 
         public override async Task InvokeAsync(HttpContext context)
         {
-            var correlationIdforRequest = Guid.NewGuid().ToString();
+            var correlationIdForRequest = Guid.NewGuid().ToString();
 
-            context.Request.Headers.TryAdd(ApiConstants.CorrelationIdHeader, correlationIdforRequest);
-            context.Response.Headers.TryAdd(ApiConstants.CorrelationIdHeader, correlationIdforRequest);
+            context.Request.Headers.TryAdd(ApiConstants.CorrelationIdHeader, correlationIdForRequest);
+            context.Response.Headers.TryAdd(ApiConstants.CorrelationIdHeader, correlationIdForRequest);
 
             await _next.Invoke(context);
         }

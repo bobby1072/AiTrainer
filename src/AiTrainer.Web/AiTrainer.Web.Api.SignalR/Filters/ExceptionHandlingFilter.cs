@@ -1,5 +1,6 @@
 using AiTrainer.Web.Common.Extensions;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Api.SignalR.Filters;
 

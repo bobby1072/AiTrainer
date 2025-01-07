@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.TestBase", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BT.Common.HttpClient", "..\Submodules\BT\src\BT.Common\BT.Common.HttpClient\BT.Common.HttpClient.csproj", "{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.Api.SignalR", "AiTrainer.Web.Api.SignalR\AiTrainer.Web.Api.SignalR.csproj", "{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

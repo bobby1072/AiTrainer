@@ -1,4 +1,4 @@
-using AiTrainer.Web.Api.Attributes;
+using AiTrainer.Web.Common.Attributes;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.ApiModels.Response;
 using AiTrainer.Web.Domain.Models;
