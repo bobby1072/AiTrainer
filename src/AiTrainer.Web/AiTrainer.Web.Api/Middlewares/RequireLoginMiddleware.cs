@@ -1,4 +1,6 @@
+using System.Net;
 using AiTrainer.Web.Common.Attributes;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 
@@ -20,7 +22,11 @@ namespace AiTrainer.Web.Api.Middlewares
             )
             {
                 var accessToken = context.GetAccessToken();
-                await context.RequestServices.GetRequiredService<IUserProcessingManager>().SaveAndCacheUser(accessToken);
+                
+                _ = await context.RequestServices
+                        .GetRequiredService<IUserProcessingManager>()
+                        .SaveAndCacheUser(accessToken)
+                    ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
             }
             await _next.Invoke(context);
         }
