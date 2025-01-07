@@ -19,7 +19,7 @@ public class ExceptionHandlingFilter : IHubFilter
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Signal R connection: {ConnectionId} with correlationId {CorrelationId} failed with message {ExceptionMessage}",
+            _logger.LogError(e, "Signal R connection: {ConnectionId} with correlationId {CorrelationId} threw an exception with message {ExceptionMessage}",
                 invocationContext.Context.ConnectionId,
                 invocationContext.Context.GetHttpContext()?.GetCorrelationId(),
                 e.Message);

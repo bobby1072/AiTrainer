@@ -1,8 +1,10 @@
+using AiTrainer.Web.Api.Attributes;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.SignalR;
 
 namespace AiTrainer.Web.Api.Hubs
 {
+    [RequireUserLogin]
     public class AiTrainerHub : Hub
     {
         public const string ConnectionIdUserIdCacheKeyPrefix = "userId-";
