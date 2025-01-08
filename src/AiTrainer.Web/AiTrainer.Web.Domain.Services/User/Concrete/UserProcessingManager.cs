@@ -22,9 +22,9 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         private readonly ILogger<UserProcessingManager> _logger;
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor? _httpContextAccessor;
         public UserProcessingManager(
-            IHttpContextAccessor httpContextAccessor,
+            IHttpContextAccessor? httpContextAccessor,
             IRepository<UserEntity, Guid, Models.User> repo,
             IUserInfoClient userInfoClient,
             ILogger<UserProcessingManager> logger,
@@ -42,7 +42,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 
         public async Task<Models.User> SaveAndCacheUser(string accessToken)
         {
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -118,15 +118,13 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                     _logger
                 )
                 ?? throw new ApiException(
-                    userSaveExceptionMessage,
-                    HttpStatusCode.InternalServerError
+                    userSaveExceptionMessage
                 );
 
             if (!saveUser.IsSuccessful)
             {
                 throw new ApiException(
-                    userSaveExceptionMessage,
-                    HttpStatusCode.InternalServerError
+                    userSaveExceptionMessage
                 );
             }
             var userToReturn = saveUser.Data.First();

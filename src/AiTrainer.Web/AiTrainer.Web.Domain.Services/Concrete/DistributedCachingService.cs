@@ -50,14 +50,14 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             }
         }
 
-        public async Task<string> SetObject<T>(
+        public Task<string> SetObject<T>(
             string key,
             T value,
             CacheObjectTimeToLiveInSeconds timeToLive = CacheObjectTimeToLiveInSeconds.TenMinutes
         )
             where T : class
         {
-            return await SetObject(
+            return SetObject(
                 key,
                 value,
                 new DistributedCacheEntryOptions
@@ -79,7 +79,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
                 await _distributedCache.SetStringAsync(
                     key,
                     (value as string)!,
-                    options ?? new DistributedCacheEntryOptions()
+                    options
                 );
             }
             else
@@ -88,7 +88,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
                 await _distributedCache.SetStringAsync(
                     key,
                     serializedValue,
-                    options ?? new DistributedCacheEntryOptions()
+                    options
                 );
             }
             return key;

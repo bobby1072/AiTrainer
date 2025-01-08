@@ -1,5 +1,4 @@
 using FluentValidation;
-using Microsoft.AspNetCore.Http;
 
 namespace AiTrainer.Web.Domain.Models.Validators
 {

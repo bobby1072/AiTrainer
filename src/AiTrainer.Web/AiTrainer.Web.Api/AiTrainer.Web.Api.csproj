@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\**" />
+    <Content Remove="Models\**" />
+    <EmbeddedResource Remove="Models\**" />
+    <None Remove="Models\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="8.0.11" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
@@ -21,10 +28,6 @@
     <ProjectReference Include="..\AiTrainer.Web.Domain.Services\AiTrainer.Web.Domain.Services.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Persistence\AiTrainer.Web.Persistence.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.UserInfoClient\AiTrainer.Web.UserInfoClient.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>
