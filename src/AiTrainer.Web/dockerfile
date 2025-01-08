@@ -14,6 +14,7 @@ ARG CONF=Release
 WORKDIR /src
 
 COPY src/AiTrainer.Web/AiTrainer.Web.Api/*.csproj ./AiTrainer.Web/AiTrainer.Web.Api/
+COPY src/AiTrainer.Web/AiTrainer.Web.Api.SignalR/*.csproj ./AiTrainer.Web/AiTrainer.Web.Api.SignalR/
 COPY src/AiTrainer.Web/AiTrainer.Web.Common/*.csproj ./AiTrainer.Web/AiTrainer.Web.Common/
 COPY src/AiTrainer.Web/AiTrainer.Web.CoreClient/*.csproj ./AiTrainer.Web/AiTrainer.Web.CoreClient/
 COPY src/AiTrainer.Web/AiTrainer.Web.Persistence/*.csproj ./AiTrainer.Web/AiTrainer.Web.Persistence/
@@ -28,6 +29,7 @@ COPY src/Submodules/BT/src/BT.Common/BT.Common.HttpClient/*.csproj ./Submodules/
 RUN dotnet restore AiTrainer.Web/AiTrainer.Web.Api/AiTrainer.Web.Api.csproj 
 
 COPY src/AiTrainer.Web/AiTrainer.Web.Api/ ./AiTrainer.Web/AiTrainer.Web.Api/
+COPY src/AiTrainer.Web/AiTrainer.Web.Api.SignalR/ ./AiTrainer.Web/AiTrainer.Web.Api.SignalR/
 COPY src/AiTrainer.Web/AiTrainer.Web.Common/ ./AiTrainer.Web/AiTrainer.Web.Common/
 COPY src/AiTrainer.Web/AiTrainer.Web.CoreClient/ ./AiTrainer.Web/AiTrainer.Web.CoreClient/
 COPY src/AiTrainer.Web/AiTrainer.Web.Persistence/ ./AiTrainer.Web/AiTrainer.Web.Persistence/
