@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace AiTrainer.Web.Api.SignalR.Filters;
 
-public class RequireLoginFilter: IHubFilter
+internal class RequireLoginFilter: IHubFilter
 {
     private readonly IUserProcessingManager _userProcessingManager;
 

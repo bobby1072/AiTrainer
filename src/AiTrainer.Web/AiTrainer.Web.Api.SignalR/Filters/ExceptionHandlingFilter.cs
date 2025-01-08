@@ -4,19 +4,19 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Api.SignalR.Filters;
 
-public class ExceptionHandlingFilter : IHubFilter
+internal class ExceptionHandlingFilter : IHubFilter
 {
     private readonly ILogger<ExceptionHandlingFilter> _logger;
     public ExceptionHandlingFilter(ILogger<ExceptionHandlingFilter> logger)
     {
         _logger = logger;
     }
-    public ValueTask<object?> InvokeMethodAsync(
+    public async ValueTask<object?> InvokeMethodAsync(
         HubInvocationContext invocationContext, Func<HubInvocationContext, ValueTask<object?>> next)
     {
         try
         {
-            return next.Invoke(invocationContext);
+            return await next.Invoke(invocationContext);
         }
         catch (Exception e)
         {
@@ -24,7 +24,7 @@ public class ExceptionHandlingFilter : IHubFilter
                 invocationContext.Context.ConnectionId,
                 invocationContext.Context.GetHttpContext()?.GetCorrelationId(),
                 e.Message);
-            throw;
+            return null;
         }
     }
 }
