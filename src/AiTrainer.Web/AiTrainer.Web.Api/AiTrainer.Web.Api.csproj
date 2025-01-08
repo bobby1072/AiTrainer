@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AiTrainer.Web.Api.SignalR\AiTrainer.Web.Api.SignalR.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.CoreClient\AiTrainer.Web.CoreClient.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Domain.Models\AiTrainer.Web.Domain.Models.csproj" />

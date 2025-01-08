@@ -9,6 +9,7 @@ using AiTrainer.Web.UserInfoClient;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.Net.Http.Headers;
 using System.Text.Json;
+using AiTrainer.Web.Api.SignalR.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
@@ -47,6 +48,7 @@ builder
     .Services.AddCoreClient(builder.Configuration)
     .AddSqlPersistence(builder.Configuration)
     .AddUserInfoClient(builder.Configuration)
+    .AddAiTrainerSignalR()
     .AddDomainModelServices()
     .AddDomainServices(builder.Configuration);
 
@@ -78,7 +80,7 @@ app.UseResponseCompression();
 app.UseAuthorization();
 app.UseAuthentication();
 app.AddAiTrainerDefaultMiddlewares();
-
+app.MapAiTrainerSignalRHubs();
 app.MapControllers();
 #pragma warning disable ASP0014
 if (useStaticFiles)
