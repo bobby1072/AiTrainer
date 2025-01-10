@@ -13,7 +13,10 @@ import { App } from "./App";
 import { AuthenticatedRoutes } from "./Components/Authentication/AutheticatedRoutes";
 import { SnackbarProvider } from "notistack";
 import { FileCollectionLevelContextProvider } from "./Components/Contexts/FileCollectionLevelContext";
-import { AiTrainerSignalRProvider } from "./Components/Contexts/AiTrainerSignalRContext";
+import {
+  AiTrainerSignalRAuthenticatedProvider,
+  AiTrainerSignalRProvider,
+} from "./Components/Contexts/AiTrainerSignalRContext";
 const FallbackRoute: React.FC = () => {
   const { isLoggedIn } = useAuthentication();
   return isLoggedIn ? (
@@ -61,7 +64,9 @@ const AppRoutes = [
     element: (
       <Wrapper>
         <AuthenticatedRouteWrapper>
-          <AiTrainerSignalRProvider>{component()}</AiTrainerSignalRProvider>
+          <AiTrainerSignalRAuthenticatedProvider>
+            {component()}
+          </AiTrainerSignalRAuthenticatedProvider>
         </AuthenticatedRouteWrapper>
       </Wrapper>
     ),
@@ -89,13 +94,15 @@ if (window.location.pathname === "/oidc-silent-renew") {
         <SnackbarProvider>
           <ClientSettingsConfigurationContextProvider>
             <FileCollectionLevelContextProvider>
-              <BrowserRouter>
-                <Routes>
-                  {AppRoutes?.map((r) => (
-                    <Route element={r.element} path={r.path} />
-                  ))}
-                </Routes>
-              </BrowserRouter>
+              <AiTrainerSignalRProvider>
+                <BrowserRouter>
+                  <Routes>
+                    {AppRoutes?.map((r) => (
+                      <Route element={r.element} path={r.path} />
+                    ))}
+                  </Routes>
+                </BrowserRouter>
+              </AiTrainerSignalRProvider>
             </FileCollectionLevelContextProvider>
           </ClientSettingsConfigurationContextProvider>
         </SnackbarProvider>

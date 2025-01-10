@@ -8,6 +8,7 @@ import { AddFileDocumentModal } from "./AddFileDocumentModal";
 import { NewFileTable } from "./NewFileTable";
 import { useFileCollectionLevelContext } from "../Contexts/FileCollectionLevelContext";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 
 export const CollectionDocumentTable: React.FC<{
   flatCollection: FlatFileDocumentPartialCollection;
@@ -18,6 +19,7 @@ export const CollectionDocumentTable: React.FC<{
   const [addFileDocumentModalOpen, setAddFileDocumentModalOpen] =
     useState<boolean>(false);
 
+  const navigate = useNavigate();
   const { fileColId, setFileColId } = useFileCollectionLevelContext();
 
   useEffect(() => {
@@ -59,6 +61,14 @@ export const CollectionDocumentTable: React.FC<{
                     <IconButton
                       color="inherit"
                       size="large"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigate(
+                          fileColId
+                            ? `/collection/home/${fileColId}`
+                            : "/collection/home"
+                        );
+                      }}
                       href={
                         fileColId
                           ? `/collection/home/${fileColId}`

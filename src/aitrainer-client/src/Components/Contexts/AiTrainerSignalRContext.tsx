@@ -4,7 +4,7 @@ import {
   HubConnectionState,
   LogLevel,
 } from "@microsoft/signalr";
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import AppSettingsProvider from "../../Utils/AppSettingsProvider";
 import { AppSettingsKeys } from "../../Utils/AppSettingsKeys";
 import { useConnectToSignalR } from "../../Hooks/ConnectToSignalR";
@@ -24,6 +24,7 @@ const signalRConnectionBuilder = new HubConnectionBuilder()
 
 export type AiTrainerSignalRContextType = {
   hubConnection: HubConnection;
+  setHubConnection: (hubConnection: HubConnection) => void;
   isConnected: boolean;
 };
 
@@ -31,24 +32,42 @@ export const AiTrainerSignalRContext = createContext<
   AiTrainerSignalRContextType | undefined
 >(undefined);
 
+export const useGetSignalRHubContext = () => {
+  const context = useContext(AiTrainerSignalRContext);
+  if (!context) {
+    throw new Error(
+      "useGetSignalRHubContext must be used within a AiTrainerSignalRProvider"
+    );
+  }
+  return context;
+};
+
 export const AiTrainerSignalRProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [hubConnection] = useState<HubConnection>(
+  const [hubConnection, setHubConnection] = useState<HubConnection>(
     signalRConnectionBuilder.build()
   );
-  const { isLoading, error } = useConnectToSignalR(hubConnection);
-
-  if (isLoading) return <Loading fullScreen />;
-  if (error) return <ErrorComponent fullScreen />;
   return (
     <AiTrainerSignalRContext.Provider
       value={{
         hubConnection,
+        setHubConnection,
         isConnected: hubConnection.state === HubConnectionState.Connected,
       }}
     >
       {children}
     </AiTrainerSignalRContext.Provider>
   );
+};
+
+export const AiTrainerSignalRAuthenticatedProvider: React.FC<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  const { error, isLoading } = useConnectToSignalR();
+
+  if (isLoading) return <Loading fullScreen />;
+  if (error) return <ErrorComponent fullScreen />;
+
+  return <>{children}</>;
 };

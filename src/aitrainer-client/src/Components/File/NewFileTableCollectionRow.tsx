@@ -14,6 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import { useSnackbar } from "notistack";
 import { MenuPosition } from "../Contexts/FileCollectionContextMenuContext";
+import { useNavigate } from "react-router-dom";
 const fileCol = require("./fileCol.png");
 
 export const NewFileTableCollectionRow: React.FC<{
@@ -27,7 +28,7 @@ export const NewFileTableCollectionRow: React.FC<{
 }> = ({ fileCollection, closeContextMenu, handleRightClick, menuPosition }) => {
   const { mutate, isLoading, data } = useDeleteFileCollectionMutation();
   const { enqueueSnackbar } = useSnackbar();
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (data) {
       enqueueSnackbar(`Collection deleted`, { variant: "error" });
@@ -67,6 +68,10 @@ export const NewFileTableCollectionRow: React.FC<{
             />
             <ButtonBase
               href={`/collection/home/${fileCollection.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`/collection/home/${fileCollection.id}`);
+              }}
               sx={{
                 "&:hover": {
                   textDecoration: "underline",
