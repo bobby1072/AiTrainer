@@ -12,6 +12,7 @@ public static class SignalRServiceCollectionExtensions
         {
             opts.AddFilter<ExceptionHandlingFilter>();
             opts.AddFilter<CorrelationIdFilter>();
+            opts.AddFilter<RequireLoginFilter>();
         });
         
         return services;

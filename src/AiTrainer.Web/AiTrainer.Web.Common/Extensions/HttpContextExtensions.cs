@@ -26,6 +26,17 @@ namespace AiTrainer.Web.Common.Extensions
             return !string.IsNullOrEmpty(correlationId.ToString()) ? Guid.Parse(correlationId!) : null;
         }
 
+        public static string? GetAccessTokenOrNull(this HttpContext? context)
+        {
+            try
+            {
+                return context.GetAccessToken();
+            }
+            catch
+            {
+                return null;
+            }
+        }
         public static string GetAccessToken(this HttpContext? context)
         {
             var token = context?.Request.Headers[HeaderNames.Authorization].ToString();

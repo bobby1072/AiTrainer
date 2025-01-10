@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Api.SignalR.Hubs
 {
-    [RequireUserLogin]
+    // [RequireUserLogin]
     public class AiTrainerHub : Hub
     {
         public const string ConnectionIdUserIdCacheKeyPrefix = "userId-";
@@ -33,23 +33,27 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
             await base.OnConnectedAsync();
 
             var hubHttpContext = Context.GetHttpContext();
-            var userAccessToken = hubHttpContext.GetAccessToken();
-
-            var foundCachedUser =
-                await _userProcessingManager.TryGetUserFromCache(userAccessToken)
-                ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
-
-            await _cachingService.SetObject(
-                $"{ConnectionIdUserIdCacheKeyPrefix}{foundCachedUser.Id}",
-                Context.ConnectionId
-            );
-
+            // var userAccessToken = hubHttpContext.GetAccessToken();
+            //
+            // var foundCachedUser =
+            //     await _userProcessingManager.TryGetUserFromCache(userAccessToken)
+            //     ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+            //
+            // await _cachingService.SetObject(
+            //     $"{ConnectionIdUserIdCacheKeyPrefix}{foundCachedUser.Id}",
+            //     Context.ConnectionId
+            // );
+            
+            var accessToken = hubHttpContext.GetAccessTokenOrNull();
+            
             var correlationId = hubHttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
-                "Client connected with connectionId {ConnectionId} and correlationId {CorrelationId}",
+                "Client connected with connectionId {ConnectionId} and correlationId {CorrelationId}" +
+                "and accessToken {AccessToken}",
                 Context.ConnectionId,
-                correlationId
+                correlationId,
+                accessToken ?? ""
             );
         }
     }
