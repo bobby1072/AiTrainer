@@ -8,7 +8,7 @@ public static class SignalRWebApplicationExtensions
     public static WebApplication MapAiTrainerSignalRHubs(this WebApplication app)
     {
         app
-            .MapHub<AiTrainerHub>("Api/SignalR");
+            .MapHub<AiTrainerHub>("/Api/SignalR");
         
         return app;
     }

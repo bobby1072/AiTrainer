@@ -30,6 +30,8 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
         public override async Task OnConnectedAsync()
         {
             await base.OnConnectedAsync();
+            
+            _logger.LogInformation("\n\n\n\nConnected to {ConnectionId}\n\n\n\n", Context.ConnectionId);
 
             // var hubHttpContext = Context.GetHttpContext();
             // var userAccessToken = hubHttpContext.GetAccessToken();

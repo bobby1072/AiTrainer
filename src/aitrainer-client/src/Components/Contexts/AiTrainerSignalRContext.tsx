@@ -1,4 +1,9 @@
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  HubConnectionState,
+  LogLevel,
+} from "@microsoft/signalr";
 import { createContext, useState } from "react";
 import AppSettingsProvider from "../../Utils/AppSettingsProvider";
 import { AppSettingsKeys } from "../../Utils/AppSettingsKeys";
@@ -6,12 +11,16 @@ import { useConnectToSignalR } from "../../Hooks/ConnectToSignalR";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
 
-const signalRConnectionBuilder = new HubConnectionBuilder().withUrl(
-  `${
-    AppSettingsProvider.TryGetValue(AppSettingsKeys.AiTrainerWebEndpoint) ??
-    "http://localhost:5222"
-  }/Api/SignalR`
-);
+const signalRConnectionBuilder = new HubConnectionBuilder()
+  .withUrl(
+    `${
+      AppSettingsProvider.TryGetValue(AppSettingsKeys.AiTrainerWebEndpoint) ||
+      "http://localhost:5222"
+    }/Api/SignalR`
+  )
+  .configureLogging(
+    process.env.NODE_ENV === "development" ? LogLevel.Debug : LogLevel.None
+  );
 
 export type AiTrainerSignalRContextType = {
   hubConnection: HubConnection;
@@ -25,20 +34,20 @@ export const AiTrainerSignalRContext = createContext<
 export const AiTrainerSignalRProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
-  const [hubConnection, setHubConnection] = useState<HubConnection>(
+  const [hubConnection] = useState<HubConnection>(
     signalRConnectionBuilder.build()
   );
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const { isLoading, error } = useConnectToSignalR(hubConnection, {
-    onSuccess: (data) => {
-      setIsConnected(data);
-    },
-  });
+  const { isLoading, error } = useConnectToSignalR(hubConnection);
 
   if (isLoading) return <Loading fullScreen />;
-  if (error) return <ErrorComponent />;
+  if (error) return <ErrorComponent fullScreen />;
   return (
-    <AiTrainerSignalRContext.Provider value={{ hubConnection, isConnected }}>
+    <AiTrainerSignalRContext.Provider
+      value={{
+        hubConnection,
+        isConnected: hubConnection.state === HubConnectionState.Connected,
+      }}
+    >
       {children}
     </AiTrainerSignalRContext.Provider>
   );
