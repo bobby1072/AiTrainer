@@ -14,7 +14,7 @@ import { AuthenticatedRoutes } from "./Components/Authentication/AutheticatedRou
 import { SnackbarProvider } from "notistack";
 import { FileCollectionLevelContextProvider } from "./Components/Contexts/FileCollectionLevelContext";
 import {
-  AiTrainerSignalRAuthenticatedProvider,
+  AiTrainerSignalRStartConnectionProvider,
   AiTrainerSignalRProvider,
 } from "./Components/Contexts/AiTrainerSignalRContext";
 const FallbackRoute: React.FC = () => {
@@ -64,9 +64,9 @@ const AppRoutes = [
     element: (
       <Wrapper>
         <AuthenticatedRouteWrapper>
-          <AiTrainerSignalRAuthenticatedProvider>
+          <AiTrainerSignalRStartConnectionProvider>
             {component()}
-          </AiTrainerSignalRAuthenticatedProvider>
+          </AiTrainerSignalRStartConnectionProvider>
         </AuthenticatedRouteWrapper>
       </Wrapper>
     ),

@@ -11,7 +11,7 @@ import { useConnectToSignalR } from "../../Hooks/ConnectToSignalR";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
 
-export const signalRConnectionBuilderFunc = () => {
+const signalRConnectionBuilderFunc = () => {
   return new HubConnectionBuilder()
     .withAutomaticReconnect()
     .withUrl(
@@ -29,9 +29,11 @@ export type AiTrainerSignalRContextType = {
   hubConnection: HubConnection;
   setHubConnection: (hubConnection: HubConnection) => void;
   isConnected: boolean;
+  fullyAuthenticated: boolean;
+  setFullyAuthenticated: (newVal: boolean) => void;
 };
 
-export const AiTrainerSignalRContext = createContext<
+const AiTrainerSignalRContext = createContext<
   AiTrainerSignalRContextType | undefined
 >(undefined);
 
@@ -52,7 +54,7 @@ export const AiTrainerSignalRProvider: React.FC<{
     signalRConnectionBuilderFunc().build()
   );
   const [isConnected, setIsConnected] = useState<boolean>(false);
-
+  const [fullyAuthenticated, setFullyAuthenticated] = useState<boolean>(false);
   useEffect(() => {
     if (!hubConnection) return;
 
@@ -100,6 +102,8 @@ export const AiTrainerSignalRProvider: React.FC<{
         hubConnection,
         setHubConnection,
         isConnected,
+        fullyAuthenticated,
+        setFullyAuthenticated,
       }}
     >
       {children}
@@ -107,7 +111,7 @@ export const AiTrainerSignalRProvider: React.FC<{
   );
 };
 
-export const AiTrainerSignalRAuthenticatedProvider: React.FC<{
+export const AiTrainerSignalRStartConnectionProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const { error, isLoading } = useConnectToSignalR();
