@@ -11,17 +11,19 @@ import { useConnectToSignalR } from "../../Hooks/ConnectToSignalR";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
 
-export const signalRConnectionBuilder = new HubConnectionBuilder()
-  .withAutomaticReconnect()
-  .withUrl(
-    `${
-      AppSettingsProvider.TryGetValue(AppSettingsKeys.AiTrainerWebEndpoint) ||
-      "http://localhost:5222"
-    }/Api/SignalR`
-  )
-  .configureLogging(
-    process.env.NODE_ENV === "development" ? LogLevel.Debug : LogLevel.None
-  );
+export const signalRConnectionBuilderFunc = () => {
+  return new HubConnectionBuilder()
+    .withAutomaticReconnect()
+    .withUrl(
+      `${
+        AppSettingsProvider.TryGetValue(AppSettingsKeys.AiTrainerWebEndpoint) ||
+        "http://localhost:5222"
+      }/Api/SignalR`
+    )
+    .configureLogging(
+      process.env.NODE_ENV === "development" ? LogLevel.Debug : LogLevel.None
+    );
+};
 
 export type AiTrainerSignalRContextType = {
   hubConnection: HubConnection;
@@ -47,7 +49,7 @@ export const AiTrainerSignalRProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [hubConnection, setHubConnection] = useState<HubConnection>(
-    signalRConnectionBuilder.build()
+    signalRConnectionBuilderFunc().build()
   );
   const [isConnected, setIsConnected] = useState<boolean>(false);
 
