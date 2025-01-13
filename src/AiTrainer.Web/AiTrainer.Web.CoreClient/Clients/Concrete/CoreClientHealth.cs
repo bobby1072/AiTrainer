@@ -4,10 +4,10 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.HttpClient.Extensions;
-using BT.Common.HttpClient.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using BT.Common.Polly.Models.Concrete;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 

@@ -2,7 +2,6 @@ using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
 using BT.Common.HttpClient.Extensions;
-using BT.Common.HttpClient.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
@@ -64,12 +63,7 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
                 },
             };
 
-            var response = await _client.SendAsync(request, new PollyRetrySettings
-            {
-                TotalAttempts = _userInfoClientConfiguration.TotalAttempts,
-                TimeoutInSeconds = _userInfoClientConfiguration.TimeoutInSeconds,
-                DelayBetweenAttemptsInSeconds = _userInfoClientConfiguration.DelayBetweenAttemptsInSeconds
-            });
+            var response = await _client.SendAsync(request, _userInfoClientConfiguration);
 
             response.EnsureSuccessStatusCode();
 
