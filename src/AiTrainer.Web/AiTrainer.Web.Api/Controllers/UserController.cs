@@ -11,12 +11,8 @@ namespace AiTrainer.Web.Api.Controllers
     [RequireUserLogin]
     public class UserController : BaseController
     {
-        public UserController(
-            IDomainServiceActionExecutor actionExecutor
-        )
-            : base(actionExecutor)
-        {
-        }
+        public UserController(IDomainServiceActionExecutor actionExecutor)
+            : base(actionExecutor) { }
 
         [HttpGet]
         public async Task<ActionResult<Outcome<User?>>> GetSelf()

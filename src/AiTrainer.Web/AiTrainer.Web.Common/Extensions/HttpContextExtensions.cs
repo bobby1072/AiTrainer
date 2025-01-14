@@ -1,7 +1,7 @@
-﻿using AiTrainer.Web.Common.Exceptions;
+﻿using System.Net;
+using AiTrainer.Web.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using System.Net;
 
 namespace AiTrainer.Web.Common.Extensions
 {
@@ -23,20 +23,34 @@ namespace AiTrainer.Web.Common.Extensions
                 correlationId = correlationIdFromResponse;
             }
 
-            return !string.IsNullOrEmpty(correlationId.ToString()) ? Guid.Parse(correlationId!) : null;
+            return !string.IsNullOrEmpty(correlationId.ToString())
+                ? Guid.Parse(correlationId!)
+                : null;
+        }
+
+        public static string? GetAccessTokenOrNull(this HttpContext? context)
+        {
+            try
+            {
+                return context.GetAccessToken();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static string GetAccessToken(this HttpContext? context)
         {
             var token = context?.Request.Headers[HeaderNames.Authorization].ToString();
             if (string.IsNullOrEmpty(token))
-            {   
+            {
                 throw new ApiException(
                     ExceptionConstants.NotAuthorized,
                     HttpStatusCode.Unauthorized
                 );
             }
-            
+
             return token;
         }
     }

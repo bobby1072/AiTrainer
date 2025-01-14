@@ -25,6 +25,7 @@ COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/*.csproj ./Submodules/B
 COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.OperationTimer/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.Helpers/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.Helpers/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.HttpClient/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.HttpClient/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.Polly/*.csproj ./Submodules/BT/src/BT.Common/BT.Common.Polly/
 
 RUN dotnet restore AiTrainer.Web/AiTrainer.Web.Api/AiTrainer.Web.Api.csproj 
 
@@ -40,6 +41,7 @@ COPY src/Submodules/BT/src/BT.Common/BT.Common.FastArray/ ./Submodules/BT/src/BT
 COPY src/Submodules/BT/src/BT.Common/BT.Common.OperationTimer/ ./Submodules/BT/src/BT.Common/BT.Common.OperationTimer/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.Helpers/ ./Submodules/BT/src/BT.Common/BT.Common.Helpers/
 COPY src/Submodules/BT/src/BT.Common/BT.Common.HttpClient/ ./Submodules/BT/src/BT.Common/BT.Common.HttpClient/
+COPY src/Submodules/BT/src/BT.Common/BT.Common.Polly/ ./Submodules/BT/src/BT.Common/BT.Common.Polly/
 
 WORKDIR /src/AiTrainer.Web/AiTrainer.Web.Api
 ARG CONF=Release

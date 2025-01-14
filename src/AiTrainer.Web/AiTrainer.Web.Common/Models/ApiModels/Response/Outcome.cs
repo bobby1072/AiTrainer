@@ -2,7 +2,7 @@
 {
     public record Outcome
     {
-        public bool IsSuccess => ExceptionMessage is null;
+        public bool IsSuccess => string.IsNullOrEmpty(ExceptionMessage);
         public string? ExceptionMessage { get; init; }
     }
 

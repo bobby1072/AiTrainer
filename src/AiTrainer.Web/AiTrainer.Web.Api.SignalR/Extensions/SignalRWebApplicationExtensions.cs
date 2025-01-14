@@ -5,10 +5,10 @@ namespace AiTrainer.Web.Api.SignalR.Extensions;
 
 public static class SignalRWebApplicationExtensions
 {
-    public static WebApplication UseAiTrainerSignalR(this WebApplication app)
+    public static WebApplication MapAiTrainerSignalRHubs(this WebApplication app)
     {
         app
-            .MapHub<AiTrainerHub>("Api/SignalR");
+            .MapHub<AiTrainerHub>("/Api/SignalR");
         
         return app;
     }

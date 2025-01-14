@@ -6,10 +6,15 @@ import { ErrorComponent } from "../Common/ErrorComponent";
 import { useParams } from "react-router-dom";
 import { CollectionDocumentTable } from "../File/CollectionDocumentTable";
 import { FileCollectionContextMenuContextProvider } from "../Contexts/FileCollectionContextMenuContext";
+import { useEffect } from "react";
 
 export const CollectionHome: React.FC = () => {
-  const { id: groupId } = useParams<{ id?: string }>();
-  const { data, error, isLoading } = useGetTopLayerOfFileQuery(groupId);
+  const { id: collectionId } = useParams<{ id?: string }>();
+  const { data, error, isLoading, refetch } =
+    useGetTopLayerOfFileQuery(collectionId);
+  useEffect(() => {
+    refetch();
+  }, [collectionId, refetch]);
   if (isLoading) return <Loading fullScreen />;
   else if (error)
     return <ErrorComponent fullScreen errorMessage={error.message} />;

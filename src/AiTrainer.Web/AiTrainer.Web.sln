@@ -29,11 +29,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B217D078
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Domain.Services.Tests", "AiTrainer.Web.Domain.Services.Tests\AiTrainer.Web.Domain.Services.Tests.csproj", "{866D229F-6546-4445-9F4C-7DCF19D1DB94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.TestBase", "AiTrainer.Web.TestBase\AiTrainer.Web.TestBase.csproj", "{20A83B6F-5165-4938-BF00-4F357CB03C87}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.TestBase", "AiTrainer.Web.TestBase\AiTrainer.Web.TestBase.csproj", "{20A83B6F-5165-4938-BF00-4F357CB03C87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BT.Common.HttpClient", "..\Submodules\BT\src\BT.Common\BT.Common.HttpClient\BT.Common.HttpClient.csproj", "{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.HttpClient", "..\Submodules\BT\src\BT.Common\BT.Common.HttpClient\BT.Common.HttpClient.csproj", "{EB3E5F36-9BE8-4031-A011-0A19E4EDC811}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.Api.SignalR", "AiTrainer.Web.Api.SignalR\AiTrainer.Web.Api.SignalR.csproj", "{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiTrainer.Web.Api.SignalR", "AiTrainer.Web.Api.SignalR\AiTrainer.Web.Api.SignalR.csproj", "{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BT.Common.Polly", "..\Submodules\BT\src\BT.Common\BT.Common.Polly\BT.Common.Polly.csproj", "{7D3CBD31-A380-4761-A629-B1A6B8CA068E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -97,6 +99,10 @@ Global
 		{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38DB98AA-99F4-498E-BEE1-E2C061BF1AC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7D3CBD31-A380-4761-A629-B1A6B8CA068E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7D3CBD31-A380-4761-A629-B1A6B8CA068E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7D3CBD31-A380-4761-A629-B1A6B8CA068E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7D3CBD31-A380-4761-A629-B1A6B8CA068E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -108,6 +114,7 @@ Global
 		{866D229F-6546-4445-9F4C-7DCF19D1DB94} = {B217D078-5937-47CF-9CA3-8C5443E7F9BF}
 		{20A83B6F-5165-4938-BF00-4F357CB03C87} = {B217D078-5937-47CF-9CA3-8C5443E7F9BF}
 		{EB3E5F36-9BE8-4031-A011-0A19E4EDC811} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
+		{7D3CBD31-A380-4761-A629-B1A6B8CA068E} = {B217D078-5937-47CF-9CA3-8C5443E7F9BF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0EA356DC-E454-4B7C-909C-B1CB96C96363}

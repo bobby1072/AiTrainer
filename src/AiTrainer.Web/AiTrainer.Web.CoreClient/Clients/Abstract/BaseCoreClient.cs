@@ -3,11 +3,11 @@ using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.HttpClient.Extensions;
-using BT.Common.HttpClient.Models;
 using BT.Common.OperationTimer.Proto;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using BT.Common.Polly.Models.Concrete;
 
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {
@@ -35,7 +35,7 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
             var timeoutInSeconds = _aiTrainerCoreConfiguration.TimeoutInSeconds > 3 ? _aiTrainerCoreConfiguration.TimeoutInSeconds : 90;
             var delay = _aiTrainerCoreConfiguration.DelayBetweenAttemptsInSeconds >= 0 ? _aiTrainerCoreConfiguration.DelayBetweenAttemptsInSeconds : 1;
             
-            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request, new PollyRetrySettings()
+            var response = await TimeAndExecuteRequest(() => _httpClient.SendAsync(request, new PollyRetrySettings
             {
                 TotalAttempts = totalAttempts,
                 DelayBetweenAttemptsInSeconds = delay,
