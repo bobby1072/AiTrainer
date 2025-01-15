@@ -1,7 +1,6 @@
 import {
   HubConnection,
   HubConnectionBuilder,
-  HubConnectionState,
   LogLevel,
 } from "@microsoft/signalr";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -11,15 +10,9 @@ import { useConnectToSignalR } from "../../Hooks/ConnectToSignalR";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
 
-const signalRConnectionBuilderFunc = () => {
+export const signalRConnectionBuilderFunc = (): HubConnectionBuilder => {
   return new HubConnectionBuilder()
     .withAutomaticReconnect()
-    .withUrl(
-      `${
-        AppSettingsProvider.TryGetValue(AppSettingsKeys.AiTrainerWebEndpoint) ||
-        "http://localhost:5222"
-      }/Api/SignalR`
-    )
     .configureLogging(
       process.env.NODE_ENV === "development" ? LogLevel.Debug : LogLevel.None
     );
@@ -51,19 +44,23 @@ export const AiTrainerSignalRProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [hubConnection, setHubConnection] = useState<HubConnection>(
-    signalRConnectionBuilderFunc().build()
+    signalRConnectionBuilderFunc()
+      .withUrl(
+        `${
+          AppSettingsProvider.TryGetValue(
+            AppSettingsKeys.AiTrainerWebEndpoint
+          ) || "http://localhost:5222"
+        }/Api/SignalR`
+      )
+      .build()
   );
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [fullyAuthenticated, setFullyAuthenticated] = useState<boolean>(false);
   useEffect(() => {
     if (!hubConnection) return;
 
-    const handleConnectionStateChange = () => {
-      setIsConnected(hubConnection.state === HubConnectionState.Connected);
-    };
-    hubConnection.onreconnected(() => handleConnectionStateChange());
-    hubConnection.onclose(() => handleConnectionStateChange());
-    hubConnection.onreconnecting(() => handleConnectionStateChange());
+    hubConnection.onreconnected(() => setIsConnected(true));
+    hubConnection.onclose(() => setIsConnected(false));
 
     // const handleEvent = (
     //   eventName: string,

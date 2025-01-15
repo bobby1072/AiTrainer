@@ -40,6 +40,20 @@ namespace AiTrainer.Web.Common.Extensions
             }
         }
 
+        public static string GetAccessTokenFromQuery(this HttpContext? context, string keyName)
+        {
+            var token = context?.Request.Query[keyName].FirstOrDefault();
+            
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new ApiException(
+                    ExceptionConstants.NotAuthorized,
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            return token.RemoveBearerPrefix();
+        } 
         public static string GetAccessToken(this HttpContext? context)
         {
             var token = context?.Request.Headers[HeaderNames.Authorization].ToString();
@@ -51,7 +65,8 @@ namespace AiTrainer.Web.Common.Extensions
                 );
             }
 
-            return token;
+            return token.RemoveBearerPrefix();
         }
+        private static string RemoveBearerPrefix(this string token) => token.Replace("bearer ", string.Empty, StringComparison.OrdinalIgnoreCase);
     }
 }
