@@ -34,40 +34,25 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
 
             var hubHttpContext = Context.GetHttpContext();
             var correlationId = hubHttpContext?.GetCorrelationId();
+            var accessToken = hubHttpContext?.GetAccessTokenFromQuery("access_token")!;
+            
+            var currentUser =
+                await _domainService.ExecuteAsync<IUserProcessingManager, User>(userProcessingManager => userProcessingManager.SaveAndCacheUser(accessToken))
+                ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+
+            await _cachingService.SetObject(
+                $"{ConnectionIdUserIdCacheKeyPrefix}{currentUser.Id}",
+                Context.ConnectionId,
+                CacheObjectTimeToLiveInSeconds.OneHour
+            );
+
 
             _logger.LogInformation(
-                "Client connected with connectionId {ConnectionId} and correlationId {CorrelationId}",
+                "Client connected with connectionId {ConnectionId} and correlationId {CorrelationId} and accessToken {AccessToken}",
                 Context.ConnectionId,
-                correlationId
+                correlationId,
+                accessToken
             );
-        }
-        private async Task<User?> AuthenticateUser(string bearerToken)
-        {
-            var hubHttpContext = Context.GetHttpContext();
-            try
-            {
-                var currentUser =
-                    await _domainService.ExecuteAsync<IUserProcessingManager, User>(userProcessingManager => userProcessingManager.SaveAndCacheUser(bearerToken))
-                    ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
-
-                await _cachingService.SetObject(
-                    $"{ConnectionIdUserIdCacheKeyPrefix}{currentUser.Id}",
-                    Context.ConnectionId,
-                    CacheObjectTimeToLiveInSeconds.OneHour
-                );
-                
-                return currentUser;
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(
-                    e,
-                    "Exception occured while authenticating user with signal R for connectionId {ConnectionId} and correlationId {CorrelationId}",
-                    Context.ConnectionId,
-                    hubHttpContext?.GetCorrelationId().ToString() ?? ""
-                );
-                return null;
-            }
         }
     }
 }
