@@ -1,4 +1,3 @@
-using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
@@ -7,13 +6,13 @@ using BT.Common.HttpClient.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using BT.Common.Helpers.Extensions;
 using BT.Common.Polly.Models.Concrete;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
 internal class CoreClientHealth: BaseCoreClient<CoreClientHealthResponse>
 {
-    private const string _endPoint = "api/healthrouter";
     public CoreClientHealth(
         HttpClient httpClient,
         ILogger<CoreClientHealth> logger,
@@ -52,9 +51,9 @@ internal class CoreClientHealth: BaseCoreClient<CoreClientHealthResponse>
         var request = new HttpRequestMessage
         {
             Method = HttpMethod.Get,
-            RequestUri = _aiTrainerCoreConfiguration.BaseEndpoint.AppendPathToUrl(
-                _endPoint
-            ),
+            RequestUri = _aiTrainerCoreConfiguration.BaseEndpoint
+                .AppendPathToUrl("api")
+                .AppendPathToUrl("healthrouter"),
         };
         AddApiKeyHeader(request);
             

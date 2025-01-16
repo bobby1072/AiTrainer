@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Exceptions;
+﻿using System.Net;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
@@ -11,7 +12,6 @@ using AiTrainer.Web.UserInfoClient.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
@@ -23,6 +23,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
         private readonly IHttpContextAccessor? _httpContextAccessor;
+
         public UserProcessingManager(
             IHttpContextAccessor? httpContextAccessor,
             IRepository<UserEntity, Guid, Models.User> repo,
@@ -116,16 +117,11 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                             ? _repo.Create([userDto.User])
                             : _repo.Update([userDto.User]),
                     _logger
-                )
-                ?? throw new ApiException(
-                    userSaveExceptionMessage
-                );
+                ) ?? throw new ApiException(userSaveExceptionMessage);
 
             if (!saveUser.IsSuccessful)
             {
-                throw new ApiException(
-                    userSaveExceptionMessage
-                );
+                throw new ApiException(userSaveExceptionMessage);
             }
             var userToReturn = saveUser.Data.First();
             await _cachingService.SetObject(GetCacheKey(accessToken), userToReturn);
@@ -145,7 +141,11 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 
         public Task<Models.User?> TryGetUserFromCache(string accessToken)
         {
-            _logger.LogInformation("Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}", _httpContextAccessor.HttpContext?.GetCorrelationId(), accessToken);
+            _logger.LogInformation(
+                "Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}",
+                _httpContextAccessor.HttpContext?.GetCorrelationId(),
+                accessToken
+            );
 
             return _cachingService.TryGetObject<Models.User>(GetCacheKey(accessToken));
         }
@@ -196,9 +196,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         {
             var userInfo =
                 await _userInfoClient.TryInvokeAsync(accessToken)
-                ?? throw new InvalidDataException(
-                    "Can't get user info"
-                );
+                ?? throw new InvalidDataException("Can't get user info");
 
             var foundUserFromDb = await EntityFrameworkUtils.TryDbOperation(
                 () => _repo.GetOne(userInfo.Email, nameof(UserEntity.Email)),

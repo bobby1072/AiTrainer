@@ -1,18 +1,18 @@
-﻿using AiTrainer.Web.Common.Extensions;
-using AiTrainer.Web.Common.Models.Configuration;
+﻿using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
+using BT.Common.Helpers.Extensions;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete
 {
     internal class CoreClientChunkDocument : BaseCoreClient<DocumentToChunk, ChunkedDocument>
     {
-        private const string _endpoint = "api/chunkingrouter/chunkdocument";
         public CoreClientChunkDocument(
+
             HttpClient httpClient,
             ILogger<CoreClientChunkDocument> logger,
             IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
@@ -25,9 +25,10 @@ namespace AiTrainer.Web.CoreClient.Clients.Concrete
             {
                 Method = HttpMethod.Post,
                 Content = JsonContent.Create(param),
-                RequestUri = _aiTrainerCoreConfiguration.BaseEndpoint.AppendPathToUrl(
-                    _endpoint
-                ),
+                RequestUri = _aiTrainerCoreConfiguration.BaseEndpoint
+                    .AppendPathToUrl("api")
+                    .AppendPathToUrl("chunkingrouter")
+                    .AppendPathToUrl("chunkdocument"),
             };
             AddApiKeyHeader(request);
             

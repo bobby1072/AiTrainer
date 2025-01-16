@@ -1,5 +1,4 @@
 using System.Net;
-using AiTrainer.Web.Api.SignalR.Models;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models;
