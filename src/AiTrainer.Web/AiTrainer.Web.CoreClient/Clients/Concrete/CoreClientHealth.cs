@@ -28,30 +28,15 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
     }
     public async Task<CoreClientHealthResponse?> TryInvokeAsync()
     {
-        try
-        {
-            var response = await _aiTrainerCoreConfiguration.BaseEndpoint
-                .AppendPathSegment("api")
-                .AppendPathSegment("healthrouter")
-                .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
-                .GetJsonAsync<CoreClientHealthResponse>(_aiTrainerCoreConfiguration);
+        var response = await _aiTrainerCoreConfiguration.BaseEndpoint
+            .AppendPathSegment("api")
+            .AppendPathSegment("healthrouter")
+            .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .GetJsonAsync<CoreResponse<CoreClientHealthResponse>>(_aiTrainerCoreConfiguration)
+            .CoreClientExceptionHandling(_logger, nameof(CoreClientHealth));
+        
             
-                
-            return response;
-        }
-        catch (FlurlHttpException ex)
-        {
-            _logger.LogError(ex, "{NameOfOp} request failed with status code {StatusCode}",
-                nameof(CoreClientHealth),
-                ex.StatusCode);
-            return null;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "{NameOfOp} request failed",
-                nameof(CoreClientHealth));
-            return null;
-        }
+        return response?.Data;
     }
 
 }

@@ -26,31 +26,16 @@ namespace AiTrainer.Web.CoreClient.Clients.Concrete
 
         public async Task<ChunkedDocument?> TryInvokeAsync(DocumentToChunk param)
         {
-            try
-            {
-                var response = await _aiTrainerCoreConfiguration.BaseEndpoint
-                    .AppendPathSegment("api")
-                    .AppendPathSegment("chunkingrouter")
-                    .AppendPathSegment("chunkdocument")
-                    .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
-                    .PostJsonAsync(param)
-                    .ReceiveJsonAsync<ChunkedDocument>(_aiTrainerCoreConfiguration);
+            var response = await _aiTrainerCoreConfiguration.BaseEndpoint
+                .AppendPathSegment("api")
+                .AppendPathSegment("chunkingrouter")
+                .AppendPathSegment("chunkdocument")
+                .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+                .PostJsonAsync(param)
+                .ReceiveJsonAsync<CoreResponse<ChunkedDocument>>(_aiTrainerCoreConfiguration)
+                .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
 
-                return response;
-            }
-            catch (FlurlHttpException ex)
-            {
-                _logger.LogError(ex, "{NameOfOp} request failed with status code {StatusCode}",
-                    nameof(CoreClientChunkDocument),
-                    ex.StatusCode);
-                return null;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "{NameOfOp} request failed",
-                    nameof(CoreClientChunkDocument));
-                return null;
-            }
+            return response?.Data;
         }
     }
 }

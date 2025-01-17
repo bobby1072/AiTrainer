@@ -25,12 +25,12 @@ namespace AiTrainer.Web.CoreClient
 
             serviceCollection.Configure<AiTrainerCoreConfiguration>(aiTrainerCoreSection);
 
-            serviceCollection.AddHttpClient<
-                ICoreClient<DocumentToChunk, ChunkedDocument>,
-                CoreClientChunkDocument
-            >();
-
-            serviceCollection.AddHttpClient<ICoreClient<CoreClientHealthResponse>, CoreClientHealth>();
+            serviceCollection
+                .AddScoped<
+                    ICoreClient<DocumentToChunk, ChunkedDocument>,
+                    CoreClientChunkDocument
+                >()
+                .AddScoped<ICoreClient<CoreClientHealthResponse>, CoreClientHealth>();
 
             return serviceCollection;
         }

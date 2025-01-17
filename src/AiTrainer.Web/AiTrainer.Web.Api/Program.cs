@@ -27,7 +27,6 @@ builder.Services.Configure<ApplicationSettingsConfiguration>(appSettings);
 
 builder
     .Services.AddDistributedMemoryCache()
-    .AddHttpClient()
     .AddHttpContextAccessor()
     .AddResponseCompression()
     .AddRequestTimeouts(opts =>
