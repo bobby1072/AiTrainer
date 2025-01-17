@@ -80,7 +80,7 @@ app.UseRouting();
 app.UseResponseCompression();
 app.UseAuthorization();
 app.UseAuthentication();
-app.AddAiTrainerDefaultMiddlewares();
+app.UseAiTrainerDefaultMiddlewares();
 app.MapAiTrainerSignalRHubs();
 app.MapControllers();
 #pragma warning disable ASP0014
