@@ -8,56 +8,50 @@ using Microsoft.Extensions.Options;
 using System.Net.Http.Json;
 using BT.Common.Helpers.Extensions;
 using BT.Common.Polly.Models.Concrete;
+using Flurl;
+using Flurl.Http;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientHealth: BaseCoreClient<CoreClientHealthResponse>
+internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
 {
+    private readonly ILogger<CoreClientHealth> _logger;
+    private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
+
     public CoreClientHealth(
-        HttpClient httpClient,
         ILogger<CoreClientHealth> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
     )
-        : base(httpClient, aiTrainerCoreConfig, logger) { }
-
-    public override async Task<CoreClientHealthResponse?> TryInvokeAsync()
+    {
+        _logger = logger;
+        _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
+    }
+    public async Task<CoreClientHealthResponse?> TryInvokeAsync()
     {
         try
         {
-            var result = await TimeAndExecuteRequest(() => _httpClient.SendAsync(BuildMessage(), new PollyRetrySettings
-            {
-                TotalAttempts = 1,
-                TimeoutInSeconds = 3,
-            }));
+            var response = await _aiTrainerCoreConfiguration.BaseEndpoint
+                .AppendPathSegment("api")
+                .AppendPathSegment("healthrouter")
+                .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+                .GetJsonAsync<CoreClientHealthResponse>(_aiTrainerCoreConfiguration);
             
-            result.EnsureSuccessStatusCodeAndThrowCoreClientException();
-
-            var data = await result.Content.ReadFromJsonAsync<CoreResponse<CoreClientHealthResponse>>();
-
-            var actualData = data.EnsureSuccessfulCoreResponseAndGetData();
-
-            return actualData;
+                
+            return response;
         }
-        catch (Exception e)
+        catch (FlurlHttpException ex)
         {
-            LogCoreError(e);
+            _logger.LogError(ex, "{NameOfOp} request failed with status code {StatusCode}",
+                nameof(CoreClientHealth),
+                ex.StatusCode);
             return null;
         }
-        
-    }
-
-    protected override HttpRequestMessage BuildMessage()
-    {
-        var request = new HttpRequestMessage
+        catch (Exception ex)
         {
-            Method = HttpMethod.Get,
-            RequestUri = _aiTrainerCoreConfiguration.BaseEndpoint
-                .AppendPathToUrl("api")
-                .AppendPathToUrl("healthrouter"),
-        };
-        AddApiKeyHeader(request);
-            
-        return request;
+            _logger.LogError(ex, "{NameOfOp} request failed",
+                nameof(CoreClientHealth));
+            return null;
+        }
     }
 
 }
