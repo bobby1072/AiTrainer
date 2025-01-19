@@ -1,5 +1,4 @@
-﻿using System.Net;
-using AiTrainer.Web.Common.Exceptions;
+﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
@@ -12,6 +11,7 @@ using AiTrainer.Web.UserInfoClient.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {

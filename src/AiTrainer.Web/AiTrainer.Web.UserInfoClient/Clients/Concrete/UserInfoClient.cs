@@ -2,12 +2,12 @@ using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Flurl.Http;
 using BT.Common.HttpClient.Extensions;
 using BT.Common.OperationTimer.Proto;
+using Flurl.Http;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 
 namespace AiTrainer.Web.UserInfoClient.Clients.Concrete

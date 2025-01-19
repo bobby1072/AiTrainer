@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
-namespace AiTrainer.Web.Persistence
+namespace AiTrainer.Web.Persistence.Extensions
 {
     public static class PersistenceServiceCollectionExtensions
     {

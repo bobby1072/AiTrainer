@@ -7,7 +7,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AiTrainer.Web.CoreClient
+namespace AiTrainer.Web.CoreClient.Extensions
 {
     public static class CoreClientServiceCollectionExtensions
     {

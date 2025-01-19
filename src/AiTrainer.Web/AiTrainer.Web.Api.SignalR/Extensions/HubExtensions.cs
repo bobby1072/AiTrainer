@@ -1,5 +1,5 @@
-using System.Reflection;
 using Microsoft.AspNetCore.SignalR;
+using System.Reflection;
 
 namespace AiTrainer.Web.Api.SignalR.Extensions;
 

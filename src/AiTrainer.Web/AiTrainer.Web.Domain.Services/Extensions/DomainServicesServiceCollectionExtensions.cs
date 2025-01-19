@@ -7,7 +7,7 @@ using AiTrainer.Web.Domain.Services.User.Concrete;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace AiTrainer.Web.Domain.Services
+namespace AiTrainer.Web.Domain.Services.Extensions
 {
     public static class DomainServicesServiceCollectionExtensions
     {
