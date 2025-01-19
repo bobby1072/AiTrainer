@@ -73,7 +73,7 @@ export const AddFileDocumentModal: React.FC<{
         id="uploadFileDocumentForm"
         onSubmit={handleSubmit((formVals) => {
           reset();
-          var formData = new FormData();
+          const formData = new FormData();
           formData.append("file", formVals.file);
           if (formVals.collectionId) {
             formData.append("collectionId", formVals.collectionId);

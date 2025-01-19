@@ -1,8 +1,8 @@
-using System.Net;
 using AiTrainer.Web.Common.Attributes;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Services.User.Abstract;
+using System.Net;
 
 namespace AiTrainer.Web.Api.Middlewares
 {

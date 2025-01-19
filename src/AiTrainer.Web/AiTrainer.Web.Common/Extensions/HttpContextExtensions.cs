@@ -1,7 +1,7 @@
-﻿using System.Net;
-using AiTrainer.Web.Common.Exceptions;
+﻿using AiTrainer.Web.Common.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
+using System.Net;
 
 namespace AiTrainer.Web.Common.Extensions
 {
