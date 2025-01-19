@@ -143,7 +143,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         {
             _logger.LogInformation(
                 "Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}",
-                _httpContextAccessor.HttpContext?.GetCorrelationId(),
+                _httpContextAccessor?.HttpContext?.GetCorrelationId(),
                 accessToken
             );
 

@@ -28,7 +28,7 @@ export default abstract class ApplicationBuilder {
       Number(AppSettingsProvider.TryGetValue(AppSettingsKeys.ExpressPort)) ||
       5000;
     app.listen(port, () => {
-      console.log(`\n\nServer running on port: ${port}\n\n`);
+      console.log("\n\nServer running on port: ", port);
     });
   }
 }
