@@ -59,6 +59,7 @@ export default abstract class FaissStoreServiceProvider {
 
     return filePath;
   }
+  //Need to refactor this to save the raw store to file
   public async SaveRawStoreToFile(
     jsonObject: Record<string, any>,
     indexFile: string | Buffer
