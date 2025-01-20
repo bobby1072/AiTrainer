@@ -2,7 +2,7 @@ namespace AiTrainer.Web.Api.Middlewares
 {
     public static class MiddlewareApplicationBuilderExtensions
     {
-        public static IApplicationBuilder AddAiTrainerDefaultMiddlewares(
+        public static IApplicationBuilder UseAiTrainerDefaultMiddlewares(
             this IApplicationBuilder app
         )
         {

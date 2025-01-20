@@ -19,7 +19,7 @@ namespace AiTrainer.Web.UserInfoClient
             
             services
                 .Configure<UserInfoClientConfiguration>(userInfoSettingsSection)
-                .AddHttpClient<IUserInfoClient, Clients.Concrete.UserInfoClient>();
+                .AddScoped<IUserInfoClient, Clients.Concrete.UserInfoClient>();
 
 
             return services;

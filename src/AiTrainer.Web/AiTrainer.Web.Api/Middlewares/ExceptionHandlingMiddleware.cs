@@ -21,13 +21,13 @@ namespace AiTrainer.Web.Api.Middlewares
         }
         public override async Task InvokeAsync(HttpContext context)
         {
-            var time = await OperationTimerUtils.TimeAsync(() => TryInvokeAsync(context));
+            var time = await OperationTimerUtils.TimeAsync(() => TryToInvokeFuncAsync(context));
             var correlationId = context.GetCorrelationId();
 
             _logger.LogInformation("Request with correlationId {CorrelationId} took {TimeTaken}ms to complete", correlationId, time.Milliseconds);
         }
 
-        private async Task TryInvokeAsync(HttpContext context)
+        private async Task TryToInvokeFuncAsync(HttpContext context)
         {
             try
             {

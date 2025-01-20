@@ -3,28 +3,23 @@ node_modules/
 .vscode/
 .vs/
 bin/
+.github/
 obj/
 *.csproj.user
 dist/
 .config/
 .aspnet/
-
+/expressappsettings.json
 expressappsettings.json
-
 filestore/
 .config/
-
 wwwroot/
-
 *.sln.DotSettings.user
 .idea/
-
 /.pnp
 .pnp.js
-
 # testing
 /coverage
-
 # misc
 .DS_Store
 .env.local

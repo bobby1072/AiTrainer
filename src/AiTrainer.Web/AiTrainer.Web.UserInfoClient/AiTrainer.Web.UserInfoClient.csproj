@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Flurl.Http" Version="4.0.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
@@ -15,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.HttpClient\BT.Common.HttpClient.csproj" />
+    <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.OperationTimer\BT.Common.OperationTimer.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
   </ItemGroup>
 

@@ -7,8 +7,12 @@ variables:
 
   - name: AiTrainerCore.ApiKey
     value: $(pipeline.AiTrainerCore.ApiKey)
+    
   - name: AiTrainerCore.BaseEndpoint
     value: $(pipeline.AiTrainerCore.BaseEndpoint)
 
   - name: AiTrainerWebEndpoint
     value: $(pipeline.AiTrainerWebEndpoint)
+
+  - name: OPENAI_API_KEY
+    value: $(pipeline.OPENAI_API_KEY) 
