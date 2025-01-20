@@ -1,0 +1,8 @@
+{
+  "DocumentChunker": {
+    "ChunkSize": 512,
+    "ChunkOverlap": 128
+  },
+  "ExpressPort": 4000,
+  "AiTrainerCore": {}
+}

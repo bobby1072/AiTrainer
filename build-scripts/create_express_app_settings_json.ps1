@@ -1,4 +1,7 @@
-# Define the data as a hashtable
+param (
+    [string] $filePath = ".\src\AiTrainer.Core\src\Data\expressappsettings.json"
+)
+$ErrorActionPreference = "Stop"
 $data = @{
     OPENAI_API_KEY  = "OpenAI_ApiKey"
     DocumentChunker = @{
@@ -11,11 +14,8 @@ $data = @{
     }
 }
 
-# Convert the hashtable to JSON
 $json = $data | ConvertTo-Json -Depth 3 -Compress
 
-# Save the JSON to a file
-$json | Out-File -FilePath "./../src/AiTrainer.Core/src/Data/expressappsettings.json" -Encoding utf8
+$json | Out-File -FilePath $filePath -Encoding utf8
 
-# Output to console for confirmation
-Write-Host "JSON file 'expressappsettings.json' has been created."
+Write-Host "JSON file 'expressappsettings.json' has been created"
