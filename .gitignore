@@ -9,6 +9,7 @@ obj/
 dist/
 .config/
 .aspnet/
+/expressappsettings.json
 expressappsettings.json
 filestore/
 .config/
