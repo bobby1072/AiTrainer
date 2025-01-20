@@ -1,20 +1,18 @@
 import express, { Application } from "express";
 import ApplicationBuilder from "./Api/ApplicationBuilder";
-// console.log("hellllloooo");
-// const faissStoreFactory = new FaissStoreFactory();
-// const testStoreService = new TestStoreService(faissStoreFactory);
-
-// await testStoreService.BuildStoreAndLoadDocuments();
-
-// const similaritySearchResults =
-//   await testStoreService.Store!.similaritySearch("biology", 2);
-
-// await testStoreService.SaveStore();
-// console.table(similaritySearchResults);
+import Guid from "./Utils/Guid";
 
 abstract class Program {
   private static _app: Application = express();
   public static async Main(): Promise<void> {
+    // const store = FaissStoreFactory.CreateFaissStore();
+
+    // await FaissStoreServiceProvider.LoadDocumentsIntoStore(
+    //   store,
+    //   TestDocuments.Documents
+    // );
+
+    // await FaissStoreServiceProvider.SaveStoreToFile(store);
     ApplicationBuilder.AddSystemMiddlewares(Program._app);
     ApplicationBuilder.AddDomainMiddleware(Program._app);
     ApplicationBuilder.AddRoutes(Program._app);

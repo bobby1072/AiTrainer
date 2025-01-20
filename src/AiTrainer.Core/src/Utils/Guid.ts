@@ -34,22 +34,16 @@ export default class Guid {
   }
   private static GenerateUUIDv4(): string {
     const randomBytes = new Uint8Array(16);
-    for (let i = 0; i < 16; i++) {
-      randomBytes[i] = Math.floor(Math.random() * 256);
-    }
+    crypto.getRandomValues(randomBytes);
 
     randomBytes[6] = (randomBytes[6] & 0x0f) | 0x40;
-
     randomBytes[8] = (randomBytes[8] & 0x3f) | 0x80;
 
-    const uuid = [...randomBytes]
+    return [...randomBytes]
       .map((byte, i) => {
         const hex = byte.toString(16).padStart(2, "0");
-        if (i === 4 || i === 6 || i === 8 || i === 10) return `-${hex}`;
-        return hex;
+        return [4, 6, 8, 10].includes(i) ? `-${hex}` : hex;
       })
       .join("");
-
-    return uuid;
   }
 }

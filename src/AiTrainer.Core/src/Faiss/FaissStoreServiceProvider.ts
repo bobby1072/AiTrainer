@@ -1,11 +1,12 @@
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
 import { Document } from "@langchain/core/documents";
 import Guid from "../Utils/Guid";
-import { OpenAIEmbeddings } from "@langchain/openai";
 import AppSettingsProvider from "../Utils/AppSettingsProvider";
 import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 import { access, mkdir, unlink, writeFile } from "fs";
 import path from "path";
+import FaissStoreFactory from "./FaissStoreFactory";
+import { FaissEmbeddings } from "./FaissEmbeddings";
 
 process.env.OPENAI_API_KEY = AppSettingsProvider.TryGetValue(
   AppSettingsKeys.OpenAiApiKey
@@ -13,27 +14,6 @@ process.env.OPENAI_API_KEY = AppSettingsProvider.TryGetValue(
 
 export default abstract class FaissStoreServiceProvider {
   private static readonly _directoryToSaveTo: string = "./filestore/";
-  private static readonly _embeddings = new OpenAIEmbeddings({
-    model: "text-embedding-3-small",
-  });
-
-  public static CreateFaissStore(): FaissStore {
-    const vectorStore = new FaissStore(
-      FaissStoreServiceProvider._embeddings,
-      {}
-    );
-    return vectorStore;
-  }
-
-  public static async LoadFaissStoreFromFile(
-    filePath: string
-  ): Promise<FaissStore> {
-    const vectorStore = await FaissStore.load(
-      filePath,
-      FaissStoreServiceProvider._embeddings
-    );
-    return vectorStore;
-  }
   public static async LoadFaissStoreFromFileAndRemoveFile(
     filePath: string
   ): Promise<FaissStore> {
@@ -51,9 +31,7 @@ export default abstract class FaissStoreServiceProvider {
   }
 
   public static async SaveStoreToFile(store: FaissStore): Promise<string> {
-    const filePath = `${
-      FaissStoreServiceProvider._directoryToSaveTo
-    }${Guid.NewGuidString()}`;
+    const filePath = FaissStoreServiceProvider.CreateNewFilePath();
 
     await store.save(filePath);
 
@@ -78,14 +56,10 @@ export default abstract class FaissStoreServiceProvider {
       });
     }
 
-    const jsonFilePath = path.join(
-      FaissStoreServiceProvider._directoryToSaveTo,
-      "data.json"
-    );
-    const indexFilePath = path.join(
-      FaissStoreServiceProvider._directoryToSaveTo,
-      "index.file"
-    );
+    const filePath = FaissStoreServiceProvider.CreateNewFilePath();
+
+    const jsonFilePath = path.join(filePath, "docstore.json");
+    const indexFilePath = path.join(filePath, "faiss.index");
 
     const jsonWriteJob = writeFile(
       jsonFilePath,
@@ -105,7 +79,7 @@ export default abstract class FaissStoreServiceProvider {
 
     await Promise.all([jsonWriteJob, indexWriteJob]);
 
-    throw new Error();
+    return filePath;
   }
 
   public static async LoadDocumentsIntoStore(
@@ -128,5 +102,17 @@ export default abstract class FaissStoreServiceProvider {
     );
 
     return searchResults;
+  }
+  private static async LoadFaissStoreFromFile(
+    filePath: string
+  ): Promise<FaissStore> {
+    const vectorStore = await FaissStore.load(filePath, FaissEmbeddings);
+    return vectorStore;
+  }
+  private static CreateNewFilePath(): string {
+    return path.join(
+      FaissStoreServiceProvider._directoryToSaveTo,
+      Guid.NewGuidString()
+    );
   }
 }
