@@ -1,6 +1,5 @@
 import express, { Application } from "express";
 import ApplicationBuilder from "./Api/ApplicationBuilder";
-import Guid from "./Utils/Guid";
 
 abstract class Program {
   private static _app: Application = express();

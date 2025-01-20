@@ -1,18 +1,22 @@
+import { AppSettingsKeys } from "./AppSettingsKeys";
+
 export default abstract class AppSettingsProvider {
   private static readonly _appSettingsJson = require("./../data/expressappsettings.json");
-  public static TryGetValue(key: string): string | undefined | null {
+  public static TryGetValue(key: AppSettingsKeys): string | undefined | null {
     try {
       const keys = key.split(".");
+      if (keys.length < 1) {
+        return undefined;
+      }
       let result: any = this._appSettingsJson;
-
       for (const k of keys) {
         if (result[k] === undefined) {
-          return null;
+          return undefined;
         }
         result = result[k];
       }
 
-      return result as string;
+      return result.toString() as string;
     } catch {
       return undefined;
     }

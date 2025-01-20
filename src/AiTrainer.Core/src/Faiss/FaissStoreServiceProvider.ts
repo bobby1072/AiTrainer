@@ -5,7 +5,6 @@ import AppSettingsProvider from "../Utils/AppSettingsProvider";
 import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 import { access, mkdir, unlink, writeFile } from "fs";
 import path from "path";
-import FaissStoreFactory from "./FaissStoreFactory";
 import { FaissEmbeddings } from "./FaissEmbeddings";
 
 process.env.OPENAI_API_KEY = AppSettingsProvider.TryGetValue(
@@ -14,6 +13,10 @@ process.env.OPENAI_API_KEY = AppSettingsProvider.TryGetValue(
 
 export default abstract class FaissStoreServiceProvider {
   private static readonly _directoryToSaveTo: string = "./filestore/";
+  public static CreateFaissStore(): FaissStore {
+    const vectorStore = new FaissStore(FaissEmbeddings, {});
+    return vectorStore;
+  }
   public static async LoadFaissStoreFromFileAndRemoveFile(
     filePath: string
   ): Promise<FaissStore> {
@@ -37,7 +40,6 @@ export default abstract class FaissStoreServiceProvider {
 
     return filePath;
   }
-  //Need to refactor this to save the raw store to file
   public async SaveRawStoreToFile(
     jsonObject: Record<string, any>,
     indexFile: string | Buffer
@@ -61,23 +63,21 @@ export default abstract class FaissStoreServiceProvider {
     const jsonFilePath = path.join(filePath, "docstore.json");
     const indexFilePath = path.join(filePath, "faiss.index");
 
-    const jsonWriteJob = writeFile(
-      jsonFilePath,
-      JSON.stringify(jsonObject),
-      (ex) => {
+    const jsonWriteJob = async () =>
+      writeFile(jsonFilePath, JSON.stringify(jsonObject), (ex) => {
         if (ex) {
           throw ex;
         }
-      }
-    );
+      });
 
-    const indexWriteJob = writeFile(indexFilePath, indexFile, (ex) => {
-      if (ex) {
-        throw ex;
-      }
-    });
+    const indexWriteJob = async () =>
+      writeFile(indexFilePath, indexFile, (ex) => {
+        if (ex) {
+          throw ex;
+        }
+      });
 
-    await Promise.all([jsonWriteJob, indexWriteJob]);
+    await Promise.all([jsonWriteJob(), indexWriteJob()]);
 
     return filePath;
   }
