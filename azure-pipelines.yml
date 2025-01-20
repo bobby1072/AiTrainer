@@ -64,6 +64,9 @@ stages:
             inputs:
               versionSpec: 22.x
 
+          - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1
+            displayName: "Add build environment"
+
           - task: FileTransform@2
             displayName: "Transform express app settings"
             inputs:
