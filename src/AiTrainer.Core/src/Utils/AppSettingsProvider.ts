@@ -22,14 +22,11 @@ export default abstract class AppSettingsProvider {
           if (prodResult[k] !== undefined) {
             prodResult = prodResult[k];
           }
-          prodResult = prodResult[k];
         } catch {}
       }
 
       return process.env.NODE_ENV === "development"
-        ? devResult
-          ? devResult
-          : prodResult
+        ? devResult || prodResult
         : (prodResult.toString() as string);
     } catch {
       return undefined;

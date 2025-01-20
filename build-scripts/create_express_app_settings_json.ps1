@@ -4,6 +4,7 @@ param (
 $ErrorActionPreference = "Stop"
 $data = @{
     OPENAI_API_KEY  = "OpenAI_ApiKey"
+    ReleaseVersion = "1.0.0"
     DocumentChunker = @{
         ChunkSize    = 512
         ChunkOverlap = 128
