@@ -8,23 +8,16 @@ obj/
 dist/
 .config/
 .aspnet/
-
 expressappsettings.json
-
 filestore/
 .config/
-
 wwwroot/
-
 *.sln.DotSettings.user
 .idea/
-
 /.pnp
 .pnp.js
-
 # testing
 /coverage
-
 # misc
 .DS_Store
 .env.local
