@@ -1,9 +1,10 @@
+import { z } from "zod";
+
 export default class Guid {
   private readonly _actualValue: string;
-  private static readonly _uuidV4Regex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  private static readonly _uuidSchema = z.string().uuid();
   private constructor(guidVal?: string) {
-    this._actualValue = guidVal ? guidVal : Guid.GenerateUUIDv4();
+    this._actualValue = guidVal || Guid.GenerateUUIDv4();
   }
   public toString(): string {
     return this._actualValue;
@@ -18,19 +19,20 @@ export default class Guid {
     return new Guid().ToString();
   }
   public static Parse(uuid: string): Guid {
-    if (!Guid.IsValidUUIDv4(uuid)) {
+    if (!Guid.IsValidUUID(uuid)) {
       throw new Error("Invalid UUID v4");
     }
     return new Guid(uuid);
   }
   public static TryParse(uuid: string): Guid | undefined | null {
-    if (!Guid.IsValidUUIDv4(uuid)) {
+    try {
+      return Guid.Parse(uuid);
+    } catch {
       return null;
     }
-    return new Guid(uuid);
   }
-  public static IsValidUUIDv4(uuid: string): boolean {
-    return Guid._uuidV4Regex.test(uuid);
+  public static IsValidUUID(uuid: string): boolean {
+    return Guid._uuidSchema.safeParse(uuid).success;
   }
   private static GenerateUUIDv4(): string {
     const randomBytes = new Uint8Array(16);
@@ -38,12 +40,15 @@ export default class Guid {
 
     randomBytes[6] = (randomBytes[6] & 0x0f) | 0x40;
     randomBytes[8] = (randomBytes[8] & 0x3f) | 0x80;
-
-    return [...randomBytes]
+    const finalGuid = [...randomBytes]
       .map((byte, i) => {
         const hex = byte.toString(16).padStart(2, "0");
         return [4, 6, 8, 10].includes(i) ? `-${hex}` : hex;
       })
       .join("");
+    if (!Guid.IsValidUUID(finalGuid)) {
+      return Guid.GenerateUUIDv4();
+    }
+    return finalGuid;
   }
 }
