@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Models.ApiModels.Request;
+﻿using AiTrainer.Web.Common.Helpers;
+using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Partials;
 using Microsoft.AspNetCore.Http;
 
@@ -62,6 +63,23 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 UserId = fileDocument.UserId,
                 Id = fileDocument.Id,
             };
+        }
+
+        public static async Task<string[]> GetTextFileContent(this FileDocument fileDocument)
+        {
+            if (fileDocument.FileType == FileTypeEnum.Pdf)
+            {
+                var pdfText = FileHelper.GetTextFromPdfFileByteArray(fileDocument.FileData);
+                
+                return pdfText.ToArray();
+            }
+
+            else
+            {
+                var foundText = await FileHelper.GetTextFromTextFileByteArray(fileDocument.FileData);
+                
+                return [foundText];
+            }
         }
     }
 }
