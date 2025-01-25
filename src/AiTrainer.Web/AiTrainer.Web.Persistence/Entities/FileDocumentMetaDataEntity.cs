@@ -6,7 +6,7 @@ namespace AiTrainer.Web.Persistence.Entities;
 [Table("file_document_metadata", Schema = DbConstants.PublicSchema)]
 public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData>
 {
-    public required Guid DocumentId { get; init; }
+    public Guid DocumentId { get; init; }
     public string? Title { get; init; }
     public string? Author { get; init; }
     public string? Subject { get; init; }

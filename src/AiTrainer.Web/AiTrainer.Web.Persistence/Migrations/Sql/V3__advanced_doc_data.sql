@@ -1,6 +1,6 @@
 CREATE TABLE public."file_document_metadata"(
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    document_id UUID NOT NULL REFERENCES public."file_document"(id) ON DELETE CASCADE ON UPDATE CASCADE UNIQUE UNIQUE,
+    document_id UUID NOT NULL REFERENCES public."file_document"(id) ON DELETE CASCADE ON UPDATE CASCADE UNIQUE,
     title TEXT,
     author TEXT,
     subject TEXT,

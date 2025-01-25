@@ -21,41 +21,44 @@ namespace AiTrainer.Web.Persistence.Contexts
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
                 ent.ToTable("file_document_metadata");
-                
+
                 ent.HasKey(e => e.Id);
-                
+
                 ent.Property(e => e.Id).HasColumnName("id");
 
                 ent.Property(e => e.DocumentId).HasColumnName("document_id");
-                
+
                 ent.Property(e => e.Title).HasColumnName("title");
-                
+
                 ent.Property(e => e.Author).HasColumnName("author");
-                
+
                 ent.Property(e => e.Subject).HasColumnName("subject");
-                
+
                 ent.Property(e => e.Keywords).HasColumnName("keywords");
-                
+
                 ent.Property(e => e.Creator).HasColumnName("creator");
-                
+
                 ent.Property(e => e.Producer).HasColumnName("producer");
-                
+
                 ent.Property(e => e.CreationDate).HasColumnName("creation_date");
-                
+
                 ent.Property(e => e.ModifiedDate).HasColumnName("modified_date");
-                
+
                 ent.Property(e => e.NumberOfPages).HasColumnName("number_of_pages");
-                
+
                 ent.Property(e => e.IsEncrypted).HasColumnName("is_encrypted");
-                
-                ent.Property(e => e.ExtraData).HasColumnName("extra_data");
-                
+
+                ent.Property(e => e.ExtraData).HasColumnName("extra_data").HasColumnType("jsonb");
+
+                ent.HasOne<FileDocumentEntity>()
+                    .WithOne()
+                    .HasForeignKey<FileDocumentMetaDataEntity>(e => e.DocumentId);
             });
-            
+
             modelBuilder.Entity<FileDocumentEntity>(entity =>
             {
                 entity.ToTable("file_document", DbConstants.PublicSchema);
-            
+
                 entity.Property(e => e.CollectionId).HasColumnName("collection_id");
 
                 entity.Property(e => e.DateCreated).HasColumnName("date_created");

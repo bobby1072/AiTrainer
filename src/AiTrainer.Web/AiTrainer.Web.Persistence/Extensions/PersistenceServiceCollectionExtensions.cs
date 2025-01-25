@@ -18,7 +18,8 @@ namespace AiTrainer.Web.Persistence.Extensions
     {
         public static IServiceCollection AddSqlPersistence(
             this IServiceCollection services,
-            IConfiguration configuration
+            IConfiguration configuration,
+            bool isDevelopment = false
         )
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
@@ -53,18 +54,24 @@ namespace AiTrainer.Web.Persistence.Extensions
 
             services
                 .AddPooledDbContextFactory<AiTrainerContext>(options =>
-                    options
-                        .UseSnakeCaseNamingConvention()
-                        .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                        .UseNpgsql(
-                            connectionStringBuilder.ConnectionString,
-                            options =>
-                            {
-                                options.UseQuerySplittingBehavior(
-                                    QuerySplittingBehavior.SingleQuery
-                                );
-                            }
-                        )
+                    {
+                        if (isDevelopment)
+                        {
+                            options.EnableSensitiveDataLogging();
+                        }
+                        options
+                            .UseSnakeCaseNamingConvention()
+                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+                            .UseNpgsql(
+                                connectionStringBuilder.ConnectionString,
+                                options =>
+                                {
+                                    options.UseQuerySplittingBehavior(
+                                        QuerySplittingBehavior.SingleQuery
+                                    );
+                                }
+                            );
+                    }
                 )
                 .AddHealthChecks();
 
@@ -78,7 +85,8 @@ namespace AiTrainer.Web.Persistence.Extensions
                     IFileCollectionRepository,
                     FileCollectionRepository
                 >()
-                .AddScoped<IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss>, FileCollectionFaissRepository>();
+                .AddScoped<IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss>, FileCollectionFaissRepository>()
+                .AddScoped<IRepository<FileDocumentMetaDataEntity, long, FileDocumentMetaData>, FileDocumentMetaDataRepository>();
 
             return services;
         }

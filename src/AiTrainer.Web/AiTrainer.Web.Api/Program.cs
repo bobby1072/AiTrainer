@@ -45,7 +45,7 @@ builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environ
 
 builder
     .Services.AddCoreClient(builder.Configuration)
-    .AddSqlPersistence(builder.Configuration)
+    .AddSqlPersistence(builder.Configuration, builder.Environment.IsDevelopment())
     .AddUserInfoClient(builder.Configuration)
     .AddAiTrainerSignalR()
     .AddDomainModelServices()
