@@ -13,10 +13,10 @@ public record FileDocumentMetaData : DomainModel<FileDocumentMetaData, long?>
     public string? Creator { get; set; }
     public string? Producer { get; set; }
     public string? CreationDate { get; set; }
-    public string? ModificationDate { get; set; }
+    public string? ModifiedDate { get; set; }
     public int? NumberOfPages { get; set; }
-    public bool IsEncrypted { get; set; }
-    public Dictionary<string, object>? ExtraData { get; set; }
+    public bool? IsEncrypted { get; set; }
+    public Dictionary<string, object> ExtraData { get; set; } = [];
 
     public override bool Equals(FileDocumentMetaData? obj)
     {
@@ -28,7 +28,7 @@ public record FileDocumentMetaData : DomainModel<FileDocumentMetaData, long?>
             && Creator == obj?.Creator
             && Producer == obj?.Producer
             && CreationDate == obj?.CreationDate
-            && ModificationDate == obj?.ModificationDate;
+            && ModifiedDate == obj?.ModifiedDate;
     }
 
     public override int GetHashCode()

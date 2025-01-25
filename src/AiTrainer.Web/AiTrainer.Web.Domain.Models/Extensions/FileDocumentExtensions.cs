@@ -14,7 +14,6 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         {
             return _fileTypeToMimeType[document.FileType];
         }
-
         public static async Task<FileDocument> ToDocumentModel(
             this FileDocumentSaveFormInput formInput,
             Guid userId
@@ -69,14 +68,14 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         {
             if (fileDocument.FileType == FileTypeEnum.Pdf)
             {
-                var pdfText = await FileHelper.GetTextFromPdfFileByteArray(fileDocument.FileData);
+                var pdfText = await FileHelper.GetTextFromPdfFile(fileDocument.FileData);
                 
                 return pdfText;
             }
 
             else if(fileDocument.FileType == FileTypeEnum.Text)
             {
-                var foundText = await FileHelper.GetTextFromTextFileByteArray(fileDocument.FileData);
+                var foundText = await FileHelper.GetTextFromTextFile(fileDocument.FileData);
                 
                 return [foundText];
             }

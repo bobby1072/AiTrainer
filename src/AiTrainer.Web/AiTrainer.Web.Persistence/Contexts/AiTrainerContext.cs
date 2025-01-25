@@ -12,6 +12,7 @@ namespace AiTrainer.Web.Persistence.Contexts
         public virtual DbSet<FileCollectionEntity> FileCollections { get; set; }
         public virtual DbSet<FileDocumentEntity> FileDocuments { get; set; }
         public virtual DbSet<FileCollectionFaissEntity> FileCollectionFaiss { get; set; }
+        public virtual DbSet<FileDocumentMetaDataEntity> FileDocumentMetaData { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

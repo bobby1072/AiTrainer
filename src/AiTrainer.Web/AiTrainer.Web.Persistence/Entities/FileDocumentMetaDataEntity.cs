@@ -12,10 +12,10 @@ public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData
     public string? Creator { get; init; }
     public string? Producer { get; init; }
     public string? CreationDate { get; init; }
-    public string? ModificationDate { get; init; }
+    public string? ModifiedDate { get; init; }
     public int? NumberOfPages { get; init; }
-    public bool IsEncrypted { get; init; }
-    public Dictionary<string, object>? ExtraData { get; init; }
+    public bool? IsEncrypted { get; init; }
+    public Dictionary<string, object> ExtraData { get; init; } = [];
 
     public override FileDocumentMetaData ToModel()
     {
@@ -30,7 +30,7 @@ public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData
             Creator = Creator,
             Producer = Producer,
             CreationDate = CreationDate,
-            ModificationDate = ModificationDate,
+            ModifiedDate = ModifiedDate,
             NumberOfPages = NumberOfPages,
             IsEncrypted = IsEncrypted,
             ExtraData = ExtraData,

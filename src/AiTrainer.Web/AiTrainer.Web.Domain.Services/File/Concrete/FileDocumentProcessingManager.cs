@@ -117,7 +117,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             }
 
             var createdFile = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.Create([newFileDoc]),
+                () => newFileDoc.FileType == FileTypeEnum.Pdf ?  _fileDocumentRepository.CreateOneWithMetaData(newFileDoc, fileDocumentSaveFormInput.FileToCreate):_fileDocumentRepository.Create([newFileDoc]),
                 _logger
             );
 
@@ -133,7 +133,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
             return createdFile.Data.First().ToPartial();
         }
-
         public async Task<Guid> DeleteFileDocument(Guid documentId)
         {
             var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();

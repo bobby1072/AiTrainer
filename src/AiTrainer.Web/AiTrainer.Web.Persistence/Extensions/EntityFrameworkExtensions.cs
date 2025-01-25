@@ -16,7 +16,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 Keywords = formInput.Keywords,
                 Creator = formInput.Creator,
                 CreationDate = formInput.CreationDate,
-                ModificationDate = formInput.ModificationDate,
+                ModifiedDate = formInput.ModifiedDate,
                 NumberOfPages = formInput.NumberOfPages,
                 IsEncrypted = formInput.IsEncrypted,
                 Producer = formInput.Producer,
