@@ -5,4 +5,5 @@ export enum QueryKeys {
   ConnectToSignalR = "connect-to-signalr",
   GetClientConfiguration = "get-client-configuration",
   GetTopLayerOfFile = "get-top-layer-of-file",
+  InitiateUserConnection = "initiate-user-connection",
 }

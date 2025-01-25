@@ -1,5 +1,4 @@
 using AiTrainer.Web.Domain.Models;
-using AiTrainer.Web.Domain.Models.Helpers;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Persistence.Contexts;
 using AiTrainer.Web.Persistence.Entities;
@@ -7,7 +6,6 @@ using AiTrainer.Web.Persistence.Extensions;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using BT.Common.FastArray.Proto;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -38,7 +36,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             try{
                 var documentEntity = document.ToEntity();
 
-                var addDocument = await dbContext.FileDocuments.AddAsync(documentEntity);
+                await dbContext.FileDocuments.AddAsync(documentEntity);
                 await dbContext.SaveChangesAsync();
                 var newlySavedDoc = dbContext.FileDocuments.Local.FirstOrDefault();
                 metaData.DocumentId = newlySavedDoc!.Id;
@@ -50,36 +48,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 await transaction.CommitAsync();
 
                 return new DbSaveResult<FileDocument>([newlySavedDoc.ToModel()]);
-            } catch{
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-        public async Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
-            FileDocument document,
-            IFormFile metaData
-        )
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            await using var transaction = await dbContext.Database.BeginTransactionAsync();
-            try{
-                var documentEntity = document.ToEntity();
-
-                var addDocument = await dbContext.FileDocuments.AddAsync(documentEntity);
-                await dbContext.SaveChangesAsync();
-                var newlySavedDoc = dbContext.FileDocuments.Local.FirstOrDefault();
-
-                var metaDataEntity = (await FileDocumentMetaDataHelper
-                    .GetFromFormFile(metaData, newlySavedDoc!.Id))
-                    .ToEntity();
-
-                await dbContext.FileDocumentMetaData.AddAsync(metaDataEntity);
-                await dbContext.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-
-                return new DbSaveResult<FileDocument>([newlySavedDoc.ToModel()]);
-            } catch{
+            } catch (Exception e){
                 await transaction.RollbackAsync();
                 throw;
             }

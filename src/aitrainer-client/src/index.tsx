@@ -17,6 +17,7 @@ import {
   AiTrainerSignalRStartConnectionProvider,
   AiTrainerSignalRProvider,
 } from "./Components/Contexts/AiTrainerSignalRContext";
+import { InitiateUserConnectionContextProvider } from "./Components/Contexts/InitiateUserConnectionContext";
 const FallbackRoute: React.FC = () => {
   const { isLoggedIn } = useAuthentication();
   return isLoggedIn ? (
@@ -64,9 +65,11 @@ const AppRoutes = [
     element: (
       <Wrapper>
         <AuthenticatedRouteWrapper>
-          <AiTrainerSignalRStartConnectionProvider>
-            {component()}
-          </AiTrainerSignalRStartConnectionProvider>
+          <InitiateUserConnectionContextProvider>
+            <AiTrainerSignalRStartConnectionProvider>
+              {component()}
+            </AiTrainerSignalRStartConnectionProvider>
+          </InitiateUserConnectionContextProvider>
         </AuthenticatedRouteWrapper>
       </Wrapper>
     ),

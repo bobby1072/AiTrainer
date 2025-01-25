@@ -16,7 +16,7 @@ public record FileDocumentMetaData : DomainModel<FileDocumentMetaData, long?>
     public string? ModifiedDate { get; set; }
     public int? NumberOfPages { get; set; }
     public bool? IsEncrypted { get; set; }
-    public Dictionary<string, object> ExtraData { get; set; } = [];
+    public Dictionary<string, string?>? ExtraData { get; set; }
 
     public override bool Equals(FileDocumentMetaData? obj)
     {

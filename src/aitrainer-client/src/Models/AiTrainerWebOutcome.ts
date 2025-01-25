@@ -1,5 +1,8 @@
-export type AiTrainerWebOutcome<T> = {
+export type AiTrainerWebOutcomeBase = {
   isSuccess: boolean;
-  data?: T | null;
   exceptionMessage?: string | null;
 };
+
+export type AiTrainerWebOutcome<T> = {
+  data?: T | null;
+} & AiTrainerWebOutcomeBase;

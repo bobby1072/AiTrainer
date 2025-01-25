@@ -6,7 +6,7 @@ import {
 import { createContext, useContext, useEffect, useState } from "react";
 import AppSettingsProvider from "../../Utils/AppSettingsProvider";
 import { AppSettingsKeys } from "../../Utils/AppSettingsKeys";
-import { useConnectToSignalR } from "../../Hooks/ConnectToSignalR";
+import { useConnectToSignalR } from "../../Hooks/useConnectToSignalR";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
 

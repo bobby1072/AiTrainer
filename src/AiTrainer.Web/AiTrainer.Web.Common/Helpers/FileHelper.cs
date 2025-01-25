@@ -10,6 +10,8 @@ public static class FileHelper
     {
         await using var memoryStream = new MemoryStream();
         await formFile.CopyToAsync(memoryStream);
+        memoryStream.Position = 0;
+        
         using var pdfDoc = PdfDocument.Open(memoryStream);
         var  pageStringList = new List<string>();
         

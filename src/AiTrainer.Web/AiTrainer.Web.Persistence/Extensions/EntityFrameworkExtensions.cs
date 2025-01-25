@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Models.ApiModels.Request;
+﻿using System.Text.Json;
+using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
 
@@ -21,7 +22,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 IsEncrypted = formInput.IsEncrypted,
                 Producer = formInput.Producer,
                 Subject = formInput.Subject,
-                ExtraData = formInput.ExtraData,
+                ExtraData = formInput.ExtraData is not null ? JsonSerializer.Serialize(formInput.ExtraData): null,
             };
 
             if (formInput.Id is long foundId)

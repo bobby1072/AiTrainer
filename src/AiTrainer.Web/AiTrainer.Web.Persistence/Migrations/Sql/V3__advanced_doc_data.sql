@@ -7,7 +7,7 @@ CREATE TABLE public."file_document_metadata"(
     keywords TEXT,
     creator TEXT,
     producer TEXT,
-    created_date TEXT,
+    creation_date TEXT,
     modified_date TEXT,
     number_of_pages INTEGER,
     is_encrypted BOOLEAN DEFAULT FALSE,

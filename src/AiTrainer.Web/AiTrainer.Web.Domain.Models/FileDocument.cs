@@ -33,6 +33,7 @@ namespace AiTrainer.Web.Domain.Models
 
         public override void ApplyCreationDefaults()
         {
+            Id = Guid.NewGuid();
             DateCreated = DateTime.UtcNow;
         }
 

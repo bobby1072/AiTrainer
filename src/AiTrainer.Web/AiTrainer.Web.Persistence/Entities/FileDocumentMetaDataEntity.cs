@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.Persistence.Entities;
@@ -17,7 +18,7 @@ public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData
     public string? ModifiedDate { get; init; }
     public int? NumberOfPages { get; init; }
     public bool? IsEncrypted { get; init; }
-    public Dictionary<string, object> ExtraData { get; init; } = [];
+    public string? ExtraData { get; init; }
 
     public override FileDocumentMetaData ToModel()
     {
@@ -35,7 +36,7 @@ public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData
             ModifiedDate = ModifiedDate,
             NumberOfPages = NumberOfPages,
             IsEncrypted = IsEncrypted,
-            ExtraData = ExtraData,
+            ExtraData = ExtraData is not null ? JsonSerializer.Deserialize<Dictionary<string, string?>>(ExtraData) : null,
         };
     }
 }

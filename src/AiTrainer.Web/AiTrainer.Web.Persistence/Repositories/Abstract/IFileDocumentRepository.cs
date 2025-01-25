@@ -10,7 +10,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
     {
         Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
             FileDocument document,
-            IFormFile metaData
+            FileDocumentMetaData metaData
         );
         Task<DbGetManyResult<FileDocumentPartial>> GetTopLevelDocumentPartialsForUser(
             Guid userId,
