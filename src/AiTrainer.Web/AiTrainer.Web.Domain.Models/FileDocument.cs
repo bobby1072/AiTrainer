@@ -6,22 +6,22 @@ namespace AiTrainer.Web.Domain.Models
     {
         public Guid? CollectionId { get; set; }
 
-        [LockedProperty]
+        [LockedData]
         public required Guid UserId { get; set; }
 
-        [LockedProperty]
+        [LockedData]
         public required FileTypeEnum FileType { get; set; }
 
-        [LockedProperty]
+        [LockedData]
         public required string FileName { get; set; }
 
-        [LockedProperty]
+        [LockedData]
         public required byte[] FileData { get; set; }
 
-        [LockedProperty]
+        [LockedData]
         public string? FileDescription { get; set; }
 
-        [LockedProperty]
+        [LockedData]
         public required DateTime DateCreated { get; set; }
 
         public override bool Equals(FileDocument? other)

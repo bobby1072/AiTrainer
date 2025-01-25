@@ -1,5 +1,5 @@
-﻿using AiTrainer.Web.Domain.Models.Attributes;
-using System.Reflection;
+﻿using System.Reflection;
+using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models.Extensions
 {
@@ -16,7 +16,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             {
                 var property = allPropertiesToCheck[i];
                 if (
-                    property?.GetCustomAttribute<LockedPropertyAttribute>() is not null
+                    property?.GetCustomAttribute<LockedDataAttribute>() is not null
                     && property.GetValue(originalModel)?.Equals(property.GetValue(checkAgainst))
                         is false
                 )

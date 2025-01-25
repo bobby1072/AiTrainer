@@ -8,21 +8,27 @@ public static class FileHelper
 
     public static async Task<string> GetTextFromTextFileByteArray(byte[] byteArrayTextFile)
     {
-        using var memoryStream = new MemoryStream(byteArrayTextFile);
+        await using var memoryStream = new MemoryStream(byteArrayTextFile);
         using var reader = new StreamReader(memoryStream, Encoding.UTF8);
         var text = await reader.ReadToEndAsync();
         
         return text;
     }
 
-    public static IEnumerable<string> GetTextFromPdfFileByteArray(byte[] byteArrayPdfFile)
+    public static async Task<IReadOnlyCollection<string>> GetTextFromPdfFileByteArray(byte[] byteArrayPdfFile)
     {
-        using var memoryStream = new MemoryStream(byteArrayPdfFile);
+        await using var memoryStream = new MemoryStream(byteArrayPdfFile);
         using var pdfDoc = PdfDocument.Open(memoryStream);
-
+        var  pageStringList = new List<string>();
+        
         foreach (var page in pdfDoc.GetPages())
         {
-            yield return page.Text;
+            if (!string.IsNullOrEmpty(page.Text))
+            {
+                pageStringList.Add(page.Text);
+            }
         }
+        
+        return pageStringList;
     }
 }

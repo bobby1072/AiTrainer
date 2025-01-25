@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Attributes;
+﻿using System.Text.Json;
+using AiTrainer.Web.Common.Attributes;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Common.Models.ApiModels.Response;
 using AiTrainer.Web.Domain.Models;
@@ -7,14 +8,23 @@ using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using Microsoft.AspNetCore.Mvc;
+using UglyToad.PdfPig;
 
 namespace AiTrainer.Web.Api.Controllers
 {
     [RequireUserLogin]
     public class FileDocumentController : BaseController
     {
-        public FileDocumentController(IDomainServiceActionExecutor actionExecutor)
-            : base(actionExecutor) { }
+        private readonly ILogger<FileDocumentController> _logger;
+
+        public FileDocumentController(
+            IDomainServiceActionExecutor actionExecutor,
+            ILogger<FileDocumentController> logger
+        )
+            : base(actionExecutor)
+        {
+            _logger = logger;
+        }
 
         [HttpPost("Download")]
         public async Task<IActionResult> Download([FromBody] RequiredGuidIdInput input)
@@ -36,6 +46,16 @@ namespace AiTrainer.Web.Api.Controllers
             [FromForm] IFormFile file
         )
         {
+            await using var memoryStream = new MemoryStream();
+            await file.CopyToAsync(memoryStream);
+            memoryStream.Position = 0;
+            
+            var doc = PdfDocument.Open(memoryStream);
+            
+            var myInfo = JsonSerializer.Serialize(doc.Advanced);
+            
+            var advanceInfo = JsonSerializer.Serialize(doc.Information);
+
             var formInput = new FileDocumentSaveFormInput
             {
                 CollectionId = collectionId,

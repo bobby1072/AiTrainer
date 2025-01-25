@@ -65,21 +65,23 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             };
         }
 
-        public static async Task<string[]> GetTextFileContent(this FileDocument fileDocument)
+        public static async Task<IReadOnlyCollection<string>> GetTextContentFromFile(this FileDocument fileDocument)
         {
             if (fileDocument.FileType == FileTypeEnum.Pdf)
             {
-                var pdfText = FileHelper.GetTextFromPdfFileByteArray(fileDocument.FileData);
+                var pdfText = await FileHelper.GetTextFromPdfFileByteArray(fileDocument.FileData);
                 
-                return pdfText.ToArray();
+                return pdfText;
             }
 
-            else
+            else if(fileDocument.FileType == FileTypeEnum.Text)
             {
                 var foundText = await FileHelper.GetTextFromTextFileByteArray(fileDocument.FileData);
                 
                 return [foundText];
             }
+            
+            return [];
         }
     }
 }
