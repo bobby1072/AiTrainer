@@ -6,26 +6,24 @@ namespace AiTrainer.Web.Domain.Models.Helpers;
 
 public static class FileDocumentMetaDataHelper{
     public static async Task<FileDocumentMetaData> GetFromFormFile(IFormFile formFile, Guid documentId){
-        if(formFile.ContentType == "application/pdf"){
-            await using var memoryStream = new MemoryStream();
-            await formFile.CopyToAsync(memoryStream);
-            using var pdfDoc = PdfDocument.Open(memoryStream);
+        if (formFile.ContentType != "application/pdf") return new FileDocumentMetaData { DocumentId = documentId };
+        await using var memoryStream = new MemoryStream();
+        await formFile.CopyToAsync(memoryStream);
+        using var pdfDoc = PdfDocument.Open(memoryStream);
 
-            return new FileDocumentMetaData{
-                DocumentId = documentId,
-                Author = pdfDoc.Information.Author,
-                CreationDate = pdfDoc.Information.CreationDate,
-                Creator = pdfDoc.Information.Creator,
-                Keywords = pdfDoc.Information.Keywords,
-                ModifiedDate = pdfDoc.Information.ModifiedDate,
-                Producer = pdfDoc.Information.Producer,
-                ExtraData = GetExtraData(pdfDoc),
-                IsEncrypted = pdfDoc.IsEncrypted,
-                NumberOfPages = pdfDoc.NumberOfPages,
-                Title = pdfDoc.Information.Title
-            };
-        }
-        return new FileDocumentMetaData{ DocumentId = documentId };
+        return new FileDocumentMetaData{
+            DocumentId = documentId,
+            Author = pdfDoc.Information.Author,
+            CreationDate = pdfDoc.Information.CreationDate,
+            Creator = pdfDoc.Information.Creator,
+            Keywords = pdfDoc.Information.Keywords,
+            ModifiedDate = pdfDoc.Information.ModifiedDate,
+            Producer = pdfDoc.Information.Producer,
+            ExtraData = GetExtraData(pdfDoc),
+            IsEncrypted = pdfDoc.IsEncrypted,
+            NumberOfPages = pdfDoc.NumberOfPages,
+            Title = pdfDoc.Information.Title
+        };
     }
 
 

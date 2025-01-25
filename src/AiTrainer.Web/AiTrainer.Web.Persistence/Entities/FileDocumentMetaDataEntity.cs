@@ -1,7 +1,9 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.Persistence.Entities;
 
+[Table("file_document_metadata", Schema = DbConstants.PublicSchema)]
 public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData>
 {
     public required Guid DocumentId { get; init; }

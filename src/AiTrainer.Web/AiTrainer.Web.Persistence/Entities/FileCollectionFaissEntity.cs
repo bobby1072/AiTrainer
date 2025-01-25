@@ -1,8 +1,10 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using AiTrainer.Web.Domain.Models;
 using System.Text.Json;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
+    [Table("file_collection_faiss", Schema = DbConstants.PublicSchema)]
     public record FileCollectionFaissEntity : BaseEntity<long, FileCollectionFaiss>
     {
         public required Guid CollectionId { get; set; }
@@ -10,7 +12,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public required JsonDocument FaissJson { get; set; }
 
         public override FileCollectionFaiss ToModel() =>
-            new FileCollectionFaiss
+            new()
             {
                 Id = Id,
                 CollectionId = CollectionId,
