@@ -11,7 +11,15 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         )
             where TModel : DomainModel<TModel, TId>
         {
-            var allPropertiesToCheck = checkAgainst.GetType().GetProperties();
+            var entType = checkAgainst.GetType();
+            if (
+                entType.GetCustomAttribute<LockedDataAttribute>() is not null
+                && originalModel.Equals(checkAgainst) is false
+            )
+            {
+                return false;
+            }
+            var allPropertiesToCheck = entType.GetProperties();
             for (var i = 0; i < allPropertiesToCheck.Length; i++)
             {
                 var property = allPropertiesToCheck[i];

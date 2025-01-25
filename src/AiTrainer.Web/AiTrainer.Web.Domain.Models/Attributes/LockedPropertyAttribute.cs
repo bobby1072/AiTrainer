@@ -4,6 +4,6 @@
     /// This attribute is used to mark a property or model type as locked.
     /// Meaning that the property or model type should not be updated and persisted.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
     public class LockedDataAttribute : Attribute { }
 }

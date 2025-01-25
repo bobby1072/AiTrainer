@@ -2,26 +2,21 @@ using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models
 {
+    [LockedData]
     public record FileDocument : DomainModel<FileDocument, Guid?>
     {
         public Guid? CollectionId { get; set; }
 
-        [LockedData]
         public required Guid UserId { get; set; }
 
-        [LockedData]
         public required FileTypeEnum FileType { get; set; }
 
-        [LockedData]
         public required string FileName { get; set; }
 
-        [LockedData]
         public required byte[] FileData { get; set; }
 
-        [LockedData]
         public string? FileDescription { get; set; }
 
-        [LockedData]
         public required DateTime DateCreated { get; set; }
 
         public override bool Equals(FileDocument? other)

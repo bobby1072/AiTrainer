@@ -2,9 +2,9 @@ using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models;
 
-public record FileDocumentMetaData : DomainModel<FileDocumentMetaData, long>
+[LockedData]
+public record FileDocumentMetaData : DomainModel<FileDocumentMetaData, long?>
 {
-    [LockedData]
     public required Guid DocumentId { get; set; }
     public string? Title { get; set; }
     public string? Author { get; set; }
@@ -29,5 +29,10 @@ public record FileDocumentMetaData : DomainModel<FileDocumentMetaData, long>
             && Producer == obj?.Producer
             && CreationDate == obj?.CreationDate
             && ModificationDate == obj?.ModificationDate;
+    }
+
+    public override int GetHashCode()
+    {
+        return base.GetHashCode();
     }
 }
