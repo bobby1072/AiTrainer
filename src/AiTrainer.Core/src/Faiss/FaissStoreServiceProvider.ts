@@ -32,7 +32,12 @@ export default abstract class FaissStoreServiceProvider {
 
     return vectorStore;
   }
+  public static async GetSaveItemsFromStore(store: FaissStore) {
+    const docStore = store.docstore;
 
+    const jsonDocStore = docStore._docs;
+    const indexFile = store.index;
+  }
   public static async SaveStoreToFile(store: FaissStore): Promise<string> {
     const filePath = FaissStoreServiceProvider.CreateNewFilePath();
 
