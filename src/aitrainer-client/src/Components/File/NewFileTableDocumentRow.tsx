@@ -15,6 +15,8 @@ import { useSnackbar } from "notistack";
 import { getFileExtension } from "../../Utils/FileUtils";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDownloadFileDocumentMutation } from "../../Hooks/useDownloadFileDocumentMutation";
+import InfoIcon from "@mui/icons-material/Info";
+
 const fileDoc = require("./fileDoc.png");
 
 export const NewFileTableDocumentRow: React.FC<{
@@ -111,6 +113,15 @@ export const NewFileTableDocumentRow: React.FC<{
           </Tooltip>
         </TableCell>
         <TableCell align="right" />
+        {fileDocPartial.metaData ? (
+          <TableCell align="right">
+            <IconButton color="inherit" size="small">
+              <InfoIcon />
+            </IconButton>
+          </TableCell>
+        ) : (
+          <TableCell align="right" />
+        )}
         <TableCell align="right">
           <IconButton
             color="inherit"

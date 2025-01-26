@@ -29,17 +29,17 @@ public static class FileDocumentMetaDataHelper{
             Title = pdfDoc.Information.Title
         };
         
-        metaData.ExtraData = GetExtraData(metaData, pdfDoc.Information.DocumentInformationDictionary?.Data);
+        metaData.ExtraData = GetExtraData(pdfDoc.Information.DocumentInformationDictionary?.Data);
             
         return metaData; 
     }
 
 
-    private static Dictionary<string, string?>? GetExtraData(FileDocumentMetaData metaData,IReadOnlyDictionary<string, IToken?>? pdfDoc){
+    private static Dictionary<string, string?>? GetExtraData(IReadOnlyDictionary<string, IToken?>? pdfDoc){
         var extraData = new Dictionary<string, string?>();
         if(pdfDoc is not null){
             foreach(var data in pdfDoc){
-                if (_metaDataPropertyInfo.Any(x => x.Name == data.Key || x.Name == "ModDate"))
+                if (_metaDataPropertyInfo.Any(x => x.Name == data.Key || data.Key == "ModDate"))
                 {
                     continue;
                 }
