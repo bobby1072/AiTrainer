@@ -8,6 +8,8 @@ import AppSettingsProvider from "../Utils/AppSettingsProvider";
 import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 import HealthRouter from "./Routers/HealthRouter";
 import Guid from "../Utils/Guid";
+import FaissStoreServiceProvider from "../Faiss/FaissStoreServiceProvider";
+import TestDocuments from "../TestFaissUse/TestDocuments";
 
 export default abstract class ApplicationBuilder {
   public static AddSystemMiddlewares(app: Application): void {

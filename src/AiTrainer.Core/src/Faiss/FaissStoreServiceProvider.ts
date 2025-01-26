@@ -6,6 +6,7 @@ import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 import { access, mkdir, unlink, writeFile } from "fs";
 import path from "path";
 import { FaissEmbeddings } from "./FaissEmbeddings";
+import { DocStore, DocStorePageInfo } from "../Models/DocStore";
 
 process.env.OPENAI_API_KEY = AppSettingsProvider.TryGetValue(
   AppSettingsKeys.OpenAiApiKey
@@ -38,8 +39,13 @@ export default abstract class FaissStoreServiceProvider {
     const jsonDocStore = docStore._docs;
     const indexFile = store.index;
 
-    return { jsonDocStore, indexFile };
+    return {
+      jsonDocStore:
+        FaissStoreServiceProvider.RawJsonDocToDocStore(jsonDocStore),
+      indexFile,
+    };
   }
+
   public static async SaveStoreToFile(store: FaissStore): Promise<string> {
     const filePath = FaissStoreServiceProvider.CreateNewFilePath();
 
@@ -121,5 +127,28 @@ export default abstract class FaissStoreServiceProvider {
       FaissStoreServiceProvider._directoryToSaveTo,
       Guid.NewGuidString()
     );
+  }
+
+  private static RawJsonDocToDocStore(
+    rawStore: Map<string, Document<Record<string, any>>>
+  ): DocStore {
+    const idEnt: Record<string, string> = Array.from(rawStore.keys()).reduce(
+      (acc, val, index) => ({ ...acc, [index.toString()]: val }),
+      {}
+    );
+
+    return [
+      Object.values(idEnt).map((x: string) => {
+        const foundDoc = rawStore.get(x);
+        return [
+          x,
+          {
+            metadata: { source: foundDoc?.metadata.source },
+            pageContent: foundDoc?.pageContent,
+          } as DocStorePageInfo,
+        ];
+      }),
+      idEnt,
+    ];
   }
 }
