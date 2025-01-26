@@ -5,6 +5,9 @@ variables:
   - name: ApplicationSettings.ReleaseVersion
     value: $(Build.BuildNumber)
 
+  - name: ReleaseVersion
+    value: $(Build.BuildNumber)
+
   - name: AiTrainerCore.ApiKey
     value: $(pipeline.AiTrainerCore.ApiKey)
     

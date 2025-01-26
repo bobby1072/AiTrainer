@@ -1,9 +1,9 @@
 import Chunker from "../../DocumentChunker/Chunker";
 import ApiException from "../../Exceptions/ApiException";
 import ExceptionConstants from "../../Exceptions/ExceptionConstants";
-import { DocumentToChunkSchema } from "../RequestModels/IDocumentToChunk";
-import { IChunkedDocument } from "../ResponseModels/IChunkedDocument";
-import { ISuccessfulRouteResponse } from "../ResponseModels/IRouteResponse";
+import { DocumentToChunkSchema } from "../RequestModels/DocumentToChunk";
+import { ChunkedDocument } from "../ResponseModels/ChunkedDocument";
+import { SuccessfulRouteResponse } from "../ResponseModels/RouteResponse";
 import { Application, Request, Response } from "express";
 
 export default abstract class ChunkingRouter {
@@ -23,7 +23,7 @@ export default abstract class ChunkingRouter {
         res.status(200).json({
           data: { documentChunks: chunks },
           isSuccess: true,
-        } as ISuccessfulRouteResponse<IChunkedDocument>);
+        } as SuccessfulRouteResponse<ChunkedDocument>);
       }
     );
   }

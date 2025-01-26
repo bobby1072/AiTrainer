@@ -41,7 +41,7 @@ export default abstract class FaissStoreServiceProvider {
     return filePath;
   }
   public async SaveRawStoreToFile(
-    jsonObject: Record<string, any>,
+    jsonObject: any,
     indexFile: string | Buffer
   ): Promise<string> {
     try {
@@ -116,3 +116,5 @@ export default abstract class FaissStoreServiceProvider {
     );
   }
 }
+
+FaissStoreServiceProvider.LoadFaissStoreFromFileAndRemoveFile;

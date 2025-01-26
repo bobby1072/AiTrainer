@@ -1,5 +1,5 @@
 import { Application } from "express";
-import { ISuccessfulRouteResponse } from "../ResponseModels/IRouteResponse";
+import { SuccessfulRouteResponse } from "../ResponseModels/RouteResponse";
 
 export default abstract class HealthRouter {
   private static HealthCheck(app: Application) {
@@ -9,7 +9,7 @@ export default abstract class HealthRouter {
         res.status(200).json({
           data: { message: "Healthy" },
           isSuccess: true,
-        } as ISuccessfulRouteResponse<{ message: string }>);
+        } as SuccessfulRouteResponse<{ message: string }>);
       }
     );
   }
