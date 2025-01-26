@@ -18,6 +18,8 @@ namespace AiTrainer.Web.Domain.Models
         public string? FileDescription { get; set; }
 
         public required DateTime DateCreated { get; set; }
+        
+        public FileDocumentMetaData? MetaData { get; init; }
 
         public override bool Equals(FileDocument? other)
         {

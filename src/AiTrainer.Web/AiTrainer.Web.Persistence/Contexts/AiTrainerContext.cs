@@ -51,7 +51,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                 ent.Property(e => e.ExtraData).HasColumnName("extra_data").HasColumnType("jsonb");
 
                 ent.HasOne<FileDocumentEntity>()
-                    .WithOne()
+                    .WithOne(x => x.MetaData)
                     .HasForeignKey<FileDocumentMetaDataEntity>(e => e.DocumentId);
             });
 

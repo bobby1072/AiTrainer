@@ -13,9 +13,10 @@ namespace AiTrainer.Web.Persistence.Entities
         public required string FileName { get; set; }
         public required byte[] FileData { get; set; }
         public string? FileDescription { get; set; }
+        public FileDocumentMetaDataEntity? MetaData { get; init; }
 
         public override FileDocument ToModel() =>
-            new FileDocument
+            new()
             {
                 Id = Id,
                 CollectionId = CollectionId,
@@ -25,6 +26,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 UserId = UserId,
                 FileName = FileName,
                 FileDescription = FileDescription,
+                MetaData = MetaData?.ToModel(),
             };
     }
 }
