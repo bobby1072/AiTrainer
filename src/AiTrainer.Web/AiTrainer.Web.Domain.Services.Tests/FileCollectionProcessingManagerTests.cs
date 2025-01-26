@@ -4,6 +4,7 @@ using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.User.Abstract;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.TestBase.Utils;
@@ -336,7 +337,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             );
 
             _mockFileDocumentRepository.Verify(
-                x => x.GetTopLevelDocumentPartialsForUser((Guid)currentUser.Id!),
+                x => x.GetTopLevelDocumentPartialsForUser((Guid)currentUser.Id!, nameof(FileDocumentEntity.MetaData)),
                 Times.Once
             );
         }
@@ -405,7 +406,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 x =>
                     x.GetManyDocumentPartialsByCollectionId(
                         (Guid)foundSingleFileCollection.Id!,
-                        (Guid)currentUser.Id!
+                        (Guid)currentUser.Id!,
+                        nameof(FileDocumentEntity.MetaData)
                     ),
                 Times.Once
             );
