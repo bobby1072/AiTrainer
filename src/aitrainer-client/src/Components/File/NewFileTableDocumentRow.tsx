@@ -10,18 +10,20 @@ import { FileDocumentPartial } from "../../Models/FileDocument";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDeleteFileDocumentMutation } from "../../Hooks/useDeleteFileDocumentMutation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSnackbar } from "notistack";
 import { getFileExtension } from "../../Utils/FileUtils";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useDownloadFileDocumentMutation } from "../../Hooks/useDownloadFileDocumentMutation";
 import InfoIcon from "@mui/icons-material/Info";
+import { FileDocumentMetaDataModal } from "./FileDocumentMetaDataModal";
 
 const fileDoc = require("./fileDoc.png");
 
 export const NewFileTableDocumentRow: React.FC<{
   fileDocPartial: FileDocumentPartial;
 }> = ({ fileDocPartial }) => {
+  const [metaDataModalOpen, setMetaDataModalOpen] = useState<boolean>(false);
   const {
     mutate: deleteFile,
     isLoading: isDeleteFileLoading,
@@ -115,7 +117,13 @@ export const NewFileTableDocumentRow: React.FC<{
         <TableCell align="right" />
         {fileDocPartial.metaData ? (
           <TableCell align="right">
-            <IconButton color="inherit" size="small">
+            <IconButton
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setMetaDataModalOpen(true);
+              }}
+            >
               <InfoIcon />
             </IconButton>
           </TableCell>
@@ -145,6 +153,12 @@ export const NewFileTableDocumentRow: React.FC<{
           </IconButton>
         </TableCell>
       </TableRow>
+      {metaDataModalOpen && fileDocPartial.metaData && (
+        <FileDocumentMetaDataModal
+          onClose={() => setMetaDataModalOpen(false)}
+          metaData={fileDocPartial.metaData}
+        />
+      )}
     </>
   );
 };
