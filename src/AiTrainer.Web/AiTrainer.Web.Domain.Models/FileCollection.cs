@@ -4,12 +4,12 @@ namespace AiTrainer.Web.Domain.Models
 {
     public record FileCollection : DomainModel<FileCollection, Guid?>
     {
-        [LockedProperty]
+        [LockedData]
         public required Guid UserId { get; set; }
         public required string CollectionName { get; set; }
         public string? CollectionDescription { get; set; }
 
-        [LockedProperty]
+        [LockedData]
         public required DateTime DateCreated { get; set; }
         public required DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }

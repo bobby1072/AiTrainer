@@ -1,10 +1,38 @@
-﻿using AiTrainer.Web.Domain.Models;
+﻿using System.Text.Json;
+using AiTrainer.Web.Common.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
 
 namespace AiTrainer.Web.Persistence.Extensions
 {
     internal static class EntityFrameworkExtensions
     {
+        public static FileDocumentMetaDataEntity ToEntity(this FileDocumentMetaData formInput)
+        {
+            var entity = new FileDocumentMetaDataEntity
+            {
+                DocumentId = formInput.DocumentId,
+                Title = formInput.Title,
+                Author = formInput.Author,
+                Keywords = formInput.Keywords,
+                Creator = formInput.Creator,
+                CreationDate = formInput.CreationDate,
+                ModifiedDate = formInput.ModifiedDate,
+                NumberOfPages = formInput.NumberOfPages,
+                IsEncrypted = formInput.IsEncrypted,
+                Producer = formInput.Producer,
+                Subject = formInput.Subject,
+                ExtraData = formInput.ExtraData is not null ? JsonSerializer.Serialize(formInput.ExtraData): null,
+            };
+
+            if (formInput.Id is long foundId)
+            {
+                entity.Id = foundId;
+            }
+
+            return entity;
+        }
+        
         public static UserEntity ToEntity(this User user)
         {
             var entity = new UserEntity

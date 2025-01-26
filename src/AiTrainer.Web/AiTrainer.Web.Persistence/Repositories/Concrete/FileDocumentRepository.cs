@@ -26,6 +26,35 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
+            FileDocument document,
+            FileDocumentMetaData metaData
+        )
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try{
+                var documentEntity = document.ToEntity();
+
+                await dbContext.FileDocuments.AddAsync(documentEntity);
+                await dbContext.SaveChangesAsync();
+                var newlySavedDoc = dbContext.FileDocuments.Local.FirstOrDefault();
+                metaData.DocumentId = newlySavedDoc!.Id;
+
+                var metaDataEntity = metaData.ToEntity();
+                await dbContext.FileDocumentMetaData.AddAsync(metaDataEntity);
+                await dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new DbSaveResult<FileDocument>([newlySavedDoc.ToModel()]);
+            } catch (Exception e){
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+
         public async Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();

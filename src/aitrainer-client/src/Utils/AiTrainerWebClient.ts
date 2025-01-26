@@ -1,6 +1,9 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import AppSettingsProvider from "./AppSettingsProvider";
-import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
+import {
+  AiTrainerWebOutcome,
+  AiTrainerWebOutcomeBase,
+} from "../Models/AiTrainerWebOutcome";
 import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfiguration";
 import { ErrorMessages } from "../Constants";
 import { AppSettingsKeys } from "./AppSettingsKeys";
@@ -30,6 +33,28 @@ export default abstract class AiTrainerWebClient {
 
     return response;
   }
+  public static async InitiateConnection(
+    accessToken: string
+  ): Promise<boolean> {
+    const response = await AiTrainerWebClient._httpClient
+      .get<AiTrainerWebOutcomeBase>("Api/User/Initiate", {
+        headers: {
+          Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+        },
+      })
+      .catch(AiTrainerWebClient.HandleError)
+      .then((x) => {
+        AiTrainerWebClient.HandleThen(x);
+        return x.data.isSuccess;
+      });
+
+    if (!response) {
+      throw new Error(ErrorMessages.ErrorHasOccurred);
+    }
+
+    return response;
+  }
+
   public static async SaveFileDocument(
     accessToken: string,
     uploadFormData: FormData

@@ -65,7 +65,7 @@ stages:
               versionSpec: 22.x
 
           - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1
-            displayName: "Add build environment"
+            displayName: "Add express app settings environment"
 
           - task: FileTransform@2
             displayName: "Transform express app settings"
@@ -172,7 +172,7 @@ stages:
 
           - publish: "$(Build.SourcesDirectory)/src/aitrainer-client/build"
             condition: eq(variables.isMain, true)
-            displayName: "Publish chrome extension files"
+            displayName: "Publish frontend build files"
             artifact: chrome-ext
 
   # - stage: Publish

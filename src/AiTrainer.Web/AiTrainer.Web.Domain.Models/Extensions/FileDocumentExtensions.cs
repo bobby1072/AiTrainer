@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Models.ApiModels.Request;
+﻿using AiTrainer.Web.Common.Helpers;
+using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Partials;
 using Microsoft.AspNetCore.Http;
 
@@ -13,7 +14,6 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         {
             return _fileTypeToMimeType[document.FileType];
         }
-
         public static async Task<FileDocument> ToDocumentModel(
             this FileDocumentSaveFormInput formInput,
             Guid userId
@@ -62,6 +62,25 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 UserId = fileDocument.UserId,
                 Id = fileDocument.Id,
             };
+        }
+
+        public static async Task<IReadOnlyCollection<string>> GetTextContentFromFile(this FileDocument fileDocument)
+        {
+            if (fileDocument.FileType == FileTypeEnum.Pdf)
+            {
+                var pdfText = await FileHelper.GetTextFromPdfFile(fileDocument.FileData);
+                
+                return pdfText;
+            }
+
+            else if(fileDocument.FileType == FileTypeEnum.Text)
+            {
+                var foundText = await FileHelper.GetTextFromTextFile(fileDocument.FileData);
+                
+                return [foundText];
+            }
+            
+            return [];
         }
     }
 }

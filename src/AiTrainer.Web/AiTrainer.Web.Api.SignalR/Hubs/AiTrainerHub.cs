@@ -38,14 +38,14 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
             var currentUser =
                 await _domainService.ExecuteAsync<IUserProcessingManager, User>(userProcessingManager => userProcessingManager.SaveAndCacheUser(accessToken))
                 ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
-
+            
             await _cachingService.SetObject(
                 $"{ConnectionIdUserIdCacheKeyPrefix}{currentUser.Id}",
                 Context.ConnectionId,
                 CacheObjectTimeToLiveInSeconds.OneHour
             );
-
-
+            
+            
             _logger.LogInformation(
                 "Client connected with connectionId {ConnectionId} and correlationId {CorrelationId} and accessToken {AccessToken}",
                 Context.ConnectionId,

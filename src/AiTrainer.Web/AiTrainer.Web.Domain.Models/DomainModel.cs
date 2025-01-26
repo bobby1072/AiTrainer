@@ -4,7 +4,7 @@ namespace AiTrainer.Web.Domain.Models
 {
     public abstract record DomainModel<TEquatable, TId> : IEquatable<TEquatable>
     {
-        [LockedProperty]
+        [LockedData]
         public TId Id { get; set; }
 
         public abstract bool Equals(TEquatable? obj);

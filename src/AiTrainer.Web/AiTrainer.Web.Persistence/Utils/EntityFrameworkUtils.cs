@@ -9,7 +9,7 @@ namespace AiTrainer.Web.Persistence.Utils
             Func<Task<TResult>> dbOperation,
             ILogger<object>? logger = null
         )
-            where TResult : DbResult
+            where TResult : class
         {
             try
             {
@@ -31,7 +31,7 @@ namespace AiTrainer.Web.Persistence.Utils
             Func<TResult> dbOperation,
             ILogger<object>? logger = null
         )
-            where TResult : DbResult
+            where TResult : class
         {
             try
             {

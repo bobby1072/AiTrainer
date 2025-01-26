@@ -14,6 +14,10 @@ public class UserController : BaseController
     public UserController(IDomainServiceActionExecutor actionExecutor)
         : base(actionExecutor) { }
 
+    [HttpGet("Initiate")]
+    public Task<ActionResult<Outcome>> InitiateConnection() =>
+        Task.FromResult((ActionResult<Outcome>)new Outcome());
+
     [HttpGet]
     public async Task<ActionResult<Outcome<User?>>> GetSelf()
     {

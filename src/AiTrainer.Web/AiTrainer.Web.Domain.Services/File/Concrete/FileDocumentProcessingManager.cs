@@ -12,6 +12,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using AiTrainer.Web.Domain.Models.Helpers;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -95,7 +96,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             var newFileDoc = await fileDocumentSaveFormInput.ToDocumentModel(
                 (Guid)foundCachedUser.Id!
             );
-
+            newFileDoc.ApplyCreationDefaults();
             var isValid = await _validator.ValidateAsync(newFileDoc);
 
             if (!isValid.IsValid)
@@ -117,7 +118,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             }
 
             var createdFile = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.Create([newFileDoc]),
+                async () => newFileDoc.FileType == FileTypeEnum.Pdf ?  await _fileDocumentRepository.CreateOneWithMetaData(newFileDoc, await FileDocumentMetaDataHelper.GetFromFormFile(fileDocumentSaveFormInput.FileToCreate, (Guid)newFileDoc.Id!)): await _fileDocumentRepository.Create([newFileDoc]),
                 _logger
             );
 
@@ -133,7 +134,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
             return createdFile.Data.First().ToPartial();
         }
-
         public async Task<Guid> DeleteFileDocument(Guid documentId)
         {
             var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
