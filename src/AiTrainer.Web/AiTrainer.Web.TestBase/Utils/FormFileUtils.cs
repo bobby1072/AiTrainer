@@ -9,7 +9,7 @@ namespace AiTrainer.Web.TestBase.Utils
         {
             var byteArray = Encoding.UTF8.GetBytes(fileContent);
 
-            using var stream = new MemoryStream(byteArray);
+            var stream = new MemoryStream(byteArray);
 
             var formFile = new FormFile(stream, 0, stream.Length, "file", $"{fileName}.txt")
             {
