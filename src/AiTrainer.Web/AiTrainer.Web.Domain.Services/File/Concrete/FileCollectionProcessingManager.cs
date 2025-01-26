@@ -260,11 +260,13 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 () =>
                     collectionId is null
                         ? _fileDocumentRepository.GetTopLevelDocumentPartialsForUser(
-                            (Guid)foundCachedUser.Id!
+                            (Guid)foundCachedUser.Id!,
+                            nameof(FileDocumentEntity.MetaData)
                         )
                         : _fileDocumentRepository.GetManyDocumentPartialsByCollectionId(
                             (Guid)collectionId!,
-                            (Guid)foundCachedUser.Id!
+                            (Guid)foundCachedUser.Id!,
+                            nameof(FileDocumentEntity.MetaData)
                         ),
                 _logger
             );

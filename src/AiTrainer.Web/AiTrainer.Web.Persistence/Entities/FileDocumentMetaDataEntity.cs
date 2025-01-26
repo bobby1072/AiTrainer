@@ -36,7 +36,9 @@ public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData
             ModifiedDate = ModifiedDate,
             NumberOfPages = NumberOfPages,
             IsEncrypted = IsEncrypted,
-            ExtraData = ExtraData is not null ? JsonSerializer.Deserialize<Dictionary<string, string?>>(ExtraData) : null,
+            ExtraData = ExtraData is not null
+                ? JsonSerializer.Deserialize<Dictionary<string, string?>>(ExtraData)
+                : null,
         };
     }
 }

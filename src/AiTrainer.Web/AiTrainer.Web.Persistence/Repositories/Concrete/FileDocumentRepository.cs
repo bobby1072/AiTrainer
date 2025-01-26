@@ -92,6 +92,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                             x.FileDescription,
                             x.FileType,
                             x.UserId,
+                            x.MetaData
                         })
                         .Where(x => x.CollectionId == null && x.UserId == userId)
                         .ToArrayAsync(),
@@ -128,6 +129,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                             x.FileType,
                             x.FileDescription,
                             x.UserId,
+                            x.MetaData
                         })
                         .Where(x => x.CollectionId == collectionId && x.UserId == userId)
                         .ToArrayAsync(),
@@ -167,6 +169,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 UserId = x.UserId,
                 FileDescription = x.FileDescription,
                 Id = x.Id,
+                MetaData = ((FileDocumentMetaDataEntity?)x.MetaData)?.ToModel()
             };
         }
     }

@@ -46,16 +46,6 @@ namespace AiTrainer.Web.Api.Controllers
             [FromForm] IFormFile file
         )
         {
-            await using var memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
-            memoryStream.Position = 0;
-            
-            var doc = PdfDocument.Open(memoryStream);
-            
-            var myInfo = JsonSerializer.Serialize(doc.Advanced);
-            
-            var advanceInfo = JsonSerializer.Serialize(doc.Information);
-
             var formInput = new FileDocumentSaveFormInput
             {
                 CollectionId = collectionId,

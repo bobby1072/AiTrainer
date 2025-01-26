@@ -8,7 +8,7 @@ namespace AiTrainer.Web.Domain.Models.Partials
         public required string FileName { get; init; }
         public string? FileDescription { get; init; }
         public required DateTime DateCreated { get; init; }
-
+        public FileDocumentMetaData? MetaData { get; init; }
         public override bool Equals(FileDocumentPartial? other)
         {
             return other is FileDocumentPartial fileDocumentPartial
