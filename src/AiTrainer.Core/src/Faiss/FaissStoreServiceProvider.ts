@@ -37,6 +37,8 @@ export default abstract class FaissStoreServiceProvider {
 
     const jsonDocStore = docStore._docs;
     const indexFile = store.index;
+
+    return { jsonDocStore, indexFile };
   }
   public static async SaveStoreToFile(store: FaissStore): Promise<string> {
     const filePath = FaissStoreServiceProvider.CreateNewFilePath();
@@ -121,5 +123,3 @@ export default abstract class FaissStoreServiceProvider {
     );
   }
 }
-
-FaissStoreServiceProvider.LoadFaissStoreFromFileAndRemoveFile;
