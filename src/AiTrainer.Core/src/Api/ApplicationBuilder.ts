@@ -7,9 +7,7 @@ import ApiKeyHeaderMiddleware from "./Middleware/ApiKeyHeaderMiddleware";
 import AppSettingsProvider from "../Utils/AppSettingsProvider";
 import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 import HealthRouter from "./Routers/HealthRouter";
-import Guid from "../Utils/Guid";
-import FaissStoreServiceProvider from "../Faiss/FaissStoreServiceProvider";
-import TestDocuments from "../TestFaissUse/TestDocuments";
+import FaissRouter from "./Routers/FaissRouter";
 
 export default abstract class ApplicationBuilder {
   public static AddSystemMiddlewares(app: Application): void {
@@ -25,6 +23,7 @@ export default abstract class ApplicationBuilder {
   public static AddRoutes(app: Application): void {
     ChunkingRouter.InvokeRoutes(app);
     HealthRouter.InvokeRoutes(app);
+    FaissRouter.InvokeRoutes(app);
   }
   public static Listen(app: Application): void {
     const port =

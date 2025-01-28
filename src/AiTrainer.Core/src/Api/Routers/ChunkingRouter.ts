@@ -1,7 +1,7 @@
 import Chunker from "../../DocumentChunker/Chunker";
 import ApiException from "../../Exceptions/ApiException";
 import ExceptionConstants from "../../Exceptions/ExceptionConstants";
-import { DocumentToChunkSchema } from "../RequestModels/DocumentToChunk";
+import { DocumentToChunkInputSchema } from "../RequestModels/DocumentToChunkInput";
 import { ChunkedDocument } from "../ResponseModels/ChunkedDocument";
 import { SuccessfulRouteResponse } from "../ResponseModels/RouteResponse";
 import { Application, Request, Response } from "express";
@@ -11,7 +11,7 @@ export default abstract class ChunkingRouter {
     return app.post(
       `/api/${ChunkingRouter.name.toLowerCase()}/chunkdocument`,
       async (req: Request, res: Response) => {
-        const safeParsedDocumentToChunk = DocumentToChunkSchema.safeParse(
+        const safeParsedDocumentToChunk = DocumentToChunkInputSchema.safeParse(
           req.body
         );
         const actualText = safeParsedDocumentToChunk.data?.documentText;
