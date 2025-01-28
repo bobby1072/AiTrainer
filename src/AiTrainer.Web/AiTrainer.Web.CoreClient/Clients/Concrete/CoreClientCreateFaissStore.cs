@@ -7,34 +7,34 @@ using BT.Common.HttpClient.Extensions;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
-internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, ChunkedDocument>
+
+internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, CreateFaissStoreResponse>
 {
-    private readonly ILogger<CoreClientChunkDocument> _logger;
+    private readonly ILogger<CoreClientCreateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
-    public CoreClientChunkDocument(
-        ILogger<CoreClientChunkDocument> logger,
-        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+
+    public CoreClientCreateFaissStore(
+        ILogger<CoreClientCreateFaissStore> logger,
+        AiTrainerCoreConfiguration aiTrainerCoreConfiguration
     )
     {
         _logger = logger;
-        _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
+        _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration;
     }
 
-    public async Task<ChunkedDocument?> TryInvokeAsync(DocumentToChunkInput param)
+    public async Task<CreateFaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
-            .AppendPathSegment("chunkingrouter")
-            .AppendPathSegment("chunkdocument")
+            .AppendPathSegment("faissrouter")
+            .AppendPathSegment("createstore")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .PostJsonAsync(param)
-            .ReceiveJsonAsync<CoreResponse<ChunkedDocument>>(_aiTrainerCoreConfiguration)
-            .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
-
+            .ReceiveJsonAsync<CoreResponse<CreateFaissStoreResponse>>(_aiTrainerCoreConfiguration)
+            .CoreClientExceptionHandling(_logger, nameof(CoreClientCreateFaissStore));
+        
         return response?.Data;
     }
 }
-

@@ -3,6 +3,7 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.HttpClient.Extensions;
+using BT.Common.Polly.Models.Concrete;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
@@ -29,7 +30,12 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
             .AppendPathSegment("api")
             .AppendPathSegment("healthrouter")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
-            .GetJsonAsync<CoreResponse<CoreClientHealthResponse>>(_aiTrainerCoreConfiguration)
+            .GetJsonAsync<CoreResponse<CoreClientHealthResponse>>(new PollyRetrySettings
+            {
+                TotalAttempts = 2,
+                TimeoutInSeconds = 3,
+                DelayBetweenAttemptsInSeconds = 1
+            })
             .CoreClientExceptionHandling(_logger, nameof(CoreClientHealth));
         
             
