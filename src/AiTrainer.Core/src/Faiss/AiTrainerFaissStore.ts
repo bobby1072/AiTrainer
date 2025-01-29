@@ -30,14 +30,14 @@ export default class AiTrainerFaissStore extends FaissStore {
   }
   public GetSaveItemsFromStore(): {
     jsonDocStore: DocStore;
-    indexFile: IndexFlatL2;
+    indexFile: Buffer;
   } {
     const jsonDocStore = this.docstore._docs;
     const indexFile = this.index;
 
     return {
       jsonDocStore: AiTrainerFaissStore.RawJsonDocToDocStore(jsonDocStore),
-      indexFile,
+      indexFile: indexFile.toBuffer(),
     };
   }
   public static async SaveRawStoreToFile(

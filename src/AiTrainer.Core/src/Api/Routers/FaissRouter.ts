@@ -26,12 +26,17 @@ export default abstract class FaissRouter {
           }))
         );
 
+        const storeItems = faissStore.GetSaveItemsFromStore();
+
         resp.status(200).json({
           isSuccess: true,
-          data: faissStore.GetSaveItemsFromStore(),
+          data: {
+            jsonDocStore: storeItems.jsonDocStore,
+            indexFile: storeItems.indexFile.toString("base64"),
+          },
         } as SuccessfulRouteResponse<{
           jsonDocStore: DocStore;
-          indexFile: IndexFlatL2;
+          indexFile: string;
         }>);
       }
     );
