@@ -30,7 +30,8 @@ namespace AiTrainer.Web.CoreClient.Extensions
                     ICoreClient<DocumentToChunkInput, ChunkedDocument>,
                     CoreClientChunkDocument
                 >()
-                .AddScoped<ICoreClient<CoreClientHealthResponse>, CoreClientHealth>();
+                .AddScoped<ICoreClient<CoreClientHealthResponse>, CoreClientHealth>()
+                .AddScoped<ICoreClient<CreateFaissStoreInput, CreateFaissStoreResponse>, CoreClientCreateFaissStore>();
 
             return serviceCollection;
         }

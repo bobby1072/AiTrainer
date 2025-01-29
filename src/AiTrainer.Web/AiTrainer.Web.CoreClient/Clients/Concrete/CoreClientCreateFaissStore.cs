@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Models.Configuration;
+﻿using System.Text.Json;
+using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -7,6 +8,7 @@ using BT.Common.HttpClient.Extensions;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
@@ -17,11 +19,11 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, C
 
     public CoreClientCreateFaissStore(
         ILogger<CoreClientCreateFaissStore> logger,
-        AiTrainerCoreConfiguration aiTrainerCoreConfiguration
+        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration
     )
     {
         _logger = logger;
-        _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration;
+        _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration.Value;
     }
 
     public async Task<CreateFaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param)
