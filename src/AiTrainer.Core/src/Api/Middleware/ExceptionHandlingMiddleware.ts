@@ -1,7 +1,7 @@
 import { NextFunction } from "express";
 import ExceptionConstants from "../../Exceptions/ExceptionConstants";
 import { Request, Response } from "express";
-import { IUnsuccessfulRouteResponse } from "../ResponseModels/IRouteResponse";
+import { UnsuccessfulRouteResponse } from "../ResponseModels/RouteResponse";
 import ApiException from "../../Exceptions/ApiException";
 
 export default abstract class ExceptionHandlingMiddleware {
@@ -16,14 +16,14 @@ export default abstract class ExceptionHandlingMiddleware {
           res.status(200).json({
             exceptionMessage: e.message,
             isSuccess: false,
-          } as IUnsuccessfulRouteResponse);
+          } as UnsuccessfulRouteResponse);
           return;
         }
 
         res.status(200).json({
           exceptionMessage: defaultErrorMessage,
           isSuccess: false,
-        } as IUnsuccessfulRouteResponse);
+        } as UnsuccessfulRouteResponse);
       }
     };
   }

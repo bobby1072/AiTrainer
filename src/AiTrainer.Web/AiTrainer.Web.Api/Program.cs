@@ -21,12 +21,13 @@ var useStaticFiles = bool.Parse(
 
 if (!appSettings.Exists())
 {
-    throw new Exception("ApplicationSettingsConfigurationS not found in configuration");
+    throw new Exception("ApplicationSettingsConfiguration not found in configuration");
 }
 builder.Services.Configure<ApplicationSettingsConfiguration>(appSettings);
 
 builder
     .Services.AddDistributedMemoryCache()
+    .AddHttpClient()
     .AddHttpContextAccessor()
     .AddResponseCompression()
     .AddRequestTimeouts(opts =>

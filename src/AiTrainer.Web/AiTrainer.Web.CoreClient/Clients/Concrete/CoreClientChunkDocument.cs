@@ -9,33 +9,32 @@ using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace AiTrainer.Web.CoreClient.Clients.Concrete
+namespace AiTrainer.Web.CoreClient.Clients.Concrete;
+internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, ChunkedDocument>
 {
-    internal class CoreClientChunkDocument : ICoreClient<DocumentToChunk, ChunkedDocument>
+    private readonly ILogger<CoreClientChunkDocument> _logger;
+    private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
+    public CoreClientChunkDocument(
+        ILogger<CoreClientChunkDocument> logger,
+        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+    )
     {
-        private readonly ILogger<CoreClientChunkDocument> _logger;
-        private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
-        public CoreClientChunkDocument(
-            ILogger<CoreClientChunkDocument> logger,
-            IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
-        )
-        {
-            _logger = logger;
-            _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
-        }
+        _logger = logger;
+        _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
+    }
 
-        public async Task<ChunkedDocument?> TryInvokeAsync(DocumentToChunk param)
-        {
-            var response = await _aiTrainerCoreConfiguration.BaseEndpoint
-                .AppendPathSegment("api")
-                .AppendPathSegment("chunkingrouter")
-                .AppendPathSegment("chunkdocument")
-                .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
-                .PostJsonAsync(param)
-                .ReceiveJsonAsync<CoreResponse<ChunkedDocument>>(_aiTrainerCoreConfiguration)
-                .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
+    public async Task<ChunkedDocument?> TryInvokeAsync(DocumentToChunkInput param)
+    {
+        var response = await _aiTrainerCoreConfiguration.BaseEndpoint
+            .AppendPathSegment("api")
+            .AppendPathSegment("chunkingrouter")
+            .AppendPathSegment("chunkdocument")
+            .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .PostJsonAsync(param)
+            .ReceiveJsonAsync<CoreResponse<ChunkedDocument>>(_aiTrainerCoreConfiguration)
+            .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
 
-            return response?.Data;
-        }
+        return response?.Data;
     }
 }
+
