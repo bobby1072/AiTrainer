@@ -3,9 +3,60 @@ import { CreateStoreInputSchema } from "../RequestModels/CreateStoreInput";
 import AiTrainerFaissStore from "../../Faiss/AiTrainerFaissStore";
 import { SuccessfulRouteResponse } from "../ResponseModels/RouteResponse";
 import { DocStore } from "../../Models/DocStore";
-import { IndexFlatL2 } from "faiss-node";
+import multer from "multer";
+import { IndexDocStoreInputSchema } from "../RequestModels/IndexDocStoreInput";
 
 export default abstract class FaissRouter {
+  private static readonly upload = multer({ storage: multer.memoryStorage() });
+  private static UpdateStore(app: Application) {
+    return app.post(
+      `/api/${FaissRouter.name.toLowerCase()}/updatestore`,
+      FaissRouter.upload.single("file"),
+      async (req: Request, resp: Response) => {
+        const metadata = JSON.parse(req.body.metadata); // Parse metadata JSON
+        const fileBuffer = req.file?.buffer;
+        const safeInput = IndexDocStoreInputSchema.safeParse({
+          fileInput: fileBuffer,
+          docStore: metadata.docStore,
+          newDocuments: metadata.newDocuments,
+        });
+
+        if (!safeInput.success) {
+          throw new Error("Invalid input");
+        }
+
+        const faissStoreFilePath = await AiTrainerFaissStore.SaveRawStoreToFile(
+          safeInput.data.docStore,
+          safeInput.data.fileInput
+        );
+
+        const faissStore =
+          await AiTrainerFaissStore.LoadFaissStoreFromFileAndRemoveFile(
+            faissStoreFilePath
+          );
+
+        await faissStore.LoadDocumentsIntoStore(
+          safeInput.data.newDocuments.documents.map((x) => ({
+            pageContent: x,
+            metadata: {},
+          }))
+        );
+
+        const storeItems = faissStore.GetSaveItemsFromStore();
+
+        resp.status(200).json({
+          isSuccess: true,
+          data: {
+            jsonDocStore: storeItems.jsonDocStore,
+            indexFile: storeItems.indexFile.toString("base64"),
+          },
+        } as SuccessfulRouteResponse<{
+          jsonDocStore: DocStore;
+          indexFile: string;
+        }>);
+      }
+    );
+  }
   private static CreateNewStore(app: Application) {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/createstore`,
