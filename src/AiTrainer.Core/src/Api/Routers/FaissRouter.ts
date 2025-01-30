@@ -95,5 +95,6 @@ export default abstract class FaissRouter {
 
   public static InvokeRoutes(app: Application): void {
     FaissRouter.CreateNewStore(app);
+    FaissRouter.UpdateStore(app);
   }
 }
