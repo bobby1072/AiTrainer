@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, CreateFaissStoreResponse>
+internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, FaissStoreResponse>
 {
     private readonly ILogger<CoreClientCreateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -26,7 +26,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, C
         _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration.Value;
     }
 
-    public async Task<CreateFaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param)
+    public async Task<FaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -34,7 +34,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, C
             .AppendPathSegment("createstore")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .PostJsonAsync(param)
-            .ReceiveJsonAsync<CoreResponse<CreateFaissStoreResponse>>(_aiTrainerCoreConfiguration)
+            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientCreateFaissStore));
         
         return response?.Data;

@@ -2,12 +2,12 @@ import { z } from "zod";
 import { DocStoreSchema } from "../../Models/DocStore";
 import { CreateStoreInputSchema } from "./CreateStoreInput";
 
-export const IndexDocStoreInputSchema = z.object({
+export const UpdateStoreInputSchema = z.object({
   fileInput: z
     .any()
     .refine((x) => typeof x === "string" || x instanceof Buffer),
-  docStore: DocStoreSchema,
+  jsonDocStore: DocStoreSchema,
   newDocuments: CreateStoreInputSchema,
 });
 
-export type IndexDocStoreInput = z.infer<typeof IndexDocStoreInputSchema>;
+export type UpdateStoreInput = z.infer<typeof UpdateStoreInputSchema>;

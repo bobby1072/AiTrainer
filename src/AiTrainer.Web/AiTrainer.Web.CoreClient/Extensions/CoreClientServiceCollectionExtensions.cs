@@ -31,7 +31,8 @@ namespace AiTrainer.Web.CoreClient.Extensions
                     CoreClientChunkDocument
                 >()
                 .AddScoped<ICoreClient<CoreClientHealthResponse>, CoreClientHealth>()
-                .AddScoped<ICoreClient<CreateFaissStoreInput, CreateFaissStoreResponse>, CoreClientCreateFaissStore>();
+                .AddScoped<ICoreClient<CreateFaissStoreInput, FaissStoreResponse>, CoreClientCreateFaissStore>()
+                .AddScoped<ICoreClient<UpdateFaissStoreInput, FaissStoreResponse>, CoreClientUpdateFaissStore>();
 
             return serviceCollection;
         }

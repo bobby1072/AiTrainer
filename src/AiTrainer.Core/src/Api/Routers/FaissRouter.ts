@@ -4,7 +4,8 @@ import AiTrainerFaissStore from "../../Faiss/AiTrainerFaissStore";
 import { SuccessfulRouteResponse } from "../ResponseModels/RouteResponse";
 import { DocStore } from "../../Models/DocStore";
 import multer from "multer";
-import { IndexDocStoreInputSchema } from "../RequestModels/IndexDocStoreInput";
+import { UpdateStoreInputSchema } from "../RequestModels/UpdateStoreInput";
+import ApiException from "../../Exceptions/ApiException";
 
 export default abstract class FaissRouter {
   private static readonly upload = multer({ storage: multer.memoryStorage() });
@@ -15,18 +16,18 @@ export default abstract class FaissRouter {
       async (req: Request, resp: Response) => {
         const metadata = JSON.parse(req.body.metadata); // Parse metadata JSON
         const fileBuffer = req.file?.buffer;
-        const safeInput = IndexDocStoreInputSchema.safeParse({
+        const safeInput = UpdateStoreInputSchema.safeParse({
           fileInput: fileBuffer,
           docStore: metadata.docStore,
           newDocuments: metadata.newDocuments,
         });
 
         if (!safeInput.success) {
-          throw new Error("Invalid input");
+          throw new ApiException("Invalid input");
         }
 
         const faissStoreFilePath = await AiTrainerFaissStore.SaveRawStoreToFile(
-          safeInput.data.docStore,
+          safeInput.data.jsonDocStore,
           safeInput.data.fileInput
         );
 
@@ -65,7 +66,7 @@ export default abstract class FaissRouter {
         const documents = parsedBody.data?.documents;
 
         if (!documents || !parsedBody.success) {
-          throw new Error("Documents are required");
+          throw new ApiException("Documents are required");
         }
 
         const faissStore = AiTrainerFaissStore.CreateFaissStore();
