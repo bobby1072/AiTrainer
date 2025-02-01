@@ -4,14 +4,14 @@ using AiTrainer.Web.CoreClient.Models.Response;
 namespace AiTrainer.Web.CoreClient.Clients.Abstract
 {
     public interface ICoreClient<in TParam, TReturn>
-        where TParam : BaseCoreClientRequestBody
-        where TReturn : BaseCoreClientResponseBody
+        where TParam : BaseCoreClientRequestData
+        where TReturn : BaseCoreClientResponseData
     {
         Task<TReturn?> TryInvokeAsync(TParam param);
     }
 
     public interface ICoreClient<TReturn>
-        where TReturn : BaseCoreClientResponseBody
+        where TReturn : BaseCoreClientResponseData
     {
         Task<TReturn?> TryInvokeAsync();
     }

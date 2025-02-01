@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
-internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, ChunkedDocument>
+internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, ChunkedDocumentResponse>
 {
     private readonly ILogger<CoreClientChunkDocument> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -23,7 +23,7 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
     }
 
-    public async Task<ChunkedDocument?> TryInvokeAsync(DocumentToChunkInput param)
+    public async Task<ChunkedDocumentResponse?> TryInvokeAsync(DocumentToChunkInput param)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -31,7 +31,7 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
             .AppendPathSegment("chunkdocument")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .PostJsonAsync(param)
-            .ReceiveJsonAsync<CoreResponse<ChunkedDocument>>(_aiTrainerCoreConfiguration)
+            .ReceiveJsonAsync<CoreResponse<ChunkedDocumentResponse>>(_aiTrainerCoreConfiguration)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
 
         return response?.Data;

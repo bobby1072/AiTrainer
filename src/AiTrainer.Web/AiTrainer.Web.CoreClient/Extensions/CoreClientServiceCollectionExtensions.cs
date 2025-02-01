@@ -27,7 +27,7 @@ namespace AiTrainer.Web.CoreClient.Extensions
 
             serviceCollection
                 .AddScoped<
-                    ICoreClient<DocumentToChunkInput, ChunkedDocument>,
+                    ICoreClient<DocumentToChunkInput, ChunkedDocumentResponse>,
                     CoreClientChunkDocument
                 >()
                 .AddScoped<ICoreClient<CoreClientHealthResponse>, CoreClientHealth>()

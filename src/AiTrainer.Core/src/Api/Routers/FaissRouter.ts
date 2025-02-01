@@ -18,7 +18,7 @@ export default abstract class FaissRouter {
         const fileBuffer = req.file?.buffer;
         const safeInput = UpdateStoreInputSchema.safeParse({
           fileInput: fileBuffer,
-          docStore: metadata.docStore,
+          jsonDocStore: metadata.docStore,
           newDocuments: metadata.newDocuments,
         });
 

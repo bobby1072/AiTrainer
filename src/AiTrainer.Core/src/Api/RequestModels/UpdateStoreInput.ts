@@ -3,9 +3,9 @@ import { DocStoreSchema } from "../../Models/DocStore";
 import { CreateStoreInputSchema } from "./CreateStoreInput";
 
 export const UpdateStoreInputSchema = z.object({
-  fileInput: z
-    .any()
-    .refine((x) => typeof x === "string" || x instanceof Buffer),
+  fileInput: z.any().refine((x) => {
+    return typeof x === "string" || x instanceof Buffer;
+  }),
   jsonDocStore: DocStoreSchema,
   newDocuments: CreateStoreInputSchema,
 });

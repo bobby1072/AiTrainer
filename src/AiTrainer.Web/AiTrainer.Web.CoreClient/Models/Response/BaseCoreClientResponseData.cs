@@ -1,5 +1,5 @@
 ﻿
 namespace AiTrainer.Web.CoreClient.Models.Response
 {
-    public abstract record BaseCoreClientResponseBody{}
+    public abstract record BaseCoreClientResponseData{}
 }

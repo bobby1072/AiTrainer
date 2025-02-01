@@ -6,7 +6,7 @@ import { FaissEmbeddings } from "./FaissEmbeddings";
 import path from "path";
 import Guid from "../Utils/Guid";
 import { Document } from "@langchain/core/documents";
-import { access, mkdir, unlink, writeFile } from "fs/promises";
+import { access, mkdir, rmdir, unlink, writeFile } from "fs/promises";
 import { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { DocStore, DocStorePageInfo } from "../Models/DocStore";
 import { IndexFlatL2 } from "faiss-node";
@@ -44,13 +44,13 @@ export default class AiTrainerFaissStore extends FaissStore {
     jsonObject: Record<string, any>,
     indexFile: string | Buffer
   ): Promise<string> {
-    try {
-      await access(AiTrainerFaissStore._directoryToSaveTo);
-    } catch {
-      await mkdir(AiTrainerFaissStore._directoryToSaveTo);
-    }
+    await AiTrainerFaissStore.TryToAccessThenCreateDirectory(
+      AiTrainerFaissStore._directoryToSaveTo
+    );
 
     const filePath = AiTrainerFaissStore.CreateNewFilePath();
+
+    await AiTrainerFaissStore.TryToAccessThenCreateDirectory(filePath);
 
     const jsonFilePath = path.join(filePath, "docstore.json");
     const indexFilePath = path.join(filePath, "faiss.index");
@@ -64,6 +64,7 @@ export default class AiTrainerFaissStore extends FaissStore {
 
     return filePath;
   }
+
   public static async LoadFaissStoreFromFileAndRemoveFile(
     filePath: string
   ): Promise<AiTrainerFaissStore> {
@@ -71,7 +72,9 @@ export default class AiTrainerFaissStore extends FaissStore {
       filePath
     );
 
-    await unlink(filePath);
+    await unlink(path.join(filePath, "docstore.json"));
+    await unlink(path.join(filePath, "faiss.index"));
+    await rmdir(filePath);
 
     return AiTrainerFaissStore.ToAiTrainerFaissStore(vectorStore);
   }
@@ -117,5 +120,12 @@ export default class AiTrainerFaissStore extends FaissStore {
   }
   private static ToAiTrainerFaissStore(store: FaissStore) {
     return new AiTrainerFaissStore(store.embeddings, store.args);
+  }
+  private static async TryToAccessThenCreateDirectory(directory: string) {
+    try {
+      await access(directory);
+    } catch {
+      await mkdir(directory);
+    }
   }
 }
