@@ -1,8 +1,17 @@
-export type DocStorePageInfo = {
-  pageContent?: string | null;
-  metadata: {
-    source?: string | null;
-  };
-};
+import { z } from "zod";
 
-export type DocStore = [[string, DocStorePageInfo][], Record<string, string>];
+const DocStorePageInfoSchema = z.object({
+  pageContent: z.string().nullable().optional(),
+  metadata: z.object({
+    source: z.string().nullable().optional(),
+  }),
+});
+
+export const DocStoreSchema = z.tuple([
+  z.array(z.tuple([z.string(), DocStorePageInfoSchema])),
+  z.record(z.string(), z.string()),
+]);
+
+export type DocStorePageInfo = z.infer<typeof DocStorePageInfoSchema>;
+
+export type DocStore = z.infer<typeof DocStoreSchema>;

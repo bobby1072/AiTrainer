@@ -3,7 +3,7 @@
  
  namespace AiTrainer.Web.CoreClient.Models.Response;
  
- public record CreateFaissStoreResponse : BaseCoreClientResponseBody
+ public record FaissStoreResponse : BaseCoreClientResponseData
  {
      [JsonPropertyName("jsonDocStore")]
      public required JsonDocument JsonDocStore { get; init; }

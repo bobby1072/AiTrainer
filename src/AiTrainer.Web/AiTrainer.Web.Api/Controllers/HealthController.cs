@@ -8,15 +8,16 @@ namespace AiTrainer.Web.Api.Controllers
     [AllowAnonymous]
     public class HealthController : BaseController
     {
-        
         public HealthController(
             IDomainServiceActionExecutor actionExecutor
         )
-            : base(actionExecutor) { }
+            : base(actionExecutor)
+        {
+        }
 
         [HttpGet]
         public async Task<ActionResult<Outcome<Domain.Models.AiTrainerHealth>>> Health()
-        {
+        {   
             var result = await _actionExecutor.ExecuteAsync<IHealthService, Domain.Models.AiTrainerHealth>(service =>
                 service.GetHealth()
             );

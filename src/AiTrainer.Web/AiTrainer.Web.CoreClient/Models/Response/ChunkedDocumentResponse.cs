@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.CoreClient.Models.Response
 {
-    public record ChunkedDocument: BaseCoreClientResponseBody
+    public record ChunkedDocumentResponse: BaseCoreClientResponseData
     {
         [JsonPropertyName("documentChunks")]
         public required IReadOnlyCollection<string> DocumentChunks { get; init; }
