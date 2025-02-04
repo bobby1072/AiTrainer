@@ -9,7 +9,6 @@ import { Document } from "@langchain/core/documents";
 import { access, mkdir, rmdir, unlink, writeFile } from "fs/promises";
 import { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { DocStore, DocStorePageInfo } from "../Models/DocStore";
-import { IndexFlatL2 } from "faiss-node";
 
 export default class AiTrainerFaissStore extends FaissStore {
   private static readonly _directoryToSaveTo: string = "./filestore/";

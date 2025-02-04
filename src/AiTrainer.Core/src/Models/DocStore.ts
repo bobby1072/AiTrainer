@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const DocStorePageInfoSchema = z.object({
+export const DocStorePageInfoSchema = z.object({
   pageContent: z.string().nullable().optional(),
   metadata: z.object({
     source: z.string().nullable().optional(),
