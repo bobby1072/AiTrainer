@@ -1,15 +1,25 @@
-import { AppSettingsKeys } from "./AppSettingsKeys";
+import { AppSettings, AppSettingsKeys } from "./AppSettingsKeys";
 
 type JsonDoc = {
   [key: string]: any;
 };
 
 export default abstract class AppSettingsProvider {
+  public static readonly AllAppSettings: AppSettings = Object.entries(
+    AppSettingsKeys
+  ).reduce(
+    (acc, [key, val]) => ({
+      ...acc,
+      [key]: AppSettingsProvider.TryGetValue(val as any),
+    }),
+    {}
+  ) as AppSettings;
   private static readonly _appSettingsJson: JsonDoc = require("./../data/expressappsettings.json");
   private static readonly _appSettingsDevJson: JsonDoc = require("./../data/expressappsettings.dev.json");
   private static readonly _isForceProduction: boolean =
     AppSettingsProvider._appSettingsJson["UseProd"];
-  public static TryGetValue(key: AppSettingsKeys): string | undefined | null {
+
+  private static TryGetValue(key: AppSettingsKeys): string | undefined | null {
     try {
       const devResult = AppSettingsProvider.FindVal(
         key.toString(),
