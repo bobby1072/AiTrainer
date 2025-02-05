@@ -11,10 +11,13 @@ dist/
 .aspnet/
 /expressappsettings.json
 expressappsettings.json
+/reactappsettings.json
+reactappsettings.json
 filestore/
 .config/
 wwwroot/
 *.sln.DotSettings.user
+
 .idea/
 /.pnp
 .pnp.js

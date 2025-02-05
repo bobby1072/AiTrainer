@@ -2,7 +2,6 @@ import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import AppSettingsProvider from "../Utils/AppSettingsProvider";
 import ApiException from "../Exceptions/ApiException";
 import ExceptionConstants from "../Exceptions/ExceptionConstants";
-import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 
 export default abstract class Chunker {
   private static readonly _splitter = new RecursiveCharacterTextSplitter({

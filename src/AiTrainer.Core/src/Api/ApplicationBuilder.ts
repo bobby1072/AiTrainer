@@ -5,7 +5,6 @@ import bodyParser from "body-parser";
 import ExceptionHandlingMiddleware from "./Middleware/ExceptionHandlingMiddleware";
 import ApiKeyHeaderMiddleware from "./Middleware/ApiKeyHeaderMiddleware";
 import AppSettingsProvider from "../Utils/AppSettingsProvider";
-import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 import HealthRouter from "./Routers/HealthRouter";
 import FaissRouter from "./Routers/FaissRouter";
 
