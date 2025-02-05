@@ -4,7 +4,7 @@ import { CreateStoreInputSchema } from "./CreateStoreInput";
 
 export const UpdateStoreInputSchema = z.object({
   fileInput: z.any().refine((x) => {
-    return typeof x === "string" || x instanceof Buffer;
+    return x instanceof Buffer;
   }),
   jsonDocStore: DocStoreSchema,
   newDocuments: CreateStoreInputSchema,

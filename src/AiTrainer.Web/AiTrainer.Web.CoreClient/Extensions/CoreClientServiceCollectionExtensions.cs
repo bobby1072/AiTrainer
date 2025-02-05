@@ -32,7 +32,8 @@ namespace AiTrainer.Web.CoreClient.Extensions
                 >()
                 .AddScoped<ICoreClient<CoreClientHealthResponse>, CoreClientHealth>()
                 .AddScoped<ICoreClient<CreateFaissStoreInput, FaissStoreResponse>, CoreClientCreateFaissStore>()
-                .AddScoped<ICoreClient<UpdateFaissStoreInput, FaissStoreResponse>, CoreClientUpdateFaissStore>();
+                .AddScoped<ICoreClient<UpdateFaissStoreInput, FaissStoreResponse>, CoreClientUpdateFaissStore>()
+                .AddScoped<ICoreClient<SimilaritySearchInput, SimilaritySearchResponse>, CoreClientSimilaritySearch>();
 
             return serviceCollection;
         }

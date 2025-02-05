@@ -1,11 +1,13 @@
 import { Application, Request, Response } from "express";
 import { CreateStoreInputSchema } from "../RequestModels/CreateStoreInput";
-import AiTrainerFaissStore from "../../Faiss/AiTrainerFaissStore";
 import { SuccessfulRouteResponse } from "../ResponseModels/RouteResponse";
 import { DocStore } from "../../Models/DocStore";
 import multer from "multer";
 import { UpdateStoreInputSchema } from "../RequestModels/UpdateStoreInput";
 import ApiException from "../../Exceptions/ApiException";
+import AiTrainerFaissStoreApiService from "../../Faiss/AiTrainerFaissStoreApiService";
+import { SimilaritySearchInputSchema } from "../RequestModels/SimilaritySearchInput";
+import { DocumentInterface } from "@langchain/core/documents";
 
 export default abstract class FaissRouter {
   private static readonly upload = multer({ storage: multer.memoryStorage() });
@@ -14,7 +16,7 @@ export default abstract class FaissRouter {
       `/api/${FaissRouter.name.toLowerCase()}/updatestore`,
       FaissRouter.upload.single("file"),
       async (req: Request, resp: Response) => {
-        const metadata = JSON.parse(req.body.metadata); // Parse metadata JSON
+        const metadata = JSON.parse(req.body.metadata);
         const fileBuffer = req.file?.buffer;
         const safeInput = UpdateStoreInputSchema.safeParse({
           fileInput: fileBuffer,
@@ -25,36 +27,45 @@ export default abstract class FaissRouter {
         if (!safeInput.success) {
           throw new ApiException("Invalid input");
         }
-
-        const faissStoreFilePath = await AiTrainerFaissStore.SaveRawStoreToFile(
-          safeInput.data.jsonDocStore,
-          safeInput.data.fileInput
+        const result = await AiTrainerFaissStoreApiService.UpdateStore(
+          safeInput.data
         );
-
-        const faissStore =
-          await AiTrainerFaissStore.LoadFaissStoreFromFileAndRemoveFile(
-            faissStoreFilePath
-          );
-
-        await faissStore.LoadDocumentsIntoStore(
-          safeInput.data.newDocuments.documents.map((x) => ({
-            pageContent: x,
-            metadata: {},
-          }))
-        );
-
-        const storeItems = faissStore.GetSaveItemsFromStore();
 
         resp.status(200).json({
           isSuccess: true,
-          data: {
-            jsonDocStore: storeItems.jsonDocStore,
-            indexFile: storeItems.indexFile.toString("base64"),
-          },
+          data: result,
         } as SuccessfulRouteResponse<{
           jsonDocStore: DocStore;
           indexFile: string;
         }>);
+      }
+    );
+  }
+  private static SimilaritySearch(app: Application) {
+    return app.post(
+      `/api/${FaissRouter.name.toLowerCase()}/similaritysearch`,
+      FaissRouter.upload.single("file"),
+      async (req: Request, resp: Response) => {
+        const metadata = JSON.parse(req.body.metadata);
+        const fileBuffer = req.file?.buffer;
+        const safeInput = SimilaritySearchInputSchema.safeParse({
+          fileInput: fileBuffer,
+          jsonDocStore: metadata.docStore,
+          question: metadata.question,
+          documentsToReturn: metadata.documentsToReturn,
+        });
+
+        if (!safeInput.success) {
+          throw new ApiException("Invalid input");
+        }
+        const result = await AiTrainerFaissStoreApiService.SimSearch(
+          safeInput.data
+        );
+
+        resp.status(200).json({
+          isSuccess: true,
+          data: { items: result },
+        } as SuccessfulRouteResponse<{ items: DocumentInterface<Record<string, any>>[] }>);
       }
     );
   }
@@ -69,23 +80,13 @@ export default abstract class FaissRouter {
           throw new ApiException("Documents are required");
         }
 
-        const faissStore = AiTrainerFaissStore.CreateFaissStore();
-
-        await faissStore.LoadDocumentsIntoStore(
-          documents.map((x) => ({
-            pageContent: x,
-            metadata: {},
-          }))
+        const result = await AiTrainerFaissStoreApiService.CreateStore(
+          documents
         );
-
-        const storeItems = faissStore.GetSaveItemsFromStore();
 
         resp.status(200).json({
           isSuccess: true,
-          data: {
-            jsonDocStore: storeItems.jsonDocStore,
-            indexFile: storeItems.indexFile.toString("base64"),
-          },
+          data: result,
         } as SuccessfulRouteResponse<{
           jsonDocStore: DocStore;
           indexFile: string;
@@ -97,5 +98,6 @@ export default abstract class FaissRouter {
   public static InvokeRoutes(app: Application): void {
     FaissRouter.CreateNewStore(app);
     FaissRouter.UpdateStore(app);
+    FaissRouter.SimilaritySearch(app);
   }
 }

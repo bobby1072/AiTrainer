@@ -11,13 +11,13 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, FaissStoreResponse>
+public class CoreClientSimilaritySearch: ICoreClient<SimilaritySearchInput, SimilaritySearchResponse>
 {
-    private readonly ILogger<CoreClientCreateFaissStore> _logger;
+    private readonly ILogger<CoreClientSimilaritySearch> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
 
-    public CoreClientUpdateFaissStore(
-        ILogger<CoreClientCreateFaissStore> logger,
+    public CoreClientSimilaritySearch(
+        ILogger<CoreClientSimilaritySearch> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
     )
     {
@@ -25,33 +25,23 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
     }
 
-    public async Task<FaissStoreResponse?> TryInvokeAsync(UpdateFaissStoreInput input)
+    public async Task<SimilaritySearchResponse?> TryInvokeAsync(SimilaritySearchInput input)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
             .AppendPathSegment("faissrouter")
-            .AppendPathSegment("updatestore")
+            .AppendPathSegment("similaritysearch")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .PostMultipartAsync(x =>
             {
                 var indexFileStream = new MemoryStream(input.FileInput);
-                x.AddJson("metadata", input);
+                var n = x.AddJson("metadata", input);
                 x.AddFile("file", indexFileStream, "docStore.index");
             })
-            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration)
-            .CoreClientExceptionHandling(_logger, nameof(CoreClientUpdateFaissStore));
-        
+            .ReceiveJsonAsync<CoreResponse<SimilaritySearchResponse>>(_aiTrainerCoreConfiguration)
+            .CoreClientExceptionHandling(_logger, nameof(FaissStoreResponse));
         
         
         return response?.Data;
-            
-    }
+    } 
 }
-
-// const metadata = JSON.parse(req.body.metadata); // Parse metadata JSON
-// const fileBuffer = req.file?.buffer;
-// const safeInput = UpdateStoreInputSchema.safeParse({
-//     fileInput: fileBuffer,
-//     docStore: metadata.docStore,
-//     newDocuments: metadata.newDocuments,
-// });
