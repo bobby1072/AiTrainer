@@ -44,6 +44,7 @@ export default abstract class FaissRouter {
   private static SimilaritySearch(app: Application) {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/similaritysearch`,
+      FaissRouter.upload.single("file"),
       async (req: Request, resp: Response) => {
         const metadata = JSON.parse(req.body.metadata);
         const fileBuffer = req.file?.buffer;
@@ -63,8 +64,8 @@ export default abstract class FaissRouter {
 
         resp.status(200).json({
           isSuccess: true,
-          data: result,
-        } as SuccessfulRouteResponse<DocumentInterface<Record<string, any>>[]>);
+          data: { items: result },
+        } as SuccessfulRouteResponse<{ items: DocumentInterface<Record<string, any>>[] }>);
       }
     );
   }
@@ -97,5 +98,6 @@ export default abstract class FaissRouter {
   public static InvokeRoutes(app: Application): void {
     FaissRouter.CreateNewStore(app);
     FaissRouter.UpdateStore(app);
+    FaissRouter.SimilaritySearch(app);
   }
 }
