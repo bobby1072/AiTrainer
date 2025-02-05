@@ -12,9 +12,7 @@ export default abstract class ApiKeyHeaderMiddleware {
           exceptionMessage: ExceptionConstants.NoApiKeyHeader,
         });
         return;
-      } else if (
-        foundHeader !== AppSettingsProvider.TryGetValue(AppSettingsKeys.ApiKey)
-      ) {
+      } else if (foundHeader !== AppSettingsProvider.AllAppSettings.ApiKey) {
         res.status(200).json({
           isSuccess: false,
           exceptionMessage: ExceptionConstants.InvalidApiKey,

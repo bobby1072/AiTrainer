@@ -5,3 +5,6 @@ export enum AppSettingsKeys {
   DocumentChunkerChunkOverlap = "DocumentChunker.ChunkOverlap",
   ExpressPort = "ExpressPort",
 }
+export type AppSettings = {
+  [K in keyof typeof AppSettingsKeys]: string;
+};

@@ -26,9 +26,7 @@ export default abstract class ApplicationBuilder {
     FaissRouter.InvokeRoutes(app);
   }
   public static Listen(app: Application): void {
-    const port =
-      Number(AppSettingsProvider.TryGetValue(AppSettingsKeys.ExpressPort)) ||
-      5000;
+    const port = Number(AppSettingsProvider.AllAppSettings.ExpressPort) || 5000;
     app.listen(port, () => {
       console.log("\n\nServer running on port: ", port);
     });
