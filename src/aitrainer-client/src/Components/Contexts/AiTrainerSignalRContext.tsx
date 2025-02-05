@@ -12,6 +12,7 @@ import { ErrorComponent } from "../Common/ErrorComponent";
 export const signalRConnectionBuilderFunc = (): HubConnectionBuilder => {
   return new HubConnectionBuilder()
     .withAutomaticReconnect()
+    .withServerTimeout(10000)
     .configureLogging(
       process.env.NODE_ENV === "development" ? LogLevel.Debug : LogLevel.None
     );
