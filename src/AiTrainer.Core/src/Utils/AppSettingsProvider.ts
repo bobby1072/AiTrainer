@@ -21,8 +21,8 @@ type AppSettings = {
   [K in keyof typeof AppSettingsKeys]: string;
 };
 
-export default abstract class AppSettingsProvider {
-  public static readonly AllAppSettings: AppSettings = Object.entries(
+class AppSettingsProvider {
+  public readonly AllAppSettings: AppSettings = Object.entries(
     AppSettingsKeys
   ).reduce(
     (acc, [key, val]) => ({
@@ -67,3 +67,5 @@ export default abstract class AppSettingsProvider {
     return final;
   }
 }
+
+export const ApplicationSettings = new AppSettingsProvider();

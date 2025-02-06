@@ -4,7 +4,7 @@ import {
   LogLevel,
 } from "@microsoft/signalr";
 import { createContext, useContext, useEffect, useState } from "react";
-import AppSettingsProvider from "../../Utils/AppSettingsProvider";
+import { ApplicationSettings } from "../../Utils/AppSettingsProvider";
 import { useConnectToSignalR } from "../../Hooks/useConnectToSignalR";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
@@ -47,7 +47,7 @@ export const AiTrainerSignalRProvider: React.FC<{
     signalRConnectionBuilderFunc()
       .withUrl(
         `${
-          AppSettingsProvider.AllAppSettings.AiTrainerWebEndpoint ||
+          ApplicationSettings.AllAppSettings.AiTrainerWebEndpoint ||
           "http://localhost:5222"
         }/Api/SignalR`
       )
