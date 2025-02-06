@@ -7,6 +7,8 @@ const appSettingsDevJson: Record<
   any
 > = require("./../data/expressappsettings.dev.json");
 
+const isForceProduction: boolean = appSettingsJson["UseProd"];
+
 enum AppSettingsKeys {
   OpenAiApiKey = "OPENAI_API_KEY",
   ApiKey = "AiTrainerCore.ApiKey",
@@ -29,8 +31,6 @@ export default abstract class AppSettingsProvider {
     }),
     {}
   ) as AppSettings;
-  private static readonly _isForceProduction: boolean =
-    appSettingsJson["UseProd"];
 
   private static TryGetValue(key: AppSettingsKeys): string | undefined | null {
     try {
@@ -38,7 +38,7 @@ export default abstract class AppSettingsProvider {
         AppSettingsProvider.FindVal(key.toString(), appSettingsDevJson),
         AppSettingsProvider.FindVal(key.toString(), appSettingsJson),
       ];
-      return AppSettingsProvider._isForceProduction
+      return isForceProduction
         ? prodResult?.toString()
         : process.env.NODE_ENV === "development"
         ? devResult?.toString() || prodResult?.toString()
