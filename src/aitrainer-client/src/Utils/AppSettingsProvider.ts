@@ -17,7 +17,7 @@ type AppSettings = {
   [K in keyof typeof AppSettingsKeys]: string;
 };
 
-export default class AppSettingsProvider {
+class AppSettingsProvider {
   public readonly AllAppSettings: AppSettings = Object.entries(
     AppSettingsKeys
   ).reduce(
