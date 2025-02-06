@@ -7,6 +7,7 @@ import ApiKeyHeaderMiddleware from "./Middleware/ApiKeyHeaderMiddleware";
 import AppSettingsProvider from "../Utils/AppSettingsProvider";
 import HealthRouter from "./Routers/HealthRouter";
 import FaissRouter from "./Routers/FaissRouter";
+import CorrelationIdMiddleware from "./Middleware/CorrelationIdMiddleware";
 
 export default abstract class ApplicationBuilder {
   public static AddSystemMiddlewares(app: Application): void {
@@ -17,6 +18,7 @@ export default abstract class ApplicationBuilder {
 
   public static AddDomainMiddleware(app: Application): void {
     app.use(ExceptionHandlingMiddleware.InvokeMiddleware());
+    app.use(CorrelationIdMiddleware.InvokeMiddleware());
     app.use(ApiKeyHeaderMiddleware.InvokeMiddleware());
   }
   public static AddRoutes(app: Application): void {
