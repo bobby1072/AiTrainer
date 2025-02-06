@@ -6,6 +6,7 @@ using BT.Common.HttpClient.Extensions;
 using BT.Common.Polly.Models.Concrete;
 using Flurl;
 using Flurl.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -15,14 +16,16 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
 {
     private readonly ILogger<CoreClientHealth> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
-
+    private readonly IHttpContextAccessor _httpContextAccessor;
     public CoreClientHealth(
         ILogger<CoreClientHealth> logger,
-        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig
+        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+        IHttpContextAccessor httpContextAccessor
     )
     {
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
+        _httpContextAccessor = httpContextAccessor;
     }
     public async Task<CoreClientHealthResponse?> TryInvokeAsync()
     {
