@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Models.Configuration;
+﻿using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -35,6 +36,7 @@ public class CoreClientSimilaritySearch: ICoreClient<SimilaritySearchInput, Simi
             .AppendPathSegment("faissrouter")
             .AppendPathSegment("similaritysearch")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .PostMultipartAsync(x =>
             {
                 var indexFileStream = new MemoryStream(input.FileInput);

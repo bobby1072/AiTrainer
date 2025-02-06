@@ -1,3 +1,4 @@
+using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
@@ -33,6 +34,7 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
             .AppendPathSegment("api")
             .AppendPathSegment("healthrouter")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .GetJsonAsync<CoreResponse<CoreClientHealthResponse>>(new PollyRetrySettings
             {
                 TotalAttempts = 2,

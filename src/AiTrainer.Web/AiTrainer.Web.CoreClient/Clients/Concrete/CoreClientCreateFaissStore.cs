@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
@@ -37,6 +38,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
             .AppendPathSegment("faissrouter")
             .AppendPathSegment("createstore")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .PostJsonAsync(param)
             .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientCreateFaissStore));
