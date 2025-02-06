@@ -1,11 +1,11 @@
 const appSettingsJson: Record<
   string,
   any
-> = require("./../data/expressappsettings.json");
+> = require("./../Data/reactappsettings.json");
 const appSettingsDevJson: Record<
   string,
   any
-> = require("./../data/expressappsettings.dev.json");
+> = require("./../Data/reactappsettings.dev.json");
 
 const isForceProduction: boolean = appSettingsJson["UseProd"];
 
