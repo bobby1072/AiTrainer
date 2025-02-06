@@ -11,4 +11,4 @@ $json = $data | ConvertTo-Json -Depth 3 -Compress
 
 $json | Out-File -FilePath $filePath -Encoding utf8
 
-Write-Host "JSON file 'expressappsettings.json' has been created"
+Write-Host "JSON file 'reactappsettings.json' has been created"

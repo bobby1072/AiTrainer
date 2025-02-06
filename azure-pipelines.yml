@@ -127,7 +127,7 @@ stages:
               versionSpec: 22.x
 
           - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1
-            displayName: "Add express app settings environment"
+            displayName: "Add react app settings environment"
 
           - task: FileTransform@2
             displayName: "Transform react app settings"
