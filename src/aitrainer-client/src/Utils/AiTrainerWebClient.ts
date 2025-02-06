@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
-import AppSettingsProvider from "./AppSettingsProvider";
+import { ApplicationSettings } from "./AppSettingsProvider";
 import {
   AiTrainerWebOutcome,
   AiTrainerWebOutcomeBase,
@@ -13,7 +13,7 @@ import { FileDocumentPartial } from "../Models/FileDocument";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl =
-    AppSettingsProvider.AllAppSettings.AiTrainerWebEndpoint;
+    ApplicationSettings.AllAppSettings.AiTrainerWebEndpoint;
   private static readonly _httpClient: AxiosInstance = axios.create({
     baseURL: AiTrainerWebClient._baseUrl || "http://localhost:5007",
   });
