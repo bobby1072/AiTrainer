@@ -1,3 +1,14 @@
+const appSettingsJson: Record<
+  string,
+  any
+> = require("./../data/expressappsettings.json");
+const appSettingsDevJson: Record<
+  string,
+  any
+> = require("./../data/expressappsettings.dev.json");
+
+const isForceProduction: boolean = appSettingsJson["UseProd"];
+
 enum AppSettingsKeys {
   OpenAiApiKey = "OPENAI_API_KEY",
   ApiKey = "AiTrainerCore.ApiKey",
@@ -10,8 +21,8 @@ type AppSettings = {
   [K in keyof typeof AppSettingsKeys]: string;
 };
 
-export default abstract class AppSettingsProvider {
-  public static readonly AllAppSettings: AppSettings = Object.entries(
+class AppSettingsProvider {
+  public readonly AllAppSettings: AppSettings = Object.entries(
     AppSettingsKeys
   ).reduce(
     (acc, [key, val]) => ({
@@ -20,30 +31,14 @@ export default abstract class AppSettingsProvider {
     }),
     {}
   ) as AppSettings;
-  private static readonly _appSettingsJson: Record<
-    string,
-    any
-  > = require("./../data/expressappsettings.json");
-  private static readonly _appSettingsDevJson: Record<
-    string,
-    any
-  > = require("./../data/expressappsettings.dev.json");
-  private static readonly _isForceProduction: boolean =
-    AppSettingsProvider._appSettingsJson["UseProd"];
 
   private static TryGetValue(key: AppSettingsKeys): string | undefined | null {
     try {
       const [devResult, prodResult] = [
-        AppSettingsProvider.FindVal(
-          key.toString(),
-          AppSettingsProvider._appSettingsDevJson
-        ),
-        AppSettingsProvider.FindVal(
-          key.toString(),
-          AppSettingsProvider._appSettingsJson
-        ),
+        AppSettingsProvider.FindVal(key.toString(), appSettingsDevJson),
+        AppSettingsProvider.FindVal(key.toString(), appSettingsJson),
       ];
-      return AppSettingsProvider._isForceProduction
+      return isForceProduction
         ? prodResult?.toString()
         : process.env.NODE_ENV === "development"
         ? devResult?.toString() || prodResult?.toString()
@@ -65,7 +60,12 @@ export default abstract class AppSettingsProvider {
         }
       } catch {}
     }
-
-    return result.toString();
+    const final = result.toString();
+    if (final.toLowerCase() === "[object object]") {
+      return undefined;
+    }
+    return final;
   }
 }
+
+export const ApplicationSettings = new AppSettingsProvider();

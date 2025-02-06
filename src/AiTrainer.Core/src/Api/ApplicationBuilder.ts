@@ -4,7 +4,7 @@ import compression from "compression";
 import bodyParser from "body-parser";
 import ExceptionHandlingMiddleware from "./Middleware/ExceptionHandlingMiddleware";
 import ApiKeyHeaderMiddleware from "./Middleware/ApiKeyHeaderMiddleware";
-import AppSettingsProvider from "../Utils/AppSettingsProvider";
+import { ApplicationSettings } from "../Utils/AppSettingsProvider";
 import HealthRouter from "./Routers/HealthRouter";
 import FaissRouter from "./Routers/FaissRouter";
 import CorrelationIdMiddleware from "./Middleware/CorrelationIdMiddleware";
@@ -27,7 +27,7 @@ export default abstract class ApplicationBuilder {
     FaissRouter.InvokeRoutes(app);
   }
   public static Listen(app: Application): void {
-    const port = Number(AppSettingsProvider.AllAppSettings.ExpressPort) || 5000;
+    const port = Number(ApplicationSettings.AllAppSettings.ExpressPort) || 5000;
     app.listen(port, () => {
       console.log("\n\nServer running on port: ", port);
     });
