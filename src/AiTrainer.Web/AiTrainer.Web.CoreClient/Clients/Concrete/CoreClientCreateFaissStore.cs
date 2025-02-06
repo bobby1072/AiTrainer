@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
@@ -7,6 +8,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.HttpClient.Extensions;
 using Flurl;
 using Flurl.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -16,14 +18,17 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
 {
     private readonly ILogger<CoreClientCreateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
-
+    private readonly IHttpContextAccessor _httpContextAccessor;
     public CoreClientCreateFaissStore(
         ILogger<CoreClientCreateFaissStore> logger,
-        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration
+        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration,
+        IHttpContextAccessor httpContextAccessor
+
     )
     {
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration.Value;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<FaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param)
@@ -33,6 +38,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
             .AppendPathSegment("faissrouter")
             .AppendPathSegment("createstore")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .PostJsonAsync(param)
             .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientCreateFaissStore));
