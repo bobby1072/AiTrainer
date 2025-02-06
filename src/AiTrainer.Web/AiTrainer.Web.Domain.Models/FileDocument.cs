@@ -17,6 +17,8 @@ namespace AiTrainer.Web.Domain.Models
 
         public string? FileDescription { get; set; }
 
+        public bool Synced { get; set; } = false;
+
         public required DateTime DateCreated { get; set; }
         
         public FileDocumentMetaData? MetaData { get; init; }
@@ -29,7 +31,7 @@ namespace AiTrainer.Web.Domain.Models
                 && FileType == other.FileType
                 && FileName == other.FileName
                 && FileDescription == other.FileDescription
-                && FileData == other.FileData
+                && Synced == other.Synced
                 && UserId == other.UserId;
         }
 

@@ -7,6 +7,7 @@ namespace AiTrainer.Web.Domain.Models.Partials
         public required FileTypeEnum FileType { get; init; }
         public required string FileName { get; init; }
         public string? FileDescription { get; init; }
+        public bool Synced { get; init; }
         public required DateTime DateCreated { get; init; }
         public FileDocumentMetaData? MetaData { get; init; }
         public override bool Equals(FileDocumentPartial? other)
@@ -16,6 +17,7 @@ namespace AiTrainer.Web.Domain.Models.Partials
                 && CollectionId == fileDocumentPartial.CollectionId
                 && DateCreated == fileDocumentPartial.DateCreated
                 && FileType == fileDocumentPartial.FileType
+                && other.Synced == fileDocumentPartial.Synced
                 && FileName == fileDocumentPartial.FileName
                 && FileDescription == fileDocumentPartial.FileDescription;
         }

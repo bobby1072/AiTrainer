@@ -91,6 +91,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                             x.FileName,
                             x.FileDescription,
                             x.FileType,
+                            x.Synced,
                             x.UserId,
                             x.MetaData
                         })
@@ -127,6 +128,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                             x.DateCreated,
                             x.FileName,
                             x.FileType,
+                            x.Synced,
                             x.FileDescription,
                             x.UserId,
                             x.MetaData
@@ -167,6 +169,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 FileName = x.FileName,
                 FileType = (FileTypeEnum)x.FileType,
                 UserId = x.UserId,
+                Synced = x.Synced,
                 FileDescription = x.FileDescription,
                 Id = x.Id,
                 MetaData = ((FileDocumentMetaDataEntity?)x.MetaData)?.ToModel()

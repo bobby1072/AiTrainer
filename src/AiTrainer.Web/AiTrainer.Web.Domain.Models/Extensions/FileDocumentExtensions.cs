@@ -59,6 +59,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 FileType = fileDocument.FileType,
                 CollectionId = fileDocument.CollectionId,
                 UserId = fileDocument.UserId,
+                Synced = fileDocument.Synced,
                 Id = fileDocument.Id,
                 MetaData = fileDocument.MetaData,
                 FileDescription = fileDocument.FileDescription,

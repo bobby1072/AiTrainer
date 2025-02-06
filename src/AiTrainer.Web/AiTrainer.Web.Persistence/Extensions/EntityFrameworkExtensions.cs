@@ -56,6 +56,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             {
                 CollectionId = fileDocument.CollectionId,
                 UserId = fileDocument.UserId,
+                Synced = fileDocument.Synced,
                 DateCreated = fileDocument.DateCreated,
                 FileType = (int)fileDocument.FileType,
                 FileData = fileDocument.FileData,

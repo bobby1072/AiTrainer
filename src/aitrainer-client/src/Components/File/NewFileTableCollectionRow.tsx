@@ -103,6 +103,7 @@ export const NewFileTableCollectionRow: React.FC<{
           </Tooltip>
         </TableCell>
         <TableCell align="right" />
+        <TableCell align="right" />
         <TableCell align="right">
           <IconButton
             color="inherit"

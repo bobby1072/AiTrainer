@@ -1,0 +1,1 @@
+ALTER TABLE public."file_document" ADD COLUMN synced BOOLEAN NOT NULL DEFAULT FALSE;
