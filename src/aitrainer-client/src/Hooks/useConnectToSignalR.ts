@@ -7,7 +7,6 @@ import {
   useGetSignalRHubContext,
 } from "../Components/Contexts/AiTrainerSignalRContext";
 import AppSettingsProvider from "../Utils/AppSettingsProvider";
-import { AppSettingsKeys } from "../Utils/AppSettingsKeys";
 
 export const useConnectToSignalR = () => {
   const { user } = useAuthentication();
@@ -20,9 +19,8 @@ export const useConnectToSignalR = () => {
         const localHub = signalRConnectionBuilderFunc()
           .withUrl(
             `${
-              AppSettingsProvider.TryGetValue(
-                AppSettingsKeys.AiTrainerWebEndpoint
-              ) || "http://localhost:5222"
+              AppSettingsProvider.AllAppSettings.AiTrainerWebEndpoint ||
+              "http://localhost:5222"
             }/Api/SignalR`,
             {
               accessTokenFactory: () => `${user.access_token}`,

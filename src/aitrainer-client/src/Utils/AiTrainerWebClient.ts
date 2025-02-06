@@ -6,16 +6,14 @@ import {
 } from "../Models/AiTrainerWebOutcome";
 import { ClientSettingsConfiguration } from "../Models/ClientSettingsConfiguration";
 import { ErrorMessages } from "../Constants";
-import { AppSettingsKeys } from "./AppSettingsKeys";
 import { FlatFileDocumentPartialCollection } from "../Models/FlatFileDocumentPartialCollection";
 import { FileCollectionSaveInput } from "../Models/FileCollectionSaveInput";
 import { FileCollection } from "../Models/FileCollection";
 import { FileDocumentPartial } from "../Models/FileDocument";
 
 export default abstract class AiTrainerWebClient {
-  private static readonly _baseUrl = AppSettingsProvider.TryGetValue(
-    AppSettingsKeys.AiTrainerWebEndpoint
-  );
+  private static readonly _baseUrl =
+    AppSettingsProvider.AllAppSettings.AiTrainerWebEndpoint;
   private static readonly _httpClient: AxiosInstance = axios.create({
     baseURL: AiTrainerWebClient._baseUrl || "http://localhost:5007",
   });

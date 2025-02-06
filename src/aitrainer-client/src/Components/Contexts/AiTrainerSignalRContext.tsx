@@ -5,7 +5,6 @@ import {
 } from "@microsoft/signalr";
 import { createContext, useContext, useEffect, useState } from "react";
 import AppSettingsProvider from "../../Utils/AppSettingsProvider";
-import { AppSettingsKeys } from "../../Utils/AppSettingsKeys";
 import { useConnectToSignalR } from "../../Hooks/useConnectToSignalR";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
@@ -13,6 +12,7 @@ import { ErrorComponent } from "../Common/ErrorComponent";
 export const signalRConnectionBuilderFunc = (): HubConnectionBuilder => {
   return new HubConnectionBuilder()
     .withAutomaticReconnect()
+    .withServerTimeout(10000)
     .configureLogging(
       process.env.NODE_ENV === "development" ? LogLevel.Debug : LogLevel.None
     );
@@ -47,9 +47,8 @@ export const AiTrainerSignalRProvider: React.FC<{
     signalRConnectionBuilderFunc()
       .withUrl(
         `${
-          AppSettingsProvider.TryGetValue(
-            AppSettingsKeys.AiTrainerWebEndpoint
-          ) || "http://localhost:5222"
+          AppSettingsProvider.AllAppSettings.AiTrainerWebEndpoint ||
+          "http://localhost:5222"
         }/Api/SignalR`
       )
       .build()
