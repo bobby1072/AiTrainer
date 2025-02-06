@@ -1,3 +1,12 @@
+const appSettingsJson: Record<
+  string,
+  any
+> = require("./../data/expressappsettings.json");
+const appSettingsDevJson: Record<
+  string,
+  any
+> = require("./../data/expressappsettings.dev.json");
+
 enum AppSettingsKeys {
   OpenAiApiKey = "OPENAI_API_KEY",
   ApiKey = "AiTrainerCore.ApiKey",
@@ -20,28 +29,14 @@ export default abstract class AppSettingsProvider {
     }),
     {}
   ) as AppSettings;
-  private static readonly _appSettingsJson: Record<
-    string,
-    any
-  > = require("./../data/expressappsettings.json");
-  private static readonly _appSettingsDevJson: Record<
-    string,
-    any
-  > = require("./../data/expressappsettings.dev.json");
   private static readonly _isForceProduction: boolean =
-    AppSettingsProvider._appSettingsJson["UseProd"];
+    appSettingsJson["UseProd"];
 
   private static TryGetValue(key: AppSettingsKeys): string | undefined | null {
     try {
       const [devResult, prodResult] = [
-        AppSettingsProvider.FindVal(
-          key.toString(),
-          AppSettingsProvider._appSettingsDevJson
-        ),
-        AppSettingsProvider.FindVal(
-          key.toString(),
-          AppSettingsProvider._appSettingsJson
-        ),
+        AppSettingsProvider.FindVal(key.toString(), appSettingsDevJson),
+        AppSettingsProvider.FindVal(key.toString(), appSettingsJson),
       ];
       return AppSettingsProvider._isForceProduction
         ? prodResult?.toString()
@@ -65,7 +60,10 @@ export default abstract class AppSettingsProvider {
         }
       } catch {}
     }
-
-    return result.toString();
+    const final = result.toString();
+    if (final.toLowerCase() === "[object object]") {
+      return undefined;
+    }
+    return final;
   }
 }
