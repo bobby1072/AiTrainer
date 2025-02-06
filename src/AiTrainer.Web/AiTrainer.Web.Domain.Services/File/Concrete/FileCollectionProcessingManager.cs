@@ -16,7 +16,7 @@ using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
-    public class FileCollectionProcessingManager : IFileCollectionProcessingManager
+    internal class FileCollectionProcessingManager : IFileCollectionProcessingManager
     {
         private readonly IUserProcessingManager _userProcessingManager;
         private readonly IFileCollectionRepository _repository;

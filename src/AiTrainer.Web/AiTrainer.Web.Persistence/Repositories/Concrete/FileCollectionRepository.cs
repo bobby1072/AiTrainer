@@ -19,12 +19,18 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             ILogger<FileCollectionRepository> logger
         )
             : base(dbContextFactory, logger) { }
-
         protected override FileCollectionEntity RuntimeToEntity(FileCollection runtimeObj)
         {
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbResult<bool>> IsCollectionFaissSynced(Guid? collectionId = null)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var dbOp = await TimeAndLogDbOperation(() => dbContext.FileDocuments.AllAsync(x => x.CollectionId == collectionId && x.Synced),
+                nameof(IsCollectionFaissSynced), _entityType.Name);
+            return new DbResult<bool>(dbOp, true);
+        }
         public async Task<DbGetManyResult<FileCollection>> GetTopLevelCollectionsForUser(
             Guid userId,
             params string[] relationShips

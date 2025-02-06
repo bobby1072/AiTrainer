@@ -7,6 +7,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
     public interface IFileCollectionRepository
         : IRepository<FileCollectionEntity, Guid, FileCollection>
     {
+        Task<DbResult<bool>> IsCollectionFaissSynced(Guid? collectionId = null);
         Task<DbGetManyResult<FileCollection>> GetTopLevelCollectionsForUser(
             Guid userId,
             params string[] relationShips

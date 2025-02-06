@@ -16,7 +16,7 @@ using AiTrainer.Web.Domain.Models.Helpers;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
-    public class FileDocumentProcessingManager : IFileDocumentProcessingManager
+    internal class FileDocumentProcessingManager : IFileDocumentProcessingManager
     {
         private readonly ILogger<FileDocumentProcessingManager> _logger;
         private readonly IFileDocumentRepository _fileDocumentRepository;
