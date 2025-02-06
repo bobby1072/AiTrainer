@@ -13,6 +13,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         {
             return _fileTypeToMimeType[document.FileType];
         }
+
         public static async Task<FileDocument> ToDocumentModel(
             this FileDocumentSaveFormInput formInput,
             Guid userId
@@ -59,7 +60,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 FileType = fileDocument.FileType,
                 CollectionId = fileDocument.CollectionId,
                 UserId = fileDocument.UserId,
-                Synced = fileDocument.Synced,
+                FaissSynced = fileDocument.FaissSynced,
                 Id = fileDocument.Id,
                 MetaData = fileDocument.MetaData,
                 FileDescription = fileDocument.FileDescription,

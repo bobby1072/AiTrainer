@@ -13,7 +13,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public required string FileName { get; set; }
         public required byte[] FileData { get; set; }
         public string? FileDescription { get; set; }
-        public bool Synced { get; set; }
+        public bool FaissSynced { get; set; }
         public FileDocumentMetaDataEntity? MetaData { get; init; }
 
         public override FileDocument ToModel() =>
@@ -25,7 +25,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 FileType = (FileTypeEnum)FileType,
                 FileData = FileData,
                 UserId = UserId,
-                Synced = Synced,
+                FaissSynced = FaissSynced,
                 FileName = FileName,
                 FileDescription = FileDescription,
                 MetaData = MetaData?.ToModel(),

@@ -17,10 +17,10 @@ namespace AiTrainer.Web.Domain.Models
 
         public string? FileDescription { get; set; }
 
-        public bool Synced { get; set; } = false;
+        public bool FaissSynced { get; set; } = false;
 
         public required DateTime DateCreated { get; set; }
-        
+
         public FileDocumentMetaData? MetaData { get; init; }
 
         public override bool Equals(FileDocument? other)
@@ -31,7 +31,7 @@ namespace AiTrainer.Web.Domain.Models
                 && FileType == other.FileType
                 && FileName == other.FileName
                 && FileDescription == other.FileDescription
-                && Synced == other.Synced
+                && FaissSynced == other.FaissSynced
                 && UserId == other.UserId;
         }
 

@@ -25,7 +25,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly FileCollectionProcessingManager _fileCollectionManager;
         private readonly Mock<IUserProcessingManager> _mockUserProcessingManager = new();
         public FileCollectionProcessingManagerTests()
-            : base()
         {
             _fileCollectionManager = new FileCollectionProcessingManager(
                 _mockUserProcessingManager.Object,
