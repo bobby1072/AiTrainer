@@ -126,8 +126,7 @@ stages:
             inputs:
               versionSpec: 22.x
 
-          - powershell: |
-              $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1 -filePath ".\src\aitrainer-client\src\Data\reactappsettings.json"
+          - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1
             displayName: "Add express app settings environment"
 
           - task: FileTransform@2
