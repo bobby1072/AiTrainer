@@ -50,7 +50,7 @@ public class FileCollectionFaissProcessingManager
 
     public async Task SyncCollectionFaissStore(Guid? collectionId = null)
     {
-        var unSyncedDocuments = await _fileDocumentRepository.GetMany(false, nameof(FileDocumentEntity.FaissSynced));
+        var unSyncedDocuments = await EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.GetMany(false, nameof(FileDocumentEntity.FaissSynced)));
         
         if (unSyncedDocuments?.IsSuccessful is false or null)
         {
