@@ -1,5 +1,6 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
@@ -23,6 +24,7 @@ public class FileCollectionFaissProcessingManager
     private readonly IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss> _fileCollectionFaissRepository;
     private readonly ILogger<FileCollectionFaissProcessingManager> _logger;
     private readonly IFileDocumentRepository _fileDocumentRepository;
+    private readonly FaissSyncRetrySettingsConfiguration _retrySettings;
     private readonly IHttpContextAccessor? _httpContextAccessor;
 
     public FileCollectionFaissProcessingManager(
@@ -34,6 +36,7 @@ public class FileCollectionFaissProcessingManager
             ILogger<FileCollectionFaissProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
             IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss> fileCollectionFaissRepository,
+            FaissSyncRetrySettingsConfiguration retrySettings,
             IHttpContextAccessor? httpContextAccessor = null
         )
     {
@@ -43,12 +46,13 @@ public class FileCollectionFaissProcessingManager
         _userProcessingManager = userProcessingManager;
         _fileCollectionRepository = fileCollectionRepository;
         _logger = logger;
+        _retrySettings = retrySettings;
         _fileDocumentRepository = fileDocumentRepository;
         _fileCollectionFaissRepository = fileCollectionFaissRepository;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task SyncCollectionFaissStore(Guid? collectionId = null)
+    public async Task SyncCollectionFaissStore(Guid? collectionId = null, bool useRetry = false)
     {
         var unSyncedDocuments = await EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.GetMany(false, nameof(FileDocumentEntity.FaissSynced)));
         
