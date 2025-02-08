@@ -35,17 +35,9 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
             var correlationId = hubHttpContext?.GetCorrelationId();
             var accessToken = hubHttpContext?.GetAccessTokenFromQuery("access_token")!;
             
-            var currentUser =
+            _ =
                 await _domainService.ExecuteAsync<IUserProcessingManager, User>(userProcessingManager => userProcessingManager.SaveAndCacheUser(accessToken))
                 ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
-            
-            await _cachingService.SetObject(
-                $"{ConnectionIdUserIdCacheKeyPrefix}{currentUser.Id}",
-                Context.ConnectionId,
-                CacheObjectTimeToLiveInSeconds.OneHour
-            );
-            
-            
             _logger.LogInformation(
                 "Client connected with connectionId {ConnectionId} and correlationId {CorrelationId} and accessToken {AccessToken}",
                 Context.ConnectionId,
