@@ -1,0 +1,8 @@
+﻿using AiTrainer.Web.Domain.Services.Abstract;
+
+namespace AiTrainer.Web.Domain.Services.File.Abstract;
+
+public interface IFileCollectionFaissSyncProcessingManager: IDomainService
+{
+    Task SyncUserCollectionFaissStore(Guid? collectionId = null, bool useRetry = false);
+}

@@ -6,7 +6,7 @@ namespace AiTrainer.Web.Domain.Models
     public record FileCollectionFaiss : DomainModel<FileCollectionFaiss, long?>
     {
         [LockedData]
-        public required Guid CollectionId { get; set; }
+        public required Guid? CollectionId { get; set; }
         public required byte[] FaissIndex { get; set; }
         public required JsonDocument FaissJson { get; set; }
 

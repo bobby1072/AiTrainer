@@ -5,6 +5,6 @@ namespace AiTrainer.Web.CoreClient.Models.Request
     public record DocumentToChunkInput: BaseCoreClientRequestData
     {
         [JsonPropertyName("documentText")]
-        public required string DocumentText { get; init; }
+        public required IReadOnlyCollection<string> DocumentText { get; init; }
     }
 }
