@@ -40,6 +40,7 @@ namespace AiTrainer.Web.Domain.Services.Extensions
                 .AddScoped<IUserProcessingManager, UserProcessingManager>()
                 .AddScoped<IFileCollectionProcessingManager, FileCollectionProcessingManager>()
                 .AddScoped<IFileDocumentProcessingManager, FileDocumentProcessingManager>()
+                .AddScoped<IFileCollectionFaissSyncProcessingManager, FileCollectionFaissSyncProcessingManager>()
                 .AddScoped<IHealthService, HealthService>()
                 .AddScoped<ICachingService, DistributedCachingService>()
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>();
