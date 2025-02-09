@@ -28,11 +28,11 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             where TService : IDomainService
         {
             var compiledAction = serviceAction.Compile();
-            await ExecuteAsync<TService, bool>(async serv =>
+            await ExecuteAsync((Func<TService, Task<bool>>)(async serv =>
             {
                 await compiledAction.Invoke(serv);
                 return true;
-            }, serviceActionName);
+            }), serviceActionName);
         }
         public Task<TReturn> ExecuteAsync<TService, TReturn>(
             Expression<Func<TService, Task<TReturn>>> serviceAction,

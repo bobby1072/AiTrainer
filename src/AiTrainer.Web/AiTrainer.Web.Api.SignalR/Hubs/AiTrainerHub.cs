@@ -8,6 +8,7 @@ using AiTrainer.Web.Domain.Services.User.Abstract;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using AiTrainer.Web.Api.SignalR.Models;
 
 namespace AiTrainer.Web.Api.SignalR.Hubs
 {
@@ -47,7 +48,7 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                 await _domainService.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(serv =>
                     serv.SyncUserFileCollectionFaissStore(currentUser, input.CollectionId));
 
-                await Clients.Caller.SendAsync("Successfully faiss synced collection");
+                await Clients.Caller.SendAsync("SyncFaissStoreSuccess",new SignalRClientEvent<string> { Data = "Successfully faiss synced collection"});
             }
             catch (Exception ex)
             {
@@ -57,7 +58,7 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                     correlationId
                 );
                 
-                await Clients.Caller.SendAsync("An error occurred whilst syncing the file collection");
+                await Clients.Caller.SendAsync("SyncFaissStoreError", new SignalRClientEvent { ExceptionMessage = "An error occurred whilst syncing the file collection" });
             }
         }
         public override async Task OnConnectedAsync()
