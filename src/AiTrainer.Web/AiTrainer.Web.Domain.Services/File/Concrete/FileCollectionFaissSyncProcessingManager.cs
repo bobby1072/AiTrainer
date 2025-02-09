@@ -27,7 +27,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
     private readonly ICoreClient<UpdateFaissStoreInput, FaissStoreResponse> _updateFaissStoreService;
     private readonly IUserProcessingManager _userProcessingManager;
     private readonly IFileCollectionRepository _fileCollectionRepository;
-    private readonly IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss> _fileCollectionFaissRepository;
+    private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly ILogger<FileCollectionFaissSyncProcessingManager> _logger;
     private readonly IFileDocumentRepository _fileDocumentRepository;
     private readonly FaissSyncRetrySettingsConfiguration _retrySettings;
@@ -43,7 +43,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
             IFileCollectionRepository fileCollectionRepository,
             ILogger<FileCollectionFaissSyncProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
-            IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss> fileCollectionFaissRepository,
+            IFileCollectionFaissRepository fileCollectionFaissRepository,
             IOptionsSnapshot<FaissSyncRetrySettingsConfiguration> retrySettings,
             IHttpContextAccessor? httpContextAccessor = null
         )
