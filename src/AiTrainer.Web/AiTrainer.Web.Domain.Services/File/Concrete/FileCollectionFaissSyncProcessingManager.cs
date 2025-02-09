@@ -123,7 +123,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         
         await GetCollectionByIdAndAuth(collectionId, (Guid)foundUser.Id!);
         
-        var unSyncedDocuments = await EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.GetDocumentsBySyncAndCollectionId(false, collectionId)) ?? throw new ApiException("Failed to retrieve file documents");
+        var unSyncedDocuments = await EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.GetDocumentsBySyncAndCollectionId(false, collectionId), _logger) ?? throw new ApiException("Failed to retrieve file documents");
         if (unSyncedDocuments.Data.Count == 0)
         {
             _logger.LogInformation("File collection {CollectionId} has no unsynced documents therefore does not need to sync. correlationId {CorrelationId}",
@@ -134,45 +134,51 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         }
 
         var allUnsyncedDocumentTextJob = GetTextFromFileDocuments(unSyncedDocuments.Data, correlationId);
-        var existingFaissStoreJob = EntityFrameworkUtils.TryDbOperation(() => _fileCollectionFaissRepository.GetOne(collectionId, nameof(FileCollectionFaissEntity.CollectionId))); 
+        var existingFaissStoreJob = EntityFrameworkUtils.TryDbOperation(() => _fileCollectionFaissRepository.GetOne(collectionId, nameof(FileCollectionFaissEntity.CollectionId)), _logger); 
         await Task.WhenAll(existingFaissStoreJob, allUnsyncedDocumentTextJob);
 
         var allUnsyncedDocumentText = await allUnsyncedDocumentTextJob;
         var existingFaissStore = await existingFaissStoreJob ?? throw new ApiException("Failed to retrieve file collection faiss store");
         
         var chunkedDocument = await _documentChunkerClient.TryInvokeAsync(new DocumentToChunkInput { DocumentText = allUnsyncedDocumentText }) ?? throw new ApiException("Failed to retrieve file collection faiss store");
+        
+        
+        var storeToSave = await GetFaissStoreFromCore(chunkedDocument, existingFaissStore.Data);
 
-        var createStoreInput = new CreateFaissStoreInput
-        {
-            Documents = chunkedDocument.DocumentChunks,
-        };
         
-        var storeToSave = existingFaissStore.Data is null ? await _createFaissStoreService.TryInvokeAsync(createStoreInput):
-            await _updateFaissStoreService.TryInvokeAsync(new UpdateFaissStoreInput {DocStore = existingFaissStore.Data.FaissJson, FileInput = existingFaissStore.Data.FaissIndex, NewDocuments = createStoreInput});
-        if (storeToSave is null)
-        {
-            throw new ApiException("Failed to build file collection faiss store in core");
-        }
-        
-        
-
         var result = await EntityFrameworkUtils.TryDbOperation(() =>
             _fileCollectionFaissRepository.SaveStoreAndSyncDocs(
-                CreateStore(storeToSave, collectionId, existingFaissStore.Data),
+                CreateFileCollectionFaissStoreObject(storeToSave, collectionId, existingFaissStore.Data),
                 unSyncedDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToArray(),
                 existingFaissStore.Data is null ? FileCollectionFaissRepositorySaveMode.Create: FileCollectionFaissRepositorySaveMode.Update
-            ));
+            ), _logger);
         if (result?.IsSuccessful != true)
         {
             throw new ApiException("Failed to save file collection faiss store");
         }
     }
 
-
+    private async Task<FaissStoreResponse> GetFaissStoreFromCore(ChunkedDocumentResponse chunkedDocument, FileCollectionFaiss? existingFaissStore)
+    {
+        var createStoreInput = new CreateFaissStoreInput
+        {
+            Documents = chunkedDocument.DocumentChunks,
+        };
+        
+        var storeToSave = existingFaissStore is null ? await _createFaissStoreService.TryInvokeAsync(createStoreInput):
+            await _updateFaissStoreService.TryInvokeAsync(new UpdateFaissStoreInput {DocStore = existingFaissStore.FaissJson, FileInput = existingFaissStore.FaissIndex, NewDocuments = createStoreInput});
+        
+        if (storeToSave is null)
+        {
+            throw new ApiException("Failed to build file collection faiss store in core");
+        }
+        
+        return storeToSave;
+    }
     private async Task<FileCollection> GetCollectionByIdAndAuth(Guid? collectionId, Guid userId)
     {
         var foundCollection = await EntityFrameworkUtils.TryDbOperation(() =>
-            _fileCollectionRepository.GetOne(collectionId, nameof(FileCollectionEntity.Id)));
+            _fileCollectionRepository.GetOne(collectionId, nameof(FileCollectionEntity.Id)), _logger);
         if (foundCollection?.IsSuccessful is false or null || foundCollection.Data is null)
         {
             throw new ApiException("Failed to retrieve file collection");
@@ -210,7 +216,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         var allResults = await Task.WhenAll(getTextJobList);
         return allResults.SelectMany(x => x).ToArray();
     }
-    private static FileCollectionFaiss CreateStore(FaissStoreResponse storeToSave, Guid? collectionId, FileCollectionFaiss? exisitngEntry)
+    private static FileCollectionFaiss CreateFileCollectionFaissStoreObject(FaissStoreResponse storeToSave, Guid? collectionId, FileCollectionFaiss? exisitngEntry)
     {
         var newFaiss = new FileCollectionFaiss
             { CollectionId = collectionId, FaissIndex = storeToSave.IndexFile, FaissJson = storeToSave.JsonDocStore };
