@@ -4,5 +4,5 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract;
 
 public interface IFileCollectionFaissSyncProcessingManager: IDomainService
 {
-    Task SyncUserFileCollectionFaissStore(Guid? collectionId = null, bool useRetry = false);
+    Task SyncUserFileCollectionFaissStore(Models.User currentUser, Guid? collectionId = null);
 }

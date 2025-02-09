@@ -7,6 +7,8 @@ using AiTrainer.Web.Domain.Services.User.Abstract;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using AiTrainer.Web.Api.SignalR.Models.Requests;
+using AiTrainer.Web.Domain.Services.File.Abstract;
 
 namespace AiTrainer.Web.Api.SignalR.Hubs
 {
@@ -16,7 +18,6 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
         private readonly IDomainServiceActionExecutor _domainService;
         private readonly ILogger<AiTrainerHub> _logger;
         private readonly ICachingService _cachingService;
-
         public AiTrainerHub(
             ILogger<AiTrainerHub> logger,
             ICachingService cachingService,
@@ -26,6 +27,26 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
             _domainService = domainService;
             _logger = logger;
             _cachingService = cachingService;
+        }
+
+        public async Task SyncFaissStore(SyncFaissStoreHubInput input)
+        {
+            _logger.LogInformation("Client with connectionId {ConnectionId} has triggered a faiss sync for collectionId {CollectionId}",
+                Context.ConnectionId,
+                input.CollectionId
+            );
+            
+            var hubHttpContext = Context.GetHttpContext();
+            var accessToken = hubHttpContext?.GetAccessTokenFromQuery("access_token")!;
+            
+            var currentUser =
+                await _domainService.ExecuteAsync<IUserProcessingManager, User?>(userProcessingManager => userProcessingManager.TryGetUserFromCache(accessToken))
+                ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+            
+            await _domainService.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(serv =>
+                serv.SyncUserFileCollectionFaissStore(currentUser,input.CollectionId));
+
+            await Clients.Caller.SendAsync("Successfully faiss synced collection");
         }
         public override async Task OnConnectedAsync()
         {

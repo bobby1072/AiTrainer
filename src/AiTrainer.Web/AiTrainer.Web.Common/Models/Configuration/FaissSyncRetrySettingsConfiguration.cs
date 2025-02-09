@@ -9,4 +9,5 @@ public class FaissSyncRetrySettingsConfiguration: BaseConfiguration, IPollyRetry
         public int? TotalAttempts { get; init; }
         public int? DelayBetweenAttemptsInSeconds { get; init; }
         public bool? UseJitter => false;
+        public bool UseRetry { get; init; }
 }

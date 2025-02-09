@@ -62,7 +62,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task SyncUserFileCollectionFaissStore(Guid? collectionId = null, bool useRetry = false)
+    public async Task SyncUserFileCollectionFaissStore(Models.User currentUser,Guid? collectionId = null)
     {
         SyncAttemptCount = 0;
         
@@ -74,9 +74,9 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
             correlationId
         );
         
-        if (!useRetry)
+        if (!_retrySettings.UseRetry)
         {
-            var timeTakenForNoRetryOp = await OperationTimerUtils.TimeAsync(() => SyncUserCollectionFaissStoreInnerMethod(collectionId, correlationId));
+            var timeTakenForNoRetryOp = await OperationTimerUtils.TimeAsync(() => SyncUserCollectionFaissStoreInnerMethod(currentUser, collectionId, correlationId));
             
             _logger.LogInformation("Faiss sync for collection {CollectionId} completed in {TimeTaken}ms for correlationId {CorrelationId}", 
                 collectionId,
@@ -94,7 +94,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         var retryPipeline = _retrySettings.ToPipeline();
         
         var timeTakenForRetryOp = await OperationTimerUtils.TimeAsync(() =>
-            retryPipeline.ExecuteAsync(async ct => await SyncUserCollectionFaissStoreInnerMethod(collectionId, correlationId)));
+            retryPipeline.ExecuteAsync(async ct => await SyncUserCollectionFaissStoreInnerMethod(currentUser, collectionId, correlationId)));
         
         _logger.LogInformation("Faiss sync for collection {CollectionId} completed in {TimeTaken}ms after {AttemptCount} attempts for correlationId {CorrelationId}", 
             collectionId,
@@ -111,17 +111,12 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         );
     }
 
-    private async Task SyncUserCollectionFaissStoreInnerMethod(Guid? collectionId, Guid? correlationId)
+    private async Task SyncUserCollectionFaissStoreInnerMethod(Models.User currentUser, Guid? collectionId, Guid? correlationId)
     {
         SyncAttemptCount++;
         
         
-        var foundUser = await _userProcessingManager
-            .TryGetUserFromCache(
-                _httpContextAccessor?.HttpContext.GetAccessToken() ?? throw new ApiException(ExceptionConstants.NotAuthorized, HttpStatusCode.Unauthorized)
-            ) ?? throw new ApiException(ExceptionConstants.NotAuthorized, HttpStatusCode.Unauthorized);
-        
-        await GetCollectionByIdAndAuth(collectionId, (Guid)foundUser.Id!);
+        await GetCollectionByIdAndAuth(collectionId, (Guid)currentUser.Id!);
         
         var unSyncedDocuments = await EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.GetDocumentsBySyncAndCollectionId(false, collectionId), _logger) ?? throw new ApiException("Failed to retrieve file documents");
         if (unSyncedDocuments.Data.Count == 0)

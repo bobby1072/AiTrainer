@@ -20,6 +20,20 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
         }
+
+        public async Task ExecuteAsync<TService>(
+            Expression<Func<TService, Task>> serviceAction,
+            string? serviceActionName = null
+        )
+            where TService : IDomainService
+        {
+            var compiledAction = serviceAction.Compile();
+            await ExecuteAsync<TService, bool>(async serv =>
+            {
+                await compiledAction.Invoke(serv);
+                return true;
+            }, serviceActionName);
+        }
         public Task<TReturn> ExecuteAsync<TService, TReturn>(
             Expression<Func<TService, Task<TReturn>>> serviceAction,
             string? serviceActionName = null
