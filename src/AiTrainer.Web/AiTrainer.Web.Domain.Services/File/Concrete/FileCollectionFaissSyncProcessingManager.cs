@@ -1,5 +1,4 @@
-﻿using System.Net;
-using AiTrainer.Web.Common.Exceptions;
+﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Helpers;
 using AiTrainer.Web.Common.Models.Configuration;
@@ -19,6 +18,7 @@ using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 

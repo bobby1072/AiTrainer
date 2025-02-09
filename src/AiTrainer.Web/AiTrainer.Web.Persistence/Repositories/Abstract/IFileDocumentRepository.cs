@@ -2,7 +2,6 @@ using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {

@@ -1,7 +1,6 @@
-﻿using System.Text.Json;
-using AiTrainer.Web.Common.Models.ApiModels.Request;
-using AiTrainer.Web.Domain.Models;
+﻿using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
+using System.Text.Json;
 
 namespace AiTrainer.Web.Persistence.Extensions
 {

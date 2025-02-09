@@ -1,32 +1,27 @@
+using AiTrainer.Web.Api.SignalR.Models.Requests;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Services.Abstract;
-using AiTrainer.Web.Domain.Services.Concrete;
+using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Net;
-using AiTrainer.Web.Api.SignalR.Models.Requests;
-using AiTrainer.Web.Domain.Services.File.Abstract;
 
 namespace AiTrainer.Web.Api.SignalR.Hubs
 {
     public class AiTrainerHub : Hub
     {
-        public const string ConnectionIdUserIdCacheKeyPrefix = "userId-";
         private readonly IDomainServiceActionExecutor _domainService;
         private readonly ILogger<AiTrainerHub> _logger;
-        private readonly ICachingService _cachingService;
         public AiTrainerHub(
             ILogger<AiTrainerHub> logger,
-            ICachingService cachingService,
             IDomainServiceActionExecutor domainService
         )
         {
             _domainService = domainService;
             _logger = logger;
-            _cachingService = cachingService;
         }
 
         public async Task SyncFaissStore(SyncFaissStoreHubInput input)

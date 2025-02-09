@@ -60,7 +60,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
                 return new DbSaveResult<FileDocument>([newlySavedDoc.ToModel()]);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 await transaction.RollbackAsync();
                 throw;

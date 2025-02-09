@@ -1,5 +1,5 @@
-using System.Text.Json;
 using AiTrainer.Web.Domain.Models.Attributes;
+using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Models
 {
