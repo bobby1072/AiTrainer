@@ -62,7 +62,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task SyncUserCollectionFaissStore(Guid? collectionId = null, bool useRetry = false)
+    public async Task SyncUserFileCollectionFaissStore(Guid? collectionId = null, bool useRetry = false)
     {
         SyncAttemptCount = 0;
         
@@ -70,7 +70,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
 
         _logger.LogInformation(
             "Entering {Action} for correlationId {CorrelationId}",
-            nameof(SyncUserCollectionFaissStore),
+            nameof(SyncUserFileCollectionFaissStore),
             correlationId
         );
         
@@ -85,7 +85,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
             );
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
-                nameof(SyncUserCollectionFaissStore),
+                nameof(SyncUserFileCollectionFaissStore),
                 correlationId
             );
             return;
@@ -106,7 +106,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         
         _logger.LogInformation(
             "Exiting {Action} for correlationId {CorrelationId}",
-            nameof(SyncUserCollectionFaissStore),
+            nameof(SyncUserFileCollectionFaissStore),
             correlationId
         );
     }
