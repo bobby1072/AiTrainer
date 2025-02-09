@@ -26,22 +26,39 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
 
         public async Task SyncFaissStore(SyncFaissStoreHubInput input)
         {
-            _logger.LogInformation("Client with connectionId {ConnectionId} has triggered a faiss sync for collectionId {CollectionId}",
-                Context.ConnectionId,
-                input.CollectionId
-            );
-            
             var hubHttpContext = Context.GetHttpContext();
-            var accessToken = hubHttpContext?.GetAccessTokenFromQuery("access_token")!;
-            
-            var currentUser =
-                await _domainService.ExecuteAsync<IUserProcessingManager, User?>(userProcessingManager => userProcessingManager.TryGetUserFromCache(accessToken))
-                ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
-            
-            await _domainService.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(serv =>
-                serv.SyncUserFileCollectionFaissStore(currentUser,input.CollectionId));
+            var correlationId = hubHttpContext?.GetCorrelationId();
+            try
+            {
+                _logger.LogInformation(
+                    "Client with connectionId {ConnectionId} and correlationId {CorrelationId} has triggered a faiss sync for collectionId {CollectionId}",
+                    Context.ConnectionId,
+                    correlationId,
+                    input.CollectionId
+                );
 
-            await Clients.Caller.SendAsync("Successfully faiss synced collection");
+                var accessToken = hubHttpContext?.GetAccessTokenFromQuery("access_token")!;
+
+                var currentUser =
+                    await _domainService.ExecuteAsync<IUserProcessingManager, User?>(userProcessingManager =>
+                        userProcessingManager.TryGetUserFromCache(accessToken))
+                    ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+
+                await _domainService.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(serv =>
+                    serv.SyncUserFileCollectionFaissStore(currentUser, input.CollectionId));
+
+                await Clients.Caller.SendAsync("Successfully faiss synced collection");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error syncing faiss store for connectionId {ConnectionId}, collectionId {CollectionId} and correlationId {CorrelationId}",
+                    Context.ConnectionId,
+                    input.CollectionId,
+                    correlationId
+                );
+                
+                await Clients.Caller.SendAsync("An error occurred whilst syncing the file collection");
+            }
         }
         public override async Task OnConnectedAsync()
         {
