@@ -11,7 +11,9 @@ using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using AiTrainer.Web.Persistence.Repositories.Concrete;
 using AiTrainer.Web.Persistence.Utils;
+using BT.Common.FastArray.Proto;
 using BT.Common.OperationTimer.Proto;
 using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
@@ -151,16 +153,22 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         {
             throw new ApiException("Failed to build file collection faiss store in core");
         }
+        
+        
 
         var result = await EntityFrameworkUtils.TryDbOperation(() =>
-            existingFaissStore.Data is null ? 
-                _fileCollectionFaissRepository.Create([new FileCollectionFaiss{ CollectionId = collectionId, FaissIndex = storeToSave.IndexFile, FaissJson = storeToSave.JsonDocStore}]):
-                _fileCollectionFaissRepository.Update([new FileCollectionFaiss{ CollectionId = collectionId, FaissIndex = storeToSave.IndexFile, FaissJson = storeToSave.JsonDocStore, Id = existingFaissStore.Data.Id}]));
+            _fileCollectionFaissRepository.SaveStoreAndSyncDocs(
+                CreateStore(storeToSave, collectionId, existingFaissStore.Data),
+                unSyncedDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToArray(),
+                existingFaissStore.Data is null ? FileCollectionFaissRepositorySaveMode.Create: FileCollectionFaissRepositorySaveMode.Update
+            ));
         if (result?.IsSuccessful != true)
         {
             throw new ApiException("Failed to save file collection faiss store");
         }
     }
+
+
     private async Task<FileCollection> GetCollectionByIdAndAuth(Guid? collectionId, Guid userId)
     {
         var foundCollection = await EntityFrameworkUtils.TryDbOperation(() =>
@@ -201,5 +209,17 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         
         var allResults = await Task.WhenAll(getTextJobList);
         return allResults.SelectMany(x => x).ToArray();
+    }
+    private static FileCollectionFaiss CreateStore(FaissStoreResponse storeToSave, Guid? collectionId, FileCollectionFaiss? exisitngEntry)
+    {
+        var newFaiss = new FileCollectionFaiss
+            { CollectionId = collectionId, FaissIndex = storeToSave.IndexFile, FaissJson = storeToSave.JsonDocStore };
+
+        if (exisitngEntry is not null)
+        {
+            newFaiss.Id = exisitngEntry.Id;
+        }
+        
+        return newFaiss;
     }
 }
