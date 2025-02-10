@@ -10,8 +10,7 @@ import { ApplicationSettings } from "../Utils/AppSettingsProvider";
 
 export const useConnectToSignalR = () => {
   const { user } = useAuthentication();
-  const { hubConnection, setHubConnection, isConnected } =
-    useGetSignalRHubContext();
+  const { setHubConnection, isConnected } = useGetSignalRHubContext();
   const query = useQuery<HubConnection, Error>(
     QueryKeys.ConnectToSignalR,
     async () => {
@@ -30,7 +29,7 @@ export const useConnectToSignalR = () => {
         await localHub.start();
         return localHub;
       }
-      return hubConnection;
+      throw new Error("Cannot connect to server");
     },
     {
       onSuccess: (data) => {
