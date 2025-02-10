@@ -28,6 +28,7 @@ export const useConnectToSignalR = () => {
           )
           .build();
         await localHub.start();
+        return localHub;
       }
       return hubConnection;
     },

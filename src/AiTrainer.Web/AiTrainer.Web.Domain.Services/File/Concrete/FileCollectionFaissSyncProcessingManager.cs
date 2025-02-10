@@ -116,7 +116,6 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         SyncAttemptCount++;
         
         
-        await GetCollectionByIdAndAuth(collectionId, (Guid)currentUser.Id!);
         
         var unSyncedDocuments = await EntityFrameworkUtils.TryDbOperation(() => _fileDocumentRepository.GetDocumentsBySyncAndCollectionId(false, collectionId), _logger) ?? throw new ApiException("Failed to retrieve file documents");
         if (unSyncedDocuments.Data.Count == 0)
@@ -127,7 +126,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
             );
             return;
         }
-
+        GetCollectionByIdAndAuth(unSyncedDocuments.Data, (Guid)currentUser.Id!);
         var allUnsyncedDocumentTextJob = GetTextFromFileDocuments(unSyncedDocuments.Data, correlationId);
         var existingFaissStoreJob = EntityFrameworkUtils.TryDbOperation(() => _fileCollectionFaissRepository.GetOne(collectionId, nameof(FileCollectionFaissEntity.CollectionId)), _logger); 
         await Task.WhenAll(existingFaissStoreJob, allUnsyncedDocumentTextJob);
@@ -147,6 +146,7 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
                 unSyncedDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToArray(),
                 existingFaissStore.Data is null ? FileCollectionFaissRepositorySaveMode.Create: FileCollectionFaissRepositorySaveMode.Update
             ), _logger);
+
         if (result?.IsSuccessful != true)
         {
             throw new ApiException("Failed to save file collection faiss store");
@@ -170,21 +170,15 @@ public class FileCollectionFaissSyncProcessingManager: IFileCollectionFaissSyncP
         
         return storeToSave;
     }
-    private async Task<FileCollection> GetCollectionByIdAndAuth(Guid? collectionId, Guid userId)
+    private void GetCollectionByIdAndAuth(IReadOnlyCollection<FileDocument> fileDocs, Guid userId)
     {
-        var foundCollection = await EntityFrameworkUtils.TryDbOperation(() =>
-            _fileCollectionRepository.GetOne(collectionId, nameof(FileCollectionEntity.Id)), _logger);
-        if (foundCollection?.IsSuccessful is false or null || foundCollection.Data is null)
+        foreach (var fileDoc in fileDocs) 
         {
-            throw new ApiException("Failed to retrieve file collection");
+            if(fileDoc.UserId != userId)
+            {
+                throw new ApiException(ExceptionConstants.NotAuthorized, HttpStatusCode.Unauthorized);
+            }
         }
-
-        if (foundCollection.Data.UserId != userId)
-        {
-            throw new ApiException(ExceptionConstants.NotAuthorized, HttpStatusCode.Unauthorized);
-        }
-        
-        return foundCollection.Data;        
     }
     
     private async Task<IReadOnlyCollection<string>> GetTextFromFileDocuments(IReadOnlyCollection<FileDocument> fileDocuments, Guid? correlationId)
