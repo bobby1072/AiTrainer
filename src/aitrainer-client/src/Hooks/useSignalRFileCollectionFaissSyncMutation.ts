@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { useGetSignalRHubContext } from "../Components/Contexts/AiTrainerSignalRContext";
 import { useMutation } from "react-query";
-import { AiTrainerWebOutcome } from "../Models/AiTrainerWebOutcome";
+import {
+  AiTrainerWebOutcome,
+  AiTrainerWebOutcomeBase,
+} from "../Models/AiTrainerWebOutcome";
 export const useSignalRFileCollectionFaissSyncMutation = (
   collectionId?: string | null
 ) => {
@@ -9,14 +12,21 @@ export const useSignalRFileCollectionFaissSyncMutation = (
   const [successMessage, setSuccessMessage] = useState<string>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<Error>();
-  hubConnection.on("SyncFaissStore", (data: AiTrainerWebOutcome<string>) => {
+  hubConnection.on("SyncFaissStoreError", (data: AiTrainerWebOutcomeBase) => {
     setIsLoading(false);
     if (data.exceptionMessage) {
       setError(new Error(data.exceptionMessage));
-    } else if (data.data) {
-      setSuccessMessage(data.data);
     }
   });
+  hubConnection.on(
+    "SyncFaissStoreSuccess",
+    (data: AiTrainerWebOutcome<string>) => {
+      setIsLoading(false);
+      if (data.data) {
+        setSuccessMessage(data.data);
+      }
+    }
+  );
   const { mutate } = useMutation(async () => {
     setSuccessMessage(undefined);
     setError(undefined);

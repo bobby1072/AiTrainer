@@ -24,7 +24,7 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
             _domainService = domainService;
             _logger = logger;
         }
-
+        [HubMethodName("SyncFaissStore")]
         public async Task SyncFaissStore(SyncFaissStoreHubInput input)
         {
             var hubHttpContext = Context.GetHttpContext();

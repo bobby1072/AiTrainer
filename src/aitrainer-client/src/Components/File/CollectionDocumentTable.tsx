@@ -23,11 +23,11 @@ export const CollectionDocumentTable: React.FC<{
 
   const navigate = useNavigate();
   const {
-    data: syncData,
-    error: syncError,
-    isLoading: syncLoading,
+    // data: syncData,
+    // error: syncError,
+    // isLoading: syncLoading,
     mutate: sync,
-  } = useSignalRFileCollectionFaissSyncMutation(flatCollection.self.id);
+  } = useSignalRFileCollectionFaissSyncMutation(flatCollection?.self?.id);
   const { fileColId, setFileColId } = useFileCollectionLevelContext();
 
   useEffect(() => {
