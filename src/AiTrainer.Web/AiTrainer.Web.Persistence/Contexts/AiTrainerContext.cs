@@ -16,7 +16,6 @@ namespace AiTrainer.Web.Persistence.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FileCollectionEntity>().HasMany(fc => fc.FaissStore);
 
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
