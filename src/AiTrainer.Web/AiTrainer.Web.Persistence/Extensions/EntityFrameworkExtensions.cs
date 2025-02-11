@@ -1,6 +1,6 @@
-﻿using AiTrainer.Web.Domain.Models;
+﻿using System.Text.Json;
+using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
-using System.Text.Json;
 
 namespace AiTrainer.Web.Persistence.Extensions
 {
@@ -99,6 +99,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             {
                 CollectionId = fileCollectionFaiss.CollectionId,
                 FaissIndex = fileCollectionFaiss.FaissIndex,
+                UserId = fileCollectionFaiss.UserId,
                 FaissJson = fileCollectionFaiss.FaissJson,
             };
             if (fileCollectionFaiss.Id is not null)
