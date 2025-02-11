@@ -27,12 +27,19 @@ export const useSignalRFileCollectionFaissSyncMutation = (
       }
     }
   );
-  const { mutate } = useMutation(async () => {
-    setSuccessMessage(undefined);
-    setError(undefined);
-    setIsLoading(true);
-    await hubConnection.send("SyncFaissStore", { collectionId: collectionId });
-  });
+  const { mutate } = useMutation(
+    async () => {
+      setSuccessMessage(undefined);
+      setError(undefined);
+      setIsLoading(true);
+      await hubConnection.send("SyncFaissStore", {
+        collectionId: collectionId,
+      });
+    },
+    {
+      onError: (ex: Error) => setError(ex),
+    }
+  );
 
   return { data: successMessage, isLoading, error, mutate };
 };

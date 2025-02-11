@@ -18,7 +18,7 @@ WHERE parent_id IS NULL;
 
 CREATE TABLE public."file_collection_faiss"(
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    collection_id UUID NOT NULL REFERENCES public."file_collection"(id) ON DELETE CASCADE ON UPDATE CASCADE UNIQUE,
+    collection_id UUID REFERENCES public."file_collection"(id) ON DELETE CASCADE ON UPDATE CASCADE UNIQUE,
     faiss_index BYTEA NOT NULL,
     faiss_json JSONB NOT NULL
 );

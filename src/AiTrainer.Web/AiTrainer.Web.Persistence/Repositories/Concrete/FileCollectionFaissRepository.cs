@@ -46,7 +46,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 
                 return new DbResult(true);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 await transaction.RollbackAsync();
                 throw;                
