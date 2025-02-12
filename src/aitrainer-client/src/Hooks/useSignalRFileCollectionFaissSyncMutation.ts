@@ -17,21 +17,23 @@ export const useSignalRFileCollectionFaissSyncMutation = (
     isLoading: false,
   });
   hubConnection.on("SyncFaissStoreError", (data: AiTrainerWebOutcomeBase) => {
-    setCustomMutationState((acc) => ({ ...acc, isLoading: false }));
     if (data.exceptionMessage) {
-      const errro = new Error(data.exceptionMessage);
-      setCustomMutationState((acc) => ({ ...acc, error: errro }));
+      const newError = new Error(data.exceptionMessage);
+      setCustomMutationState({ isLoading: false, error: newError });
+    } else {
+      setCustomMutationState({ isLoading: false });
     }
   });
   hubConnection.on(
     "SyncFaissStoreSuccess",
     (data: AiTrainerWebOutcome<string>) => {
-      setCustomMutationState((acc) => ({ ...acc, isLoading: false }));
       if (data.data) {
-        setCustomMutationState((acc) => ({
-          ...acc,
+        setCustomMutationState({
           successMessage: data.data,
-        }));
+          isLoading: false,
+        });
+      } else {
+        setCustomMutationState({ isLoading: false });
       }
     }
   );

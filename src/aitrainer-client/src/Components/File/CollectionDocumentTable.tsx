@@ -117,7 +117,7 @@ export const CollectionDocumentTable: React.FC<{
                 >
                   <Grid2>
                     <IconButton
-                      disabled={syncLoading}
+                      disabled={syncLoading || !!syncData}
                       color="inherit"
                       size="large"
                       onClick={() => sync()}

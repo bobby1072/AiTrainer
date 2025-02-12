@@ -1,5 +1,4 @@
-﻿using System.Net;
-using AiTrainer.Web.Common.Exceptions;
+﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Helpers;
 using AiTrainer.Web.Common.Models.Configuration;
@@ -8,7 +7,6 @@ using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Services.File.Abstract;
-using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Concrete;
@@ -36,8 +34,6 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         UpdateFaissStoreInput,
         FaissStoreResponse
     > _updateFaissStoreService;
-    private readonly IUserProcessingManager _userProcessingManager;
-    private readonly IFileCollectionRepository _fileCollectionRepository;
     private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly ILogger<FileCollectionFaissSyncProcessingManager> _logger;
     private readonly IFileDocumentRepository _fileDocumentRepository;
@@ -50,8 +46,6 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         ICoreClient<DocumentToChunkInput, ChunkedDocumentResponse> documentChunkerClient,
         ICoreClient<CreateFaissStoreInput, FaissStoreResponse> createFaissStoreService,
         ICoreClient<UpdateFaissStoreInput, FaissStoreResponse> updateFaissStoreService,
-        IUserProcessingManager userProcessingManager,
-        IFileCollectionRepository fileCollectionRepository,
         ILogger<FileCollectionFaissSyncProcessingManager> logger,
         IFileDocumentRepository fileDocumentRepository,
         IFileCollectionFaissRepository fileCollectionFaissRepository,
@@ -62,8 +56,6 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         _documentChunkerClient = documentChunkerClient;
         _createFaissStoreService = createFaissStoreService;
         _updateFaissStoreService = updateFaissStoreService;
-        _userProcessingManager = userProcessingManager;
-        _fileCollectionRepository = fileCollectionRepository;
         _logger = logger;
         _retrySettings = retrySettings.Value;
         _fileDocumentRepository = fileDocumentRepository;
@@ -150,7 +142,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         var unSyncedDocuments =
             await EntityFrameworkUtils.TryDbOperation(
                 () =>
-                    _fileDocumentRepository.GetDocumentsBySyncAndCollectionId(false, collectionId),
+                    _fileDocumentRepository.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId),
                 _logger
             ) ?? throw new ApiException("Failed to retrieve file documents");
         if (unSyncedDocuments.Data.Count == 0)
@@ -162,11 +154,6 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             );
             return;
         }
-        GetCollectionByIdAndAuth(unSyncedDocuments.Data, (Guid)currentUser.Id!);
-        var allUnsyncedDocumentTextJob = GetTextFromFileDocuments(
-            unSyncedDocuments.Data,
-            correlationId
-        );
         var existingFaissStoreJob = EntityFrameworkUtils.TryDbOperation(
             () =>
                 _fileCollectionFaissRepository.GetOne(
@@ -174,6 +161,10 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
                     nameof(FileCollectionFaissEntity.CollectionId)
                 ),
             _logger
+        );
+        var allUnsyncedDocumentTextJob = GetTextFromFileDocuments(
+            unSyncedDocuments.Data,
+            correlationId
         );
         await Task.WhenAll(existingFaissStoreJob, allUnsyncedDocumentTextJob);
 
@@ -239,20 +230,6 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         }
 
         return storeToSave;
-    }
-
-    private void GetCollectionByIdAndAuth(IReadOnlyCollection<FileDocument> fileDocs, Guid userId)
-    {
-        foreach (var fileDoc in fileDocs)
-        {
-            if (fileDoc.UserId != userId)
-            {
-                throw new ApiException(
-                    ExceptionConstants.NotAuthorized,
-                    HttpStatusCode.Unauthorized
-                );
-            }
-        }
     }
 
     private async Task<IReadOnlyCollection<string>> GetTextFromFileDocuments(
