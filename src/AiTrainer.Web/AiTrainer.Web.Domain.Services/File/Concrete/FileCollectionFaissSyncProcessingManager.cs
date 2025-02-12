@@ -64,7 +64,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
     }
 
     public async Task SyncUserFileCollectionFaissStore(
-        Models.User currentUser,
+        Domain.Models.User currentUser,
         Guid? collectionId = null,
         CancellationToken cancellationToken = default
     )
@@ -136,7 +136,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
     }
 
     private async Task SyncUserCollectionFaissStoreInnerMethod(
-        Models.User currentUser,
+        Domain.Models.User currentUser,
         Guid? collectionId,
         Guid? correlationId,
         CancellationToken cancelToken

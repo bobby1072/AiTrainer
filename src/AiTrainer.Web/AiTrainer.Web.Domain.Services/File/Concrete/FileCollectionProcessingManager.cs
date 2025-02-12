@@ -18,23 +18,20 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
     internal class FileCollectionProcessingManager : IFileCollectionProcessingManager
     {
-        private readonly IUserProcessingManager _userProcessingManager;
         private readonly IFileCollectionRepository _repository;
         private readonly ILogger<FileCollectionProcessingManager> _logger;
         private readonly IValidator<FileCollection> _validator;
         private readonly IFileDocumentRepository _fileDocumentRepository;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor? _httpContextAccessor;
 
         public FileCollectionProcessingManager(
-            IUserProcessingManager userProcessingManager,
             IFileCollectionRepository repository,
             ILogger<FileCollectionProcessingManager> logger,
             IValidator<FileCollection> validator,
             IFileDocumentRepository fileDocumentRepository,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor? httpContextAccessor =  null
         )
         {
-            _userProcessingManager = userProcessingManager;
             _repository = repository;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
@@ -42,9 +39,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
         }
 
-        public async Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId, Models.User currentUser)
+        public async Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId, Domain.Models.User currentUser)
         {
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -88,10 +85,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
         public async Task<FileCollection> SaveFileCollection(
             FileCollectionSaveInput fileCollectionInput,
-            Models.User currentUser
+            Domain.Models.User currentUser
         )
         {
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -185,9 +182,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             return newlySavedCollection.Data.First();
         }
 
-        public async Task<Guid> DeleteFileCollection(Guid collectionId, Models.User currentUser)
+        public async Task<Guid> DeleteFileCollection(Guid collectionId, Domain.Models.User currentUser)
         {
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -215,11 +212,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         }
 
         public async Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(
-            Models.User currentUser,
+            Domain.Models.User currentUser,
             Guid? collectionId = null
         )
         {
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",

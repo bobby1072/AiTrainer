@@ -6,7 +6,6 @@ using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Models.Helpers;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.File.Abstract;
-using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using FluentValidation;
@@ -22,19 +21,16 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IValidator<FileDocument> _validator;
         private readonly IFileCollectionRepository _fileCollectionRepository;
-        private readonly IUserProcessingManager _userProcessingManager;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpContextAccessor? _httpContextAccessor;
 
         public FileDocumentProcessingManager(
-            IUserProcessingManager userProcessingManager,
-            IHttpContextAccessor httpContextAccessor,
             ILogger<FileDocumentProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
             IValidator<FileDocument> validator,
-            IFileCollectionRepository fileCollectionRepository
+            IFileCollectionRepository fileCollectionRepository,
+            IHttpContextAccessor? httpContextAccessor = null
         )
         {
-            _userProcessingManager = userProcessingManager;
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _fileDocumentRepository = fileDocumentRepository;
@@ -42,9 +38,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileCollectionRepository = fileCollectionRepository;
         }
 
-        public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Models.User currentUser)
+        public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Domain.Models.User currentUser)
         {
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -72,10 +68,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
         public async Task<FileDocumentPartial> UploadFileDocument(
             FileDocumentSaveFormInput fileDocumentSaveFormInput,
-            Models.User currentUser
+            Domain.Models.User currentUser
         )
         {
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -125,9 +121,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
             return createdFile.Data.First().ToPartial();
         }
-        public async Task<Guid> DeleteFileDocument(Guid documentId, Models.User currentUser)
+        public async Task<Guid> DeleteFileDocument(Guid documentId, Domain.Models.User currentUser)
         {
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
@@ -143,8 +139,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             if (deletedId?.IsSuccessful != true)
             {
                 throw new ApiException(
-                    "Could not delete document",
-                    HttpStatusCode.InternalServerError
+                    "Could not delete document"
                 );
             }
             _logger.LogInformation(

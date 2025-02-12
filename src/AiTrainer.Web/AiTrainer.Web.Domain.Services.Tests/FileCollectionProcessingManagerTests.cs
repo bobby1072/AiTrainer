@@ -23,11 +23,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<IValidator<FileCollection>> _mockValidator = new();
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
         private readonly FileCollectionProcessingManager _fileCollectionManager;
-        private readonly Mock<IUserProcessingManager> _mockUserProcessingManager = new();
         public FileCollectionProcessingManagerTests()
         {
             _fileCollectionManager = new FileCollectionProcessingManager(
-                _mockUserProcessingManager.Object,
                 _mockRepository.Object,
                 _mockLogger.Object,
                 _mockValidator.Object,
