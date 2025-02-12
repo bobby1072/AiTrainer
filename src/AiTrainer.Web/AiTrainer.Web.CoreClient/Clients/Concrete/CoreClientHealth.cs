@@ -28,7 +28,7 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
         _httpContextAccessor = httpContextAccessor;
     }
-    public async Task<CoreClientHealthResponse?> TryInvokeAsync()
+    public async Task<CoreClientHealthResponse?> TryInvokeAsync(CancellationToken cancellation = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -40,7 +40,7 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
                 TotalAttempts = 2,
                 TimeoutInSeconds = 3,
                 DelayBetweenAttemptsInSeconds = 1
-            })
+            }, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientHealth));
         
             

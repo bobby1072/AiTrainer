@@ -7,12 +7,12 @@ namespace AiTrainer.Web.CoreClient.Clients.Abstract
         where TParam : BaseCoreClientRequestData
         where TReturn : BaseCoreClientResponseData
     {
-        Task<TReturn?> TryInvokeAsync(TParam param);
+        Task<TReturn?> TryInvokeAsync(TParam param, CancellationToken cancellation = default);
     }
 
     public interface ICoreClient<TReturn>
         where TReturn : BaseCoreClientResponseData
     {
-        Task<TReturn?> TryInvokeAsync();
+        Task<TReturn?> TryInvokeAsync(CancellationToken cancellation = default);
     }
 }
