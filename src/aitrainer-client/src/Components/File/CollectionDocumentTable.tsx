@@ -122,14 +122,16 @@ export const CollectionDocumentTable: React.FC<{
                   spacing={0.1}
                 >
                   <Grid2>
-                    <IconButton
-                      disabled={syncDisabled}
-                      color="inherit"
-                      size="large"
-                      onClick={() => sync()}
-                    >
-                      <SyncIcon />
-                    </IconButton>
+                    <Tooltip title="Sync this collection so similarity search includes currently unsynced documents">
+                      <IconButton
+                        disabled={syncDisabled}
+                        color="inherit"
+                        size="large"
+                        onClick={() => sync()}
+                      >
+                        <SyncIcon />
+                      </IconButton>
+                    </Tooltip>
                   </Grid2>
                   <Grid2>
                     <Tooltip title="Upload new document">
