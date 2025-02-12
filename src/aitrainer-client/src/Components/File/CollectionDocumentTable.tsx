@@ -11,6 +11,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import SyncIcon from "@mui/icons-material/Sync";
 import { useSignalRFileCollectionFaissSyncMutation } from "../../Hooks/useSignalRFileCollectionFaissSyncMutation";
+import { useSnackbar } from "notistack";
 
 export const CollectionDocumentTable: React.FC<{
   flatCollection: FlatFileDocumentPartialCollection;
@@ -20,16 +21,29 @@ export const CollectionDocumentTable: React.FC<{
 
   const [addFileDocumentModalOpen, setAddFileDocumentModalOpen] =
     useState<boolean>(false);
-
+  const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const {
-    // data: syncData,
-    // error: syncError,
-    // isLoading: syncLoading,
+    data: syncData,
+    error: syncError,
+    isLoading: syncLoading,
     mutate: sync,
   } = useSignalRFileCollectionFaissSyncMutation(flatCollection?.self?.id);
   const { fileColId, setFileColId } = useFileCollectionLevelContext();
-
+  useEffect(() => {
+    if (syncData) {
+      enqueueSnackbar("Successfully faiss synced file collection", {
+        variant: "success",
+      });
+    }
+  }, [enqueueSnackbar, syncData]);
+  useEffect(() => {
+    if (syncError) {
+      enqueueSnackbar("Failed to faiss sync file collection", {
+        variant: "error",
+      });
+    }
+  }, [enqueueSnackbar, syncError]);
   useEffect(() => {
     setFileColId(flatCollection?.self?.parentId ?? "");
   }, [flatCollection, setFileColId]);
@@ -103,6 +117,7 @@ export const CollectionDocumentTable: React.FC<{
                 >
                   <Grid2>
                     <IconButton
+                      disabled={syncLoading}
                       color="inherit"
                       size="large"
                       onClick={() => sync()}

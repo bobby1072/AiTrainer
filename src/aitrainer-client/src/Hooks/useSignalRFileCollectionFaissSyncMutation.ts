@@ -9,37 +9,48 @@ export const useSignalRFileCollectionFaissSyncMutation = (
   collectionId?: string | null
 ) => {
   const { hubConnection } = useGetSignalRHubContext();
-  const [successMessage, setSuccessMessage] = useState<string>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<Error>();
+  const [customMutationState, setCustomMutationState] = useState<{
+    successMessage?: string | null;
+    error?: Error | null;
+    isLoading: boolean;
+  }>({
+    isLoading: false,
+  });
   hubConnection.on("SyncFaissStoreError", (data: AiTrainerWebOutcomeBase) => {
-    setIsLoading(false);
+    setCustomMutationState((acc) => ({ ...acc, isLoading: false }));
     if (data.exceptionMessage) {
-      setError(new Error(data.exceptionMessage));
+      const errro = new Error(data.exceptionMessage);
+      setCustomMutationState((acc) => ({ ...acc, error: errro }));
     }
   });
   hubConnection.on(
     "SyncFaissStoreSuccess",
     (data: AiTrainerWebOutcome<string>) => {
-      setIsLoading(false);
+      setCustomMutationState((acc) => ({ ...acc, isLoading: false }));
       if (data.data) {
-        setSuccessMessage(data.data);
+        setCustomMutationState((acc) => ({
+          ...acc,
+          successMessage: data.data,
+        }));
       }
     }
   );
   const { mutate } = useMutation(
     async () => {
-      setSuccessMessage(undefined);
-      setError(undefined);
-      setIsLoading(true);
+      setCustomMutationState({ isLoading: true });
       await hubConnection.send("SyncFaissStore", {
         collectionId: collectionId,
       });
     },
     {
-      onError: (ex: Error) => setError(ex),
+      onError: (ex: Error) =>
+        setCustomMutationState((acc) => ({ ...acc, error: ex })),
     }
   );
 
-  return { data: successMessage, isLoading, error, mutate };
+  return {
+    ...customMutationState,
+    data: customMutationState.successMessage,
+    mutate,
+  };
 };
