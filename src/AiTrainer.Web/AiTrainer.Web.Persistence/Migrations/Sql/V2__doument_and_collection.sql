@@ -13,14 +13,16 @@ CREATE TABLE public."file_collection" (
 );
 
 CREATE UNIQUE INDEX unique_name_with_null_parent
-ON public."file_collection" (collection_name)
+ON public."file_collection" (collection_name, user_id)
 WHERE parent_id IS NULL;
 
 CREATE TABLE public."file_collection_faiss"(
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    collection_id UUID NOT NULL REFERENCES public."file_collection"(id) ON DELETE CASCADE ON UPDATE CASCADE UNIQUE,
+    collection_id UUID REFERENCES public."file_collection"(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    user_id UUID NOT NULL REFERENCES public."user"(id) ON DELETE CASCADE ON UPDATE CASCADE,
     faiss_index BYTEA NOT NULL,
-    faiss_json JSONB NOT NULL
+    faiss_json JSONB NOT NULL,
+    CONSTRAINT unique_user_with_collection_id UNIQUE (user_id, collection_id) 
 );
 
 CREATE TABLE public."file_document" (

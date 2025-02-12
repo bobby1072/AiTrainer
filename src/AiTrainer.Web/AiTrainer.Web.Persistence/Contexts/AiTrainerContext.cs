@@ -16,7 +16,6 @@ namespace AiTrainer.Web.Persistence.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FileCollectionEntity>().HasMany(fc => fc.FaissStore);
 
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
@@ -54,7 +53,13 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .WithOne(x => x.MetaData)
                     .HasForeignKey<FileDocumentMetaDataEntity>(e => e.DocumentId);
             });
-
+            modelBuilder.Entity<FileCollectionFaissEntity>(ent =>
+            {
+                ent
+                    .HasOne<FileCollectionEntity>()
+                    .WithOne(x => x.FaissStore)
+                    .HasForeignKey<FileCollectionFaissEntity>(x => x.CollectionId);
+            });
             modelBuilder.Entity<FileDocumentEntity>(entity =>
             {
                 entity.ToTable("file_document", DbConstants.PublicSchema);

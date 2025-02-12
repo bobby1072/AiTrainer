@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using AiTrainer.Web.Domain.Models.Attributes;
+﻿using AiTrainer.Web.Domain.Models.Attributes;
+using System.Reflection;
 
 namespace AiTrainer.Web.Domain.Models.Extensions
 {

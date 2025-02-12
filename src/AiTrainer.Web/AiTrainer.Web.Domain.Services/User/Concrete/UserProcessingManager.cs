@@ -15,7 +15,7 @@ using System.Net;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
-    public class UserProcessingManager : IUserProcessingManager
+    internal class UserProcessingManager : IUserProcessingManager
     {
         private readonly IRepository<UserEntity, Guid, Models.User> _repo;
         private readonly IUserInfoClient _userInfoClient;

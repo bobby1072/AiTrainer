@@ -1,7 +1,5 @@
-using System.Reflection;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using System.Reflection;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Tokens;
 

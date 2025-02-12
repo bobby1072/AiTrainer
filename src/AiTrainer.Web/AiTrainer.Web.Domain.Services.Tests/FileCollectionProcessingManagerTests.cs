@@ -25,7 +25,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly FileCollectionProcessingManager _fileCollectionManager;
         private readonly Mock<IUserProcessingManager> _mockUserProcessingManager = new();
         public FileCollectionProcessingManagerTests()
-            : base()
         {
             _fileCollectionManager = new FileCollectionProcessingManager(
                 _mockUserProcessingManager.Object,
@@ -55,7 +54,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task SaveFileCollection_Should_Correctly_Build_And_Save_Collection_From_Input()
         {
             //Arrange
-            IReadOnlyCollection<FileCollection> fileCollectionToSave = null;
+            IReadOnlyCollection<FileCollection>? fileCollectionToSave = null;
             var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
@@ -126,7 +125,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task SaveFileCollection_Should_Correctly_Build_And_Update_File()
         {
             //Arrange
-            IReadOnlyCollection<FileCollection> fileCollectionToSave = null;
+            IReadOnlyCollection<FileCollection>? fileCollectionToSave = null;
             var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
@@ -215,7 +214,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task SaveFileCollection_Should_Throw_When_New_Model_Changes_LockedProperty()
         {
             //Arrange
-            IReadOnlyCollection<FileCollection> fileCollectionToSave = null;
+            IReadOnlyCollection<FileCollection>?  fileCollectionToSave = null;
             var currentUser = Fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())

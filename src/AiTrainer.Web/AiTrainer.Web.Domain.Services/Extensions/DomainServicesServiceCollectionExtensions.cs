@@ -1,3 +1,4 @@
+using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.Concrete;
 using AiTrainer.Web.Domain.Services.File.Abstract;
@@ -26,11 +27,20 @@ namespace AiTrainer.Web.Domain.Services.Extensions
             //    {
             //        options.Queues = HangfireConstants.Queues.FullQueueList;
             //    });
+            var faissSyncedConfig = configuration.GetSection(FaissSyncRetrySettingsConfiguration.Key);
 
+            if (!faissSyncedConfig.Exists())
+            {
+                throw new Exception("FaissSyncRetrySettingsConfiguration not found in configuration");
+            }
+            
+            services.Configure<FaissSyncRetrySettingsConfiguration>(faissSyncedConfig);
+            
             services
                 .AddScoped<IUserProcessingManager, UserProcessingManager>()
                 .AddScoped<IFileCollectionProcessingManager, FileCollectionProcessingManager>()
                 .AddScoped<IFileDocumentProcessingManager, FileDocumentProcessingManager>()
+                .AddScoped<IFileCollectionFaissSyncProcessingManager, FileCollectionFaissSyncProcessingManager>()
                 .AddScoped<IHealthService, HealthService>()
                 .AddScoped<ICachingService, DistributedCachingService>()
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>();

@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using AiTrainer.Web.Common.Extensions;
+﻿using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;

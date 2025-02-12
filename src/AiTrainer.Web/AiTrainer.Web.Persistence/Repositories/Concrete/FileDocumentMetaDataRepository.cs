@@ -1,5 +1,4 @@
-﻿using AiTrainer.Web.Common.Models.ApiModels.Request;
-using AiTrainer.Web.Domain.Models;
+﻿using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Contexts;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Extensions;

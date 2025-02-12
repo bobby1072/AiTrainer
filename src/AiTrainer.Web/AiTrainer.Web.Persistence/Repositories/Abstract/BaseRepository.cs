@@ -53,11 +53,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
         {
             ThrowIfPropertyDoesNotExist<T>(propertyName);
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>(), relations);
             var foundOne = await TimeAndLogDbOperation(
                 () =>
                     foundOneQuerySet
-                        .Where(x => EF.Property<T>(x, propertyName).Equals(value))
+                        .Where(x => EF.Property<T>(x, propertyName)!.Equals(value))
                         .ToArrayAsync(),
                 nameof(GetMany),
                 _entityType.Name
@@ -76,7 +76,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             }
 
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOneQuerySet = dbContext.Set<TEnt>();
 
             var foundOne = await TimeAndLogDbOperation(
                 () => foundOneQuerySet.Where(x => entityIds.Contains(x.Id!)).ToArrayAsync(),
@@ -95,7 +95,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
         )
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>(), relations);
             var foundOne = await TimeAndLogDbOperation(
                 () => foundOneQuerySet.Where(x => x.Id!.Equals(entityId)).ToArrayAsync(),
                 nameof(GetMany),
@@ -113,7 +113,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
         )
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>(), relations);
             var foundOne = await TimeAndLogDbOperation(
                 () => foundOneQuerySet.FirstOrDefaultAsync(x => x.Id!.Equals(entityId)),
                 nameof(GetOne),
@@ -144,9 +144,9 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
         {
             ThrowIfPropertyDoesNotExist<T>(propertyName);
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>(), relations);
             var foundOne = await TimeAndLogDbOperation(
-                () => foundOneQuerySet.AnyAsync(x => EF.Property<T>(x, propertyName).Equals(value)),
+                () => foundOneQuerySet.AnyAsync(x => EF.Property<T>(x, propertyName)!.Equals(value)),
                 nameof(Exists),
                 _entityType.Name
             );
@@ -162,11 +162,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
         {
             ThrowIfPropertyDoesNotExist<T>(propertyName);
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>());
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>(), relations);
             var foundOne = await TimeAndLogDbOperation(
                 () =>
                     foundOneQuerySet.FirstOrDefaultAsync(x =>
-                        EF.Property<T>(x, propertyName).Equals(value)
+                        EF.Property<T>(x, propertyName)!.Equals(value)
                     ),
                 nameof(GetOne),
                 _entityType.Name
@@ -285,14 +285,6 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
             return result;
         }
-
-        private static bool DoesPropertyExist<T>(string propertyName)
-        {
-            return _entityProperties.Any(x =>
-                x.Name == propertyName && x.PropertyType == typeof(T)
-            );
-        }
-
         private static void ThrowIfPropertyDoesNotExist<T>(string propertyName)
         {
             if (!DoesPropertyExist<T>(propertyName))
@@ -301,6 +293,12 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
                     $"Property {propertyName} does not exist on entity {_entityType.Name}"
                 );
             }
+        }
+        private static bool DoesPropertyExist<T>(string propertyName)
+        {
+            return _entityProperties.Any(x =>
+                x.Name == propertyName && x.PropertyType == typeof(T)
+            );
         }
     }
 }

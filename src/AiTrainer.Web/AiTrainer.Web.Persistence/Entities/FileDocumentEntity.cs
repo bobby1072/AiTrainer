@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using AiTrainer.Web.Domain.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
@@ -13,6 +13,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public required string FileName { get; set; }
         public required byte[] FileData { get; set; }
         public string? FileDescription { get; set; }
+        public bool FaissSynced { get; set; }
         public FileDocumentMetaDataEntity? MetaData { get; init; }
 
         public override FileDocument ToModel() =>
@@ -24,6 +25,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 FileType = (FileTypeEnum)FileType,
                 FileData = FileData,
                 UserId = UserId,
+                FaissSynced = FaissSynced,
                 FileName = FileName,
                 FileDescription = FileDescription,
                 MetaData = MetaData?.ToModel(),

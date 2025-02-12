@@ -1,4 +1,3 @@
-using AiTrainer.Web.Persistence.Models;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Utils

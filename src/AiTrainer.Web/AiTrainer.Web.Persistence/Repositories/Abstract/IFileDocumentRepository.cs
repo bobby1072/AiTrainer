@@ -2,12 +2,12 @@ using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {
     public interface IFileDocumentRepository : IRepository<FileDocumentEntity, Guid, FileDocument>
     {
+        Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId, Guid? collectionId = null);
         Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
             FileDocument document,
             FileDocumentMetaData metaData

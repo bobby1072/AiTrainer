@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
 
@@ -22,7 +21,9 @@ namespace AiTrainer.Web.Persistence.Extensions
                 IsEncrypted = formInput.IsEncrypted,
                 Producer = formInput.Producer,
                 Subject = formInput.Subject,
-                ExtraData = formInput.ExtraData is not null ? JsonSerializer.Serialize(formInput.ExtraData): null,
+                ExtraData = formInput.ExtraData is not null
+                    ? JsonSerializer.Serialize(formInput.ExtraData)
+                    : null,
             };
 
             if (formInput.Id is long foundId)
@@ -32,7 +33,7 @@ namespace AiTrainer.Web.Persistence.Extensions
 
             return entity;
         }
-        
+
         public static UserEntity ToEntity(this User user)
         {
             var entity = new UserEntity
@@ -56,6 +57,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             {
                 CollectionId = fileDocument.CollectionId,
                 UserId = fileDocument.UserId,
+                FaissSynced = fileDocument.FaissSynced,
                 DateCreated = fileDocument.DateCreated,
                 FileType = (int)fileDocument.FileType,
                 FileData = fileDocument.FileData,
@@ -97,6 +99,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             {
                 CollectionId = fileCollectionFaiss.CollectionId,
                 FaissIndex = fileCollectionFaiss.FaissIndex,
+                UserId = fileCollectionFaiss.UserId,
                 FaissJson = fileCollectionFaiss.FaissJson,
             };
             if (fileCollectionFaiss.Id is not null)

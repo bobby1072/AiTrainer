@@ -26,6 +26,18 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId,Guid? collectionId = null)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var ent = await TimeAndLogDbOperation(() => dbContext.FileDocuments
+                    .Where(x => x.FaissSynced == syncSate && x.CollectionId == collectionId && x.UserId == userId)
+                    .ToArrayAsync(),
+                nameof(GetDocumentsBySync),
+                _entityType.Name
+            );
+
+            return new DbGetManyResult<FileDocument>(ent.FastArraySelect(x => x.ToModel()).ToArray());
+        }
         public async Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
             FileDocument document,
             FileDocumentMetaData metaData
@@ -33,7 +45,8 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
-            try{
+            try
+            {
                 var documentEntity = document.ToEntity();
 
                 await dbContext.FileDocuments.AddAsync(documentEntity);
@@ -48,12 +61,13 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 await transaction.CommitAsync();
 
                 return new DbSaveResult<FileDocument>([newlySavedDoc.ToModel()]);
-            } catch (Exception e){
+            }
+            catch (Exception)
+            {
                 await transaction.RollbackAsync();
                 throw;
             }
         }
-
 
         public async Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId)
         {
@@ -91,8 +105,9 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                             x.FileName,
                             x.FileDescription,
                             x.FileType,
+                            x.FaissSynced,
                             x.UserId,
-                            x.MetaData
+                            x.MetaData,
                         })
                         .Where(x => x.CollectionId == null && x.UserId == userId)
                         .ToArrayAsync(),
@@ -127,9 +142,10 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                             x.DateCreated,
                             x.FileName,
                             x.FileType,
+                            x.FaissSynced,
                             x.FileDescription,
                             x.UserId,
-                            x.MetaData
+                            x.MetaData,
                         })
                         .Where(x => x.CollectionId == collectionId && x.UserId == userId)
                         .ToArrayAsync(),
@@ -167,9 +183,10 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 FileName = x.FileName,
                 FileType = (FileTypeEnum)x.FileType,
                 UserId = x.UserId,
+                FaissSynced = x.FaissSynced,
                 FileDescription = x.FileDescription,
                 Id = x.Id,
-                MetaData = ((FileDocumentMetaDataEntity?)x.MetaData)?.ToModel()
+                MetaData = ((FileDocumentMetaDataEntity?)x.MetaData)?.ToModel(),
             };
         }
     }
