@@ -28,7 +28,7 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
         _httpContextAccessor = httpContextAccessor;
     }
     
-    public async Task<ChunkedDocumentResponse?> TryInvokeAsync(DocumentToChunkInput param)
+    public async Task<ChunkedDocumentResponse?> TryInvokeAsync(DocumentToChunkInput param, CancellationToken cancellation = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -36,8 +36,8 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
             .AppendPathSegment("chunkdocument")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
-            .PostJsonAsync(param)
-            .ReceiveJsonAsync<CoreResponse<ChunkedDocumentResponse>>(_aiTrainerCoreConfiguration)
+            .PostJsonAsync(param, HttpCompletionOption.ResponseContentRead, cancellation)
+            .ReceiveJsonAsync<CoreResponse<ChunkedDocumentResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
 
         return response?.Data;

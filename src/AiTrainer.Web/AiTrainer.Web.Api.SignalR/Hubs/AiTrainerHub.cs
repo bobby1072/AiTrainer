@@ -44,9 +44,9 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                     await _domainService.ExecuteAsync<IUserProcessingManager, User?>(userProcessingManager =>
                         userProcessingManager.TryGetUserFromCache(accessToken))
                     ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
-
+ 
                 await _domainService.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(serv =>
-                    serv.SyncUserFileCollectionFaissStore(currentUser, input.CollectionId));
+                    serv.SyncUserFileCollectionFaissStore(currentUser, input.CollectionId, CancellationToken.None));
 
                 await Clients.Caller.SendAsync("SyncFaissStoreSuccess", new SignalRClientEvent<string> { Data = "Successfully faiss synced collection"});
             }

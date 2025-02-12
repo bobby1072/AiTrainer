@@ -29,7 +29,7 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<FaissStoreResponse?> TryInvokeAsync(UpdateFaissStoreInput input)
+    public async Task<FaissStoreResponse?> TryInvokeAsync(UpdateFaissStoreInput input, CancellationToken cancellation = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -42,8 +42,8 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
                 var indexFileStream = new MemoryStream(input.FileInput);
                 x.AddJson("metadata", input);
                 x.AddFile("file", indexFileStream, "docStore.index");
-            })
-            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration)
+            }, HttpCompletionOption.ResponseContentRead, cancellation)
+            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientUpdateFaissStore));
         
         

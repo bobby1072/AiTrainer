@@ -65,7 +65,8 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
 
     public async Task SyncUserFileCollectionFaissStore(
         Models.User currentUser,
-        Guid? collectionId = null
+        Guid? collectionId = null,
+        CancellationToken cancellationToken = default
     )
     {
         SyncAttemptCount = 0;
@@ -85,7 +86,8 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
                     SyncUserCollectionFaissStoreInnerMethod(
                         currentUser,
                         collectionId,
-                        correlationId
+                        correlationId,
+                        cancellationToken
                     )
             );
 
@@ -111,8 +113,10 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
                     await SyncUserCollectionFaissStoreInnerMethod(
                         currentUser,
                         collectionId,
-                        correlationId
-                    )
+                        correlationId,
+                        ct
+                    ),
+                    cancellationToken
                 )
         );
 
@@ -134,7 +138,8 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
     private async Task SyncUserCollectionFaissStoreInnerMethod(
         Models.User currentUser,
         Guid? collectionId,
-        Guid? correlationId
+        Guid? correlationId,
+        CancellationToken cancelToken
     )
     {
         SyncAttemptCount++;
@@ -175,10 +180,10 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
 
         var chunkedDocument =
             await _documentChunkerClient.TryInvokeAsync(
-                new DocumentToChunkInput { DocumentText = allUnsyncedDocumentText }
+                new DocumentToChunkInput { DocumentText = allUnsyncedDocumentText }, cancelToken
             ) ?? throw new ApiException("Failed to retrieve file collection faiss store");
 
-        var storeToSave = await GetFaissStoreFromCore(chunkedDocument, existingFaissStore.Data);
+        var storeToSave = await GetFaissStoreFromCore(chunkedDocument, existingFaissStore.Data, cancelToken);
 
         var result = await EntityFrameworkUtils.TryDbOperation(
             () =>
@@ -205,7 +210,8 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
 
     private async Task<FaissStoreResponse> GetFaissStoreFromCore(
         ChunkedDocumentResponse chunkedDocument,
-        FileCollectionFaiss? existingFaissStore
+        FileCollectionFaiss? existingFaissStore,
+        CancellationToken cancellationToken
     )
     {
         var createStoreInput = new CreateFaissStoreInput
@@ -214,14 +220,15 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         };
 
         var storeToSave = existingFaissStore is null
-            ? await _createFaissStoreService.TryInvokeAsync(createStoreInput)
+            ? await _createFaissStoreService.TryInvokeAsync(createStoreInput, cancellationToken)
             : await _updateFaissStoreService.TryInvokeAsync(
                 new UpdateFaissStoreInput
                 {
                     DocStore = existingFaissStore.FaissJson,
                     FileInput = existingFaissStore.FaissIndex,
                     NewDocuments = createStoreInput,
-                }
+                },
+                cancellationToken
             );
 
         if (storeToSave is null)

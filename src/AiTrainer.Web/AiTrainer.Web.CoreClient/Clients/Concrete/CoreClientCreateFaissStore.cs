@@ -30,7 +30,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<FaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param)
+    public async Task<FaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param, CancellationToken cancellation = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -38,8 +38,8 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
             .AppendPathSegment("createstore")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
-            .PostJsonAsync(param)
-            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration)
+            .PostJsonAsync(param, HttpCompletionOption.ResponseHeadersRead, cancellation)
+            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientCreateFaissStore));
         
         return response?.Data;

@@ -29,7 +29,7 @@ public class CoreClientSimilaritySearch: ICoreClient<SimilaritySearchInput, Simi
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<SimilaritySearchResponse?> TryInvokeAsync(SimilaritySearchInput input)
+    public async Task<SimilaritySearchResponse?> TryInvokeAsync(SimilaritySearchInput input, CancellationToken cancellation = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -42,8 +42,8 @@ public class CoreClientSimilaritySearch: ICoreClient<SimilaritySearchInput, Simi
                 var indexFileStream = new MemoryStream(input.FileInput);
                 var n = x.AddJson("metadata", input);
                 x.AddFile("file", indexFileStream, "docStore.index");
-            })
-            .ReceiveJsonAsync<CoreResponse<SimilaritySearchResponse>>(_aiTrainerCoreConfiguration)
+            }, HttpCompletionOption.ResponseContentRead, cancellation)
+            .ReceiveJsonAsync<CoreResponse<SimilaritySearchResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(FaissStoreResponse));
         
         
