@@ -36,19 +36,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             );
             AddAccessTokenToRequestHeaders();
         }
-
-        [Fact]
-        public async Task SaveFileCollection_Should_Stop_Unauthorized_Users_From_Saving()
-        {
-            //Arrange
-            var fileCollectionInput = Fixture.Create<FileCollectionSaveInput>();
-            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync((Models.User?)null);
-            //Act
-            var act = () => _fileCollectionManager.SaveFileCollection(fileCollectionInput);
-
-            //Assert
-            await act.Should().ThrowAsync<ApiException>().WithMessage("Can't find user");
-        }
+        
 
         [Fact]
         public async Task SaveFileCollection_Should_Correctly_Build_And_Save_Collection_From_Input()
@@ -70,7 +58,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.Id, (Guid?)null)
                 .With(x => x.ParentId, parentCollection.Id)
                 .Create();
-            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
             _mockValidator
                 .Setup(x =>
@@ -99,7 +86,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 )
                 .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
             //Act
-            var result = await _fileCollectionManager.SaveFileCollection(fileCollectionInput);
+            var result = await _fileCollectionManager.SaveFileCollection(fileCollectionInput, currentUser);
 
             //Assert
             result.Should().NotBeNull();
@@ -107,7 +94,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
             result.ParentId.Should().Be(fileCollectionInput.ParentId);
             result.UserId.Should().Be((Guid)currentUser.Id!);
 
-            _mockUserProcessingManager.Verify(x => x.TryGetUserFromCache(It.IsAny<string>()), Times.Once);
             _mockValidator.Verify(
                 x =>
                     x.ValidateAsync(
@@ -149,7 +135,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.ParentId, (Guid?)null)
                 .Create();
 
-            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
             _mockValidator
                 .Setup(x =>
@@ -177,7 +162,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new DbGetOneResult<FileCollection>(originalFileCollection));
 
             //Act
-            var result = await _fileCollectionManager.SaveFileCollection(newFileCollectionInput);
+            var result = await _fileCollectionManager.SaveFileCollection(newFileCollectionInput, currentUser);
 
             //Assert
             result.Should().NotBeNull();
@@ -185,7 +170,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
             result.ParentId.Should().Be(newFileCollectionInput.ParentId);
             result.UserId.Should().Be((Guid)currentUser.Id!);
 
-            _mockUserProcessingManager.Verify(x => x.TryGetUserFromCache(It.IsAny<string>()), Times.Once);
 
             _mockValidator.Verify(
                 x =>
@@ -235,7 +219,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.DateCreated, originalFileCollection.DateCreated)
                 .Create();
 
-            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
             _mockValidator
                 .Setup(x =>
@@ -263,12 +246,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new DbGetOneResult<FileCollection>(originalFileCollection));
 
             //Act
-            var act = () => _fileCollectionManager.SaveFileCollection(newFileCollectionInput);
+            var act = () => _fileCollectionManager.SaveFileCollection(newFileCollectionInput, currentUser);
 
             //Assert
             await act.Should().ThrowAsync<ApiException>().WithMessage("Cannot edit those fields");
 
-            _mockUserProcessingManager.Verify(x => x.TryGetUserFromCache(It.IsAny<string>()), Times.Once);
 
             _mockValidator.Verify(
                 x =>
@@ -316,7 +298,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.CollectionId, (Guid?)null)
                 .Create();
             
-            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
             _mockRepository
                 .Setup(x => x.GetTopLevelCollectionsForUser((Guid)currentUser.Id!))
@@ -327,7 +308,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new DbGetManyResult<FileDocumentPartial>([foundSingleFileDocument]));
 
             //Act
-            await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollections();
+            await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollections(currentUser);
 
             //Assert
             _mockRepository.Verify(
@@ -365,7 +346,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.CollectionId, Guid.NewGuid())
                 .Create();
             
-            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
             
             _mockRepository
@@ -388,7 +368,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
 
             //Act
             await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollections(
-                foundSingleFileCollection.Id
+                currentUser, foundSingleFileCollection.Id
             );
 
             //Assert

@@ -39,12 +39,6 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             string? serviceActionName = null
         )
             where TService : IDomainService => ExecuteAsync(serviceAction.Compile(), serviceActionName);
-        public TReturn Execute<TService, TReturn>(
-            Expression<Func<TService, TReturn>> serviceAction,
-            string? serviceActionName = null
-        )
-            where TService : IDomainService => Execute(serviceAction.Compile(), serviceActionName);
-
         private async Task<TReturn> ExecuteAsync<TService, TReturn>(
             Func<TService, Task<TReturn>> serviceAction,
             string? serviceActionName = null
@@ -74,42 +68,6 @@ namespace AiTrainer.Web.Domain.Services.Concrete
 
             _logger.LogInformation(
                 "-------Exiting service action executor for {ServiceAction} successfully for correlationId {CorrelationId}-------",
-                actionName,
-                correlationId
-            );
-
-            return result;
-        }
-        private TReturn Execute<TService, TReturn>(
-            Func<TService, TReturn> serviceAction,
-            string? serviceActionName = null
-        )
-            where TService : IDomainService
-        {
-            var actionName = serviceActionName ?? serviceAction.Method.Name;
-
-            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
-            _logger.LogInformation(
-                "-------Entering service action {ServiceAction} for correlationId {CorrelationId}-------",
-                actionName,
-                correlationId
-            );
-
-            var service = _httpContextAccessor.HttpContext!.RequestServices.GetService<TService>() ?? throw new InvalidOperationException("No service");
-
-            var (timeTaken, result) = OperationTimerUtils.TimeWithResults(
-                () => serviceAction.Invoke(service)
-            );
-
-            _logger.LogInformation(
-                "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
-                actionName,
-                correlationId,
-                timeTaken.Milliseconds
-            );
-
-            _logger.LogInformation(
-                "-------Exiting service action {ServiceAction} for correlationId {CorrelationId}-------",
                 actionName,
                 correlationId
             );

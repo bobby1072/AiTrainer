@@ -48,7 +48,7 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                 await _domainService.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(serv =>
                     serv.SyncUserFileCollectionFaissStore(currentUser, input.CollectionId));
 
-                await Clients.Caller.SendAsync("SyncFaissStoreSuccess",new SignalRClientEvent<string> { Data = "Successfully faiss synced collection"});
+                await Clients.Caller.SendAsync("SyncFaissStoreSuccess", new SignalRClientEvent<string> { Data = "Successfully faiss synced collection"});
             }
             catch (Exception ex)
             {
