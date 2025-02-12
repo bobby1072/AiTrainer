@@ -47,6 +47,13 @@ export const CollectionDocumentTable: React.FC<{
   useEffect(() => {
     setFileColId(flatCollection?.self?.parentId ?? "");
   }, [flatCollection, setFileColId]);
+
+  const syncDisabled =
+    syncLoading ||
+    !!syncData ||
+    flatCollection?.fileDocuments?.length === 0 ||
+    flatCollection?.fileDocuments?.every((x) => x.faissSynced);
+
   return (
     <>
       <Paper
@@ -116,7 +123,7 @@ export const CollectionDocumentTable: React.FC<{
                 >
                   <Grid2>
                     <IconButton
-                      disabled={syncLoading || !!syncData}
+                      disabled={syncDisabled}
                       color="inherit"
                       size="large"
                       onClick={() => sync()}
