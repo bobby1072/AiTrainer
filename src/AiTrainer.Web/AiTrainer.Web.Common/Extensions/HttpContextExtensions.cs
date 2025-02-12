@@ -47,7 +47,7 @@ namespace AiTrainer.Web.Common.Extensions
             if (string.IsNullOrEmpty(token))
             {
                 throw new ApiException(
-                    ExceptionConstants.NotAuthorized,
+                    ExceptionConstants.Unauthorized,
                     HttpStatusCode.Unauthorized
                 );
             }
@@ -60,7 +60,7 @@ namespace AiTrainer.Web.Common.Extensions
             if (string.IsNullOrEmpty(token))
             {
                 throw new ApiException(
-                    ExceptionConstants.NotAuthorized,
+                    ExceptionConstants.Unauthorized,
                     HttpStatusCode.Unauthorized
                 );
             }

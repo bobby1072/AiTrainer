@@ -22,7 +22,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly FileDocumentProcessingManager _fileDocumentProcessingManager;
         private readonly Mock<IUserProcessingManager> _mockUserProcessingManager = new();
         public FileDocumentProcessingManagerTests()
-            : base()
         {
             _fileDocumentProcessingManager = new FileDocumentProcessingManager(
                 _mockUserProcessingManager.Object,
@@ -59,7 +58,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new Persistence.Models.DbSaveResult<FileDocument>());
 
             //Act
-            var act = () => _fileDocumentProcessingManager.UploadFileDocument(fileDocInput);
+            var act = () => _fileDocumentProcessingManager.UploadFileDocument(fileDocInput, currentUser);
 
             //Assert
             await act.Should().ThrowAsync<ApiException>().WithMessage("Invalid file document");

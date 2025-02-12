@@ -16,7 +16,7 @@ namespace AiTrainer.Web.Common.Attributes
                 if (context.HttpContext.Request.Headers[HeaderNames.Authorization].FirstOrDefault() is null)
                 {
                     throw new ApiException(
-                        ExceptionConstants.NotAuthorized,
+                        ExceptionConstants.Unauthorized,
                         HttpStatusCode.Unauthorized
                     );
                 }

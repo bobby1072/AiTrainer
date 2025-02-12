@@ -6,11 +6,11 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
     public interface IFileCollectionProcessingManager : IDomainService
     {
-        Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput);
-        Task<Guid> DeleteFileCollection(Guid collectionId);
+        Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput, Models.User currentUser);
+        Task<Guid> DeleteFileCollection(Guid collectionId, Models.User currentUser);
         Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(
-            Guid? collectionId = null
+            Models.User currentUser, Guid? collectionId = null
         );
-        Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId);
+        Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId, Models.User currentUser);
     }
 }

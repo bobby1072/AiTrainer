@@ -17,10 +17,11 @@ namespace AiTrainer.Web.Api.Controllers
         [HttpPost("Download")]
         public async Task<IActionResult> Download([FromBody] RequiredGuidIdInput input)
         {
+            var currentUser = await GetCurrentUser();
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FileCollection
-            >(service => service.GetFileCollectionWithContents(input.Id));
+            >(service => service.GetFileCollectionWithContents(input.Id, currentUser));
 
             await using var memoryStream = new MemoryStream();
             using (
@@ -48,10 +49,12 @@ namespace AiTrainer.Web.Api.Controllers
             [FromBody] FileCollectionSaveInput fileCollection
         )
         {
+            var currentUser = await GetCurrentUser();
+
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FileCollection
-            >(service => service.SaveFileCollection(fileCollection));
+            >(service => service.SaveFileCollection(fileCollection, currentUser));
 
             return new Outcome<FileCollection> { Data = result };
         }
@@ -61,10 +64,12 @@ namespace AiTrainer.Web.Api.Controllers
             [FromBody] OptionalIdInput input
         )
         {
+            var currentUser = await GetCurrentUser();
+
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FlatFileDocumentPartialCollection
-            >(service => service.GetOneLayerFileDocPartialsAndCollections(input.Id));
+            >(service => service.GetOneLayerFileDocPartialsAndCollections(currentUser, input.Id));
 
             return new Outcome<FlatFileDocumentPartialCollection> { Data = result };
         }
@@ -72,8 +77,10 @@ namespace AiTrainer.Web.Api.Controllers
         [HttpPost("Delete")]
         public async Task<ActionResult<Outcome<Guid>>> Delete([FromBody] RequiredGuidIdInput input)
         {
+            var currentUser = await GetCurrentUser();
+            
             var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, Guid>(
-                service => service.DeleteFileCollection(input.Id)
+                service => service.DeleteFileCollection(input.Id, currentUser)
             );
 
             return new Outcome<Guid> { Data = result };

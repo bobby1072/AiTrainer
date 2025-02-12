@@ -14,10 +14,5 @@ namespace AiTrainer.Web.Domain.Services.Abstract
             string? serviceActionName = null
         )
             where TService : IDomainService;
-        TReturn Execute<TService, TReturn>(
-            Expression<Func<TService, TReturn>> serviceAction,
-            string? serviceActionName = null
-        )
-            where TService : IDomainService;
     }
 }

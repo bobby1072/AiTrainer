@@ -42,7 +42,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileCollectionRepository = fileCollectionRepository;
         }
 
-        public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId)
+        public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Models.User currentUser)
         {
             var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
@@ -51,14 +51,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(GetFileDocumentForDownload),
                 correlationId
             );
-
-            var foundCachedUser =
-                await _userProcessingManager.TryGetUserFromCache(
-                    _httpContextAccessor.HttpContext.GetAccessToken()
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
-
             var foundDocument = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.GetOne(documentId, (Guid)foundCachedUser.Id!),
+                () => _fileDocumentRepository.GetOne(documentId, (Guid)currentUser.Id!),
                 _logger
             );
 
@@ -77,7 +71,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         }
 
         public async Task<FileDocumentPartial> UploadFileDocument(
-            FileDocumentSaveFormInput fileDocumentSaveFormInput
+            FileDocumentSaveFormInput fileDocumentSaveFormInput,
+            Models.User currentUser
         )
         {
             var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
@@ -87,14 +82,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFileDocument),
                 correlationId
             );
-
-            var foundCachedUser =
-                await _userProcessingManager.TryGetUserFromCache(
-                    _httpContextAccessor.HttpContext.GetAccessToken()
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
+            
 
             var newFileDoc = await fileDocumentSaveFormInput.ToDocumentModel(
-                (Guid)foundCachedUser.Id!
+                (Guid)currentUser.Id!
             );
             newFileDoc.ApplyCreationDefaults();
             var isValid = await _validator.ValidateAsync(newFileDoc);
@@ -111,7 +102,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     _logger
                 );
 
-                if (foundParent?.Data?.UserId != foundCachedUser.Id)
+                if (foundParent?.Data?.UserId != currentUser.Id)
                 {
                     throw new ApiException("Invalid file document", HttpStatusCode.BadRequest);
                 }
@@ -134,7 +125,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
             return createdFile.Data.First().ToPartial();
         }
-        public async Task<Guid> DeleteFileDocument(Guid documentId)
+        public async Task<Guid> DeleteFileDocument(Guid documentId, Models.User currentUser)
         {
             var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
@@ -144,13 +135,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
 
-            var foundCachedUser =
-                await _userProcessingManager.TryGetUserFromCache(
-                    _httpContextAccessor.HttpContext.GetAccessToken()
-                ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
-
             var deletedId = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.Delete(documentId, (Guid)foundCachedUser.Id!),
+                () => _fileDocumentRepository.Delete(documentId, (Guid)currentUser.Id!),
                 _logger
             );
 
