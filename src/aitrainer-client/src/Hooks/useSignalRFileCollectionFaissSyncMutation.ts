@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { useGetSignalRHubContext } from "../Components/Contexts/AiTrainerSignalRContext";
-import { useMutation } from "react-query";
+import { useMutation, useQueryClient } from "react-query";
 import {
   AiTrainerWebOutcome,
   AiTrainerWebOutcomeBase,
 } from "../Models/AiTrainerWebOutcome";
 import { FlatFileDocumentPartialCollection } from "../Models/FlatFileDocumentPartialCollection";
+import { QueryKeys } from "../Constants";
 export const useSignalRFileCollectionFaissSyncMutation = (
   fileCol: FlatFileDocumentPartialCollection
 ) => {
-  const {
-    fileDocuments,
-    self: { id: collectionId },
-  } = fileCol;
+  const { fileDocuments } = fileCol;
+  const collectionId = fileCol?.self?.id;
   const { hubConnection } = useGetSignalRHubContext();
+  const queryClient = useQueryClient();
   const [customMutationState, setCustomMutationState] = useState<{
     data?: string | null;
     error?: Error | null;
@@ -22,6 +22,7 @@ export const useSignalRFileCollectionFaissSyncMutation = (
     isLoading: false,
   });
   hubConnection.on("SyncFaissStoreError", (data: AiTrainerWebOutcomeBase) => {
+    queryClient.refetchQueries(QueryKeys.GetTopLayerOfFile);
     if (data.exceptionMessage) {
       const newError = new Error(data.exceptionMessage);
       setCustomMutationState({ isLoading: false, error: newError });
@@ -32,6 +33,7 @@ export const useSignalRFileCollectionFaissSyncMutation = (
   hubConnection.on(
     "SyncFaissStoreSuccess",
     (data: AiTrainerWebOutcome<string>) => {
+      queryClient.refetchQueries(QueryKeys.GetTopLayerOfFile);
       if (data.data) {
         setCustomMutationState({
           data: data.data,

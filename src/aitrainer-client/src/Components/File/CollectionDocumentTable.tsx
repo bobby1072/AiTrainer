@@ -47,6 +47,13 @@ export const CollectionDocumentTable: React.FC<{
   useEffect(() => {
     setFileColId(flatCollection?.self?.parentId ?? "");
   }, [flatCollection, setFileColId]);
+
+  const syncDisabled =
+    syncLoading ||
+    !!syncData ||
+    flatCollection?.fileDocuments?.length === 0 ||
+    flatCollection?.fileDocuments?.every((x) => x.faissSynced);
+
   return (
     <>
       <Paper
@@ -115,14 +122,16 @@ export const CollectionDocumentTable: React.FC<{
                   spacing={0.1}
                 >
                   <Grid2>
-                    <IconButton
-                      disabled={syncLoading || !!syncData}
-                      color="inherit"
-                      size="large"
-                      onClick={() => sync()}
-                    >
-                      <SyncIcon />
-                    </IconButton>
+                    <Tooltip title="Sync this collection so similarity search includes currently unsynced documents">
+                      <IconButton
+                        disabled={syncDisabled}
+                        color="inherit"
+                        size="large"
+                        onClick={() => sync()}
+                      >
+                        <SyncIcon />
+                      </IconButton>
+                    </Tooltip>
                   </Grid2>
                   <Grid2>
                     <Tooltip title="Upload new document">

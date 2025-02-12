@@ -8,6 +8,7 @@ export type FileDocument = {
   fileType: number;
   fileName: string;
   fileData: string;
+  faissSynced: boolean;
   dateCreated: string;
   metaData?: FileDocumentMetaData | null;
 };
