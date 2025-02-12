@@ -28,7 +28,7 @@ export const CollectionDocumentTable: React.FC<{
     error: syncError,
     isLoading: syncLoading,
     mutate: sync,
-  } = useSignalRFileCollectionFaissSyncMutation(flatCollection?.self?.id);
+  } = useSignalRFileCollectionFaissSyncMutation(flatCollection);
   const { fileColId, setFileColId } = useFileCollectionLevelContext();
   useEffect(() => {
     if (syncData) {
@@ -47,7 +47,6 @@ export const CollectionDocumentTable: React.FC<{
   useEffect(() => {
     setFileColId(flatCollection?.self?.parentId ?? "");
   }, [flatCollection, setFileColId]);
-
   return (
     <>
       <Paper
