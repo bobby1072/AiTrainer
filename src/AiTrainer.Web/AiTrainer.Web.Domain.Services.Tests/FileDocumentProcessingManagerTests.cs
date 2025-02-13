@@ -21,16 +21,18 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
         private readonly Mock<IValidator<FileDocument>> _mockValidator = new();
         private readonly Mock<IFileCollectionRepository> _mockFileCollectionRepository = new();
+        private readonly Mock<IFileCollectionFaissRepository> _mockFileFaissReposiotory = new();
+        private readonly Mock<IFileCollectionFaissSyncBackgroundJobQueue> _jobQueueMock = new();
         private readonly FileDocumentProcessingManager _fileDocumentProcessingManager;
         public FileDocumentProcessingManagerTests()
         {
             _fileDocumentProcessingManager = new FileDocumentProcessingManager(
                 _mockLogger.Object,
                 _mockFileDocumentRepository.Object,
-                Mock.Of<IFileCollectionFaissRepository>(),
+                _mockFileFaissReposiotory.Object,
                 _mockValidator.Object,
                 _mockFileCollectionRepository.Object,
-                Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>(),
+                _jobQueueMock.Object,
                 MockContextAccessor.Object
             );
             AddAccessTokenToRequestHeaders();
