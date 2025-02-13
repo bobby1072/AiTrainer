@@ -1,5 +1,4 @@
-﻿using AiTrainer.Web.Domain.Services.Abstract;
-using AutoFixture;
+﻿using AutoFixture;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using Moq;
