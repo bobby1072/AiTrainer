@@ -7,10 +7,10 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
     public interface IFileDocumentProcessingManager : IDomainService
     {
-        Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Models.User currentUser);
-        Task<Guid> DeleteFileDocument(Guid documentId, Models.User currentUser);
+        Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Domain.Models.User currentUser);
+        Task<Guid> DeleteFileDocument(Guid documentId, Domain.Models.User currentUser);
         Task<FileDocumentPartial> UploadFileDocument(
-            FileDocumentSaveFormInput fileDocumentSaveFormInput, Models.User currentUser
+            FileDocumentSaveFormInput fileDocumentSaveFormInput, Domain.Models.User currentUser
         );
     }
 }

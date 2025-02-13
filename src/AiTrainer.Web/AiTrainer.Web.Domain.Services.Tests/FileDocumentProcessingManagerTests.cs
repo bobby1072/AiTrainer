@@ -1,8 +1,10 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
-using AiTrainer.Web.Domain.Services.User.Abstract;
+using AiTrainer.Web.Domain.Services.File.Models;
+using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
@@ -19,17 +21,19 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
         private readonly Mock<IValidator<FileDocument>> _mockValidator = new();
         private readonly Mock<IFileCollectionRepository> _mockFileCollectionRepository = new();
+        private readonly Mock<IFileCollectionFaissRepository> _mockFileFaissReposiotory = new();
+        private readonly Mock<IFileCollectionFaissSyncBackgroundJobQueue> _mockJobQueue = new();
         private readonly FileDocumentProcessingManager _fileDocumentProcessingManager;
-        private readonly Mock<IUserProcessingManager> _mockUserProcessingManager = new();
         public FileDocumentProcessingManagerTests()
         {
             _fileDocumentProcessingManager = new FileDocumentProcessingManager(
-                _mockUserProcessingManager.Object,
-                MockContextAccessor.Object,
                 _mockLogger.Object,
                 _mockFileDocumentRepository.Object,
+                _mockFileFaissReposiotory.Object,
                 _mockValidator.Object,
-                _mockFileCollectionRepository.Object
+                _mockFileCollectionRepository.Object,
+                _mockJobQueue.Object,
+                MockContextAccessor.Object
             );
             AddAccessTokenToRequestHeaders();
         }
@@ -48,20 +52,63 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.CollectionId, (Guid?)null)
                 .With(x => x.FileToCreate, mockForm)
                 .Create();
-            _mockUserProcessingManager.Setup(x => x.TryGetUserFromCache(It.IsAny<string>())).ReturnsAsync(currentUser);
 
             _mockValidator
                 .Setup(x => x.ValidateAsync(It.IsAny<FileDocument>(), default))
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
             _mockFileDocumentRepository
                 .Setup(x => x.Create(It.IsAny<IReadOnlyCollection<FileDocument>>()))
-                .ReturnsAsync(new Persistence.Models.DbSaveResult<FileDocument>());
+                .ReturnsAsync(new DbSaveResult<FileDocument>());
 
             //Act
             var act = () => _fileDocumentProcessingManager.UploadFileDocument(fileDocInput, currentUser);
 
             //Assert
             await act.Should().ThrowAsync<ApiException>().WithMessage("Invalid file document");
+        }
+
+        [Fact]
+        public async Task DeleteFileDocument_Should_Successfully_Delete_Authorized_Users_Document()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+
+            var currentUser = Fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+
+            var docToDelete = Fixture
+                .Build<FileDocument>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.UserId, (Guid)currentUser.Id!)
+                .With(x => x.CollectionId, collectionId)
+                .Create();
+
+            _mockFileDocumentRepository.Setup(x =>
+                x.GetOne((Guid)docToDelete.Id!)
+            ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
+
+            _mockFileFaissReposiotory.Setup(x =>
+                x.DeleteDocumentAndStoreAndUnsyncDocuments(docToDelete)
+            ).ReturnsAsync(new DbResult(true));
+
+            //Act
+            var result = await _fileDocumentProcessingManager.DeleteFileDocument((Guid)docToDelete.Id!, currentUser);
+
+            //Assert
+            _mockFileDocumentRepository.Verify(x =>
+                x.GetOne((Guid)docToDelete.Id!),
+                Times.Once
+            );
+            _mockFileFaissReposiotory.Verify(x =>
+                x.DeleteDocumentAndStoreAndUnsyncDocuments(docToDelete),
+                Times.Once
+            );
+            _mockJobQueue.Verify(x =>
+                x.Enqueue(It.Is<FileCollectionFaissSyncBackgroundJob>(y => y.CollectionId == collectionId && currentUser.Equals(y.User))),
+                Times.Once
+            );
         }
     }
 }

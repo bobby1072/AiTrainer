@@ -24,7 +24,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly UserProcessingManager _userProcessingManager;
 
         public UserProcessingManagerTests()
-            : base()
         {
             _userProcessingManager = new UserProcessingManager(
                 MockContextAccessor.Object,

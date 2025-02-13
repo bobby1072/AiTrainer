@@ -3,7 +3,6 @@ using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.File.Concrete;
-using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
@@ -23,11 +22,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<IValidator<FileCollection>> _mockValidator = new();
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
         private readonly FileCollectionProcessingManager _fileCollectionManager;
-        private readonly Mock<IUserProcessingManager> _mockUserProcessingManager = new();
         public FileCollectionProcessingManagerTests()
         {
             _fileCollectionManager = new FileCollectionProcessingManager(
-                _mockUserProcessingManager.Object,
                 _mockRepository.Object,
                 _mockLogger.Object,
                 _mockValidator.Object,
@@ -105,6 +102,18 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     ),
                 Times.Once
             );
+            _mockRepository
+                .Verify(x =>
+                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!)), Times.Once
+                );
+            _mockRepository
+                .Verify(x =>
+                    x.Create(
+                        It.Is<IReadOnlyCollection<FileCollection>>(x =>
+                            x.First().CollectionName == fileCollectionInput.CollectionName
+                        )
+                    ), Times.Once
+                );
         }
 
         [Fact]
