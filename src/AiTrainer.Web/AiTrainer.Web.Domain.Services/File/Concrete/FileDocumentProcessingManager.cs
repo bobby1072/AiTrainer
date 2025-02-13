@@ -21,6 +21,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IValidator<FileDocument> _validator;
         private readonly IFileCollectionRepository _fileCollectionRepository;
+        private readonly IFileCollectionFaissSyncBackgroundJobQueue _faissSyncBackgroundJobQueue;
         private readonly IHttpContextAccessor? _httpContextAccessor;
 
         public FileDocumentProcessingManager(
@@ -28,6 +29,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             IFileDocumentRepository fileDocumentRepository,
             IValidator<FileDocument> validator,
             IFileCollectionRepository fileCollectionRepository,
+            IFileCollectionFaissSyncBackgroundJobQueue faissSyncBackgroundJobQueue,
             IHttpContextAccessor? httpContextAccessor = null
         )
         {
@@ -36,6 +38,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
             _fileCollectionRepository = fileCollectionRepository;
+            _faissSyncBackgroundJobQueue = faissSyncBackgroundJobQueue;
         }
 
         public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Domain.Models.User currentUser)

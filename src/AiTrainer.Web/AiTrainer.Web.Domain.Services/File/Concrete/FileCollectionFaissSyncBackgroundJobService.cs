@@ -1,45 +1,43 @@
-﻿using System.Collections.Concurrent;
+﻿using AiTrainer.Web.Domain.Services.Concrete;
 using AiTrainer.Web.Domain.Services.File.Abstract;
-using AiTrainer.Web.Domain.Services.File.Models;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
-internal class FileCollectionFaissSyncBackgroundJobService: BackgroundService, IFileCollectionFaissSyncBackgroundJobService
+internal class FileCollectionFaissSyncBackgroundJobService: BackgroundService
 {
     private readonly ILogger<FileCollectionFaissSyncBackgroundJobService> _logger;
-    private readonly IFileCollectionFaissSyncProcessingManager  _syncProcessingManager;
-    private readonly BlockingCollection<FileCollectionFaissSyncBackgroundJob> _jobQueue = new();
+    private readonly IFileCollectionFaissSyncBackgroundJobQueue _jobQueue;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public FileCollectionFaissSyncBackgroundJobService(ILogger<FileCollectionFaissSyncBackgroundJobService> logger,
-        IFileCollectionFaissSyncProcessingManager  syncProcessingManager)
+        IFileCollectionFaissSyncBackgroundJobQueue jobQueue,
+        IServiceScopeFactory serviceScopeFactory)
     {
         _logger = logger;
-        _syncProcessingManager = syncProcessingManager;
-    }
-
-    public void EnqueueJob(FileCollectionFaissSyncBackgroundJob job)
-    {
-        _jobQueue.Add(job);
+        _jobQueue = jobQueue;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("{BackgroundServiceName} is starting", nameof(FileCollectionFaissSyncBackgroundJobService));
 
-        foreach (var job in _jobQueue.GetConsumingEnumerable(stoppingToken))
+        while (!stoppingToken.IsCancellationRequested)
         {
-            if (stoppingToken.IsCancellationRequested)
-                break;
-
+            var job = await _jobQueue.DequeueAsync(stoppingToken);
             try
             {
                 _logger.LogInformation("--------Processing faiss sync request in {BackgroundServiceName} for collectionId {CollectionId} and userId {UserId}",
                     nameof(FileCollectionFaissSyncBackgroundJobService),
                     job.CollectionId,
                     job.User.Id);
-                await job.SyncProcess.Compile().Invoke(_syncProcessingManager, stoppingToken);
+                using var scope = _serviceScopeFactory.CreateScope();
+                var syncManager = scope.ServiceProvider.GetRequiredService<IFileCollectionFaissSyncProcessingManager>();
+                
+                await job.SyncProcess.Compile().Invoke(syncManager, stoppingToken);
             }
             catch (Exception ex)
             {
@@ -52,7 +50,7 @@ internal class FileCollectionFaissSyncBackgroundJobService: BackgroundService, I
 
     public override void Dispose()
     {
-        _jobQueue.CompleteAdding();
+        _jobQueue.Dispose();
         base.Dispose();
     }
 }

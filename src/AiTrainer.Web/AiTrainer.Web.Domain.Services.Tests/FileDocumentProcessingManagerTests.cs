@@ -1,6 +1,7 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
@@ -8,6 +9,7 @@ using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
 using FluentAssertions;
 using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -27,6 +29,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockFileDocumentRepository.Object,
                 _mockValidator.Object,
                 _mockFileCollectionRepository.Object,
+                new FileCollectionFaissSyncBackgroundJobService(Mock.Of<ILogger<FileCollectionFaissSyncBackgroundJobService>>(), 
+                    Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>(), Mock.Of<IServiceScopeFactory>()),
                 MockContextAccessor.Object
             );
             AddAccessTokenToRequestHeaders();
