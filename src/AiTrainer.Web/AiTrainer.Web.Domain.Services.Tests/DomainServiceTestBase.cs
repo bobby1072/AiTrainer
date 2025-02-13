@@ -12,12 +12,10 @@ namespace AiTrainer.Web.Domain.Services.Tests
         protected readonly Mock<HttpContext> MockHttpContext = new();
         protected readonly Mock<HttpRequest> MockHttpRequest = new();
         protected readonly Mock<HttpResponse> MockHttpResponse = new();
-        protected readonly Mock<IDomainServiceActionExecutor> MockDomainServiceActionExecutor =
-            new();
         protected readonly HeaderDictionary HeaderDictionary = [];
         protected readonly Mock<IHttpContextAccessor> MockContextAccessor = new();
 
-        protected DomainServiceTestBase()
+        protected void SetUpBasicHttpContext()
         {
             MockHttpContext.Setup(x => x.Request).Returns(MockHttpRequest.Object);
             MockHttpContext.Setup(x => x.Response).Returns(MockHttpResponse.Object);
