@@ -27,10 +27,10 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _fileDocumentProcessingManager = new FileDocumentProcessingManager(
                 _mockLogger.Object,
                 _mockFileDocumentRepository.Object,
+                Mock.Of<IFileCollectionFaissRepository>(),
                 _mockValidator.Object,
                 _mockFileCollectionRepository.Object,
-                new FileCollectionFaissSyncBackgroundJobService(Mock.Of<ILogger<FileCollectionFaissSyncBackgroundJobService>>(), 
-                    Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>(), Mock.Of<IServiceScopeFactory>()),
+                Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>(),
                 MockContextAccessor.Object
             );
             AddAccessTokenToRequestHeaders();

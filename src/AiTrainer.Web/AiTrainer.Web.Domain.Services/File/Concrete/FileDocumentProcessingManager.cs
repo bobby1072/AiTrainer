@@ -12,6 +12,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using AiTrainer.Web.Domain.Services.File.Models;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -21,12 +22,14 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IValidator<FileDocument> _validator;
         private readonly IFileCollectionRepository _fileCollectionRepository;
+        private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
         private readonly IFileCollectionFaissSyncBackgroundJobQueue _faissSyncBackgroundJobQueue;
         private readonly IHttpContextAccessor? _httpContextAccessor;
 
         public FileDocumentProcessingManager(
             ILogger<FileDocumentProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
+            IFileCollectionFaissRepository fileCollectionFaissRepository,
             IValidator<FileDocument> validator,
             IFileCollectionRepository fileCollectionRepository,
             IFileCollectionFaissSyncBackgroundJobQueue faissSyncBackgroundJobQueue,
@@ -37,6 +40,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _logger = logger;
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
+            _fileCollectionFaissRepository = fileCollectionFaissRepository;
             _fileCollectionRepository = fileCollectionRepository;
             _faissSyncBackgroundJobQueue = faissSyncBackgroundJobQueue;
         }
@@ -133,9 +137,20 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFileDocument),
                 correlationId
             );
+            
+            var documentToDelete = 
+                await EntityFrameworkUtils.TryDbOperation(
+                    () => _fileDocumentRepository.GetOne(documentId),
+                    _logger
+                );
+
+            if (documentToDelete?.Data?.UserId != (Guid)currentUser.Id!)
+            {
+                throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
+            }
 
             var deletedId = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.Delete(documentId, (Guid)currentUser.Id!),
+                () => _fileCollectionFaissRepository.DeleteDocumentAndStoreAndUnsyncDocuments(documentToDelete.Data),
                 _logger
             );
 
@@ -150,7 +165,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFileDocument),
                 correlationId
             );
-            return deletedId.Data.First();
+
+            await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissSyncBackgroundJob
+                { User = currentUser, CollectionId = documentToDelete.Data.CollectionId });
+            
+            return (Guid)documentToDelete.Data.Id!;
         }
     }
 }

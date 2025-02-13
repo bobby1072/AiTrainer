@@ -23,6 +23,36 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbResult> DeleteDocumentAndStoreAndUnsyncDocuments(FileDocument documentToDelete)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                await Task.WhenAll(
+                    dbContext.FileDocuments
+                        .Where(x => x.CollectionId == documentToDelete.CollectionId && x.UserId == documentToDelete.UserId)
+                        .ExecuteUpdateAsync(x => x.SetProperty(y => y.FaissSynced, false)),
+                    dbContext.FileCollectionFaiss
+                        .Where(x => x.CollectionId == documentToDelete.CollectionId && x.UserId == documentToDelete.UserId)
+                        .ExecuteDeleteAsync(),
+                    dbContext.FileDocuments
+                        .Where(x => x.Id == documentToDelete.Id)
+                        .ExecuteDeleteAsync()
+                );
+                
+                await dbContext.SaveChangesAsync();
+                
+                await transaction.CommitAsync();
+                
+                return new DbResult(true);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
         public async Task<DbResult> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<Guid> documentIdsToSync,
             FileCollectionFaissRepositorySaveMode saveMode)
         {
