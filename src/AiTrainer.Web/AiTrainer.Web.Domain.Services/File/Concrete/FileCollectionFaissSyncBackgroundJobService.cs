@@ -23,28 +23,32 @@ internal class FileCollectionFaissSyncBackgroundJobService: BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("{BackgroundServiceName} is starting", nameof(FileCollectionFaissSyncBackgroundJobService));
+        _logger.LogDebug("{BackgroundServiceName} is starting", nameof(FileCollectionFaissSyncBackgroundJobService));
 
         while (!stoppingToken.IsCancellationRequested)
         {
             var job = await _jobQueue.DequeueAsync(stoppingToken);
             try
             {
-                _logger.LogInformation("--------Processing faiss sync request in {BackgroundServiceName} for collectionId {CollectionId} and userId {UserId}",
+                _logger.LogDebug("--------Processing faiss sync request in {BackgroundServiceName} for collectionId {CollectionId} and userId {UserId}--------",
                     nameof(FileCollectionFaissSyncBackgroundJobService),
                     job.CollectionId,
                     job.User.Id);
-                using var scope = _serviceScopeFactory.CreateScope();
+                await using var scope = _serviceScopeFactory.CreateAsyncScope();
                 var syncManager = scope.ServiceProvider.GetRequiredService<IFileCollectionFaissSyncProcessingManager>();
                 
                 await job.SyncProcess.Compile().Invoke(syncManager, stoppingToken);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Exceptions occurred during execution faiss sync job for collectionId {CollectionId} and userId {UserId}",
+                _logger.LogError(ex, "Exceptions occurred during execution of background faiss sync job for collectionId {CollectionId} and userId {UserId}",
                     job.CollectionId,
                     job.User.Id);
             }
+            _logger.LogDebug("--------Processing finished for faiss sync request for collectionId {CollectionId} and userId {UserId}--------",
+                job.CollectionId,
+                job.User.Id);    
+                
         }
     }
 
