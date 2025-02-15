@@ -15,11 +15,11 @@ namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
 internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, FaissStoreResponse>
 {
-    private readonly ILogger<CoreClientCreateFaissStore> _logger;
+    private readonly ILogger<CoreClientUpdateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
     public CoreClientUpdateFaissStore(
-        ILogger<CoreClientCreateFaissStore> logger,
+        ILogger<CoreClientUpdateFaissStore> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
         IHttpContextAccessor httpContextAccessor
     )

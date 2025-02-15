@@ -8,7 +8,7 @@ namespace AiTrainer.Web.CoreClient.Tests
     public abstract class CoreClientTestBase: AiTrainerTestBase, IDisposable
     {
         protected readonly HttpTest _httpTest = new();
-        protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration = new AiTrainerCoreConfiguration
+        protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration = new()
         {
             ApiKey = Guid.NewGuid().ToString(),
             BaseEndpoint = "http://localhost:5000",
