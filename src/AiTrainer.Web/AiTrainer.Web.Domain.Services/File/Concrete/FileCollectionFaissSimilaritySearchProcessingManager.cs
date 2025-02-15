@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using AiTrainer.Web.Common.Exceptions;
+using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -38,6 +39,13 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager: IFileCollec
 
     public async Task<SimilaritySearchCoreResponse> SimilaritySearch(SimilaritySearchInput input, Domain.Models.User currentUser)
     {
+        var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
+        
+        _logger.LogInformation(
+            "Entering {Action} for correlationId {CorrelationId}",
+            nameof(SimilaritySearch),
+            correlationId
+        );
         var validationResult = await _inputValidator.ValidateAsync(input);
         if (!validationResult.IsValid)
         {
@@ -58,6 +66,11 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager: IFileCollec
             throw new ApiException("Cannot find store", HttpStatusCode.NotFound);
         }
 
+        
+        _logger.LogInformation("Attempting to ask question of {Question} for collectionId {CollectionId} and correlationId {CorrelationId}",
+            input.Question,
+            input.CollectionId,
+            correlationId);
 
         var result = await _similaritySearchClient.TryInvokeAsync(new CoreSimilaritySearchInput
         {
@@ -66,6 +79,12 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager: IFileCollec
             DocStore = foundCollection.Data.FaissStore.FaissJson,
             DocumentsToReturn = input.DocumentsToReturn,
         }) ?? throw new ApiException();
+        
+        _logger.LogInformation(
+            "Exiting {Action} for correlationId {CorrelationId}",
+            nameof(SimilaritySearch),
+            correlationId
+        );
         
         return result;
     }

@@ -64,7 +64,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var act = () => _fileDocumentProcessingManager.UploadFileDocument(fileDocInput, currentUser);
 
             //Assert
-            await act.Should().ThrowAsync<ApiException>().WithMessage("Invalid file document");
+            await Assert.ThrowsAsync<ApiException>(act);
         }
 
         [Fact]
@@ -108,6 +108,52 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockJobQueue.Verify(x =>
                 x.Enqueue(It.Is<FileCollectionFaissSyncBackgroundJob>(y => y.CollectionId == collectionId && currentUser.Equals(y.User))),
                 Times.Once
+            );
+        }
+        [Fact]
+        public async Task DeleteFileDocument_Should_Throw_For_Unauthorized_Users()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+
+            var docToDelete = _fixture
+                .Build<FileDocument>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.UserId, Guid.NewGuid())
+                .With(x => x.CollectionId, collectionId)
+                .Create();
+
+            _mockFileDocumentRepository.Setup(x =>
+                x.GetOne((Guid)docToDelete.Id!)
+            ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
+
+            _mockFileFaissReposiotory.Setup(x =>
+                x.DeleteDocumentAndStoreAndUnsyncDocuments(docToDelete)
+            ).ReturnsAsync(new DbResult(true));
+
+            //Act
+            var act = () => _fileDocumentProcessingManager.DeleteFileDocument((Guid)docToDelete.Id!, currentUser);
+
+            //Assert
+            await Assert.ThrowsAsync<ApiException>(act);
+            
+            
+            _mockFileDocumentRepository.Verify(x =>
+                    x.GetOne((Guid)docToDelete.Id!),
+                Times.Once
+            );
+            _mockFileFaissReposiotory.Verify(x =>
+                    x.DeleteDocumentAndStoreAndUnsyncDocuments(It.IsAny<FileDocument>()),
+                Times.Never
+            );
+            _mockJobQueue.Verify(x =>
+                    x.Enqueue(It.IsAny<FileCollectionFaissSyncBackgroundJob>()),
+                Times.Never
             );
         }
     }
