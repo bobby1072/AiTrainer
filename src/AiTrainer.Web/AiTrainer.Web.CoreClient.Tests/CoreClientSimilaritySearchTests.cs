@@ -12,51 +12,53 @@ using Moq;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientCreateFaissStoreTests: CoreClientTestBase
+public class CoreClientSimilaritySearchTests: CoreClientTestBase
 {
-    private readonly Mock<ILogger<CoreClientCreateFaissStore>> _mockLogger = new();
-    private readonly CoreClientCreateFaissStore _coreClientCreateFaissStore;
-    public CoreClientCreateFaissStoreTests()
+    private readonly Mock<ILogger<CoreClientSimilaritySearch>> _mockLogger = new();
+    private readonly CoreClientSimilaritySearch _coreClientSimilaritySearch;
+
+    public CoreClientSimilaritySearchTests()
     {
         SetUpBasicHttpContext();
-        _coreClientCreateFaissStore = new CoreClientCreateFaissStore(
+        _coreClientSimilaritySearch = new CoreClientSimilaritySearch(
             _mockLogger.Object,
             new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
             _mockHttpContextAccessor.Object
         );
     }
     [Fact]
-    public async Task CoreClientCreateFaissStore_Should_Build_Request_Correctly()
+    public async Task CoreClientSimilaritySearch_Should_Build_Request_Correctly()
     {
         //Arrange
-        var input = _fixture
-            .Build<CreateFaissStoreInput>()
-            .With(x => x.Documents,  _fixture.CreateMany<string>().ToArray())
-            .Create();
-        
-        var stringJson = JsonSerializer.Serialize(input);
+        var stringJson = JsonSerializer.Serialize(new {Text = Faker.Lorem.Paragraph()});
         await using var memStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
 
-        var response = _fixture
-            .Build<FaissStoreResponse>()
-            .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(memStream))
+        
+        var input = _fixture
+            .Build<SimilaritySearchInput>()
+            .With(x => x.DocStore, await JsonDocument.ParseAsync(memStream))
             .Create();
-        var mockedApiResponse = new CoreResponse<FaissStoreResponse> { Data = response };
+        
+        var response = _fixture
+            .Build<SimilaritySearchResponse>()
+            .With(x => x.Items, _fixture.CreateMany<SimilaritySearchResponseItem>().ToArray())
+            .Create();
+        var mockedApiResponse = new CoreResponse<SimilaritySearchResponse> { Data = response };
         
         _httpTest
-            .ForCallsTo($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/createstore")
+            .ForCallsTo($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch")
             .WithVerb(HttpMethod.Post)
             .WithHeader(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey)
             .WithHeader(ApiConstants.CorrelationIdHeader)
             .RespondWithJson(mockedApiResponse);
         
         //Act
-        var result  = await _coreClientCreateFaissStore.TryInvokeAsync(input);
+        var result = await _coreClientSimilaritySearch.TryInvokeAsync(input);
         
         //Assert
         Assert.NotNull(result);
         _httpTest
-            .ShouldHaveCalled($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/createstore")
+            .ShouldHaveCalled($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch")
             .WithVerb(HttpMethod.Post)
             .WithHeader(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey)
             .WithHeader(ApiConstants.CorrelationIdHeader);

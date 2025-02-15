@@ -13,5 +13,5 @@ public record SimilaritySearchResponseItem
     [JsonPropertyName("pageContent")]
     public required string PageContent { get; init; }
     [JsonPropertyName("metadata")]
-    public required Dictionary<string, string> Metadata { get; init; } = new();
+    public Dictionary<string, string> Metadata { get; init; } = new();
 }
