@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-public class CoreClientSimilaritySearch: ICoreClient<SimilaritySearchInput, SimilaritySearchResponse>
+public class CoreClientSimilaritySearch: ICoreClient<CoreSimilaritySearchInput, SimilaritySearchCoreResponse>
 {
     private readonly ILogger<CoreClientSimilaritySearch> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -29,7 +29,7 @@ public class CoreClientSimilaritySearch: ICoreClient<SimilaritySearchInput, Simi
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<SimilaritySearchResponse?> TryInvokeAsync(SimilaritySearchInput input, CancellationToken cancellation = default)
+    public async Task<SimilaritySearchCoreResponse?> TryInvokeAsync(CoreSimilaritySearchInput input, CancellationToken cancellation = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -43,7 +43,7 @@ public class CoreClientSimilaritySearch: ICoreClient<SimilaritySearchInput, Simi
                 x.AddJson("metadata", input);
                 x.AddFile("file", indexFileStream, "docStore.index");
             }, HttpCompletionOption.ResponseContentRead, cancellation)
-            .ReceiveJsonAsync<CoreResponse<SimilaritySearchResponse>>(_aiTrainerCoreConfiguration, cancellation)
+            .ReceiveJsonAsync<CoreResponse<SimilaritySearchCoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(FaissStoreResponse));
         
         

@@ -1,4 +1,3 @@
-using AiTrainer.Web.Api.SignalR.Models.Requests;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using AiTrainer.Web.Api.SignalR.Models;
+using AiTrainer.Web.Common.Models.ApiModels.Request;
 
 namespace AiTrainer.Web.Api.SignalR.Hubs
 {

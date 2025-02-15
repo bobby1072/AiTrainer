@@ -1,4 +1,4 @@
-﻿namespace AiTrainer.Web.Common.Models.ApiModels.Response
+﻿namespace AiTrainer.Web.Api.Models
 {
     public record Outcome
     {

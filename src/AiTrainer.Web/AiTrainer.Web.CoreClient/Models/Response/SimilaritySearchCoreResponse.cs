@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.CoreClient.Models.Response;
 
-public record SimilaritySearchResponse: BaseCoreClientResponseData
+public record SimilaritySearchCoreResponse: BaseCoreClientResponseData
 {
     [JsonPropertyName("items")]
     public required IReadOnlyCollection<SimilaritySearchResponseItem> Items { get; init; }

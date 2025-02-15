@@ -40,6 +40,7 @@ namespace AiTrainer.Web.Domain.Services.Extensions
                 .AddScoped<IUserProcessingManager, UserProcessingManager>()
                 .AddScoped<IFileCollectionProcessingManager, FileCollectionProcessingManager>()
                 .AddScoped<IFileDocumentProcessingManager, FileDocumentProcessingManager>()
+                .AddScoped<IFileCollectionFaissSimilaritySearchProcessingManager, FileCollectionFaissSimilaritySearchProcessingManager>()
                 .AddScoped<IFileCollectionFaissSyncProcessingManager, FileCollectionFaissSyncProcessingManager>()
                 .AddSingleton<IFileCollectionFaissSyncBackgroundJobQueue, FileCollectionFaissSyncBackgroundJobQueue>()
                 .AddHostedService<FileCollectionFaissSyncBackgroundJobService>()
