@@ -7,7 +7,6 @@ namespace AiTrainer.Web.CoreClient.Tests
 {
     public abstract class CoreClientTestBase: AiTrainerTestBase, IDisposable
     {
-        protected readonly Fixture _fixture = new();
         protected readonly HttpTest _httpTest = new();
         protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration = new AiTrainerCoreConfiguration
         {

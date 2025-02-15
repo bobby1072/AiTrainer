@@ -43,6 +43,7 @@ public class CoreClientChunkDocumentTests: CoreClientTestBase
             .WithVerb(HttpMethod.Post)
             .WithHeader(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey)
             .WithHeader(ApiConstants.CorrelationIdHeader)
+            .WithRequestJson(documentToChunk)
             .RespondWithJson(mockedApiResponse);
 
         //Act
@@ -50,6 +51,7 @@ public class CoreClientChunkDocumentTests: CoreClientTestBase
 
         //Assert
         Assert.NotNull(result);
+        Assert.IsAssignableFrom(mockedApiResponse.Data.GetType(), result);
         _httpTest
             .ShouldHaveCalled($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/chunkingrouter/chunkdocument")
             .WithVerb(HttpMethod.Post)
