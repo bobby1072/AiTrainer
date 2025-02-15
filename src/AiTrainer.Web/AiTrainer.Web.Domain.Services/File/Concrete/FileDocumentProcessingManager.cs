@@ -149,12 +149,12 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
             }
 
-            var deletedId = await EntityFrameworkUtils.TryDbOperation(
+            var deletedJobResult = await EntityFrameworkUtils.TryDbOperation(
                 () => _fileCollectionFaissRepository.DeleteDocumentAndStoreAndUnsyncDocuments(documentToDelete.Data),
                 _logger
             );
 
-            if (deletedId?.IsSuccessful != true)
+            if (deletedJobResult?.IsSuccessful != true)
             {
                 throw new ApiException(
                     "Could not delete document"
