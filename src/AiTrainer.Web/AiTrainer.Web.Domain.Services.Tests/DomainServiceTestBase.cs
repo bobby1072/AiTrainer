@@ -1,32 +1,13 @@
-﻿using AutoFixture;
-using Microsoft.AspNetCore.Http;
+﻿using AiTrainer.Web.TestBase;
 using Microsoft.Net.Http.Headers;
-using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests
 {
-    public abstract class DomainServiceTestBase
+    public abstract class DomainServiceTestBase: AiTrainerTestBase
     {
-        protected readonly Fixture Fixture = new();
-        protected readonly Mock<HttpContext> MockHttpContext = new();
-        protected readonly Mock<HttpRequest> MockHttpRequest = new();
-        protected readonly Mock<HttpResponse> MockHttpResponse = new();
-        protected readonly HeaderDictionary HeaderDictionary = [];
-        protected readonly Mock<IHttpContextAccessor> MockContextAccessor = new();
-
-        protected void SetUpBasicHttpContext()
-        {
-            MockHttpContext.Setup(x => x.Request).Returns(MockHttpRequest.Object);
-            MockHttpContext.Setup(x => x.Response).Returns(MockHttpResponse.Object);
-            MockHttpContext.Setup(x => x.Request.Headers).Returns(HeaderDictionary);
-            MockHttpContext.Setup(x => x.Response.Headers).Returns(HeaderDictionary);
-            
-            MockContextAccessor.Setup(x => x.HttpContext).Returns(MockHttpContext.Object);
-        }
-
         protected void AddAccessTokenToRequestHeaders()
         {
-            HeaderDictionary[HeaderNames.Authorization] = $"Bearer {Guid.NewGuid()}";
+            _headerDictionary[HeaderNames.Authorization] = $"Bearer {Guid.NewGuid()}";
         }
     }
 }

@@ -29,7 +29,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockLogger.Object,
                 _mockValidator.Object,
                 _mockFileDocumentRepository.Object,
-                MockContextAccessor.Object
+                _mockHttpContextAccessor.Object
             );
             AddAccessTokenToRequestHeaders();
         }
@@ -40,17 +40,17 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             IReadOnlyCollection<FileCollection>? fileCollectionToSave = null;
-            var currentUser = Fixture
+            var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var parentCollection = Fixture
+            var parentCollection = _fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.ParentId, (Guid?)null)
                 .With(x => x.UserId, currentUser.Id)
                 .Create();
-            var fileCollectionInput = Fixture
+            var fileCollectionInput = _fixture
                 .Build<FileCollectionSaveInput>()
                 .With(x => x.Id, (Guid?)null)
                 .With(x => x.ParentId, parentCollection.Id)
@@ -121,12 +121,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             IReadOnlyCollection<FileCollection>? fileCollectionToSave = null;
-            var currentUser = Fixture
+            var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
-            var originalFileCollection = Fixture
+            var originalFileCollection = _fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -136,7 +136,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
 
-            var newFileCollectionInput = Fixture
+            var newFileCollectionInput = _fixture
                 .Build<FileCollectionSaveInput>()
                 .With(x => x.Id, originalFileCollection.Id)
                 .With(x => x.DateCreated, originalFileCollection.DateCreated)
@@ -208,11 +208,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             IReadOnlyCollection<FileCollection>?  fileCollectionToSave = null;
-            var currentUser = Fixture
+            var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var originalFileCollection = Fixture
+            var originalFileCollection = _fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -221,7 +221,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
 
-            var newFileCollectionInput = Fixture
+            var newFileCollectionInput = _fixture
                 .Build<FileCollectionSaveInput>()
                 .With(x => x.Id, originalFileCollection.Id)
                 .With(x => x.Id, Guid.NewGuid())
@@ -287,11 +287,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task GetOneLayerFileDocPartialsAndCollections_Given_Null_Collection_Id_Should_Get_Top_Levels()
         {
             //Arrange
-            var currentUser = Fixture
+            var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var foundSingleFileCollection = Fixture
+            var foundSingleFileCollection = _fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -301,7 +301,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.ParentId, (Guid?)null)
                 .Create();
 
-            var foundSingleFileDocument = Fixture
+            var foundSingleFileDocument = _fixture
                 .Build<FileDocumentPartial>()
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.CollectionId, (Guid?)null)
@@ -335,11 +335,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task GetOneLayerFileDocPartialsAndCollections_Given_Collection_Id_Should_Get_Children()
         {
             //Arrange
-            var currentUser = Fixture
+            var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var foundSingleFileCollection = Fixture
+            var foundSingleFileCollection = _fixture
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
@@ -349,7 +349,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .With(x => x.ParentId, Guid.NewGuid())
                 .Create();
 
-            var foundSingleFileDocument = Fixture
+            var foundSingleFileDocument = _fixture
                 .Build<FileDocumentPartial>()
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.CollectionId, Guid.NewGuid())

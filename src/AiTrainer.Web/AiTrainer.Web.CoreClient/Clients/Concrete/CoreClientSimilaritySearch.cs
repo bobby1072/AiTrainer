@@ -40,7 +40,7 @@ public class CoreClientSimilaritySearch: ICoreClient<SimilaritySearchInput, Simi
             .PostMultipartAsync(x =>
             {
                 var indexFileStream = new MemoryStream(input.FileInput);
-                var n = x.AddJson("metadata", input);
+                x.AddJson("metadata", input);
                 x.AddFile("file", indexFileStream, "docStore.index");
             }, HttpCompletionOption.ResponseContentRead, cancellation)
             .ReceiveJsonAsync<CoreResponse<SimilaritySearchResponse>>(_aiTrainerCoreConfiguration, cancellation)
