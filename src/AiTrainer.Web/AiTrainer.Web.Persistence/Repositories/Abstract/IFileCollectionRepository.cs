@@ -18,5 +18,8 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             params string[] relationShips
         );
         Task<DbDeleteResult<Guid>> Delete(Guid collectionId, Guid userId);
+
+        Task<DbGetOneResult<FileCollection>> GetCollectionByUserIdAndCollectionId(Guid userId, Guid? collectionId,
+            params string[] relations);
     }
 }
