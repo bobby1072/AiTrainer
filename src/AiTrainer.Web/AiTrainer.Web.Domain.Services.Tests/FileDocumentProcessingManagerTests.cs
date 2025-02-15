@@ -33,7 +33,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockValidator.Object,
                 _mockFileCollectionRepository.Object,
                 _mockJobQueue.Object,
-                MockContextAccessor.Object
+                _mockHttpContextAccessor.Object
             );
             AddAccessTokenToRequestHeaders();
         }
@@ -42,12 +42,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task UploadFile_Should_Throw_If_No_Entities_Returned_From_Save()
         {
             //Arrange
-            var currentUser = Fixture
+            var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var mockForm = FormFileUtils.CreateFromFile();
-            var fileDocInput = Fixture
+            var fileDocInput = _fixture
                 .Build<FileDocumentSaveFormInput>()
                 .With(x => x.CollectionId, (Guid?)null)
                 .With(x => x.FileToCreate, mockForm)
@@ -73,12 +73,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
 
-            var currentUser = Fixture
+            var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
 
-            var docToDelete = Fixture
+            var docToDelete = _fixture
                 .Build<FileDocument>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.UserId, (Guid)currentUser.Id!)

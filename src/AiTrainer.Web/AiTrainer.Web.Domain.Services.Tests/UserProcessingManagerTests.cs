@@ -26,7 +26,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public UserProcessingManagerTests()
         {
             _userProcessingManager = new UserProcessingManager(
-                MockContextAccessor.Object,
+                _mockHttpContextAccessor.Object,
                 _repo.Object,
                 _userInfoClient.Object,
                 _logger.Object,
@@ -39,7 +39,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task SaveAndCacheUser_Should_Cache_And_Return_User_If_Db_And_Info_Response_Match()
         {
             //Arrange
-            var mockedUser = Fixture.Create<Models.User>();
+            var mockedUser = _fixture.Create<Models.User>();
 
             var userInfoResponse = new UserInfoResponse
             {
@@ -81,7 +81,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task SaveAndCacheUser_Should_Create_And_Cache_New_User()
         {
             //Arrange
-            var mockedUser = Fixture.Create<Models.User>();
+            var mockedUser = _fixture.Create<Models.User>();
 
             var userInfoResponse = new UserInfoResponse
             {
@@ -121,7 +121,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task SaveAndCacheUser_Should_Update_And_Cache_Old_User()
         {
             //Arrange
-            var mockedUser = Fixture.Create<Models.User>();
+            var mockedUser = _fixture.Create<Models.User>();
 
             var userInfoResponse = new UserInfoResponse
             {
