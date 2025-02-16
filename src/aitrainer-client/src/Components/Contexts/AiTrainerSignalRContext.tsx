@@ -57,8 +57,14 @@ export const AiTrainerSignalRProvider: React.FC<{
   useEffect(() => {
     if (!hubConnection) return;
 
-    hubConnection.onreconnected(() => setIsConnected(true));
-    hubConnection.onclose(() => setIsConnected(false));
+    hubConnection.onreconnected(() => {
+      setIsConnected(true);
+      setHubConnection(hubConnection);
+    });
+    hubConnection.onclose(() => {
+      setIsConnected(false);
+      setHubConnection(hubConnection);
+    });
 
     // const handleEvent = (
     //   eventName: string,
