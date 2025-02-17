@@ -20,7 +20,7 @@ import { FileDocumentMetaDataModal } from "./FileDocumentMetaDataModal";
 
 const fileDoc = require("./fileDoc.png");
 
-export const NewFileTableDocumentRow: React.FC<{
+export const ActualFileCollectionTableDocumentRow: React.FC<{
   fileDocPartial: FileDocumentPartial;
 }> = ({ fileDocPartial }) => {
   const [metaDataModalOpen, setMetaDataModalOpen] = useState<boolean>(false);

@@ -1,4 +1,4 @@
-import { Grid2 } from "@mui/material";
+import { Grid2, Paper } from "@mui/material";
 import { PageBase } from "../Common/PageBase";
 import { useGetTopLayerOfFileQuery } from "../../Hooks/useGetTopLayerOfFileQuery";
 import { Loading } from "../Common/Loading";
@@ -31,7 +31,16 @@ export const CollectionHome: React.FC = () => {
           width="100%"
         >
           <Grid2 width={"90%"}>
-            <CollectionDocumentTable flatCollection={data} />
+            <Paper
+              elevation={1}
+              sx={{
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                overflow: "hidden",
+              }}
+            >
+              <CollectionDocumentTable flatCollection={data} />
+            </Paper>
           </Grid2>
         </Grid2>
       </FileCollectionContextMenuContextProvider>

@@ -13,19 +13,18 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import { useSnackbar } from "notistack";
-import { MenuPosition } from "../Contexts/FileCollectionContextMenuContext";
 import { useNavigate } from "react-router-dom";
 const fileCol = require("./fileCol.png");
 
-export const NewFileTableCollectionRow: React.FC<{
+export const ActualFileCollectionTableCollectionRow: React.FC<{
   fileCollection: FileCollection;
   handleRightClick: (
     event: React.MouseEvent,
     fileCollection: FileCollection
   ) => void;
   closeContextMenu: () => void;
-  menuPosition: MenuPosition | null;
-}> = ({ fileCollection, closeContextMenu, handleRightClick, menuPosition }) => {
+  singleLevel: boolean;
+}> = ({ fileCollection, closeContextMenu, handleRightClick, singleLevel }) => {
   const { mutate, isLoading, data } = useDeleteFileCollectionMutation();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -70,7 +69,9 @@ export const NewFileTableCollectionRow: React.FC<{
               href={`/collection/home/${fileCollection.id}`}
               onClick={(e) => {
                 e.preventDefault();
-                navigate(`/collection/home/${fileCollection.id}`);
+                if (!singleLevel) {
+                  navigate(`/collection/home/${fileCollection.id}`);
+                }
               }}
               sx={{
                 "&:hover": {
