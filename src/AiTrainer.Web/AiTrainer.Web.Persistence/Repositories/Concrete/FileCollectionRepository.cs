@@ -25,7 +25,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
-        public async Task<DbGetOneResult<FileCollection>> GetCollectionByUserIdAndCollectionId(Guid userId, Guid? collectionId, params string[] relations)
+        public async Task<DbGetOneResult<FileCollection>> GetCollectionByUserIdAndCollectionId(Guid userId, Guid collectionId, params string[] relations)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var setToQuery = AddRelationsToSet(dbContext.FileCollections, relations);

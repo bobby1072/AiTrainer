@@ -15,24 +15,24 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
-internal class FileCollectionFaissSimilaritySearchProcessingManager: IFileCollectionFaissSimilaritySearchProcessingManager
+internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileCollectionFaissSimilaritySearchProcessingManager
 {
     private readonly ICoreClient<CoreSimilaritySearchInput, SimilaritySearchCoreResponse> _similaritySearchClient;
     private readonly ILogger<FileCollectionFaissSimilaritySearchProcessingManager> _logger;
-    private readonly IFileCollectionRepository _fileCollectionRepository;
+    private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly IValidator<SimilaritySearchInput> _inputValidator;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     public FileCollectionFaissSimilaritySearchProcessingManager(
         ICoreClient<CoreSimilaritySearchInput, SimilaritySearchCoreResponse> similaritySearchClient,
         ILogger<FileCollectionFaissSimilaritySearchProcessingManager> logger,
-        IFileCollectionRepository fileCollectionRepository,
+        IFileCollectionFaissRepository fileCollectionFaissRepository,
         IValidator<SimilaritySearchInput> inputValidator,
         IHttpContextAccessor? httpContextAccessor = null
     )
     {
         _similaritySearchClient = similaritySearchClient;
         _logger = logger;
-        _fileCollectionRepository = fileCollectionRepository;
+        _fileCollectionFaissRepository = fileCollectionFaissRepository;
         _inputValidator = inputValidator;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -40,7 +40,7 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager: IFileCollec
     public async Task<SimilaritySearchCoreResponse> SimilaritySearch(SimilaritySearchInput input, Domain.Models.User currentUser)
     {
         var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
-        
+
         _logger.LogInformation(
             "Entering {Action} for correlationId {CorrelationId}",
             nameof(SimilaritySearch),
@@ -51,22 +51,22 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager: IFileCollec
         {
             throw new ApiException("Invalid input for similarity search");
         }
-        
-        var foundCollection = await EntityFrameworkUtils.TryDbOperation(() => 
-            _fileCollectionRepository.GetCollectionByUserIdAndCollectionId((Guid)currentUser.Id!, input.CollectionId,
-                nameof(FileCollectionEntity.FaissStore)),
+
+        var existingFaissStore = await EntityFrameworkUtils.TryDbOperation(
+            () =>
+                _fileCollectionFaissRepository.ByUserAndCollectionId(
+                    (Guid)currentUser.Id!,
+                    input.CollectionId,
+                    nameof(FileCollectionFaissEntity.CollectionId)
+                ),
             _logger
         );
-        if (foundCollection?.Data?.UserId != currentUser.Id)
+        if (existingFaissStore?.Data?.UserId != (Guid)currentUser.Id!)
         {
             throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
         }
-        if (foundCollection?.Data?.FaissStore is null)
-        {
-            throw new ApiException("Cannot find store", HttpStatusCode.NotFound);
-        }
 
-        
+
         _logger.LogInformation("Attempting to ask question of {Question} for collectionId {CollectionId} and correlationId {CorrelationId}",
             input.Question,
             input.CollectionId,
@@ -75,17 +75,17 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager: IFileCollec
         var result = await _similaritySearchClient.TryInvokeAsync(new CoreSimilaritySearchInput
         {
             Question = input.Question,
-            FileInput = foundCollection.Data.FaissStore.FaissIndex,
-            DocStore = foundCollection.Data.FaissStore.FaissJson,
+            FileInput = existingFaissStore.Data.FaissIndex,
+            DocStore = existingFaissStore.Data.FaissJson,
             DocumentsToReturn = input.DocumentsToReturn,
         }) ?? throw new ApiException();
-        
+
         _logger.LogInformation(
             "Exiting {Action} for correlationId {CorrelationId}",
             nameof(SimilaritySearch),
             correlationId
         );
-        
+
         return result;
     }
 }

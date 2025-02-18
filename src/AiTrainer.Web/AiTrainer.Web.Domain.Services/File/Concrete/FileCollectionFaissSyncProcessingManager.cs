@@ -161,7 +161,8 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         }
         var existingFaissStoreJob = EntityFrameworkUtils.TryDbOperation(
             () =>
-                _fileCollectionFaissRepository.GetOne(
+                _fileCollectionFaissRepository.ByUserAndCollectionId(
+                    (Guid)currentUser.Id!,
                     collectionId,
                     nameof(FileCollectionFaissEntity.CollectionId)
                 ),

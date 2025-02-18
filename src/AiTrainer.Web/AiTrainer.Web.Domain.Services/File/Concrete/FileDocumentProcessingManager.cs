@@ -59,11 +59,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 _logger
             );
 
-            if (foundDocument?.IsSuccessful is not true || foundDocument.Data is null)
+            if (foundDocument?.Data?.UserId != (Guid)currentUser.Id!)
             {
-                throw new ApiException("Cannot find document", HttpStatusCode.NotFound);
+                throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
             }
-
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
                 nameof(GetFileDocumentForDownload),
@@ -85,7 +84,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFileDocument),
                 correlationId
             );
-            
+
 
             var newFileDoc = await fileDocumentSaveFormInput.ToDocumentModel(
                 (Guid)currentUser.Id!
@@ -107,12 +106,12 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
                 if (foundParent?.Data?.UserId != currentUser.Id)
                 {
-                    throw new ApiException("Invalid file document", HttpStatusCode.BadRequest);
+                    throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
                 }
             }
 
             var createdFile = await EntityFrameworkUtils.TryDbOperation(
-                async () => newFileDoc.FileType == FileTypeEnum.Pdf ?  await _fileDocumentRepository.CreateOneWithMetaData(newFileDoc, await FileDocumentMetaDataHelper.GetFromFormFile(fileDocumentSaveFormInput.FileToCreate, (Guid)newFileDoc.Id!)): await _fileDocumentRepository.Create([newFileDoc]),
+                async () => newFileDoc.FileType == FileTypeEnum.Pdf ? await _fileDocumentRepository.CreateOneWithMetaData(newFileDoc, await FileDocumentMetaDataHelper.GetFromFormFile(fileDocumentSaveFormInput.FileToCreate, (Guid)newFileDoc.Id!)) : await _fileDocumentRepository.Create([newFileDoc]),
                 _logger
             );
 
@@ -137,8 +136,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFileDocument),
                 correlationId
             );
-            
-            var documentToDelete = 
+
+            var documentToDelete =
                 await EntityFrameworkUtils.TryDbOperation(
                     () => _fileDocumentRepository.GetOne(documentId),
                     _logger
@@ -167,8 +166,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissSyncBackgroundJob
-                { User = currentUser, CollectionId = documentToDelete.Data.CollectionId });
-            
+            { User = currentUser, CollectionId = documentToDelete.Data.CollectionId });
+
             return (Guid)documentToDelete.Data.Id!;
         }
     }
