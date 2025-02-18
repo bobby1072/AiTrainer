@@ -40,7 +40,13 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
             try
             {
+                var updateModDateDbOp = () => documentToDelete.CollectionId is Guid foundColId ? UpdateFileColLastUpdate(
+                    dbContext.FileCollections,
+                    [documentToDelete.UserId],
+                    [foundColId]
+                ): Task.CompletedTask; 
                 await Task.WhenAll(
+                    updateModDateDbOp.Invoke(),
                     dbContext.FileDocuments
                         .Where(x => x.CollectionId == documentToDelete.CollectionId && x.UserId == documentToDelete.UserId)
                         .ExecuteUpdateAsync(x => x.SetProperty(y => y.FaissSynced, false)),
@@ -92,6 +98,10 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 await transaction.RollbackAsync();
                 throw;
             }
+        }
+        private static Task<int> UpdateFileColLastUpdate(IQueryable<FileCollectionEntity> set, IReadOnlyCollection<Guid> userIds, IReadOnlyCollection<Guid> collectionIds)
+        {
+            return set.Where(x => userIds.Contains(x.UserId) && collectionIds.Contains(x.Id)).ExecuteUpdateAsync(x => x.SetProperty(y => y.DateModified, DateTime.UtcNow));
         }
     }
     public enum FileCollectionFaissRepositorySaveMode
