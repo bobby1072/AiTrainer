@@ -1,6 +1,7 @@
 import {
   HubConnection,
   HubConnectionBuilder,
+  HubConnectionState,
   LogLevel,
 } from "@microsoft/signalr";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -20,6 +21,7 @@ export const signalRConnectionBuilderFunc = (): HubConnectionBuilder => {
 
 export type AiTrainerSignalRContextType = {
   hubConnection: HubConnection;
+  isConnected: boolean;
   setHubConnection: (hubConnection: HubConnection) => void;
   disposeConnection: () => void;
 };
@@ -73,6 +75,7 @@ export const AiTrainerSignalRProvider: React.FC<{
     <AiTrainerSignalRContext.Provider
       value={{
         hubConnection,
+        isConnected: hubConnection.state === HubConnectionState.Connected,
         setHubConnection,
         disposeConnection,
       }}

@@ -64,5 +64,9 @@ export const useSignalRFileCollectionFaissSyncMutation = (
   return {
     ...customMutationState,
     mutate,
+    dispose: () => {
+      hubConnection.off("SyncFaissStoreError");
+      hubConnection.off("SyncFaissStoreSuccess");
+    },
   };
 };

@@ -7,11 +7,7 @@ import {
 import { SimilaritySearchResponse } from "../Models/SimilaritySearchResponse";
 import { useMutation } from "react-query";
 
-export const useSignalRFileCollectionFaissSimilaritySearchMutation = (
-  question: string,
-  documentsToReturn: number,
-  collectionId?: string | null
-) => {
+export const useSignalRFileCollectionFaissSimilaritySearchMutation = () => {
   const { hubConnection } = useGetSignalRHubContext();
   const [customMutationState, setCustomMutationState] = useState<{
     data?: SimilaritySearchResponse | null;
@@ -45,8 +41,16 @@ export const useSignalRFileCollectionFaissSimilaritySearchMutation = (
     }
   );
 
-  const { mutate } = useMutation(
-    async () => {
+  const { mutate } = useMutation<
+    void,
+    Error,
+    {
+      question: string;
+      documentsToReturn: number;
+      collectionId?: string | null;
+    }
+  >(
+    async ({ documentsToReturn, question, collectionId }) => {
       setCustomMutationState({ isLoading: true });
       await hubConnection.send("SimilaritySearchFaissStore", {
         collectionId,
@@ -63,5 +67,9 @@ export const useSignalRFileCollectionFaissSimilaritySearchMutation = (
   return {
     ...customMutationState,
     mutate,
+    dispose: () => {
+      hubConnection.off("SimilaritySearchFaissSuccess");
+      hubConnection.off("SimilaritySearchFaissError");
+    },
   };
 };
