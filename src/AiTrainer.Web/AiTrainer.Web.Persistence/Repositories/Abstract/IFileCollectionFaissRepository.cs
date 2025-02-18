@@ -11,5 +11,5 @@ public interface IFileCollectionFaissRepository : IRepository<FileCollectionFais
     Task<DbResult> DeleteDocumentAndStoreAndUnsyncDocuments(FileDocument documentToDelete);
     Task<DbResult> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss,
         IReadOnlyCollection<Guid> documentIdsToSync,
-        FileCollectionFaissRepository.SaveMode saveMode);
+        FileCollectionFaissRepositorySaveMode saveMode);
 }

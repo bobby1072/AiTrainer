@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
     internal class FileCollectionRepository
-        : BaseRepository<FileCollectionEntity, Guid, FileCollection>,
+        : BaseFileRepository<FileCollectionEntity, Guid, FileCollection>,
             IFileCollectionRepository
     {
         public FileCollectionRepository(

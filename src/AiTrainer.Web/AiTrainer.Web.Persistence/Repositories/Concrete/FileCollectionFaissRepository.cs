@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
-    internal class FileCollectionFaissRepository : BaseRepository<FileCollectionFaissEntity, long, FileCollectionFaiss>, IFileCollectionFaissRepository
+    internal class FileCollectionFaissRepository : BaseFileRepository<FileCollectionFaissEntity, long, FileCollectionFaiss>, IFileCollectionFaissRepository
     {
         public FileCollectionFaissRepository(
             IDbContextFactory<AiTrainerContext> dbContextFactory,
@@ -98,10 +98,6 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 await transaction.RollbackAsync();
                 throw;
             }
-        }
-        private static Task<int> UpdateFileColLastUpdate(IQueryable<FileCollectionEntity> set, IReadOnlyCollection<Guid> userIds, IReadOnlyCollection<Guid> collectionIds)
-        {
-            return set.Where(x => userIds.Contains(x.UserId) && collectionIds.Contains(x.Id)).ExecuteUpdateAsync(x => x.SetProperty(y => y.DateModified, DateTime.UtcNow));
         }
     }
     public enum FileCollectionFaissRepositorySaveMode

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
     internal class FileDocumentRepository
-        : BaseRepository<FileDocumentEntity, Guid, FileDocument>,
+        : BaseFileRepository<FileDocumentEntity, Guid, FileDocument>,
             IFileDocumentRepository
     {
         public FileDocumentRepository(
@@ -65,7 +65,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 throw;
             }
         }
-        public async Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
+        public async Task<DbSaveResult<FileDocument>> Create(
             FileDocument document,
             FileDocumentMetaData metaData
         )
@@ -196,10 +196,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray()
             );
         }
-        private static Task<int> UpdateFileColLastUpdate(IQueryable<FileCollectionEntity> set, IReadOnlyCollection<Guid> userIds, IReadOnlyCollection<Guid> collectionIds)
-        {
-            return set.Where(x => userIds.Contains(x.UserId) && collectionIds.Contains(x.Id)).ExecuteUpdateAsync(x => x.SetProperty(y => y.DateModified, DateTime.UtcNow));
-        }
+
         private static FileDocumentPartial SelectDataToPartial(dynamic x)
         {
             return new FileDocumentPartial

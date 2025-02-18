@@ -8,7 +8,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
     public interface IFileDocumentRepository : IRepository<FileDocumentEntity, Guid, FileDocument>
     {
         Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId, Guid? collectionId = null);
-        Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
+        Task<DbSaveResult<FileDocument>> Create(
             FileDocument document,
             FileDocumentMetaData metaData
         );

@@ -111,7 +111,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             }
 
             var createdFile = await EntityFrameworkUtils.TryDbOperation(
-                async () => newFileDoc.FileType == FileTypeEnum.Pdf ? await _fileDocumentRepository.CreateOneWithMetaData(newFileDoc, await FileDocumentMetaDataHelper.GetFromFormFile(fileDocumentSaveFormInput.FileToCreate, (Guid)newFileDoc.Id!)) : await _fileDocumentRepository.Create([newFileDoc]),
+                async () => newFileDoc.FileType == FileTypeEnum.Pdf ? await _fileDocumentRepository.Create(newFileDoc, await FileDocumentMetaDataHelper.GetFromFormFile(fileDocumentSaveFormInput.FileToCreate, (Guid)newFileDoc.Id!)) : await _fileDocumentRepository.Create([newFileDoc]),
                 _logger
             );
 
