@@ -26,7 +26,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
-        public async Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId,Guid? collectionId = null)
+        public async Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId, Guid? collectionId = null)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             var ent = await TimeAndLogDbOperation(() => dbContext.FileDocuments
@@ -37,6 +37,33 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             );
 
             return new DbGetManyResult<FileDocument>(ent.FastArraySelect(x => x.ToModel()).ToArray());
+        }
+        public override async Task<DbSaveResult<FileDocument>> Create(IReadOnlyCollection<FileDocument> entObj)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var documentEnts = entObj.FastArraySelect(RuntimeToEntity).ToArray();
+
+                await Task.WhenAll(
+                        UpdateFileColLastUpdate(dbContext.FileCollections,
+                            documentEnts.FastArraySelect(x => x.UserId).ToArray(),
+                            documentEnts.FastArraySelectWhere(x => x.CollectionId is not null, x => (Guid)x.CollectionId!).ToArray()),
+                        dbContext.FileDocuments.AddRangeAsync(documentEnts)
+                );
+
+                await dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new DbSaveResult<FileDocument>(dbContext.FileDocuments.Local.FastArraySelect(x => x.ToModel()).ToArray());
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
         public async Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
             FileDocument document,
@@ -55,7 +82,19 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 metaData.DocumentId = newlySavedDoc!.Id;
 
                 var metaDataEntity = metaData.ToEntity();
-                await dbContext.FileDocumentMetaData.AddAsync(metaDataEntity);
+                if (document.CollectionId is Guid foundColId)
+                {
+                    await Task.WhenAll(
+                        UpdateFileColLastUpdate(dbContext.FileCollections, [document.UserId], [foundColId]),
+                        dbContext.FileDocumentMetaData.AddAsync(metaDataEntity).AsTask()
+                    );
+                }
+                else
+                {
+                    await dbContext.FileDocumentMetaData.AddAsync(metaDataEntity);
+                }
+
+
                 await dbContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
@@ -157,23 +196,10 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray()
             );
         }
-
-        public async Task<DbDeleteResult<Guid>> Delete(Guid documentId, Guid userId)
+        private static Task<int> UpdateFileColLastUpdate(IQueryable<FileCollectionEntity> set, IReadOnlyCollection<Guid> userIds, IReadOnlyCollection<Guid> collectionIds)
         {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
-            var foundDoc = await TimeAndLogDbOperation(
-                () =>
-                    dbContext
-                        .FileDocuments.Where(x => x.Id == documentId && x.UserId == userId)
-                        .ExecuteDeleteAsync(),
-                nameof(Delete),
-                _entityType.Name
-            );
-
-            return new DbDeleteResult<Guid>([documentId]);
+            return set.Where(x => userIds.Contains(x.UserId) && collectionIds.Contains(x.Id)).ExecuteUpdateAsync(x => x.SetProperty(y => y.DateModified, DateTime.UtcNow));
         }
-
         private static FileDocumentPartial SelectDataToPartial(dynamic x)
         {
             return new FileDocumentPartial

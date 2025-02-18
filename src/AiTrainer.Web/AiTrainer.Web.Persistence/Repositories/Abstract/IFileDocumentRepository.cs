@@ -24,6 +24,5 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
         Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId);
 
-        Task<DbDeleteResult<Guid>> Delete(Guid documentId, Guid userId);
     }
 }
