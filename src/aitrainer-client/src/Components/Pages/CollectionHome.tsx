@@ -6,10 +6,12 @@ import { ErrorComponent } from "../Common/ErrorComponent";
 import { useParams } from "react-router-dom";
 import { CollectionDocumentTable } from "../File/CollectionDocumentTable";
 import { FileCollectionContextMenuContextProvider } from "../Contexts/FileCollectionContextMenuContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { CollectionFaissSearch } from "../File/CollectionFaissSearch";
 
 export const CollectionHome: React.FC = () => {
   const { id: collectionId } = useParams<{ id?: string }>();
+  const [searchMode, setSearchMode] = useState<boolean>(false);
   const { data, error, isLoading, refetch } =
     useGetTopLayerOfFileQuery(collectionId);
   useEffect(() => {
@@ -30,18 +32,27 @@ export const CollectionHome: React.FC = () => {
           direction="column"
           width="100%"
         >
-          <Grid2 width={"90%"}>
-            <Paper
-              elevation={1}
-              sx={{
-                border: "1px solid #ccc",
-                borderRadius: "8px",
-                overflow: "hidden",
-              }}
-            >
-              <CollectionDocumentTable flatCollection={data} />
-            </Paper>
-          </Grid2>
+          {searchMode ? (
+            <Grid2 width={"90%"}>
+              <CollectionFaissSearch collectionId={collectionId!} />
+            </Grid2>
+          ) : (
+            <Grid2 width={"90%"}>
+              <Paper
+                elevation={1}
+                sx={{
+                  border: "1px solid #ccc",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                }}
+              >
+                <CollectionDocumentTable
+                  flatCollection={data}
+                  changeMode={() => setSearchMode(true)}
+                />
+              </Paper>
+            </Grid2>
+          )}
         </Grid2>
       </FileCollectionContextMenuContextProvider>
     </PageBase>

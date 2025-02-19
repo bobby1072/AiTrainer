@@ -12,11 +12,13 @@ import { useNavigate } from "react-router-dom";
 import SyncIcon from "@mui/icons-material/Sync";
 import { useSignalRFileCollectionFaissSyncMutation } from "../../Hooks/useSignalRFileCollectionFaissSyncMutation";
 import { useSnackbar } from "notistack";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 export const CollectionDocumentTable: React.FC<{
   flatCollection: FlatFileDocumentPartialCollection;
   singleLevel?: boolean;
-}> = ({ flatCollection, singleLevel = false }) => {
+  changeMode?: () => void;
+}> = ({ flatCollection, singleLevel = false, changeMode }) => {
   const [addFileCollectionModalOpen, setAddFileCollectionModalOpen] =
     useState<boolean>(false);
 
@@ -147,6 +149,15 @@ export const CollectionDocumentTable: React.FC<{
                       <AddIcon />
                     </IconButton>
                   </Tooltip>
+                </Grid2>
+                <Grid2>
+                  <IconButton
+                    color="inherit"
+                    size="large"
+                    onClick={() => changeMode?.()}
+                  >
+                    <MoreHorizIcon />
+                  </IconButton>
                 </Grid2>
               </Grid2>
             </Grid2>

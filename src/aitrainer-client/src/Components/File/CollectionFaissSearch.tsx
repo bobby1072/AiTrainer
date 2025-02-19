@@ -4,6 +4,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorComponent } from "../Common/ErrorComponent";
+import { Loading } from "../Common/Loading";
 
 const searchSchema = z.object({
   question: z.string().min(1).max(500),
@@ -42,12 +43,11 @@ export const CollectionFaissSearch: React.FC<{
         container
         alignItems="center"
         direction="row"
-        spacing={1}
-        padding={1}
         textAlign="center"
+        spacing={2}
         width="100%"
       >
-        <Grid2 width="90%">
+        <Grid2 width="100%">
           <TextField
             {...formRegister("question")}
             label="Faiss search collection"
@@ -61,18 +61,25 @@ export const CollectionFaissSearch: React.FC<{
             }
           />
         </Grid2>
-        <Grid2 width={"10%"}>
+        <Grid2 width={"100%"}>
           <Button
             form="SimSearchForm"
             type="submit"
+            variant="contained"
             disabled={similaritySearchLoading}
             color="primary"
-            fullWidth
           >
             Search
           </Button>
         </Grid2>
-        {similaritySearchData && <Grid2 width={"100%"}></Grid2>}
+        {similaritySearchData && (
+          <Grid2 width={"100%"}>{JSON.stringify(similaritySearchData)}</Grid2>
+        )}
+        {similaritySearchLoading && (
+          <Grid2 width={"100%"}>
+            <Loading />
+          </Grid2>
+        )}
         {similaritySearchError && (
           <Grid2 width={"100%"}>
             <ErrorComponent errorMessage="Error occurred during search" />
