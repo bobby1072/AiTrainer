@@ -40,8 +40,7 @@ export const SaveFileCollectionModal: React.FC<{
     handleSubmit,
     register,
     reset: formReset,
-    watch,
-    formState: { errors: formErrors, isDirty },
+    formState: { errors: formErrors },
   } = useForm<FileCollectionFormSchemaType>({
     resolver: zodResolver(fileCollectionFormSchema),
     defaultValues: mapToDefaultValues(fileCollInput),
@@ -56,7 +55,6 @@ export const SaveFileCollectionModal: React.FC<{
     }
   }, [data, closeModal, enqueueSnackbar]);
 
-  const { collectionName } = watch();
   return (
     <Dialog open onClose={() => !isLoading && closeModal()}>
       <form
@@ -151,12 +149,7 @@ export const SaveFileCollectionModal: React.FC<{
                 variant="contained"
                 color="primary"
                 type="submit"
-                disabled={
-                  !collectionName ||
-                  !isDirty ||
-                  isLoading ||
-                  Object.values(formErrors).some((x) => !!x)
-                }
+                disabled={isLoading}
               >
                 Save
               </Button>

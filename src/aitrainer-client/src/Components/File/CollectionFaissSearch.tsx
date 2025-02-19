@@ -42,12 +42,12 @@ export const CollectionFaissSearch: React.FC<{
       <Grid2
         container
         alignItems="center"
-        direction="row"
+        direction="column"
         textAlign="center"
         spacing={2}
         width="100%"
       >
-        <Grid2 width="100%">
+        <Grid2 width="60%">
           <TextField
             {...formRegister("question")}
             label="Faiss search collection"
@@ -76,12 +76,12 @@ export const CollectionFaissSearch: React.FC<{
           <Grid2 width={"100%"}>{JSON.stringify(similaritySearchData)}</Grid2>
         )}
         {similaritySearchLoading && (
-          <Grid2 width={"100%"}>
+          <Grid2 width={"40%"}>
             <Loading />
           </Grid2>
         )}
         {similaritySearchError && (
-          <Grid2 width={"100%"}>
+          <Grid2 width={"40%"}>
             <ErrorComponent errorMessage="Error occurred during search" />
           </Grid2>
         )}
