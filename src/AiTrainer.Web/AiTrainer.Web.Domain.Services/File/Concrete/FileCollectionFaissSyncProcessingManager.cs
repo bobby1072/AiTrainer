@@ -17,6 +17,8 @@ using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using AiTrainer.Web.Domain.Models.Extensions;
+using System.Runtime.CompilerServices;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
@@ -147,7 +149,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         var unSyncedDocuments =
             await EntityFrameworkUtils.TryDbOperation(
                 () =>
-                    _fileDocumentRepository.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId),
+                    _fileDocumentRepository.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)),
                 _logger
             ) ?? throw new ApiException("Failed to retrieve file documents");
         if (unSyncedDocuments.Data.Count == 0)
@@ -163,8 +165,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             () =>
                 _fileCollectionFaissRepository.ByUserAndCollectionId(
                     (Guid)currentUser.Id!,
-                    collectionId,
-                    nameof(FileCollectionFaissEntity.CollectionId)
+                    collectionId
                 ),
             _logger
         );
@@ -181,7 +182,11 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
 
         var chunkedDocument =
             await _documentChunkerClient.TryInvokeAsync(
-                new DocumentToChunkInput { DocumentText = allUnsyncedDocumentText }, cancelToken
+                new DocumentToChunkInput
+                {
+                    DocumentsToChunk = allUnsyncedDocumentText
+                                .Select(x => new SingleDocumentToChunk { DocumentText = x.DocText, Metadata = x.Metadata }).ToArray()
+                }, cancelToken
             ) ?? throw new ApiException("Failed to retrieve file collection faiss store");
 
         var storeToSave = await GetFaissStoreFromCore(chunkedDocument, existingFaissStore.Data, cancelToken);
@@ -217,7 +222,12 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
     {
         var createStoreInput = new CreateFaissStoreInput
         {
-            Documents = chunkedDocument.DocumentChunks,
+            Documents = chunkedDocument.DocumentChunks
+                .Select(x => x.ChunkedTexts.Select(y => new CreateFaissStoreInputDocument
+                {
+                    PageContent = y,
+                    Metadata = x.Metadata
+                })).SelectMany(x => x).ToArray()
         };
 
         var storeToSave = existingFaissStore is null
@@ -240,7 +250,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         return storeToSave;
     }
 
-    private async Task<IReadOnlyCollection<string>> GetTextFromFileDocuments(
+    private async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetTextFromFileDocuments(
         IReadOnlyCollection<FileDocument> fileDocuments,
         Guid? correlationId
     )
@@ -250,19 +260,24 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             correlationId
         );
 
-        var getTextJobList = new List<Task<IReadOnlyCollection<string>>>();
+        var getTextJobList = new List<Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>>>();
 
         foreach (var doc in fileDocuments)
         {
             if (doc.FileType == FileTypeEnum.Pdf)
             {
-                getTextJobList.Add(FileHelper.GetTextFromPdfFile(doc.FileData));
+                async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> getFileTextAndMeta()
+                {
+                    var fileResult = await FileHelper.GetTextFromPdfFile(doc.FileData);
+                    return fileResult.Select(x => (x, doc.MetaData?.ToDictionary() ?? new Dictionary<string, string>())).ToArray();
+                }
+                getTextJobList.Add(getFileTextAndMeta());
             }
             else if (doc.FileType == FileTypeEnum.Text)
             {
-                Func<Task<IReadOnlyCollection<string>>> getTextFunc = async () =>
-                    [await FileHelper.GetTextFromTextFile(doc.FileData)];
-                getTextJobList.Add(getTextFunc.Invoke());
+                async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> getTextFunc() =>
+                    [(await FileHelper.GetTextFromTextFile(doc.FileData), [])];
+                getTextJobList.Add(getTextFunc());
             }
         }
 

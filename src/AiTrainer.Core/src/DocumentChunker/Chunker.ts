@@ -12,13 +12,28 @@ export default abstract class Chunker {
       Number(ApplicationSettings.AllAppSettings.DocumentChunkerChunkOverlap) ||
       128,
   });
-  public static async Chunk(text: string[]): Promise<string[]> {
+  public static async Chunk({
+    documentsToChunk,
+  }: {
+    documentsToChunk: {
+      documentText: string;
+      metadata?: Record<string, string | null | undefined> | null | undefined;
+    }[];
+  }): Promise<
+    {
+      chunkedTexts: string[];
+      metadata: Record<string, string | null | undefined> | null | undefined;
+    }[]
+  > {
     try {
       const jobs = await Promise.all(
-        text.map((x) => Chunker._splitter.splitText(x))
+        documentsToChunk.map((x) => Chunker._splitter.splitText(x.documentText))
       );
 
-      return jobs.flat();
+      return jobs.map((x, index) => ({
+        chunkedTexts: x,
+        metadata: documentsToChunk[index].metadata,
+      }));
     } catch (e) {
       throw new ApiException(ExceptionConstants.ChunkerError, e as Error);
     }
