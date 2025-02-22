@@ -29,12 +29,12 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
         //Arrange
         var documentToChunk = _fixture
             .Build<DocumentToChunkInput>()
-            .With(x => x.DocumentsToChunk, _fixture.CreateMany<string>().ToArray())
+            .With(x => x.DocumentsToChunk, _fixture.CreateMany<SingleDocumentToChunk>().ToArray())
             .Create();
 
         var chunkedDoc = _fixture
             .Build<ChunkedDocumentResponse>()
-            .With(x => x.DocumentChunks, _fixture.CreateMany<string>().ToArray())
+            .With(x => x.DocumentChunks, _fixture.CreateMany<SingleChunkedDocument>().ToArray())
             .Create();
         var mockedApiResponse = new CoreResponse<ChunkedDocumentResponse> { Data = chunkedDoc };
 
