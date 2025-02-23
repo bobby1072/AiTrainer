@@ -222,7 +222,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         var createStoreInput = new CreateFaissStoreInput
         {
             Documents = chunkedDocument.DocumentChunks
-                .Select(x => x.ChunkedTexts.Select(y => new CreateFaissStoreInputDocument
+                .FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y => new CreateFaissStoreInputDocument
                 {
                     PageContent = y,
                     Metadata = x.Metadata
@@ -268,14 +268,14 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
                 async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> getFileTextAndMeta()
                 {
                     var fileResult = await FileHelper.GetTextFromPdfFile(doc.FileData);
-                    return fileResult.Select(x => (x, doc.MetaData?.ToDictionary() ?? new Dictionary<string, string>())).ToArray();
+                    return fileResult.FastArraySelect(x => (x, doc.ToMetaDictionary())).ToArray();
                 }
                 getTextJobList.Add(getFileTextAndMeta());
             }
             else if (doc.FileType == FileTypeEnum.Text)
             {
                 async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> getTextFunc() =>
-                    [(await FileHelper.GetTextFromTextFile(doc.FileData), [])];
+                    [(await FileHelper.GetTextFromTextFile(doc.FileData), doc.ToMetaDictionary())];
                 getTextJobList.Add(getTextFunc());
             }
         }
