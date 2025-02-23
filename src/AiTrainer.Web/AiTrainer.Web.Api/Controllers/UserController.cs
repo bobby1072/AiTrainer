@@ -1,6 +1,6 @@
+using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Attributes;
 using AiTrainer.Web.Common.Extensions;
-using AiTrainer.Web.Common.Models.ApiModels.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;

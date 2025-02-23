@@ -7,14 +7,15 @@ import {
   TableContainer,
   TableHead,
 } from "@mui/material";
-import { NewFileTableCollectionRow } from "./NewFileTableCollectionRow";
-import { NewFileTableDocumentRow } from "./NewFileTableDocumentRow";
+import { ActualFileCollectionTableDocumentRow } from "./ActualFileCollectionTableDocumentRow";
 import { useFileCollectionContextMenuContext } from "../Contexts/FileCollectionContextMenuContext";
+import { ActualFileCollectionTableCollectionRow } from "./ActualFileCollectionTableCollectionRow";
 
-export const NewFileTable: React.FC<{
+export const ActualFileCollectionTable: React.FC<{
   flatCollection?: FlatFileDocumentPartialCollection | null;
-}> = ({ flatCollection }) => {
-  const { menuPosition, handleRightClick, closeContextMenu } =
+  singleLevel: boolean;
+}> = ({ flatCollection, singleLevel }) => {
+  const { handleRightClick, closeContextMenu } =
     useFileCollectionContextMenuContext();
   return (
     <TableContainer>
@@ -53,16 +54,16 @@ export const NewFileTable: React.FC<{
         </TableHead>
         <TableBody>
           {flatCollection?.fileCollections.map((fileCollection) => (
-            <NewFileTableCollectionRow
+            <ActualFileCollectionTableCollectionRow
               closeContextMenu={closeContextMenu}
               handleRightClick={handleRightClick}
-              menuPosition={menuPosition}
               fileCollection={fileCollection}
               key={fileCollection.id}
+              singleLevel={singleLevel}
             />
           ))}
           {flatCollection?.fileDocuments.map((fileDoc) => (
-            <NewFileTableDocumentRow fileDocPartial={fileDoc} />
+            <ActualFileCollectionTableDocumentRow fileDocPartial={fileDoc} />
           ))}
         </TableBody>
       </Table>

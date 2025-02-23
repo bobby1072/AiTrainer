@@ -10,11 +10,11 @@ import { ApplicationSettings } from "../Utils/AppSettingsProvider";
 
 export const useConnectToSignalR = () => {
   const { user } = useAuthentication();
-  const { setHubConnection, isConnected } = useGetSignalRHubContext();
+  const { setHubConnection } = useGetSignalRHubContext();
   const query = useQuery<HubConnection, Error>(
     QueryKeys.ConnectToSignalR,
     async () => {
-      if (!isConnected && user) {
+      if (user) {
         const localHub = signalRConnectionBuilderFunc()
           .withUrl(
             `${
@@ -22,7 +22,7 @@ export const useConnectToSignalR = () => {
               "http://localhost:5222"
             }/Api/SignalR`,
             {
-              accessTokenFactory: () => `${user.access_token}`,
+              accessTokenFactory: () => user.access_token,
             }
           )
           .build();

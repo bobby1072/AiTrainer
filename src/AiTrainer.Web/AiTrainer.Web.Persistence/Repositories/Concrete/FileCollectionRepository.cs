@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
     internal class FileCollectionRepository
-        : BaseRepository<FileCollectionEntity, Guid, FileCollection>,
+        : BaseFileRepository<FileCollectionEntity, Guid, FileCollection>,
             IFileCollectionRepository
     {
         public FileCollectionRepository(
@@ -25,6 +25,18 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbGetOneResult<FileCollection>> GetCollectionByUserIdAndCollectionId(Guid userId, Guid collectionId, params string[] relations)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var setToQuery = AddRelationsToSet(dbContext.FileCollections, relations);
+            var dbOp = await TimeAndLogDbOperation(() =>
+                setToQuery.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == collectionId),
+                nameof(GetCollectionByUserIdAndCollectionId),
+                _entityType.Name);
+
+            return new DbGetOneResult<FileCollection>(dbOp?.ToModel());
+
+        }
         public async Task<DbResult<bool>> IsCollectionFaissSynced(Guid? collectionId = null)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();

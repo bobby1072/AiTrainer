@@ -9,23 +9,23 @@ namespace AiTrainer.Web.Common.Extensions
     {
         public static Guid? GetCorrelationId(this HttpContext context)
         {
-            context.Request.Headers.TryGetValue(
-                ApiConstants.CorrelationIdHeader,
-                out var correlationId
-            );
-
-            if (string.IsNullOrEmpty(correlationId))
+            try
             {
-                context.Response.Headers.TryGetValue(
-                    ApiConstants.CorrelationIdHeader,
-                    out var correlationIdFromResponse
-                );
-                correlationId = correlationIdFromResponse;
-            }
+                var correlationId = context.Request.Headers[ApiConstants.CorrelationIdHeader];
 
-            return !string.IsNullOrEmpty(correlationId.ToString())
-                ? Guid.Parse(correlationId!)
-                : null;
+                if (string.IsNullOrEmpty(correlationId))
+                {
+                    correlationId = context.Response.Headers[ApiConstants.CorrelationIdHeader];
+                }
+
+                return !string.IsNullOrEmpty(correlationId.ToString())
+                    ? Guid.Parse(correlationId!)
+                    : null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static string? GetAccessTokenOrNull(this HttpContext? context)

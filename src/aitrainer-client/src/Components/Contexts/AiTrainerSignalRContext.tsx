@@ -1,6 +1,7 @@
 import {
   HubConnection,
   HubConnectionBuilder,
+  HubConnectionState,
   LogLevel,
 } from "@microsoft/signalr";
 import { createContext, useContext, useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import { ApplicationSettings } from "../../Utils/AppSettingsProvider";
 import { useConnectToSignalR } from "../../Hooks/useConnectToSignalR";
 import { Loading } from "../Common/Loading";
 import { ErrorComponent } from "../Common/ErrorComponent";
+import { useMutation } from "react-query";
 
 export const signalRConnectionBuilderFunc = (): HubConnectionBuilder => {
   return new HubConnectionBuilder()
@@ -19,10 +21,9 @@ export const signalRConnectionBuilderFunc = (): HubConnectionBuilder => {
 
 export type AiTrainerSignalRContextType = {
   hubConnection: HubConnection;
-  setHubConnection: (hubConnection: HubConnection) => void;
   isConnected: boolean;
-  fullyAuthenticated: boolean;
-  setFullyAuthenticated: (newVal: boolean) => void;
+  setHubConnection: (hubConnection: HubConnection) => void;
+  disposeConnection: () => void;
 };
 
 const AiTrainerSignalRContext = createContext<
@@ -52,53 +53,31 @@ export const AiTrainerSignalRProvider: React.FC<{
       )
       .build()
   );
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [fullyAuthenticated, setFullyAuthenticated] = useState<boolean>(false);
+  const { mutate: disposeConnection } = useMutation(
+    async () => {
+      await hubConnection.stop();
+      return hubConnection;
+    },
+    {
+      onSuccess: (data) => setHubConnection(data),
+    }
+  );
   useEffect(() => {
     if (!hubConnection) return;
-
-    hubConnection.onreconnected(() => setIsConnected(true));
-    hubConnection.onclose(() => setIsConnected(false));
-
-    // const handleEvent = (
-    //   eventName: string,
-    //   callback: (...args: any[]) => void
-    // ) => {
-    //   hubConnection.on(eventName, callback);
-    // };
-
-    // Register connection state change listeners
-
-    // Example: Listening to a custom SignalR event
-    // handleEvent("CustomEventName", (data) => {
-    //   console.log("Received custom event:", data);
-    // });
-
-    // Start the connection if disconnected
-    // if (hubConnection.state === HubConnectionState.Disconnected) {
-    //   hubConnection
-    //     .start()
-    //     .then(() => {
-    //       handleConnectionStateChange();
-    //     });
-    // }
-
-    // return () => {
-    //   // Cleanup: Unregister events and stop connection on unmount
-    //   hubConnection.off("CustomEventName");
-    //   hubConnection
-    //     .stop()
-    //     .catch((err) => console.error("SignalR Disconnect Error:", err));
-    // };
+    hubConnection.onreconnected(() => {
+      setHubConnection(hubConnection);
+    });
+    hubConnection.onclose(() => {
+      setHubConnection(hubConnection);
+    });
   }, [hubConnection]);
   return (
     <AiTrainerSignalRContext.Provider
       value={{
         hubConnection,
+        isConnected: hubConnection.state === HubConnectionState.Connected,
         setHubConnection,
-        isConnected,
-        fullyAuthenticated,
-        setFullyAuthenticated,
+        disposeConnection,
       }}
     >
       {children}

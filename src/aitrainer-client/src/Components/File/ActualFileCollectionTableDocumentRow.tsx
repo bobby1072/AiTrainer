@@ -20,7 +20,7 @@ import { FileDocumentMetaDataModal } from "./FileDocumentMetaDataModal";
 
 const fileDoc = require("./fileDoc.png");
 
-export const NewFileTableDocumentRow: React.FC<{
+export const ActualFileCollectionTableDocumentRow: React.FC<{
   fileDocPartial: FileDocumentPartial;
 }> = ({ fileDocPartial }) => {
   const [metaDataModalOpen, setMetaDataModalOpen] = useState<boolean>(false);
@@ -28,6 +28,7 @@ export const NewFileTableDocumentRow: React.FC<{
     mutate: deleteFile,
     isLoading: isDeleteFileLoading,
     data: deleteFileData,
+    error: deleteFileError,
   } = useDeleteFileDocumentMutation();
   const { mutate: downloadFile, isLoading: isDownloadFileLoading } =
     useDownloadFileDocumentMutation();
@@ -35,9 +36,14 @@ export const NewFileTableDocumentRow: React.FC<{
 
   useEffect(() => {
     if (deleteFileData) {
-      enqueueSnackbar(`Document deleted`, { variant: "error" });
+      enqueueSnackbar(`Document successfully deleted`, { variant: "success" });
     }
   }, [deleteFileData, enqueueSnackbar]);
+  useEffect(() => {
+    if (deleteFileError) {
+      enqueueSnackbar("Failed to delete document", { variant: "error" });
+    }
+  }, [deleteFileError, enqueueSnackbar]);
 
   const handleDownload = () => {
     downloadFile(

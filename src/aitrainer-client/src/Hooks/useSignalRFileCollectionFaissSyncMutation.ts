@@ -48,7 +48,7 @@ export const useSignalRFileCollectionFaissSyncMutation = (
     async () => {
       setCustomMutationState({ isLoading: true });
       await hubConnection.send("SyncFaissStore", {
-        collectionId: collectionId,
+        collectionId,
       });
     },
     {
@@ -64,5 +64,9 @@ export const useSignalRFileCollectionFaissSyncMutation = (
   return {
     ...customMutationState,
     mutate,
+    dispose: () => {
+      hubConnection.off("SyncFaissStoreError");
+      hubConnection.off("SyncFaissStoreSuccess");
+    },
   };
 };

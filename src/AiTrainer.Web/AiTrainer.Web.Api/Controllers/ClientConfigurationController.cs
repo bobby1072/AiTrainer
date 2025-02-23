@@ -1,4 +1,4 @@
-using AiTrainer.Web.Common.Models.ApiModels.Response;
+using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;

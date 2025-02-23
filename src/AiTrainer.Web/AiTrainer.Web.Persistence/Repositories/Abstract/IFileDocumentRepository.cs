@@ -7,8 +7,8 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {
     public interface IFileDocumentRepository : IRepository<FileDocumentEntity, Guid, FileDocument>
     {
-        Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId, Guid? collectionId = null);
-        Task<DbSaveResult<FileDocument>> CreateOneWithMetaData(
+        Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId, Guid? collectionId = null, params string[] relations);
+        Task<DbSaveResult<FileDocument>> Create(
             FileDocument document,
             FileDocumentMetaData metaData
         );
@@ -24,6 +24,5 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
         Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId);
 
-        Task<DbDeleteResult<Guid>> Delete(Guid documentId, Guid userId);
     }
 }

@@ -5,7 +5,13 @@ namespace AiTrainer.Web.CoreClient.Models.Request;
 public record CreateFaissStoreInput : BaseCoreClientRequestData
 {
     [JsonPropertyName("documents")]
-    public required IReadOnlyCollection<string> Documents { get; init; }
+    public required IReadOnlyCollection<CreateFaissStoreInputDocument> Documents { get; init; }
+}
+
+public record CreateFaissStoreInputDocument
+{
+    [JsonPropertyName("pageContent")]
+    public required string PageContent { get; init; }
     [JsonPropertyName("metadata")]
-    public Dictionary<string, string> Metadata { get; init; } = new();
+    public required Dictionary<string, string> Metadata { get; init; } = new();
 }

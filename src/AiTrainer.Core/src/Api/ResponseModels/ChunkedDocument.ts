@@ -1,3 +1,6 @@
 export type ChunkedDocument = {
-  documentChunks: string[];
+  documentChunks: {
+    chunkedTexts: string[];
+    metadata: Record<string, string | null | undefined> | null | undefined;
+  }[];
 };

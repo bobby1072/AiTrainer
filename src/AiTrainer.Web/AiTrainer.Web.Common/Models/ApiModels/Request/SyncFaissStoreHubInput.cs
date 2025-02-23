@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AiTrainer.Web.Api.SignalR.Models.Requests;
+namespace AiTrainer.Web.Common.Models.ApiModels.Request;
 
 public record SyncFaissStoreHubInput
 {

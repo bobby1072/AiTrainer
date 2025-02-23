@@ -14,7 +14,7 @@ export default abstract class ChunkingRouter {
         const safeParsedDocumentToChunk = DocumentToChunkInputSchema.safeParse(
           req.body
         );
-        const actualText = safeParsedDocumentToChunk.data?.documentText;
+        const actualText = safeParsedDocumentToChunk.data;
         if (!actualText) {
           throw new ApiException(ExceptionConstants.DocumentTextIsRequired);
         }
