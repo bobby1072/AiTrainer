@@ -101,7 +101,7 @@ if (window.location.pathname === "/oidc-silent-renew") {
                 <BrowserRouter>
                   <Routes>
                     {AppRoutes?.map((r) => (
-                      <Route element={r.element} path={r.path} />
+                      <Route element={r.element} path={r.path} key={r.path} />
                     ))}
                   </Routes>
                 </BrowserRouter>

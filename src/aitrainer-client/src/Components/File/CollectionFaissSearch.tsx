@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorComponent } from "../Common/ErrorComponent";
 import { Loading } from "../Common/Loading";
+import { SingleFaissResponseItemTab } from "./SingleFaissResponseItemTab";
 
 const searchSchema = z.object({
   question: z.string().min(1).max(500),
@@ -29,7 +30,7 @@ export const CollectionFaissSearch: React.FC<{
   } = useForm<SearchSchemaType>({
     resolver: zodResolver(searchSchema),
     defaultValues: {
-      documentsToReturn: 1,
+      documentsToReturn: 10,
     },
   });
   return (
@@ -72,9 +73,12 @@ export const CollectionFaissSearch: React.FC<{
             Search
           </Button>
         </Grid2>
-        {similaritySearchData && (
-          <Grid2 width={"100%"}>{JSON.stringify(similaritySearchData)}</Grid2>
-        )}
+        {similaritySearchData &&
+          similaritySearchData.items.map((x, i) => (
+            <Grid2 width={"40%"} key={i}>
+              <SingleFaissResponseItemTab responseItem={x} />
+            </Grid2>
+          ))}
         {similaritySearchLoading && (
           <Grid2 width={"40%"}>
             <Loading />

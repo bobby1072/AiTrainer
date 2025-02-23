@@ -1,7 +1,7 @@
 export type SimilaritySearchResponse = {
-  items: SimilaritySearchResponseItems[];
+  items: SimilaritySearchResponseItem[];
 };
-type SimilaritySearchResponseItems = {
+export type SimilaritySearchResponseItem = {
   pageContent: string;
   metadata: Record<string, string>;
 };

@@ -68,7 +68,7 @@ export const AddFileDocumentModal: React.FC<{
 
   const { file } = watch();
   return (
-    <Dialog open onClose={closeModal}>
+    <Dialog open onClose={() => !isLoading && closeModal()}>
       <form
         id="uploadFileDocumentForm"
         onSubmit={handleSubmit((formVals) => {

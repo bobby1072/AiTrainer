@@ -25,14 +25,21 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
   closeContextMenu: () => void;
   singleLevel: boolean;
 }> = ({ fileCollection, closeContextMenu, handleRightClick, singleLevel }) => {
-  const { mutate, isLoading, data } = useDeleteFileCollectionMutation();
+  const { mutate, isLoading, data, error } = useDeleteFileCollectionMutation();
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   useEffect(() => {
     if (data) {
-      enqueueSnackbar(`Collection deleted`, { variant: "error" });
+      enqueueSnackbar(`Collection successfully deleted`, {
+        variant: "success",
+      });
     }
   }, [data, enqueueSnackbar]);
+  useEffect(() => {
+    if (error) {
+      enqueueSnackbar("Failed to delete collection", { variant: "error" });
+    }
+  }, [error, enqueueSnackbar]);
 
   const dateCreated = new Date(fileCollection.dateCreated);
   const dateModified = new Date(fileCollection.dateModified);
