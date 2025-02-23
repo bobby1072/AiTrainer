@@ -10,6 +10,7 @@ using Flurl.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, ChunkedDocumentResponse>
@@ -35,7 +36,7 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
             .AppendPathSegment("chunkingrouter")
             .AppendPathSegment("chunkdocument")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
-            .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
+            .WithCorrelationIdHeader(_httpContextAccessor.HttpContext?.GetCorrelationId())
             .PostJsonAsync(param, HttpCompletionOption.ResponseContentRead, cancellation)
             .ReceiveJsonAsync<CoreResponse<ChunkedDocumentResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));

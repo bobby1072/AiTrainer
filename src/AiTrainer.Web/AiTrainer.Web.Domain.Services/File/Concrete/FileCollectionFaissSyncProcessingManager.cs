@@ -18,7 +18,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using AiTrainer.Web.Domain.Models.Extensions;
-using System.Runtime.CompilerServices;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
