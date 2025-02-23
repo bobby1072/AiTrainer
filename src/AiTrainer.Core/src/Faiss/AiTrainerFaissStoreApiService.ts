@@ -21,15 +21,12 @@ export default abstract class AiTrainerFaissStoreApiService {
 
     return result;
   }
-  public static async CreateStore(documents: string[]) {
+  public static async CreateStore(
+    documents: { pageContent: string; metadata: Record<string, string> }[]
+  ) {
     const faissStore = AiTrainerFaissStore.CreateFaissStore();
 
-    await faissStore.LoadDocumentsIntoStore(
-      documents.map((x) => ({
-        pageContent: x,
-        metadata: {},
-      }))
-    );
+    await faissStore.LoadDocumentsIntoStore(documents);
 
     const storeItems = faissStore.GetSaveItemsFromStore();
     return {
@@ -49,12 +46,7 @@ export default abstract class AiTrainerFaissStoreApiService {
         faissStoreFilePath
       );
 
-    await faissStore.LoadDocumentsIntoStore(
-      data.newDocuments.documents.map((x) => ({
-        pageContent: x,
-        metadata: {},
-      }))
-    );
+    await faissStore.LoadDocumentsIntoStore(data.newDocuments.documents);
 
     const storeItems = faissStore.GetSaveItemsFromStore();
     return {

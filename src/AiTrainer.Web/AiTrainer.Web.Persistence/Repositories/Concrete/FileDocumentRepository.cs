@@ -26,10 +26,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
-        public async Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId, Guid? collectionId = null)
+        public async Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId, Guid? collectionId = null, params string[] relations)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            var ent = await TimeAndLogDbOperation(() => dbContext.FileDocuments
+            var setToQuery = AddRelationsToSet(dbContext.FileDocuments, relations);
+            var ent = await TimeAndLogDbOperation(() => setToQuery
                     .Where(x => x.FaissSynced == syncSate && x.CollectionId == collectionId && x.UserId == userId)
                     .ToArrayAsync(),
                 nameof(GetDocumentsBySync),

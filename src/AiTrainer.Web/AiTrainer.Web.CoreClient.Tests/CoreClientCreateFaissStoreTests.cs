@@ -31,7 +31,7 @@ public class CoreClientCreateFaissStoreTests: CoreClientTestBase
         //Arrange
         var input = _fixture
             .Build<CreateFaissStoreInput>()
-            .With(x => x.Documents,  _fixture.CreateMany<string>().ToArray())
+            .With(x => x.Documents,  _fixture.CreateMany<CreateFaissStoreInputDocument>().ToArray())
             .Create();
         
         var stringJson = JsonSerializer.Serialize(input);

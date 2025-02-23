@@ -66,5 +66,17 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 FileDescription = fileDocument.FileDescription,
             };
         }
+
+
+        public static Dictionary<string, string> ToMetaDictionary(this FileDocument document)
+        {
+            var baseDictionary = document.MetaData.ToDictionary();
+
+            baseDictionary.Add("File name", document.FileName);
+            baseDictionary.Add("File description", document.FileName);
+            baseDictionary.Add("File type", document.FileType.ToString());
+
+            return baseDictionary;
+        }
     }
 }
