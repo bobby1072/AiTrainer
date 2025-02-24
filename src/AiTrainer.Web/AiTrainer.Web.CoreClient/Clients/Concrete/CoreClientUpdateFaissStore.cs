@@ -31,6 +31,7 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
 
     public async Task<FaissStoreResponse?> TryInvokeAsync(UpdateFaissStoreInput input, CancellationToken cancellation = default)
     {
+        await using var indexFileStream = new MemoryStream(input.FileInput);
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
             .AppendPathSegment("faissrouter")
@@ -39,7 +40,6 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .PostMultipartAsync(x =>
             {
-                var indexFileStream = new MemoryStream(input.FileInput);
                 x.AddJson("metadata", input);
                 x.AddFile("file", indexFileStream, "docStore.index");
             }, HttpCompletionOption.ResponseContentRead, cancellation)
