@@ -31,6 +31,7 @@ public class CoreClientSimilaritySearch: ICoreClient<CoreSimilaritySearchInput, 
 
     public async Task<SimilaritySearchCoreResponse?> TryInvokeAsync(CoreSimilaritySearchInput input, CancellationToken cancellation = default)
     {
+        await using var indexFileStream = new MemoryStream(input.FileInput);
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
             .AppendPathSegment("faissrouter")
@@ -39,7 +40,6 @@ public class CoreClientSimilaritySearch: ICoreClient<CoreSimilaritySearchInput, 
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .PostMultipartAsync(x =>
             {
-                var indexFileStream = new MemoryStream(input.FileInput);
                 x.AddJson("metadata", input);
                 x.AddFile("file", indexFileStream, "docStore.index");
             }, HttpCompletionOption.ResponseContentRead, cancellation)

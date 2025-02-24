@@ -56,8 +56,7 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileColle
             () =>
                 _fileCollectionFaissRepository.ByUserAndCollectionId(
                     (Guid)currentUser.Id!,
-                    input.CollectionId,
-                    nameof(FileCollectionFaissEntity.CollectionId)
+                    input.CollectionId
                 ),
             _logger
         );
