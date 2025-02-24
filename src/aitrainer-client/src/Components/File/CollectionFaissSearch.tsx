@@ -30,7 +30,7 @@ export const CollectionFaissSearch: React.FC<{
   } = useForm<SearchSchemaType>({
     resolver: zodResolver(searchSchema),
     defaultValues: {
-      documentsToReturn: 10,
+      documentsToReturn: 3,
     },
   });
   return (
