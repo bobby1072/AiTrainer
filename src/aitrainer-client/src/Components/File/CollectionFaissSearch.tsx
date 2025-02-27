@@ -54,6 +54,7 @@ export const CollectionFaissSearch: React.FC<{
             label="Faiss search collection"
             placeholder="Search..."
             fullWidth
+            variant="filled"
             error={!!formErrors.question}
             helperText={
               formErrors.question?.message

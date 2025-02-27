@@ -184,7 +184,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
                 new DocumentToChunkInput
                 {
                     DocumentsToChunk = allUnsyncedDocumentText
-                                .Select(x => new SingleDocumentToChunk { DocumentText = x.DocText, Metadata = x.Metadata }).ToArray()
+                                .FastArraySelect(x => new SingleDocumentToChunk { DocumentText = x.DocText, Metadata = x.Metadata }).ToArray()
                 }, cancelToken
             ) ?? throw new ApiException("Failed to retrieve file collection faiss store");
 
@@ -265,18 +265,18 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         {
             if (doc.FileType == FileTypeEnum.Pdf)
             {
-                async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> getFileTextAndMeta()
+                async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetFileTextAndMeta()
                 {
                     var fileResult = await FileHelper.GetTextFromPdfFile(doc.FileData);
                     return fileResult.FastArraySelect(x => (x, doc.ToMetaDictionary())).ToArray();
                 }
-                getTextJobList.Add(getFileTextAndMeta());
+                getTextJobList.Add(GetFileTextAndMeta());
             }
             else if (doc.FileType == FileTypeEnum.Text)
             {
-                async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> getTextFunc() =>
+                async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetTextFunc() =>
                     [(await FileHelper.GetTextFromTextFile(doc.FileData), doc.ToMetaDictionary())];
-                getTextJobList.Add(getTextFunc());
+                getTextJobList.Add(GetTextFunc());
             }
         }
 
