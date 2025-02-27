@@ -101,7 +101,7 @@ export default class AiTrainerFaissStore extends FaissStore {
         return [
           x,
           {
-            metadata: { source: foundDoc?.metadata.source },
+            metadata: foundDoc?.metadata,
             pageContent: foundDoc?.pageContent,
           } as DocStorePageInfo,
         ];
