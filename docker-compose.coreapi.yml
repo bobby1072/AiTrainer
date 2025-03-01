@@ -1,0 +1,9 @@
+services:
+  coreapi:
+    build:
+      context: .
+      dockerfile: src/AiTrainer.Core/dockerfile
+    ports:
+      - 4000:4000
+    environment:
+      NODE_ENV: development
