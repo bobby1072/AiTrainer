@@ -29,9 +29,12 @@ internal static class CoreClientFlurlExtensions
         }
         catch (FlurlHttpException ex)
         {
-            logger.LogError(ex, "{NameOfOp} request failed with status code {StatusCode}",
+            var problemDetails = await ex.GetResponseStringAsync();
+            
+            logger.LogError(ex, "{NameOfOp} request failed with status code {StatusCode} and problem details: {Details}",
                 opName,
-                ex.StatusCode);
+                ex.StatusCode,
+                problemDetails);
             return null;
         }
         catch (Exception ex)

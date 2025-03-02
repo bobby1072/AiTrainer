@@ -35,13 +35,28 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
         {
             try
             {
-                var (timeTaken, results) = await OperationTimerUtils.TimeWithResultsAsync(() => InvokeAsync(accessToken));
-                
-                _logger.LogDebug("It took {TimeTaken}ms for the userinfo request to complete for correlationId {CorrelationId}",
+                var (timeTaken, results) =
+                    await OperationTimerUtils.TimeWithResultsAsync(() => InvokeAsync(accessToken));
+
+                _logger.LogDebug(
+                    "It took {TimeTaken}ms for the userinfo request to complete for correlationId {CorrelationId}",
                     timeTaken,
                     _httpContextAccessor.HttpContext?.GetCorrelationId());
-                
+
                 return results;
+            }
+            catch (FlurlHttpException ex)
+            {
+
+                var problemDetails = await ex.GetResponseStringAsync();
+                _logger.LogError(
+                    ex,
+                    "User info client threw exception with message {Message} and problem details: {Details}",
+                    ex.Message,
+                    problemDetails
+                );
+
+                return null;
             }
             catch (Exception ex)
             {
