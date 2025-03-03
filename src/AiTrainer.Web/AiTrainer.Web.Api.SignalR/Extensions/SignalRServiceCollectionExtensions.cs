@@ -8,11 +8,7 @@ public static class SignalRServiceCollectionExtensions
 {
     public static IServiceCollection AddAiTrainerSignalR(this IServiceCollection services)
     {
-        services.AddSignalR(opts =>
-        {
-            opts.AddFilter<ExceptionHandlingFilter>();
-            opts.AddFilter<CorrelationIdFilter>();
-        });
+        services.AddSignalR();
         
         return services;
     }
