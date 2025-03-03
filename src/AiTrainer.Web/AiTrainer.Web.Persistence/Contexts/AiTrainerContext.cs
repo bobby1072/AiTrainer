@@ -1,5 +1,6 @@
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
+using BT.Common.FastArray.Proto;
 using Microsoft.EntityFrameworkCore;
 
 namespace AiTrainer.Web.Persistence.Contexts
@@ -21,32 +22,6 @@ namespace AiTrainer.Web.Persistence.Contexts
             {
                 ent.ToTable("file_document_metadata");
 
-                ent.HasKey(e => e.Id);
-
-                ent.Property(e => e.Id).HasColumnName("id");
-
-                ent.Property(e => e.DocumentId).HasColumnName("document_id");
-
-                ent.Property(e => e.Title).HasColumnName("title");
-
-                ent.Property(e => e.Author).HasColumnName("author");
-
-                ent.Property(e => e.Subject).HasColumnName("subject");
-
-                ent.Property(e => e.Keywords).HasColumnName("keywords");
-
-                ent.Property(e => e.Creator).HasColumnName("creator");
-
-                ent.Property(e => e.Producer).HasColumnName("producer");
-
-                ent.Property(e => e.CreationDate).HasColumnName("creation_date");
-
-                ent.Property(e => e.ModifiedDate).HasColumnName("modified_date");
-
-                ent.Property(e => e.NumberOfPages).HasColumnName("number_of_pages");
-
-                ent.Property(e => e.IsEncrypted).HasColumnName("is_encrypted");
-
                 ent.Property(e => e.ExtraData).HasColumnName("extra_data").HasColumnType("jsonb");
 
                 ent.HasOne<FileDocumentEntity>()
@@ -62,23 +37,7 @@ namespace AiTrainer.Web.Persistence.Contexts
             modelBuilder.Entity<FileDocumentEntity>(entity =>
             {
                 entity.ToTable("file_document", DbConstants.PublicSchema);
-
-                entity.Property(e => e.CollectionId).HasColumnName("collection_id");
-
-                entity.Property(e => e.DateCreated).HasColumnName("date_created");
-
-                entity.Property(e => e.UserId).HasColumnName("user_id");
-
-                entity.Property(e => e.FileType).HasColumnName("file_type");
-
-                entity.Property(e => e.FileName).HasColumnName("file_name");
-
-                entity.Property(e => e.FileData).HasColumnName("file_data");
-
-                entity.Property(e => e.FileDescription).HasColumnName("file_description");
-
-                entity.HasKey(e => e.Id);
-
+                
                 entity
                     .HasOne<FileCollectionEntity>()
                     .WithMany(c => c.Documents)
@@ -87,12 +46,37 @@ namespace AiTrainer.Web.Persistence.Contexts
             });
         }
 
-        public override async Task<int> SaveChangesAsync(
+        public override Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default
         )
         {
+            UpdateDatesOnNewlyAddedOrModified();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            UpdateDatesOnNewlyAddedOrModified();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            UpdateDatesOnNewlyAddedOrModified();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override int SaveChanges()
+        {
+            UpdateDatesOnNewlyAddedOrModified();
+            return base.SaveChanges();
+        }
+
+        private void UpdateDatesOnNewlyAddedOrModified()
+        {
+            var currentTime = DateTime.UtcNow;
             var updatingEntries = ChangeTracker.Entries()
-                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
+                .FastArrayWhere(e => e.State == EntityState.Added || e.State == EntityState.Modified).ToArray();
 
             foreach (var entry in updatingEntries)
             {
@@ -100,64 +84,52 @@ namespace AiTrainer.Web.Persistence.Contexts
                 {
                     if (entry.State == EntityState.Added)
                     {
-                        UpdateEntityDatesToToday<UserEntity, Guid, User>(foundUser, [nameof(UserEntity.DateCreated), nameof(UserEntity.DateModified)]);
+                        UpdateEntityDatesToToday<UserEntity, Guid, User>(foundUser, [nameof(UserEntity.DateCreated), nameof(UserEntity.DateModified)], currentTime);
                     }
                     else
                     {
-                        UpdateEntityDatesToToday<UserEntity, Guid, User>(foundUser, [nameof(UserEntity.DateModified)]);
+                        UpdateEntityDatesToToday<UserEntity, Guid, User>(foundUser, [nameof(UserEntity.DateModified)], currentTime);
                     }
                 }
                 else if (entry.Entity is FileCollectionEntity foundCollection)
                 {
                     if (entry.State == EntityState.Added)
                     {
-                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(foundCollection, [nameof(FileCollectionEntity.DateCreated), nameof(FileCollectionEntity.DateModified)]);
+                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(foundCollection, [nameof(FileCollectionEntity.DateCreated), nameof(FileCollectionEntity.DateModified)], currentTime);
                     }
                     else
                     {
-                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(foundCollection, [nameof(FileCollectionEntity.DateCreated)]);
+                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(foundCollection, [nameof(FileCollectionEntity.DateCreated)], currentTime);
                     }
                 }
-                else if (entry.Entity is FileDocumentEntity foundDocument)
+                else if (entry is { Entity: FileDocumentEntity foundDocument, State: EntityState.Added })
                 {
-                    if (entry.State == EntityState.Added)
-                    {
-                        UpdateEntityDatesToToday<FileDocumentEntity, Guid, FileDocument>(foundDocument, [nameof(FileDocumentEntity.DateCreated)]);
-                    }
+                    UpdateEntityDatesToToday<FileDocumentEntity, Guid, FileDocument>(foundDocument, [nameof(FileDocumentEntity.DateCreated)], currentTime);
                 }
             }
-            
-            
-            return await base.SaveChangesAsync(cancellationToken);
         }
-
-
-        private static void UpdateEntityDatesToToday<TEnt, TId, TRuntime>(TEnt ent, IReadOnlyCollection<string> propertyNames) 
+        private static void UpdateEntityDatesToToday<TEnt, TId, TRuntime>(TEnt ent, IReadOnlyCollection<string> propertyNames, DateTime dateTime) 
             where TEnt : BaseEntity<TId, TRuntime>
             where TRuntime : class
         {
-            foreach (var dateType in propertyNames)
+            var entType = typeof(TEnt);
+            foreach (var propName in propertyNames)
             {
                 try
                 {
-                    UpdateObjectDatesToToday(ent, dateType);
+                    var propertyToUpdate = entType.GetProperty(propName);
+                    if (propertyToUpdate == null || propertyToUpdate.PropertyType != typeof(DateTime))
+                    {
+                        continue;
+                    }
+                    
+                    propertyToUpdate.SetValue(ent, dateTime);
                 }
                 catch
                 {
                     //This is ok because we are just trying to update values
                 }
             }
-        }
-
-        private static void UpdateObjectDatesToToday<TEnt>(TEnt ent, string propertyName)
-        {
-            var propertyToUpdate = typeof(TEnt).GetProperty(propertyName);
-            if (propertyToUpdate == null || propertyToUpdate.PropertyType != typeof(DateTime))
-            {
-                return;
-            }
-            
-            propertyToUpdate.SetValue(ent, DateTime.UtcNow);
         }
     }
     
