@@ -4,7 +4,7 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
-using BT.Common.HttpClient.Extensions;
+using BT.Common.Http.Extensions;
 using Flurl;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;

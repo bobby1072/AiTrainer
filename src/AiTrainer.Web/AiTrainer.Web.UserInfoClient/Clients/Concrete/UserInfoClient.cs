@@ -2,7 +2,7 @@ using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
-using BT.Common.HttpClient.Extensions;
+using BT.Common.Http.Extensions;
 using BT.Common.OperationTimer.Proto;
 using Flurl.Http;
 using Microsoft.AspNetCore.Http;
