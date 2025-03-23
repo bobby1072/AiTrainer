@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.HttpClient\BT.Common.HttpClient.csproj" />
+    <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.Http\BT.Common.Http.csproj" />
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.OperationTimer\BT.Common.OperationTimer.csproj" />
     <ProjectReference Include="..\AiTrainer.Web.Common\AiTrainer.Web.Common.csproj" />
   </ItemGroup>

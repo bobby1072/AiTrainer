@@ -3,7 +3,7 @@ using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Response;
-using BT.Common.HttpClient.Extensions;
+using BT.Common.Http.Extensions;
 using BT.Common.Polly.Models.Concrete;
 using Flurl;
 using Flurl.Http;
