@@ -8,6 +8,7 @@ import ApiException from "../../Exceptions/ApiException";
 import AiTrainerFaissStoreApiService from "../../Faiss/AiTrainerFaissStoreApiService";
 import { SimilaritySearchInputSchema } from "../RequestModels/SimilaritySearchInput";
 import { DocumentInterface } from "@langchain/core/documents";
+import AiTrainerExpressExceptionHandling from "../Helpers/AiTrainerExpressExceptionHandling";
 
 export default abstract class FaissRouter {
   private static readonly upload = multer({ storage: multer.memoryStorage() });
@@ -16,28 +17,30 @@ export default abstract class FaissRouter {
       `/api/${FaissRouter.name.toLowerCase()}/updatestore`,
       FaissRouter.upload.single("file"),
       async (req: Request, resp: Response) => {
-        const metadata = JSON.parse(req.body.metadata);
-        const fileBuffer = req.file?.buffer;
-        const safeInput = UpdateStoreInputSchema.safeParse({
-          fileInput: fileBuffer,
-          jsonDocStore: metadata.docStore,
-          newDocuments: metadata.newDocuments,
-        });
+        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+          const metadata = JSON.parse(req.body.metadata);
+          const fileBuffer = req.file?.buffer;
+          const safeInput = UpdateStoreInputSchema.safeParse({
+            fileInput: fileBuffer,
+            jsonDocStore: metadata.docStore,
+            newDocuments: metadata.newDocuments,
+          });
 
-        if (!safeInput.success) {
-          throw new ApiException("Invalid input");
-        }
-        const result = await AiTrainerFaissStoreApiService.UpdateStore(
-          safeInput.data
-        );
+          if (!safeInput.success) {
+            throw new ApiException("Invalid input");
+          }
+          const result = await AiTrainerFaissStoreApiService.UpdateStore(
+            safeInput.data
+          );
 
-        resp.status(200).json({
-          isSuccess: true,
-          data: result,
-        } as SuccessfulRouteResponse<{
-          jsonDocStore: DocStore;
-          indexFile: string;
-        }>);
+          resp.status(200).json({
+            isSuccess: true,
+            data: result,
+          } as SuccessfulRouteResponse<{
+            jsonDocStore: DocStore;
+            indexFile: string;
+          }>);
+        }, resp);
       }
     );
   }
@@ -46,26 +49,28 @@ export default abstract class FaissRouter {
       `/api/${FaissRouter.name.toLowerCase()}/similaritysearch`,
       FaissRouter.upload.single("file"),
       async (req: Request, resp: Response) => {
-        const metadata = JSON.parse(req.body.metadata);
-        const fileBuffer = req.file?.buffer;
-        const safeInput = SimilaritySearchInputSchema.safeParse({
-          fileInput: fileBuffer,
-          jsonDocStore: metadata.docStore,
-          question: metadata.question,
-          documentsToReturn: metadata.documentsToReturn,
-        });
+        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+          const metadata = JSON.parse(req.body.metadata);
+          const fileBuffer = req.file?.buffer;
+          const safeInput = SimilaritySearchInputSchema.safeParse({
+            fileInput: fileBuffer,
+            jsonDocStore: metadata.docStore,
+            question: metadata.question,
+            documentsToReturn: metadata.documentsToReturn,
+          });
 
-        if (!safeInput.success) {
-          throw new ApiException("Invalid input");
-        }
-        const result = await AiTrainerFaissStoreApiService.SimSearch(
-          safeInput.data
-        );
+          if (!safeInput.success) {
+            throw new ApiException("Invalid input");
+          }
+          const result = await AiTrainerFaissStoreApiService.SimSearch(
+            safeInput.data
+          );
 
-        resp.status(200).json({
-          isSuccess: true,
-          data: { items: result },
-        } as SuccessfulRouteResponse<{ items: DocumentInterface<Record<string, any>>[] }>);
+          resp.status(200).json({
+            isSuccess: true,
+            data: { items: result },
+          } as SuccessfulRouteResponse<{ items: DocumentInterface<Record<string, any>>[] }>);
+        }, resp);
       }
     );
   }
@@ -73,24 +78,26 @@ export default abstract class FaissRouter {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/createstore`,
       async (req: Request, resp: Response) => {
-        const parsedBody = CreateStoreInputSchema.safeParse(req.body);
-        const documents = parsedBody.data?.documents;
+        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+          const parsedBody = CreateStoreInputSchema.safeParse(req.body);
+          const documents = parsedBody.data?.documents;
 
-        if (!documents || !parsedBody.success) {
-          throw new ApiException("Documents are required");
-        }
+          if (!documents || !parsedBody.success) {
+            throw new ApiException("Documents are required");
+          }
 
-        const result = await AiTrainerFaissStoreApiService.CreateStore(
-          documents
-        );
+          const result = await AiTrainerFaissStoreApiService.CreateStore(
+            documents
+          );
 
-        resp.status(200).json({
-          isSuccess: true,
-          data: result,
-        } as SuccessfulRouteResponse<{
-          jsonDocStore: DocStore;
-          indexFile: string;
-        }>);
+          resp.status(200).json({
+            isSuccess: true,
+            data: result,
+          } as SuccessfulRouteResponse<{
+            jsonDocStore: DocStore;
+            indexFile: string;
+          }>);
+        }, resp);
       }
     );
   }
