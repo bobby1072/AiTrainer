@@ -2,7 +2,6 @@ import { Application } from "express";
 import ChunkingRouter from "./Routers/ChunkingRouter";
 import compression from "compression";
 import bodyParser from "body-parser";
-import ExceptionHandlingMiddleware from "./Middleware/ExceptionHandlingMiddleware";
 import ApiKeyHeaderMiddleware from "./Middleware/ApiKeyHeaderMiddleware";
 import { ApplicationSettings } from "../Utils/AppSettingsProvider";
 import HealthRouter from "./Routers/HealthRouter";
@@ -16,7 +15,6 @@ export default abstract class ApplicationBuilder {
   }
 
   public static AddDomainMiddleware(app: Application): void {
-    app.use(ExceptionHandlingMiddleware.InvokeMiddleware());
     app.use(ApiKeyHeaderMiddleware.InvokeMiddleware());
   }
   public static AddRoutes(app: Application): void {

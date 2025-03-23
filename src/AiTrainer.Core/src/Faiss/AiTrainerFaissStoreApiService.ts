@@ -1,16 +1,18 @@
 import { SimilaritySearchInput } from "../Api/RequestModels/SimilaritySearchInput";
 import { UpdateStoreInput } from "../Api/RequestModels/UpdateStoreInput";
-import AiTrainerFaissStore from "./AiTrainerFaissStore";
+import { DocStore } from "../Models/DocStore";
+import InMemoryAiTrainerFaissStore from "./InMemoryAiTrainerFaissStore";
 
 export default abstract class AiTrainerFaissStoreApiService {
   public static async SimSearch(data: SimilaritySearchInput) {
-    const faissStoreFilePath = await AiTrainerFaissStore.SaveRawStoreToFile(
-      data.jsonDocStore,
-      data.fileInput
-    );
+    const faissStoreFilePath =
+      await InMemoryAiTrainerFaissStore.SaveRawStoreToFile(
+        data.jsonDocStore,
+        data.fileInput
+      );
 
     const faissStore =
-      await AiTrainerFaissStore.LoadFaissStoreFromFileAndRemoveFile(
+      await InMemoryAiTrainerFaissStore.LoadFaissStoreFromFileAndRemoveFile(
         faissStoreFilePath
       );
 
@@ -24,7 +26,7 @@ export default abstract class AiTrainerFaissStoreApiService {
   public static async CreateStore(
     documents: { pageContent: string; metadata: Record<string, string> }[]
   ) {
-    const faissStore = AiTrainerFaissStore.CreateFaissStore();
+    const faissStore = InMemoryAiTrainerFaissStore.CreateFaissStore();
 
     await faissStore.LoadDocumentsIntoStore(documents);
 
@@ -36,15 +38,10 @@ export default abstract class AiTrainerFaissStoreApiService {
   }
 
   public static async UpdateStore(data: UpdateStoreInput) {
-    const faissStoreFilePath = await AiTrainerFaissStore.SaveRawStoreToFile(
-      data.jsonDocStore,
+    const faissStore = await InMemoryAiTrainerFaissStore.LoadFromInMemObjects(
+      data.jsonDocStore as DocStore,
       data.fileInput
     );
-
-    const faissStore =
-      await AiTrainerFaissStore.LoadFaissStoreFromFileAndRemoveFile(
-        faissStoreFilePath
-      );
 
     await faissStore.LoadDocumentsIntoStore(data.newDocuments.documents);
 

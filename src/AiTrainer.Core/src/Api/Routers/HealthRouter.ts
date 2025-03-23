@@ -15,6 +15,6 @@ export default abstract class HealthRouter {
   }
 
   public static InvokeRoutes(app: Application): void {
-    this.HealthCheck(app);
+    HealthRouter.HealthCheck(app);
   }
 }
