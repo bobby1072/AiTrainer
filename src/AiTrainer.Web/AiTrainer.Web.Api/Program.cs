@@ -84,46 +84,5 @@ app.UseAuthentication();
 app.UseAiTrainerDefaultMiddlewares();
 app.MapAiTrainerSignalRHubs();
 app.MapControllers();
-#pragma warning disable ASP0014
-if (useStaticFiles)
-{
-    app.UseEndpoints(endpoint =>
-    {
-        endpoint.MapFallbackToFile("index.html");
-    });
-#pragma warning restore ASP0014
-    app.UseStaticFiles();
-    app.UseSpa(spa =>
-    {
-        spa.Options.DefaultPageStaticFileOptions = new StaticFileOptions
-        {
-            OnPrepareResponse = context =>
-            {
-                var headers = context.Context.Response.GetTypedHeaders();
-                if (context.File.Name.EndsWith(".html"))
-                {
-                    headers.CacheControl = new CacheControlHeaderValue
-                    {
-                        NoCache = true,
-                        NoStore = true,
-                        MustRevalidate = true,
-                        MaxAge = TimeSpan.Zero,
-                    };
-                }
-                else
-                {
-                    headers.CacheControl = new CacheControlHeaderValue
-                    {
-                        Public = true,
-                        Private = false,
-                        NoCache = false,
-                        NoStore = false,
-                        MaxAge = TimeSpan.FromDays(365),
-                    };
-                }
-            },
-        };
-    });
-}
 
 await app.RunAsync();
