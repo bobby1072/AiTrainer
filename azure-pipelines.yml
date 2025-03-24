@@ -132,7 +132,7 @@ stages:
           - task: FileTransform@2
             displayName: "Transform react app settings"
             inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-client/src/Data"
+              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-test-client/src/Data"
               fileType: "json"
               xmlTransformationRules:
               jsonTargetFiles: "reactappsettings.json"
@@ -140,7 +140,7 @@ stages:
           - task: FileTransform@2
             displayName: "Transform package json"
             inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-client"
+              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-test-client"
               fileType: "json"
               xmlTransformationRules:
               jsonTargetFiles: "package.json"
@@ -150,30 +150,30 @@ stages:
             inputs:
               command: "custom"
               customCommand: "ci"
-              workingDir: $(Build.SourcesDirectory)/src/aitrainer-client
+              workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
 
           - task: Npm@1
             displayName: "Check types"
             inputs:
               commands: "custom"
               customCommand: "run check-types"
-              workingDir: $(Build.SourcesDirectory)/src/aitrainer-client
+              workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
 
           # - task: Npm@1
           #   displayName: "Test"
           #   inputs:
           #     command: "custom"
           #     customCommand: "test --watchAll=false --coverage --ci"
-          #     workingDir: $(Build.SourcesDirectory)/src/aitrainer-client
+          #     workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
 
           - task: Npm@1
             displayName: "Build"
             inputs:
               command: "custom"
               customCommand: "run build"
-              workingDir: $(Build.SourcesDirectory)/src/aitrainer-client
+              workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
 
-          - publish: "$(Build.SourcesDirectory)/src/aitrainer-client/build"
+          - publish: "$(Build.SourcesDirectory)/src/aitrainer-test-client/build"
             condition: eq(variables.isMain, true)
             displayName: "Publish frontend build files"
             artifact: chrome-ext

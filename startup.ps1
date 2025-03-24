@@ -11,4 +11,4 @@ else {
 }
 
 
-npm start --prefix src/aitrainer-client
+npm start --prefix src/aitrainer-test-client

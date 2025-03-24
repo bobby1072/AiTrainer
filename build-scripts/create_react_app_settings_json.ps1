@@ -1,5 +1,5 @@
 param (
-    [string] $filePath = ".\src\aitrainer-client\src\Data\reactappsettings.json"
+    [string] $filePath = ".\src\aitrainer-test-client\src\Data\reactappsettings.json"
 )
 $ErrorActionPreference = "Stop"
 $data = @{
