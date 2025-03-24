@@ -8,7 +8,6 @@ using AiTrainer.Web.Domain.Services.Extensions;
 using AiTrainer.Web.Persistence.Extensions;
 using AiTrainer.Web.UserInfoClient;
 using Microsoft.AspNetCore.Http.Timeouts;
-using Microsoft.Net.Http.Headers;
 using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
