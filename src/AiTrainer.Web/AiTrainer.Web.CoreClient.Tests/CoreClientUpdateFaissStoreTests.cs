@@ -7,6 +7,7 @@ using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.TestBase;
 using AutoFixture;
+using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -20,10 +21,17 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
     public CoreClientUpdateFaissStoreTests()
     {
         SetUpBasicHttpContext();
+        
+        _httpTest.WithSettings(x =>
+        {
+            x.JsonSerializer = ApiConstants.DefaultCamelFlurlJsonSerializer;
+        });
+        
         _coreClientUpdateFaissStore = new CoreClientUpdateFaissStore(
             _mockLogger.Object,
             new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
-            _mockHttpContextAccessor.Object
+            _mockHttpContextAccessor.Object,
+            ApiConstants.DefaultCamelFlurlJsonSerializer
         );
     }
     [Fact]
