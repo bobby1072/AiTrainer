@@ -7,6 +7,7 @@ using BT.Common.Http.Extensions;
 using BT.Common.Polly.Models.Concrete;
 using Flurl;
 using Flurl.Http;
+using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,15 +19,19 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
     private readonly ILogger<CoreClientHealth> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISerializer _serialiser;
+
     public CoreClientHealth(
         ILogger<CoreClientHealth> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        ISerializer serialiser
     )
     {
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
         _httpContextAccessor = httpContextAccessor;
+        _serialiser = serialiser;
     }
     public async Task<CoreClientHealthResponse?> TryInvokeAsync(CancellationToken cancellation = default)
     {
@@ -35,6 +40,7 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
             .AppendPathSegment("healthrouter")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
+            .WithSerializer(_serialiser)
             .GetJsonAsync<CoreResponse<CoreClientHealthResponse>>(new PollyRetrySettings
             {
                 TotalAttempts = 2,

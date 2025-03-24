@@ -7,6 +7,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.Http.Extensions;
 using Flurl;
 using Flurl.Http;
+using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,16 +19,20 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
     private readonly ILogger<CoreClientCreateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISerializer _serialiser;
+
     public CoreClientCreateFaissStore(
         ILogger<CoreClientCreateFaissStore> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        ISerializer serialiser
 
     )
     {
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration.Value;
         _httpContextAccessor = httpContextAccessor;
+        _serialiser = serialiser;
     }
 
     public async Task<FaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param, CancellationToken cancellation = default)
@@ -38,6 +43,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
             .AppendPathSegment("createstore")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
+            .WithSerializer(_serialiser)
             .PostJsonAsync(param, HttpCompletionOption.ResponseHeadersRead, cancellation)
             .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientCreateFaissStore));
