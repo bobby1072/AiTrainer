@@ -7,6 +7,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.Http.Extensions;
 using Flurl;
 using Flurl.Http;
+using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,15 +19,19 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
     private readonly ILogger<CoreClientUpdateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISerializer _serialiser;
+
     public CoreClientUpdateFaissStore(
         ILogger<CoreClientUpdateFaissStore> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        ISerializer serialiser
     )
     {
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
-        _httpContextAccessor = httpContextAccessor;
+        _httpContextAccessor = httpContextAccessor; 
+        _serialiser = serialiser;
     }
 
     public async Task<FaissStoreResponse?> TryInvokeAsync(UpdateFaissStoreInput input, CancellationToken cancellation = default)
@@ -37,6 +42,7 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
             .AppendPathSegment("faissrouter")
             .AppendPathSegment("updatestore")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithSerializer(_serialiser)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .PostMultipartAsync(x =>
             {

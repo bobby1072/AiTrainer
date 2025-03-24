@@ -7,6 +7,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.Http.Extensions;
 using Flurl;
 using Flurl.Http;
+using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,15 +19,19 @@ public class CoreClientSimilaritySearch: ICoreClient<CoreSimilaritySearchInput, 
     private readonly ILogger<CoreClientSimilaritySearch> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISerializer _serialiser;
+
     public CoreClientSimilaritySearch(
         ILogger<CoreClientSimilaritySearch> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        ISerializer serialiser
     )
     {
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
         _httpContextAccessor = httpContextAccessor;
+        _serialiser = serialiser;
     }
 
     public async Task<SimilaritySearchCoreResponse?> TryInvokeAsync(CoreSimilaritySearchInput input, CancellationToken cancellation = default)
@@ -38,6 +43,7 @@ public class CoreClientSimilaritySearch: ICoreClient<CoreSimilaritySearchInput, 
             .AppendPathSegment("similaritysearch")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
+            .WithSerializer(_serialiser)
             .PostMultipartAsync(x =>
             {
                 x.AddJson("metadata", input);

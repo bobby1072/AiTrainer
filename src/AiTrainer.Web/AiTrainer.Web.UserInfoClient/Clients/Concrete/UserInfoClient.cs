@@ -5,6 +5,7 @@ using AiTrainer.Web.UserInfoClient.Models;
 using BT.Common.Http.Extensions;
 using BT.Common.OperationTimer.Proto;
 using Flurl.Http;
+using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,17 +19,20 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
         private readonly ILogger<UserInfoClient> _logger;
         private readonly UserInfoClientConfiguration _userInfoClientConfiguration;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISerializer _serializer;
         public UserInfoClient(
             IOptionsSnapshot<ClientSettingsConfiguration> options,
             IHttpContextAccessor httpContextAccessor,
-            IOptions<UserInfoClientConfiguration> userInfoClientConfiguration,
-            ILogger<UserInfoClient> logger
+            IOptionsSnapshot<UserInfoClientConfiguration> userInfoClientConfiguration,
+            ILogger<UserInfoClient> logger,
+            ISerializer serializer
         )
         {
             _userInfoEndpoint = options.Value.UserInfoEndpoint;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _userInfoClientConfiguration = userInfoClientConfiguration.Value;
+            _serializer = serializer;
         }
 
         public async Task<UserInfoResponse?> TryInvokeAsync(string accessToken)
@@ -62,6 +66,7 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
                 .WithHeader(HeaderNames.Authorization, accessToken.Split("Bearer ").Length == 2
                     ? accessToken
                     : $"Bearer {accessToken}")
+                .WithSerializer(_serializer)
                 .GetJsonAsync<UserInfoResponse>(_userInfoClientConfiguration);
             
 

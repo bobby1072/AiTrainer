@@ -7,6 +7,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.Http.Extensions;
 using Flurl;
 using Flurl.Http;
+using Flurl.Http.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,15 +19,18 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
     private readonly ILogger<CoreClientChunkDocument> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISerializer _serialiser;
     public CoreClientChunkDocument(
         ILogger<CoreClientChunkDocument> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        ISerializer serialiser
     )
     {
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
         _httpContextAccessor = httpContextAccessor;
+        _serialiser = serialiser;
     }
     
     public async Task<ChunkedDocumentResponse?> TryInvokeAsync(DocumentToChunkInput param, CancellationToken cancellation = default)
@@ -37,6 +41,7 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
             .AppendPathSegment("chunkdocument")
             .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext?.GetCorrelationId())
+            .WithSerializer(_serialiser)
             .PostJsonAsync(param, HttpCompletionOption.ResponseContentRead, cancellation)
             .ReceiveJsonAsync<CoreResponse<ChunkedDocumentResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
