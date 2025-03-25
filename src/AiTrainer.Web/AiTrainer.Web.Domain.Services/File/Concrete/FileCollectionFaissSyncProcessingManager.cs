@@ -267,7 +267,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             {
                 async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetFileTextAndMeta()
                 {
-                    var fileResult = await FileHelper.GetTextFromPdfFile(doc.FileData);
+                    var fileResult = await Task.Run(() => FileHelper.GetTextFromPdfFile(doc.FileData));
                     return fileResult.FastArraySelect(x => (x, doc.ToMetaDictionary())).ToArray();
                 }
                 getTextJobList.Add(GetFileTextAndMeta());
@@ -275,7 +275,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             else if (doc.FileType == FileTypeEnum.Text)
             {
                 async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetTextFunc() =>
-                    [(await FileHelper.GetTextFromTextFile(doc.FileData), doc.ToMetaDictionary())];
+                    [(await Task.Run(() => FileHelper.GetTextFromTextFile(doc.FileData)), doc.ToMetaDictionary())];
                 getTextJobList.Add(GetTextFunc());
             }
         }
