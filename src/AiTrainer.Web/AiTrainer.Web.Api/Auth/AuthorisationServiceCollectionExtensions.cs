@@ -1,4 +1,4 @@
-using AiTrainer.Web.Common.Models.Configuration;
+using AiTrainer.Web.Common.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 

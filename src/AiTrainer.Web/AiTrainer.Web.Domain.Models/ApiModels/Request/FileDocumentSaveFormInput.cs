@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using System.Text.Json.Serialization;
 
-namespace AiTrainer.Web.Common.Models.ApiModels.Request
+namespace AiTrainer.Web.Domain.Models.ApiModels.Request
 {
     public record FileDocumentSaveFormInput
     {

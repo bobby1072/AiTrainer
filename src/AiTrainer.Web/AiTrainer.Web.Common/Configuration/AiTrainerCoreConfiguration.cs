@@ -1,6 +1,6 @@
 ﻿using BT.Common.Polly.Models.Abstract;
 
-namespace AiTrainer.Web.Common.Models.Configuration
+namespace AiTrainer.Web.Common.Configuration
 {
     public class AiTrainerCoreConfiguration : BaseConfiguration, IPollyRetrySettings
     {

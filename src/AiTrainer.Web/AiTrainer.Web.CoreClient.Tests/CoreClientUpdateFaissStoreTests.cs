@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 using AiTrainer.Web.Common;
-using AiTrainer.Web.Common.Models.Configuration;
+using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;

@@ -1,11 +1,11 @@
 using System.Text;
 using System.Text.Json;
 using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;

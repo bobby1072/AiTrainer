@@ -1,6 +1,6 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.File.Models;

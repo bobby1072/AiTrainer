@@ -1,5 +1,5 @@
 using AiTrainer.Web.Api.Models;
-using AiTrainer.Web.Common.Models.Configuration;
+using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

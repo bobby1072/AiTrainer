@@ -1,4 +1,4 @@
-﻿using AiTrainer.Web.Common.Models.ApiModels.Request;
+﻿using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Partials;
 using Microsoft.AspNetCore.Http;
 

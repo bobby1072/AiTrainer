@@ -1,17 +1,15 @@
 using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
-using BT.Common.Http.Serializers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Text.Json;
 using AiTrainer.Web.Common;
+using AiTrainer.Web.Common.Configuration;
 
 namespace AiTrainer.Web.CoreClient.Extensions
 {

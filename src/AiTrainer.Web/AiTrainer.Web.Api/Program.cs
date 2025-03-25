@@ -1,7 +1,7 @@
 using AiTrainer.Web.Api.Auth;
 using AiTrainer.Web.Api.Middlewares;
 using AiTrainer.Web.Api.SignalR.Extensions;
-using AiTrainer.Web.Common.Models.Configuration;
+using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.Extensions;

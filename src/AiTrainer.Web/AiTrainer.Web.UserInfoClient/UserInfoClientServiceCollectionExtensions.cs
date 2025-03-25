@@ -1,6 +1,6 @@
 ﻿using AiTrainer.Web.Common;
+using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Common.Exceptions;
-using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
