@@ -14,10 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 var appSettings = builder.Configuration.GetSection(ApplicationSettingsConfiguration.Key);
 
-var useStaticFiles = bool.Parse(
-    builder.Configuration.GetSection("UseStaticFiles")?.Value ?? "false"
-);
-
 if (!appSettings.Exists())
 {
     throw new Exception("ApplicationSettingsConfiguration not found in configuration");
