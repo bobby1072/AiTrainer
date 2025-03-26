@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Net.Http.Headers;
 using System.Net;
 
-namespace AiTrainer.Web.Common.Attributes
+namespace AiTrainer.Web.Api.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     public class RequireUserLoginAttribute : Attribute, IAuthorizationFilter

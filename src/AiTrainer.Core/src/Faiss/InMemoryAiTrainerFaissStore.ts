@@ -15,6 +15,25 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
   private constructor(embeds: EmbeddingsInterface, args: FaissLibArgs) {
     super(embeds, args);
   }
+
+  public async LoadDocumentsIntoStore(documents: Document[]): Promise<void> {
+    await this.addDocuments(documents, {
+      ids: documents.map((_) => Guid.NewGuidString()),
+    });
+  }
+  public GetSaveItemsFromStore(): {
+    jsonDocStore: DocStore;
+    indexFile: Buffer;
+  } {
+    const jsonDocStore = this.docstore._docs;
+    const indexFile = this.index;
+
+    return {
+      jsonDocStore:
+        InMemoryAiTrainerFaissStore.RawJsonDocToDocStore(jsonDocStore),
+      indexFile: indexFile.toBuffer(),
+    };
+  }
   public static async LoadFromInMemObjects(
     jsonDocStore: DocStore,
     rawIndex: Buffer
@@ -52,25 +71,6 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
       index,
       mapping,
     });
-  }
-
-  public async LoadDocumentsIntoStore(documents: Document[]): Promise<void> {
-    await this.addDocuments(documents, {
-      ids: documents.map((_) => Guid.NewGuidString()),
-    });
-  }
-  public GetSaveItemsFromStore(): {
-    jsonDocStore: DocStore;
-    indexFile: Buffer;
-  } {
-    const jsonDocStore = this.docstore._docs;
-    const indexFile = this.index;
-
-    return {
-      jsonDocStore:
-        InMemoryAiTrainerFaissStore.RawJsonDocToDocStore(jsonDocStore),
-      indexFile: indexFile.toBuffer(),
-    };
   }
   public static async SaveRawStoreToFile(
     jsonObject: Record<string, any>,

@@ -1,7 +1,6 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Helpers;
-using AiTrainer.Web.Common.Models.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
@@ -18,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using AiTrainer.Web.Domain.Models.Extensions;
+using AiTrainer.Web.Common.Configuration;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
@@ -267,7 +267,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             {
                 async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetFileTextAndMeta()
                 {
-                    var fileResult = await FileHelper.GetTextFromPdfFile(doc.FileData);
+                    var fileResult = await Task.Run(() => FileHelper.GetTextFromPdfFile(doc.FileData));
                     return fileResult.FastArraySelect(x => (x, doc.ToMetaDictionary())).ToArray();
                 }
                 getTextJobList.Add(GetFileTextAndMeta());
@@ -275,7 +275,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             else if (doc.FileType == FileTypeEnum.Text)
             {
                 async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetTextFunc() =>
-                    [(await FileHelper.GetTextFromTextFile(doc.FileData), doc.ToMetaDictionary())];
+                    [(await Task.Run(() => FileHelper.GetTextFromTextFile(doc.FileData)), doc.ToMetaDictionary())];
                 getTextJobList.Add(GetTextFunc());
             }
         }

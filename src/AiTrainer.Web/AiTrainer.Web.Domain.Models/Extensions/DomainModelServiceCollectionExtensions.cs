@@ -1,4 +1,6 @@
-﻿using AiTrainer.Web.Domain.Models.Validators;
+﻿using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Models.ApiModels.Request.Validators;
+using AiTrainer.Web.Domain.Models.Validators;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,16 +10,17 @@ namespace AiTrainer.Web.Domain.Models.Extensions
     {
         public static IServiceCollection AddDomainModelServices(this IServiceCollection services)
         {
-            services.AddDomainModelValidators();
+            services.AddModelValidators();
 
             return services;
         }
 
-        internal static IServiceCollection AddDomainModelValidators(
+        private static IServiceCollection AddModelValidators(
             this IServiceCollection services
         )
         {
             services
+                .AddSingleton<IValidator<SimilaritySearchInput>, SimilaritySearchInputValidator>()
                 .AddSingleton<IValidator<User>, UserValidator>()
                 .AddSingleton<IValidator<FileCollection>, FileCollectionValidator>()
                 .AddSingleton<IValidator<FileDocument>, FileDocumentValidator>();

@@ -1,13 +1,10 @@
-using AiTrainer.Web.Common.Models.ApiModels.Request;
-using AiTrainer.Web.Common.Models.ApiModels.Request.Validators;
-using AiTrainer.Web.Common.Models.Configuration;
+using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.Concrete;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Domain.Services.User.Concrete;
-using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,25 +12,40 @@ namespace AiTrainer.Web.Domain.Services.Extensions
 {
     public static class DomainServicesServiceCollectionExtensions
     {
-        public static IServiceCollection AddDomainServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddDomainServices(
+            this IServiceCollection services,
+            IConfiguration configuration
+        )
         {
-            var faissSyncedConfig = configuration.GetSection(FaissSyncRetrySettingsConfiguration.Key);
+            var faissSyncedConfig = configuration.GetSection(
+                FaissSyncRetrySettingsConfiguration.Key
+            );
 
             if (!faissSyncedConfig.Exists())
             {
-                throw new Exception("FaissSyncRetrySettingsConfiguration not found in configuration");
+                throw new Exception(
+                    "FaissSyncRetrySettingsConfiguration not found in configuration"
+                );
             }
-            
+
             services.Configure<FaissSyncRetrySettingsConfiguration>(faissSyncedConfig);
-            
+
             services
                 .AddScoped<IUserProcessingManager, UserProcessingManager>()
                 .AddScoped<IFileCollectionProcessingManager, FileCollectionProcessingManager>()
                 .AddScoped<IFileDocumentProcessingManager, FileDocumentProcessingManager>()
-                .AddSingleton<IValidator<SimilaritySearchInput>, SimilaritySearchInputValidator>()
-                .AddScoped<IFileCollectionFaissSimilaritySearchProcessingManager, FileCollectionFaissSimilaritySearchProcessingManager>()
-                .AddScoped<IFileCollectionFaissSyncProcessingManager, FileCollectionFaissSyncProcessingManager>()
-                .AddSingleton<IFileCollectionFaissSyncBackgroundJobQueue, FileCollectionFaissSyncBackgroundJobQueue>()
+                .AddScoped<
+                    IFileCollectionFaissSimilaritySearchProcessingManager,
+                    FileCollectionFaissSimilaritySearchProcessingManager
+                >()
+                .AddScoped<
+                    IFileCollectionFaissSyncProcessingManager,
+                    FileCollectionFaissSyncProcessingManager
+                >()
+                .AddSingleton<
+                    IFileCollectionFaissSyncBackgroundJobQueue,
+                    FileCollectionFaissSyncBackgroundJobQueue
+                >()
                 .AddHostedService<FileCollectionFaissSyncBackgroundJobService>()
                 .AddScoped<IHealthService, HealthService>()
                 .AddScoped<ICachingService, DistributedCachingService>()

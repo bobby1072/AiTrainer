@@ -1,5 +1,4 @@
-﻿
-namespace AiTrainer.Web.Common.Models.Configuration
+﻿namespace AiTrainer.Web.Common.Configuration
 {
     public abstract class BaseConfiguration
     {

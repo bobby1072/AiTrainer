@@ -1,6 +1,5 @@
 ﻿using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
-using AiTrainer.Web.Common.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Models.Helpers;
@@ -13,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using AiTrainer.Web.Domain.Services.File.Models;
+using AiTrainer.Web.Domain.Models.ApiModels.Request;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {

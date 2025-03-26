@@ -6,7 +6,9 @@ namespace AiTrainer.Web.Persistence.Entities
         where TRuntime : class
     {
         [Key]
+        #nullable disable
         public TId Id { get; set; }
+        #nullable enable
         public abstract TRuntime ToModel();
     }
 }

@@ -1,5 +1,5 @@
+using AiTrainer.Web.Api.Attributes;
 using AiTrainer.Web.Api.Models;
-using AiTrainer.Web.Common.Attributes;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Services.Abstract;

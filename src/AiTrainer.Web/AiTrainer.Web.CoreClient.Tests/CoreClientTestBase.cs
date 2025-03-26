@@ -1,4 +1,4 @@
-﻿using AiTrainer.Web.Common.Models.Configuration;
+﻿using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.TestBase;
 using AutoFixture;
 using Flurl.Http.Testing;
