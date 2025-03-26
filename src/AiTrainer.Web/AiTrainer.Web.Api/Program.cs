@@ -54,11 +54,11 @@ builder
 builder.Services.AddCors(p =>
     p.AddPolicy(
         "corsapp",
-        builder =>
+        x =>
         {
-            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 
-            builder.WithOrigins("http://localhost:3000").AllowCredentials();
+            x.WithOrigins("http://localhost:3000").AllowCredentials();
         }
     )
 );
