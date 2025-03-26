@@ -14,45 +14,39 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, FaissStoreResponse>
+public class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryInput, FormattedChatQueryResponse>
 {
-    private readonly ILogger<CoreClientUpdateFaissStore> _logger;
+    private readonly ILogger<CoreClientFormattedChatQuery> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ISerializer _serialiser;
+    private readonly ISerializer _serializer;
 
-    public CoreClientUpdateFaissStore(
-        ILogger<CoreClientUpdateFaissStore> logger,
+    public CoreClientFormattedChatQuery(
+        ILogger<CoreClientFormattedChatQuery> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
         IHttpContextAccessor httpContextAccessor,
-        ISerializer serialiser
+        ISerializer serializer
     )
     {
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
-        _httpContextAccessor = httpContextAccessor; 
-        _serialiser = serialiser;
+        _httpContextAccessor = httpContextAccessor;
+        _serializer = serializer;
     }
 
-    public async Task<FaissStoreResponse?> TryInvokeAsync(UpdateFaissStoreInput input, CancellationToken cancellation = default)
+    public async Task<FormattedChatQueryResponse?> TryInvokeAsync(FormattedChatQueryInput request,
+        CancellationToken cancellationToken = default)
     {
-        await using var indexFileStream = new MemoryStream(input.FileInput);
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
-            .AppendPathSegment("faissrouter")
-            .AppendPathSegment("updatestore")
+            .AppendPathSegment("openairouter")
+            .AppendPathSegment("formattedchatquery")
             .WithAiTrainerCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
-            .WithSerializer(_serialiser)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
-            .PostMultipartAsync(x =>
-            {
-                x.AddJson("metadata", input);
-                x.AddFile("file", indexFileStream, "docStore.index");
-            }, HttpCompletionOption.ResponseContentRead, cancellation)
-            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
-            .CoreClientExceptionHandling(_logger, nameof(CoreClientUpdateFaissStore));
-        
-        
+            .WithSerializer(_serializer)
+            .PostJsonAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
+            .ReceiveJsonAsync<CoreResponse<FormattedChatQueryResponse>>(_aiTrainerCoreConfiguration, cancellationToken)
+            .CoreClientExceptionHandling(_logger, nameof(CoreClientFormattedChatQuery));
         
         return response?.Data;
     }

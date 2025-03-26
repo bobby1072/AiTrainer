@@ -41,7 +41,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
             .AppendPathSegment("api")
             .AppendPathSegment("faissrouter")
             .AppendPathSegment("createstore")
-            .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithAiTrainerCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .WithSerializer(_serialiser)
             .PostJsonAsync(param, HttpCompletionOption.ResponseHeadersRead, cancellation)

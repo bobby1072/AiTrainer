@@ -39,7 +39,7 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
             .AppendPathSegment("api")
             .AppendPathSegment("chunkingrouter")
             .AppendPathSegment("chunkdocument")
-            .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithAiTrainerCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext?.GetCorrelationId())
             .WithSerializer(_serialiser)
             .PostJsonAsync(param, HttpCompletionOption.ResponseContentRead, cancellation)

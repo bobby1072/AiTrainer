@@ -53,15 +53,15 @@ internal static class CoreClientFlurlExtensions
     {
         return url.WithHeader(ApiConstants.CorrelationIdHeader, correlationIdHeader?.ToString() ?? Guid.NewGuid().ToString());
     }
-    public static IFlurlRequest WithAiTrainerCoreKeyHeader(this Url url, string coreKey)
+    public static IFlurlRequest WithAiTrainerCoreApiKeyHeader(this Url url, string coreKey)
     {
         return url.WithHeader(CoreClientConstants.ApiKeyHeader, coreKey);
     }
-    public static IFlurlRequest WithAiTrainerCoreKeyHeader(this IFlurlRequest url, string coreKey)
+    public static IFlurlRequest WithAiTrainerCoreApiKeyHeader(this IFlurlRequest url, string coreKey)
     {
         return url.WithHeader(CoreClientConstants.ApiKeyHeader, coreKey);
     }
-    public static IFlurlRequest WithAiTrainerCoreKeyHeader(this string url, string coreKey)
+    public static IFlurlRequest WithAiTrainerCoreApiKeyHeader(this string url, string coreKey)
     {
         return url.WithHeader(CoreClientConstants.ApiKeyHeader, coreKey);
     }

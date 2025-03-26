@@ -41,7 +41,7 @@ public class CoreClientSimilaritySearch: ICoreClient<CoreSimilaritySearchInput, 
             .AppendPathSegment("api")
             .AppendPathSegment("faissrouter")
             .AppendPathSegment("similaritysearch")
-            .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithAiTrainerCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .WithSerializer(_serialiser)
             .PostMultipartAsync(x =>
@@ -50,7 +50,7 @@ public class CoreClientSimilaritySearch: ICoreClient<CoreSimilaritySearchInput, 
                 x.AddFile("file", indexFileStream, "docStore.index");
             }, HttpCompletionOption.ResponseContentRead, cancellation)
             .ReceiveJsonAsync<CoreResponse<SimilaritySearchCoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
-            .CoreClientExceptionHandling(_logger, nameof(FaissStoreResponse));
+            .CoreClientExceptionHandling(_logger, nameof(CoreClientSimilaritySearch));
         
         
         return response?.Data;

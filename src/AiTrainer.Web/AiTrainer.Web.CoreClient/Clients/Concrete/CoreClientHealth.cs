@@ -38,7 +38,7 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
             .AppendPathSegment("healthrouter")
-            .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithAiTrainerCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .WithSerializer(_serialiser)
             .GetJsonAsync<CoreResponse<CoreClientHealthResponse>>(new PollyRetrySettings
