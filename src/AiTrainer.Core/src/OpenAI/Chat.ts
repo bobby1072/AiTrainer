@@ -6,7 +6,7 @@ export const Chat = new ChatOpenAI({
   model: "gpt-4o",
   temperature: 0,
   maxTokens: undefined,
-  timeout: 210,
+  timeout: 210000,
   maxRetries: 2,
   apiKey: ApplicationSettings.AllAppSettings.OpenAiApiKey,
   openAIApiKey: ApplicationSettings.AllAppSettings.OpenAiApiKey,

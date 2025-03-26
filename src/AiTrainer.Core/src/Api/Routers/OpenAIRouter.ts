@@ -26,8 +26,12 @@ export default abstract class OpenAIRouter {
 
           resp.status(200).json({
             isSuccess: true,
-            data: result.content,
-          } as SuccessfulRouteResponse<MessageContent>);
+            data: {
+              content: result.content,
+            },
+          } as SuccessfulRouteResponse<{
+            content: MessageContent;
+          }>);
         }, resp);
       }
     );

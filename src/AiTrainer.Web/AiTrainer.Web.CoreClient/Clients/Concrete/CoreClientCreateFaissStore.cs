@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, FaissStoreResponse>
+internal class CoreClientCreateFaissStore : ICoreClient<CoreCreateFaissStoreInput, CoreFaissStoreResponse>
 {
     private readonly ILogger<CoreClientCreateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -35,7 +35,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
         _serialiser = serialiser;
     }
 
-    public async Task<FaissStoreResponse?> TryInvokeAsync(CreateFaissStoreInput param, CancellationToken cancellation = default)
+    public async Task<CoreFaissStoreResponse?> TryInvokeAsync(CoreCreateFaissStoreInput param, CancellationToken cancellation = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
@@ -45,7 +45,7 @@ internal class CoreClientCreateFaissStore : ICoreClient<CreateFaissStoreInput, F
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .WithSerializer(_serialiser)
             .PostJsonAsync(param, HttpCompletionOption.ResponseHeadersRead, cancellation)
-            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
+            .ReceiveJsonAsync<CoreResponse<CoreFaissStoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientCreateFaissStore));
         
         return response?.Data;

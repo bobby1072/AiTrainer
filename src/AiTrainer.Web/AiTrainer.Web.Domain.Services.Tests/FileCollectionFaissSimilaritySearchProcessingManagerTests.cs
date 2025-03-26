@@ -19,7 +19,7 @@ namespace AiTrainer.Web.Domain.Services.Tests;
 
 public class FileCollectionFaissSimilaritySearchProcessingManagerTests: DomainServiceTestBase
 {
-    private readonly Mock<ICoreClient<CoreSimilaritySearchInput, SimilaritySearchCoreResponse>> _mockSimSearchClient = new();
+    private readonly Mock<ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse>> _mockSimSearchClient = new();
     private readonly Mock<ILogger<FileCollectionFaissSimilaritySearchProcessingManager>> _mockLogger = new();
     private readonly Mock<IFileCollectionFaissRepository> _mockFileColFaissRepo = new();
     private readonly Mock<IValidator<SimilaritySearchInput>> _mockValidator = new();

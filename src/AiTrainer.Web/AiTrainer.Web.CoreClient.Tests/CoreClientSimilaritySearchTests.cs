@@ -48,10 +48,10 @@ public class CoreClientSimilaritySearchTests: CoreClientTestBase
             .Create();
         
         var response = _fixture
-            .Build<SimilaritySearchCoreResponse>()
+            .Build<CoreSimilaritySearchResponse>()
             .With(x => x.Items, _fixture.CreateMany<SimilaritySearchResponseItem>().ToArray())
             .Create();
-        var mockedApiResponse = new CoreResponse<SimilaritySearchCoreResponse> { Data = response };
+        var mockedApiResponse = new CoreResponse<CoreSimilaritySearchResponse> { Data = response };
         
         _httpTest
             .ForCallsTo($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch")

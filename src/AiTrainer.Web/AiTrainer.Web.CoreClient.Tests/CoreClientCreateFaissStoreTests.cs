@@ -37,7 +37,7 @@ public class CoreClientCreateFaissStoreTests: CoreClientTestBase
     {
         //Arrange
         var input = _fixture
-            .Build<CreateFaissStoreInput>()
+            .Build<CoreCreateFaissStoreInput>()
             .With(x => x.Documents,  _fixture.CreateMany<CreateFaissStoreInputDocument>().ToArray())
             .Create();
         
@@ -45,10 +45,10 @@ public class CoreClientCreateFaissStoreTests: CoreClientTestBase
         await using var memStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
 
         var response = _fixture
-            .Build<FaissStoreResponse>()
+            .Build<CoreFaissStoreResponse>()
             .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(memStream))
             .Create();
-        var mockedApiResponse = new CoreResponse<FaissStoreResponse> { Data = response };
+        var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
         
         _httpTest
             .ForCallsTo($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/createstore")

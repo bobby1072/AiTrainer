@@ -1,7 +1,7 @@
 ﻿
 namespace AiTrainer.Web.CoreClient.Models.Response
 {
-    public record ChunkedDocumentResponse : BaseCoreClientResponseData
+    public record CoreChunkedDocumentResponse : BaseCoreClientResponseData
     {
         public required IReadOnlyCollection<SingleChunkedDocument> DocumentChunks { get; init; }
     }

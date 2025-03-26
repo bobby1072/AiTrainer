@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, FaissStoreResponse>
+internal class CoreClientUpdateFaissStore: ICoreClient<CoreUpdateFaissStoreInput, CoreFaissStoreResponse>
 {
     private readonly ILogger<CoreClientUpdateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -34,7 +34,7 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
         _serialiser = serialiser;
     }
 
-    public async Task<FaissStoreResponse?> TryInvokeAsync(UpdateFaissStoreInput input, CancellationToken cancellation = default)
+    public async Task<CoreFaissStoreResponse?> TryInvokeAsync(CoreUpdateFaissStoreInput input, CancellationToken cancellation = default)
     {
         await using var indexFileStream = new MemoryStream(input.FileInput);
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
@@ -49,7 +49,7 @@ internal class CoreClientUpdateFaissStore: ICoreClient<UpdateFaissStoreInput, Fa
                 x.AddJson("metadata", input);
                 x.AddFile("file", indexFileStream, "docStore.index");
             }, HttpCompletionOption.ResponseContentRead, cancellation)
-            .ReceiveJsonAsync<CoreResponse<FaissStoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
+            .ReceiveJsonAsync<CoreResponse<CoreFaissStoreResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientUpdateFaissStore));
         
         

@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-public class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryInput, FormattedChatQueryResponse>
+internal class CoreClientFormattedChatQuery: ICoreClient<CoreFormattedChatQueryInput, CoreFormattedChatQueryResponse>
 {
     private readonly ILogger<CoreClientFormattedChatQuery> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -34,7 +34,7 @@ public class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryInput, 
         _serializer = serializer;
     }
 
-    public async Task<FormattedChatQueryResponse?> TryInvokeAsync(FormattedChatQueryInput request,
+    public async Task<CoreFormattedChatQueryResponse?> TryInvokeAsync(CoreFormattedChatQueryInput request,
         CancellationToken cancellationToken = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
@@ -45,7 +45,7 @@ public class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryInput, 
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .WithSerializer(_serializer)
             .PostJsonAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
-            .ReceiveJsonAsync<CoreResponse<FormattedChatQueryResponse>>(_aiTrainerCoreConfiguration, cancellationToken)
+            .ReceiveJsonAsync<CoreResponse<CoreFormattedChatQueryResponse>>(_aiTrainerCoreConfiguration, cancellationToken)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientFormattedChatQuery));
         
         return response?.Data;

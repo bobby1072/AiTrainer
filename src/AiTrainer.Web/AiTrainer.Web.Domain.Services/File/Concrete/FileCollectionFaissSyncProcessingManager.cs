@@ -24,16 +24,16 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete;
 public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSyncProcessingManager
 {
     private readonly ICoreClient<
-        DocumentToChunkInput,
-        ChunkedDocumentResponse
+        CoreDocumentToChunkInput,
+        CoreChunkedDocumentResponse
     > _documentChunkerClient;
     private readonly ICoreClient<
-        CreateFaissStoreInput,
-        FaissStoreResponse
+        CoreCreateFaissStoreInput,
+        CoreFaissStoreResponse
     > _createFaissStoreService;
     private readonly ICoreClient<
-        UpdateFaissStoreInput,
-        FaissStoreResponse
+        CoreUpdateFaissStoreInput,
+        CoreFaissStoreResponse
     > _updateFaissStoreService;
     private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly ILogger<FileCollectionFaissSyncProcessingManager> _logger;
@@ -44,9 +44,9 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
     private int SyncAttemptCount { get; set; }
 
     public FileCollectionFaissSyncProcessingManager(
-        ICoreClient<DocumentToChunkInput, ChunkedDocumentResponse> documentChunkerClient,
-        ICoreClient<CreateFaissStoreInput, FaissStoreResponse> createFaissStoreService,
-        ICoreClient<UpdateFaissStoreInput, FaissStoreResponse> updateFaissStoreService,
+        ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse> documentChunkerClient,
+        ICoreClient<CoreCreateFaissStoreInput, CoreFaissStoreResponse> createFaissStoreService,
+        ICoreClient<CoreUpdateFaissStoreInput, CoreFaissStoreResponse> updateFaissStoreService,
         ILogger<FileCollectionFaissSyncProcessingManager> logger,
         IFileDocumentRepository fileDocumentRepository,
         IFileCollectionFaissRepository fileCollectionFaissRepository,
@@ -181,7 +181,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
 
         var chunkedDocument =
             await _documentChunkerClient.TryInvokeAsync(
-                new DocumentToChunkInput
+                new CoreDocumentToChunkInput
                 {
                     DocumentsToChunk = allUnsyncedDocumentText
                                 .FastArraySelect(x => new SingleDocumentToChunk { DocumentText = x.DocText, Metadata = x.Metadata }).ToArray()
@@ -213,15 +213,15 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         }
     }
 
-    private async Task<FaissStoreResponse> GetFaissStoreFromCore(
-        ChunkedDocumentResponse chunkedDocument,
+    private async Task<CoreFaissStoreResponse> GetFaissStoreFromCore(
+        CoreChunkedDocumentResponse coreChunkedDocument,
         FileCollectionFaiss? existingFaissStore,
         CancellationToken cancellationToken
     )
     {
-        var createStoreInput = new CreateFaissStoreInput
+        var createStoreInput = new CoreCreateFaissStoreInput
         {
-            Documents = chunkedDocument.DocumentChunks
+            Documents = coreChunkedDocument.DocumentChunks
                 .FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y => new CreateFaissStoreInputDocument
                 {
                     PageContent = y,
@@ -232,7 +232,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         var storeToSave = existingFaissStore is null
             ? await _createFaissStoreService.TryInvokeAsync(createStoreInput, cancellationToken)
             : await _updateFaissStoreService.TryInvokeAsync(
-                new UpdateFaissStoreInput
+                new CoreUpdateFaissStoreInput
                 {
                     DocStore = existingFaissStore.FaissJson,
                     FileInput = existingFaissStore.FaissIndex,
@@ -285,7 +285,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
     }
 
     private static FileCollectionFaiss CreateFileCollectionFaissStoreObject(
-        FaissStoreResponse storeToSave,
+        CoreFaissStoreResponse storeToSave,
         Guid userId,
         Guid? collectionId,
         FileCollectionFaiss? existingEntry

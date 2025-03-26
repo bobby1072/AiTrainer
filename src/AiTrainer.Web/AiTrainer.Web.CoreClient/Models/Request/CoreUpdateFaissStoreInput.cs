@@ -3,10 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.CoreClient.Models.Request;
 
-public record UpdateFaissStoreInput: BaseCoreClientRequestData
+public record CoreUpdateFaissStoreInput: BaseCoreClientRequestData
 {
     [JsonIgnore] 
     public byte[] FileInput { get; init; } = [];
     public required JsonDocument DocStore { get; init; }
-    public required CreateFaissStoreInput NewDocuments { get; init; }
+    public required CoreCreateFaissStoreInput NewDocuments { get; init; }
 }
