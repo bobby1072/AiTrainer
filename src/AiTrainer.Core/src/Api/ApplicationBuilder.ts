@@ -6,6 +6,7 @@ import ApiKeyHeaderMiddleware from "./Middleware/ApiKeyHeaderMiddleware";
 import { ApplicationSettings } from "../Utils/AppSettingsProvider";
 import HealthRouter from "./Routers/HealthRouter";
 import FaissRouter from "./Routers/FaissRouter";
+import OpenAIRouter from "./Routers/OpenAIRouter";
 
 export default abstract class ApplicationBuilder {
   public static AddSystemMiddlewares(app: Application): void {
@@ -21,6 +22,7 @@ export default abstract class ApplicationBuilder {
     ChunkingRouter.InvokeRoutes(app);
     HealthRouter.InvokeRoutes(app);
     FaissRouter.InvokeRoutes(app);
+    OpenAIRouter.InvokeRoutes(app);
   }
   public static Listen(app: Application): void {
     const port = Number(ApplicationSettings.AllAppSettings.ExpressPort) || 5000;

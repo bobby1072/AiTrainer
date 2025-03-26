@@ -4,13 +4,13 @@ import { UnsuccessfulRouteResponse } from "../ResponseModels/RouteResponse";
 import ApiException from "../../Exceptions/ApiException";
 
 export default abstract class AiTrainerExpressExceptionHandling {
-  public static HandleAsync(
+  public static async HandleAsync(
     apiAction: () => Promise<void>,
     res: Response,
     defaultErrorMessage: string = ExceptionConstants.InternalServerError
   ) {
     try {
-      apiAction();
+      await apiAction();
     } catch (e: any) {
       if (e instanceof ApiException) {
         res.status(200).json({

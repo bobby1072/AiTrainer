@@ -16,8 +16,8 @@ export default abstract class FaissRouter {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/updatestore`,
       FaissRouter.upload.single("file"),
-      async (req: Request, resp: Response) => {
-        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      (req: Request, resp: Response) => {
+        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const metadata = JSON.parse(req.body.metadata);
           const fileBuffer = req.file?.buffer;
           const safeInput = UpdateStoreInputSchema.safeParse({
@@ -48,8 +48,8 @@ export default abstract class FaissRouter {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/similaritysearch`,
       FaissRouter.upload.single("file"),
-      async (req: Request, resp: Response) => {
-        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      (req: Request, resp: Response) => {
+        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const metadata = JSON.parse(req.body.metadata);
           const fileBuffer = req.file?.buffer;
           const safeInput = SimilaritySearchInputSchema.safeParse({
@@ -77,8 +77,8 @@ export default abstract class FaissRouter {
   private static CreateNewStore(app: Application) {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/createstore`,
-      async (req: Request, resp: Response) => {
-        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      (req: Request, resp: Response) => {
+        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const parsedBody = CreateStoreInputSchema.safeParse(req.body);
           const documents = parsedBody.data?.documents;
 
