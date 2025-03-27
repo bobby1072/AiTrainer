@@ -3,7 +3,7 @@ using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models
 {
-    public record FileCollectionFaiss : DomainModel<FileCollectionFaiss, long?>
+    public class FileCollectionFaiss : PersistableDomainModel<FileCollectionFaiss, long?>
     {
         [LockedData]
         public required Guid? CollectionId { get; set; }

@@ -5,11 +5,10 @@ namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class DomainModelExtensions
     {
-        public static bool ValidateAgainstOriginal<TModel, TId>(
-            this TModel originalModel,
-            TModel checkAgainst
+        public static bool ValidateAgainstOriginal(
+            this DomainModel originalModel,
+            DomainModel checkAgainst
         )
-            where TModel : DomainModel<TModel, TId>
         {
             var entType = checkAgainst.GetType();
             if (
@@ -35,18 +34,18 @@ namespace AiTrainer.Web.Domain.Models.Extensions
             return true;
         }
 
-        public static void RemoveSensitive(this DomainModel<object, object> originalModel)
+        public static void RemoveSensitive(this DomainModel originalModel)
         {
             var allProperties = originalModel.GetType().GetProperties();
             for (var i = 0; i < allProperties.Length; i++)
             {
                 var property = allProperties[i];
                 var foundProp = property.GetValue(originalModel);
-                if (foundProp is DomainModel<object, object> deepBaseModel)
+                if (foundProp is DomainModel deepBaseModel)
                 {
                     deepBaseModel.RemoveSensitive();
                 }
-                else if (foundProp is IEnumerable<DomainModel<object, object>> deepBaseModels)
+                else if (foundProp is IEnumerable<DomainModel> deepBaseModels)
                 {
                     deepBaseModels.RemoveSensitive();
                 }
@@ -58,7 +57,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         }
 
         public static void RemoveSensitive(
-            this IEnumerable<DomainModel<object, object>> originalModels
+            this IEnumerable<DomainModel> originalModels
         )
         {
             foreach (var model in originalModels)

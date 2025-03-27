@@ -2,7 +2,7 @@ using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models
 {
-    public record User : DomainModel<User, Guid?>
+    public class User : PersistableDomainModel<User, Guid?>
     {
         [SensitiveProperty]
         public required string Email { get; set; }

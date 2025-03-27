@@ -60,7 +60,7 @@ namespace AiTrainer.Web.Api.Controllers
         }
 
         [HttpPost("GetOneLayer")]
-        public async Task<ActionResult<Outcome<FlatFileDocumentPartialCollection>>> GetOneLayer(
+        public async Task<ActionResult<Outcome<FlatFileDocumentPartialCollectionView>>> GetOneLayer(
             [FromBody] OptionalIdInput input
         )
         {
@@ -68,10 +68,10 @@ namespace AiTrainer.Web.Api.Controllers
 
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
-                FlatFileDocumentPartialCollection
+                FlatFileDocumentPartialCollectionView
             >(service => service.GetOneLayerFileDocPartialsAndCollections(currentUser, input.Id));
 
-            return new Outcome<FlatFileDocumentPartialCollection> { Data = result };
+            return new Outcome<FlatFileDocumentPartialCollectionView> { Data = result };
         }
 
         [HttpPost("Delete")]
