@@ -1,7 +1,7 @@
 ﻿
 namespace AiTrainer.Web.CoreClient.Models.Request;
 
-public record CoreCreateFaissStoreInput : BaseCoreClientRequestData
+public record CoreCreateFaissStoreInput
 {
     public required IReadOnlyCollection<CreateFaissStoreInputDocument> Documents { get; init; }
 }

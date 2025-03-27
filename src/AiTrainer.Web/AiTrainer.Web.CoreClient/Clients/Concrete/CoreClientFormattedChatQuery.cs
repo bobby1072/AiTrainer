@@ -2,8 +2,8 @@
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
-using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
+using AiTrainer.Web.Domain.Models;
 using BT.Common.Http.Extensions;
 using Flurl;
 using Flurl.Http;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientFormattedChatQuery: ICoreClient<CoreFormattedChatQueryInput, CoreFormattedChatQueryResponse>
+internal class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse>
 {
     private readonly ILogger<CoreClientFormattedChatQuery> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -34,7 +34,7 @@ internal class CoreClientFormattedChatQuery: ICoreClient<CoreFormattedChatQueryI
         _serializer = serializer;
     }
 
-    public async Task<CoreFormattedChatQueryResponse?> TryInvokeAsync(CoreFormattedChatQueryInput request,
+    public async Task<CoreFormattedChatQueryResponse?> TryInvokeAsync(FormattedChatQueryBuilder request,
         CancellationToken cancellationToken = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
@@ -44,7 +44,7 @@ internal class CoreClientFormattedChatQuery: ICoreClient<CoreFormattedChatQueryI
             .WithAiTrainerCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId())
             .WithSerializer(_serializer)
-            .PostJsonAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
+            .PostJsonAsync(request.ToCoreInput(), HttpCompletionOption.ResponseContentRead, cancellationToken)
             .ReceiveJsonAsync<CoreResponse<CoreFormattedChatQueryResponse>>(_aiTrainerCoreConfiguration, cancellationToken)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientFormattedChatQuery));
         

@@ -1,7 +1,7 @@
 ﻿
 namespace AiTrainer.Web.CoreClient.Models.Request
 {
-    public record CoreDocumentToChunkInput : BaseCoreClientRequestData
+    public record CoreDocumentToChunkInput
     {
         public required IReadOnlyCollection<SingleDocumentToChunk> DocumentsToChunk { get; init; }
     }

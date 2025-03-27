@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.CoreClient.Models.Request;
 
-public record CoreUpdateFaissStoreInput: BaseCoreClientRequestData
+public record CoreUpdateFaissStoreInput
 {
     [JsonIgnore] 
     public byte[] FileInput { get; init; } = [];

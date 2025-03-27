@@ -22,8 +22,8 @@ export default abstract class ChatQueryService {
     const pipe = prompt.pipe(Chat);
 
     const result = await pipe.invoke({
-      input: humanPromptMessage,
       ...extraInput,
+      input: humanPromptMessage,
     });
 
     return result;

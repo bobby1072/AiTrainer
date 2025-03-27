@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
+using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.CoreClient.Extensions
 {
@@ -66,7 +67,7 @@ namespace AiTrainer.Web.CoreClient.Extensions
                      GetContextAccessorForClient(sp),
                      ApiConstants.DefaultCamelFlurlJsonSerializer
                 ))
-                .AddScoped<ICoreClient<CoreFormattedChatQueryInput, CoreFormattedChatQueryResponse>>
+                .AddScoped<ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse>>
                 (sp => new CoreClientFormattedChatQuery(
                     GetLoggerForClient<CoreClientFormattedChatQuery>(sp),
                     GetConfigForClient(sp),

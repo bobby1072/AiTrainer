@@ -1,6 +1,6 @@
 ﻿namespace AiTrainer.Web.CoreClient.Models.Request;
 
-public record CoreFormattedChatQueryInput: BaseCoreClientRequestData
+internal record CoreFormattedChatQueryInput
 {
     public required string SystemPromptMessage { get; init; }
     public required string HumanPromptMessage { get; init; }
