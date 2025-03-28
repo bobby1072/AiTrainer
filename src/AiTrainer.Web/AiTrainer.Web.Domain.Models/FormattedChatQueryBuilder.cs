@@ -4,7 +4,7 @@ namespace AiTrainer.Web.Domain.Models;
 
 public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBuilder>
 {
-    private readonly DefinedQueryFormats FormatType;
+    private readonly DefinedQueryFormats _formatType;
     public string SystemMessage { get; private init; }
     public string HumanMessage { get; private init; }
     public Dictionary<string, string> QueryParameters { get; private init; }
@@ -15,7 +15,7 @@ public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBui
         Dictionary<string, string> queryParameters
     )
     {
-        FormatType = formatType;
+        _formatType = formatType;
         SystemMessage = systemMessage;
         HumanMessage = humanMessage;
         QueryParameters = queryParameters;
@@ -26,8 +26,8 @@ public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBui
         return obj?.SystemMessage == SystemMessage && obj?.HumanMessage == HumanMessage
             && obj?.QueryParameters.IsStringSequenceEqual(QueryParameters) == true;
     }
-    public string GetQueryName() => FormatType.GetDisplayName();
-    public bool IsSameQueryFormat(FormattedChatQueryBuilder formattedChatQueryBuilder) => formattedChatQueryBuilder.FormatType == FormatType;
+    public string GetQueryName() => _formatType.GetDisplayName();
+    public bool IsSameQueryFormat(FormattedChatQueryBuilder formattedChatQueryBuilder) => formattedChatQueryBuilder._formatType == _formatType;
 
     /// <summary>
     /// This query format can be used to analyse a section of text in reference to a question about said text.

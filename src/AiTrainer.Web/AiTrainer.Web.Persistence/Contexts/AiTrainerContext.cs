@@ -1,6 +1,9 @@
+using System.Text.Json;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
 using BT.Common.FastArray.Proto;
+using BT.Common.Helpers;
+using BT.Common.Helpers.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace AiTrainer.Web.Persistence.Contexts
@@ -18,11 +21,28 @@ namespace AiTrainer.Web.Persistence.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<SingleDocumentChunkEntity>(ent =>
+            {
+                ent.Property(e => e.MetaData)
+                    .HasColumnType("metadata")
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        x => x.SerialiseToJson(null),
+                        x => DictionaryHelpers.DeserialiseFromJsonString<string, string>(x)
+                    );
+            });
+            
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
                 ent.ToTable("file_document_metadata");
 
-                ent.Property(e => e.ExtraData).HasColumnName("extra_data").HasColumnType("jsonb");
+                ent.Property(e => e.ExtraData)
+                    .HasColumnName("extra_data")
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        x => x.SerialiseToJson(null),
+                        x => DictionaryHelpers.DeserialiseFromJsonString<string, string?>(x)
+                    );
 
                 ent.HasOne<FileDocumentEntity>()
                     .WithOne(x => x.MetaData)

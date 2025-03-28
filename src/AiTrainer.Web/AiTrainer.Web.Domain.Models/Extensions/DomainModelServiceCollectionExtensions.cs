@@ -1,5 +1,4 @@
 ﻿using AiTrainer.Web.Domain.Models.ApiModels.Request;
-using AiTrainer.Web.Domain.Models.ApiModels.Request.Validators;
 using AiTrainer.Web.Domain.Models.Validators;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +22,8 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 .AddSingleton<IValidator<SimilaritySearchInput>, SimilaritySearchInputValidator>()
                 .AddSingleton<IValidator<User>, UserValidator>()
                 .AddSingleton<IValidator<FileCollection>, FileCollectionValidator>()
-                .AddSingleton<IValidator<FileDocument>, FileDocumentValidator>();
+                .AddSingleton<IValidator<FileDocument>, FileDocumentValidator>()
+                .AddSingleton<IValidator<ChatGptFormattedQueryInput>, ChatGptFormattedQueryInputValidator>();
 
             return services;
         }

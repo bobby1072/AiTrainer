@@ -1,9 +1,9 @@
 ﻿using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using FluentValidation;
 
-namespace AiTrainer.Web.Domain.Models.ApiModels.Request.Validators;
+namespace AiTrainer.Web.Domain.Models.Validators;
 
-public class SimilaritySearchInputValidator : AbstractValidator<SimilaritySearchInput>
+internal class SimilaritySearchInputValidator : BaseValidator<SimilaritySearchInput>
 {
     public SimilaritySearchInputValidator()
     {

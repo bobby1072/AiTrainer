@@ -18,7 +18,7 @@ public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData
     public string? ModifiedDate { get; init; }
     public int? NumberOfPages { get; init; }
     public bool? IsEncrypted { get; init; }
-    public string? ExtraData { get; init; }
+    public Dictionary<string, string?>? ExtraData { get; init; }
 
     public override FileDocumentMetaData ToModel()
     {
@@ -36,9 +36,7 @@ public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData
             ModifiedDate = ModifiedDate,
             NumberOfPages = NumberOfPages,
             IsEncrypted = IsEncrypted,
-            ExtraData = ExtraData is not null
-                ? JsonSerializer.Deserialize<Dictionary<string, string?>>(ExtraData) ?? []
-                : [],
+            ExtraData = ExtraData ?? []
         };
     }
 }

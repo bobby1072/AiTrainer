@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
+﻿
 namespace AiTrainer.Web.CoreClient.Models.Response;
 
 public record CoreSimilaritySearchResponse
