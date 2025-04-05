@@ -6,16 +6,16 @@ using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.File.Models;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using AiTrainer.Web.TestBase;
 using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
-using FluentAssertions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests
 {
-    public class FileDocumentProcessingManagerTests : DomainServiceTestBase
+    public class FileDocumentProcessingManagerTests : AiTrainerTestBase
     {
         private readonly Mock<ILogger<FileDocumentProcessingManager>> _mockLogger = new();
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
@@ -35,7 +35,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockJobQueue.Object,
                 _mockHttpContextAccessor.Object
             );
-            AddAccessTokenToRequestHeaders();
         }
 
         [Fact]
@@ -46,7 +45,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var mockForm = FormFileUtils.CreateFromFile();
+            var mockForm = TestFileUtils.CreateFormFile();
             var fileDocInput = _fixture
                 .Build<FileDocumentSaveFormInput>()
                 .With(x => x.CollectionId, (Guid?)null)

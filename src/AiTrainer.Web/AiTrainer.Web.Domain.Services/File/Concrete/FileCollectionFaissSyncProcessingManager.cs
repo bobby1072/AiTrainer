@@ -188,7 +188,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
                 }, cancelToken
             ) ?? throw new ApiException("Failed to retrieve file collection faiss store");
 
-        var storeToSave = await GetFaissStoreFromCore(chunkedDocument, existingFaissStore.Data, cancelToken);
+        var storeToSave = await GetFaissStoreFromCoreApi(chunkedDocument, existingFaissStore.Data, cancelToken);
 
         var result = await EntityFrameworkUtils.TryDbOperation(
             () =>
