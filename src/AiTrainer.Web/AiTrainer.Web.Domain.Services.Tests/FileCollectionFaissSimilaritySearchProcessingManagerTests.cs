@@ -9,6 +9,7 @@ using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using AiTrainer.Web.TestBase;
 using AutoFixture;
 using FluentValidation;
 using FluentValidation.Results;
@@ -17,7 +18,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests;
 
-public class FileCollectionFaissSimilaritySearchProcessingManagerTests: DomainServiceTestBase
+public class FileCollectionFaissSimilaritySearchProcessingManagerTests: AiTrainerTestBase
 {
     private readonly Mock<ICoreClient<CoreSimilaritySearchInput, SimilaritySearchCoreResponse>> _mockSimSearchClient = new();
     private readonly Mock<ILogger<FileCollectionFaissSimilaritySearchProcessingManager>> _mockLogger = new();
@@ -34,7 +35,6 @@ public class FileCollectionFaissSimilaritySearchProcessingManagerTests: DomainSe
             _mockValidator.Object,
             _mockHttpContextAccessor.Object
         );
-        AddAccessTokenToRequestHeaders();
     }
     [Fact]
     public async Task SimilaritySearch_Should_Throw_If_Someone_Elses_Faiss_Store()
