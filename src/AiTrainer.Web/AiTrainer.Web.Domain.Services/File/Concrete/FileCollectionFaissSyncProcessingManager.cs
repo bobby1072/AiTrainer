@@ -222,7 +222,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         var createStoreInput = new CoreCreateFaissStoreInput
         {
             Documents = coreChunkedDocument.DocumentChunks
-                .FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y => new CreateFaissStoreInputDocument
+                .FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y => new CoreCreateFaissStoreInputDocument
                 {
                     PageContent = y,
                     Metadata = x.Metadata

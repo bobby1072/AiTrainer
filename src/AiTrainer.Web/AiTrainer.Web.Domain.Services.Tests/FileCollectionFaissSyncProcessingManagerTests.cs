@@ -24,16 +24,16 @@ namespace AiTrainer.Web.Domain.Services.Tests;
 public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
 {
     private readonly Mock<ICoreClient<
-        DocumentToChunkInput,
-        ChunkedDocumentResponse
+        CoreDocumentToChunkInput,
+        CoreChunkedDocumentResponse
     >> _mockDocumentChunkerClient = new();
     private readonly Mock<ICoreClient<
-        CreateFaissStoreInput,
-        FaissStoreResponse
+        CoreCreateFaissStoreInput,
+        CoreFaissStoreResponse
     >> _mockCreateFaissStoreService = new();
     private readonly Mock<ICoreClient<
-        UpdateFaissStoreInput,
-        FaissStoreResponse
+        CoreUpdateFaissStoreInput,
+        CoreFaissStoreResponse
     >> _mockUpdateFaissStoreService = new();
     private readonly Mock<IFileCollectionFaissRepository> _mockFileCollectionFaissRepository = new();
     private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
@@ -124,7 +124,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .ToArray();
         
         var chunkedDocResp = _fixture
-            .Build<ChunkedDocumentResponse>()
+            .Build<CoreChunkedDocumentResponse>()
             .With(x => x.DocumentChunks, _fixture.CreateMany<SingleChunkedDocument>().ToArray())
             .Create();
         
@@ -132,7 +132,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         await using var memStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
         
         var faissStore = _fixture
-            .Build<FaissStoreResponse>()
+            .Build<CoreFaissStoreResponse>()
             .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(memStream))
             .Create();
         
@@ -144,11 +144,11 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .Setup(x => x.ByUserAndCollectionId((Guid)currentUser.Id!, collectionId))
             .ReturnsAsync(new DbGetOneResult<FileCollectionFaiss>());
         _mockDocumentChunkerClient
-            .Setup(x => x.TryInvokeAsync(It.IsAny<DocumentToChunkInput>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.TryInvokeAsync(It.IsAny<CoreDocumentToChunkInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(chunkedDocResp);
         
         _mockCreateFaissStoreService
-            .Setup(x => x.TryInvokeAsync(It.IsAny<CreateFaissStoreInput>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.TryInvokeAsync(It.IsAny<CoreCreateFaissStoreInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(faissStore);
         _mockFileCollectionFaissRepository
             .Setup(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<Guid>>(), FileCollectionFaissRepositorySaveMode.Create))
@@ -164,9 +164,9 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         _mockFileCollectionFaissRepository
             .Verify(x => x.ByUserAndCollectionId((Guid)currentUser.Id!, collectionId), Times.Once);
         _mockDocumentChunkerClient
-            .Verify(x => x.TryInvokeAsync(It.IsAny<DocumentToChunkInput>(), It.IsAny<CancellationToken>()), Times.Once);
+            .Verify(x => x.TryInvokeAsync(It.IsAny<CoreDocumentToChunkInput>(), It.IsAny<CancellationToken>()), Times.Once);
         _mockCreateFaissStoreService
-            .Verify(x => x.TryInvokeAsync(It.IsAny<CreateFaissStoreInput>(), It.IsAny<CancellationToken>()), Times.Once);
+            .Verify(x => x.TryInvokeAsync(It.IsAny<CoreCreateFaissStoreInput>(), It.IsAny<CancellationToken>()), Times.Once);
         _mockFileCollectionFaissRepository
             .Verify(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<Guid>>(),
                 FileCollectionFaissRepositorySaveMode.Create), Times.Once);
