@@ -213,7 +213,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         }
     }
 
-    private async Task<CoreFaissStoreResponse> GetFaissStoreFromCore(
+    private async Task<CoreFaissStoreResponse> GetFaissStoreFromCoreApi(
         CoreChunkedDocumentResponse coreChunkedDocument,
         FileCollectionFaiss? existingFaissStore,
         CancellationToken cancellationToken
