@@ -10,9 +10,12 @@ internal class ChatGptProcessingManager
     private readonly ILogger<ChatGptProcessingManager> _logger;
     private readonly ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse> _chatFormattedQueryClient;
 
-    public ChatGptProcessingManager(ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse> chatFormattedQueryClient)
+    public ChatGptProcessingManager(ICoreClient<FormattedChatQueryBuilder, 
+        CoreFormattedChatQueryResponse> chatFormattedQueryClient,
+        ILogger<ChatGptProcessingManager> logger)
     {
         _chatFormattedQueryClient = chatFormattedQueryClient;
+        _logger = logger;
     }
     
 }
