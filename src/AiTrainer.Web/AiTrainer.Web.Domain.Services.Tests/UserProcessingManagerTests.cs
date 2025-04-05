@@ -4,6 +4,7 @@ using AiTrainer.Web.Domain.Services.User.Concrete;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using AiTrainer.Web.TestBase;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
 using AutoFixture;
@@ -14,7 +15,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests
 {
-    public class UserProcessingManagerTests : DomainServiceTestBase
+    public class UserProcessingManagerTests : AiTrainerTestBase
     {
         private readonly Mock<IRepository<UserEntity, Guid, Models.User>> _repo = new();
         private readonly Mock<IUserInfoClient> _userInfoClient = new();

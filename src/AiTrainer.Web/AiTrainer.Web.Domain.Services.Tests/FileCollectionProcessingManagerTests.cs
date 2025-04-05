@@ -6,6 +6,7 @@ using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using AiTrainer.Web.TestBase;
 using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
 using FluentAssertions;
@@ -15,7 +16,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests
 {
-    public class FileCollectionProcessingManagerTests : DomainServiceTestBase
+    public class FileCollectionProcessingManagerTests : AiTrainerTestBase
     {
         private readonly Mock<IFileCollectionRepository> _mockRepository = new();
         private readonly Mock<ILogger<FileCollectionProcessingManager>> _mockLogger = new();
@@ -31,7 +32,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockFileDocumentRepository.Object,
                 _mockHttpContextAccessor.Object
             );
-            AddAccessTokenToRequestHeaders();
         }
         
 
