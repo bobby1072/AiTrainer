@@ -18,6 +18,7 @@ namespace AiTrainer.Web.Persistence.Contexts
         public virtual DbSet<FileDocumentEntity> FileDocuments { get; set; }
         public virtual DbSet<FileCollectionFaissEntity> FileCollectionFaiss { get; set; }
         public virtual DbSet<FileDocumentMetaDataEntity> FileDocumentMetaData { get; set; }
+        public virtual DbSet<SingleDocumentChunkEntity> SingleDocumentChunks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -10,6 +10,7 @@ public interface IFileCollectionFaissRepository : IRepository<FileCollectionFais
     Task<DbGetOneResult<FileCollectionFaiss>> ByUserAndCollectionId(Guid userId, Guid? collectionId, params string[] relations);
     Task<DbResult> DeleteDocumentAndStoreAndUnsyncDocuments(FileDocument documentToDelete);
     Task<DbResult> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss,
+        IReadOnlyCollection<SingleDocumentChunk> newChunks,
         IReadOnlyCollection<Guid> documentIdsToSync,
         FileCollectionFaissRepositorySaveMode saveMode);
 }

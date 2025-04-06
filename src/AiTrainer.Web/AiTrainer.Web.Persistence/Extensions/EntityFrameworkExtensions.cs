@@ -11,7 +11,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             var ent = new SingleDocumentChunkEntity
             {
                 PageContent = chunk.PageContent,
-                FileDocumentId = chunk.FileDocumentId,
+                FileDocumentId = chunk.FaissId,
                 MetaData = chunk.MetaData,
             };
 

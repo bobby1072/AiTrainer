@@ -18,6 +18,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Common.Configuration;
+using AiTrainer.Web.Domain.Models.Helpers;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
@@ -190,15 +191,17 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
 
         var storeToSave = await GetFaissStoreFromCoreApi(chunkedDocument, existingFaissStore.Data, cancelToken);
 
+        var faissStoreObjectToSave = CreateFileCollectionFaissStoreObject(
+            storeToSave,
+            (Guid)currentUser.Id!,
+            collectionId,
+            existingFaissStore.Data
+        );
         var result = await EntityFrameworkUtils.TryDbOperation(
             () =>
                 _fileCollectionFaissRepository.SaveStoreAndSyncDocs(
-                    CreateFileCollectionFaissStoreObject(
-                        storeToSave,
-                        (Guid)currentUser.Id!,
-                        collectionId,
-                        existingFaissStore.Data
-                    ),
+                    faissStoreObjectToSave,
+                    
                     unSyncedDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToArray(),
                     existingFaissStore.Data is null
                         ? FileCollectionFaissRepositorySaveMode.Create

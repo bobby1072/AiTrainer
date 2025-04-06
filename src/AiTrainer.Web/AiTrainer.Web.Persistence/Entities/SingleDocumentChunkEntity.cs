@@ -15,7 +15,7 @@ public record SingleDocumentChunkEntity: BaseEntity<Guid, SingleDocumentChunk>
         return new SingleDocumentChunk
         {
             PageContent = PageContent,
-            FileDocumentId = FileDocumentId,
+            FaissId = FileDocumentId,
             MetaData = MetaData,
             Id = Id
         };

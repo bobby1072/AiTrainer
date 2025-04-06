@@ -5,7 +5,7 @@ namespace AiTrainer.Web.Domain.Models.Helpers;
 
 public static class FaissHelper{
     
-    public static IReadOnlyCollection<SingleDocumentChunk> GetDocumentChunksFromFaissDocStore(JsonDocument jsonDoc, Guid fileDocumentId)
+    public static IReadOnlyCollection<SingleDocumentChunk> GetDocumentChunksFromFaissDocStore(JsonDocument jsonDoc, Guid documentId)
     {
         var filesFromDocAwayFromMap = jsonDoc.RootElement.EnumerateArray().First().EnumerateArray();
 
@@ -24,7 +24,7 @@ public static class FaissHelper{
             {
                 PageContent = innerContent.PageContent,
                 MetaData = innerContent.Metadata,
-                FileDocumentId = fileDocumentId,
+                FaissId = documentId,
                 Id = chunkId
             });
         }

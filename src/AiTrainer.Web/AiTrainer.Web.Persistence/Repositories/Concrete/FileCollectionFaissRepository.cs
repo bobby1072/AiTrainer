@@ -4,6 +4,7 @@ using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Extensions;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using BT.Common.FastArray.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
@@ -70,21 +71,25 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 throw;
             }
         }
-        public async Task<DbResult> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<Guid> documentIdsToSync,
+        public async Task<DbResult> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<SingleDocumentChunk> newChunks, IReadOnlyCollection<Guid> documentIdsToSync,
             FileCollectionFaissRepositorySaveMode saveMode)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
             try
             {
-                var entity = fileCollectionFaiss.ToEntity();
+                var singleChunkEntity = newChunks.FastArraySelect(x => x.ToEntity());
+                var faissEntity = fileCollectionFaiss.ToEntity();
                 Func<Task<EntityEntry<FileCollectionFaissEntity>>> saveFunc = async () => saveMode == FileCollectionFaissRepositorySaveMode.Create ? await dbContext.FileCollectionFaiss
-                    .AddAsync(entity) : dbContext.FileCollectionFaiss.Update(entity);
+                    .AddAsync(faissEntity) : dbContext.FileCollectionFaiss.Update(faissEntity);
+                
                 await Task.WhenAll(
                     dbContext.FileDocuments
                         .Where(x => documentIdsToSync.Contains(x.Id))
                         .ExecuteUpdateAsync(x => x.SetProperty(y => y.FaissSynced, true)),
-                    saveFunc.Invoke()
+                    saveFunc.Invoke(),
+                    dbContext.SingleDocumentChunks
+                        .AddRangeAsync(singleChunkEntity)
                 );
 
                 await dbContext.SaveChangesAsync();
