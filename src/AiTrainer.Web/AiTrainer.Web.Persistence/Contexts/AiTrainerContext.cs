@@ -28,7 +28,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .HasColumnType("jsonb")
                     .HasConversion(
                         x => x.SerialiseToJson(null),
-                        x => DictionaryHelpers.DeserialiseFromJsonString<string, string>(x)
+                        x => DictionaryHelpers.DeserializeFromJsonString<string, string>(x)
                     );
             });
             
@@ -41,7 +41,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .HasColumnType("jsonb")
                     .HasConversion(
                         x => x.SerialiseToJson(null),
-                        x => DictionaryHelpers.DeserialiseFromJsonString<string, string?>(x)
+                        x => DictionaryHelpers.DeserializeFromJsonString<string, string?>(x)
                     );
 
                 ent.HasOne<FileDocumentEntity>()

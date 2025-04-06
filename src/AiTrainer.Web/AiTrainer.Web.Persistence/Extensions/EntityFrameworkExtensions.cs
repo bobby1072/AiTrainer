@@ -6,6 +6,23 @@ namespace AiTrainer.Web.Persistence.Extensions
 {
     internal static class EntityFrameworkExtensions
     {
+        public static SingleDocumentChunkEntity ToEntity(this SingleDocumentChunk chunk)
+        {
+            var ent = new SingleDocumentChunkEntity
+            {
+                PageContent = chunk.PageContent,
+                FileDocumentId = chunk.FileDocumentId,
+                MetaData = chunk.MetaData,
+            };
+
+            if (chunk.Id is Guid foundId)
+            {
+                ent.Id = foundId;
+            }
+            
+            
+            return ent;
+        }
         public static FileDocumentMetaDataEntity ToEntity(this FileDocumentMetaData formInput)
         {
             var entity = new FileDocumentMetaDataEntity
