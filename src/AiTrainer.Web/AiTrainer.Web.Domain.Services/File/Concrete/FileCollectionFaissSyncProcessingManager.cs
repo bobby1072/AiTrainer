@@ -185,7 +185,12 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
                 new CoreDocumentToChunkInput
                 {
                     DocumentsToChunk = allUnsyncedDocumentText
-                                .FastArraySelect(x => new SingleDocumentToChunk { DocumentText = x.DocText, Metadata = x.Metadata }).ToArray()
+                                .FastArraySelect(x => new SingleDocumentToChunk
+                                {
+                                    DocumentText = x.DocText, 
+                                    Metadata = x.Metadata,
+                                    FileDocumentId = x.DocId
+                                }).ToArray()
                 }, cancelToken
             ) ?? throw new ApiException("Failed to retrieve file collection faiss store");
 
@@ -201,7 +206,13 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             () =>
                 _fileCollectionFaissRepository.SaveStoreAndSyncDocs(
                     faissStoreObjectToSave,
-                    
+                    chunkedDocument.DocumentChunks.FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y =>
+                        new SingleDocumentChunk
+                        {
+                            PageContent = y,
+                            FileDocumentId = x.FileDocumentId,
+                            MetaData = x.Metadata
+                        })).SelectMany(x => x).ToArray(),
                     unSyncedDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToArray(),
                     existingFaissStore.Data is null
                         ? FileCollectionFaissRepositorySaveMode.Create
@@ -252,7 +263,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         return storeToSave;
     }
 
-    private async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetTextFromFileDocuments(
+    private async Task<IReadOnlyCollection<(string DocText, Guid DocId,Dictionary<string, string> Metadata)>> GetTextFromFileDocuments(
         IReadOnlyCollection<FileDocument> fileDocuments,
         Guid? correlationId
     )
@@ -262,23 +273,23 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             correlationId
         );
 
-        var getTextJobList = new List<Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>>>();
+        var getTextJobList = new List<Task<IReadOnlyCollection<(string DocText, Guid DocId, Dictionary<string, string> Metadata)>>>();
 
         foreach (var doc in fileDocuments)
         {
             if (doc.FileType == FileTypeEnum.Pdf)
             {
-                async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetFileTextAndMeta()
+                async Task<IReadOnlyCollection<(string DocText, Guid DocId, Dictionary<string, string> Metadata)>> GetFileTextAndMeta()
                 {
                     var fileResult = await Task.Run(() => FileHelper.GetTextFromPdfFile(doc.FileData));
-                    return fileResult.FastArraySelect(x => (x, doc.ToMetaDictionary())).ToArray();
+                    return fileResult.FastArraySelect(x => (x, (Guid)doc.Id!, doc.ToMetaDictionary())).ToArray();
                 }
                 getTextJobList.Add(GetFileTextAndMeta());
             }
             else if (doc.FileType == FileTypeEnum.Text)
             {
-                async Task<IReadOnlyCollection<(string DocText, Dictionary<string, string> Metadata)>> GetTextFunc() =>
-                    [(await Task.Run(() => FileHelper.GetTextFromTextFile(doc.FileData)), doc.ToMetaDictionary())];
+                async Task<IReadOnlyCollection<(string DocText, Guid DocId, Dictionary<string, string> Metadata)>> GetTextFunc() =>
+                    [(await Task.Run(() => FileHelper.GetTextFromTextFile(doc.FileData)), (Guid)doc.Id!, doc.ToMetaDictionary())];
                 getTextJobList.Add(GetTextFunc());
             }
         }

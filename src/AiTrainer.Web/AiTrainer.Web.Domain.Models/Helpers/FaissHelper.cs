@@ -24,7 +24,7 @@ public static class FaissHelper{
             {
                 PageContent = innerContent.PageContent,
                 MetaData = innerContent.Metadata,
-                FaissId = documentId,
+                FileDocumentId = documentId,
                 Id = chunkId
             });
         }

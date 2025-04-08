@@ -151,7 +151,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .Setup(x => x.TryInvokeAsync(It.IsAny<CoreCreateFaissStoreInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(faissStore);
         _mockFileCollectionFaissRepository
-            .Setup(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<Guid>>(), FileCollectionFaissRepositorySaveMode.Create))
+            .Setup(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<SingleDocumentChunk>>(),It.IsAny<IReadOnlyCollection<Guid>>(), FileCollectionFaissRepositorySaveMode.Create))
             .ReturnsAsync(new DbResult(true));
         
         //Act
@@ -168,7 +168,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         _mockCreateFaissStoreService
             .Verify(x => x.TryInvokeAsync(It.IsAny<CoreCreateFaissStoreInput>(), It.IsAny<CancellationToken>()), Times.Once);
         _mockFileCollectionFaissRepository
-            .Verify(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<Guid>>(),
+            .Verify(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<SingleDocumentChunk>>(),It.IsAny<IReadOnlyCollection<Guid>>(),
                 FileCollectionFaissRepositorySaveMode.Create), Times.Once);
     }
 }

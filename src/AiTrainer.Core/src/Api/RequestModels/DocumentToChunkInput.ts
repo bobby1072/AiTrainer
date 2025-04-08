@@ -5,6 +5,7 @@ export const DocumentToChunkInputSchema = z.object({
     .array(
       z.object({
         documentText: z.string().min(1),
+        fileDocumentId: z.string().uuid(),
         metadata: z
           .record(z.string().min(1), z.string().nullable().optional())
           .optional()

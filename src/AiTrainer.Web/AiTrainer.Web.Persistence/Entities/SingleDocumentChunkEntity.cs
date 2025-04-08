@@ -3,8 +3,8 @@ using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.Persistence.Entities;
 
-[Table("single_document_chunks", Schema = DbConstants.PublicSchema)]
-public record SingleDocumentChunkEntity: BaseEntity<Guid, SingleDocumentChunk>
+[Table("single_document_chunk", Schema = DbConstants.PublicSchema)]
+public record SingleDocumentChunkEntity : BaseEntity<Guid, SingleDocumentChunk>
 {
     public required string PageContent { get; set; }
     public required Guid FileDocumentId { get; set; }
@@ -15,7 +15,7 @@ public record SingleDocumentChunkEntity: BaseEntity<Guid, SingleDocumentChunk>
         return new SingleDocumentChunk
         {
             PageContent = PageContent,
-            FaissId = FileDocumentId,
+            FileDocumentId = FileDocumentId,
             MetaData = MetaData,
             Id = Id
         };
