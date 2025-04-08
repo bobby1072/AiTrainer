@@ -98,8 +98,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
                 return new DbResult(true);
             }
-            catch
+            catch(Exception ex)
             {
+                new LoggerFactory().CreateLogger<FileCollectionFaissRepository>()
+                    .LogError(ex, "Exception occured while saving file collection faiss");
+                
                 await transaction.RollbackAsync();
                 throw;
             }

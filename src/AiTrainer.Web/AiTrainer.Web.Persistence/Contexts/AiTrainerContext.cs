@@ -24,7 +24,7 @@ namespace AiTrainer.Web.Persistence.Contexts
         {
             modelBuilder.Entity<SingleDocumentChunkEntity>(ent =>
             {
-                ent.Property(e => e.MetaData)
+                ent.Property(e => e.Metadata)
                     .HasColumnType("metadata")
                     .HasColumnType("jsonb")
                     .HasConversion(

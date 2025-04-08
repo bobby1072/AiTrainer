@@ -12,7 +12,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             {
                 PageContent = chunk.PageContent,
                 FileDocumentId = chunk.FileDocumentId,
-                MetaData = chunk.MetaData,
+                Metadata = chunk.Metadata,
             };
 
             if (chunk.Id is Guid foundId)

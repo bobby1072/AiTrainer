@@ -23,7 +23,7 @@ public static class FaissHelper{
             listOfDocChunks.Add(new SingleDocumentChunk
             {
                 PageContent = innerContent.PageContent,
-                MetaData = innerContent.Metadata,
+                Metadata = innerContent.Metadata,
                 FileDocumentId = documentId,
                 Id = chunkId
             });

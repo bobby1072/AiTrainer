@@ -211,7 +211,7 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
                         {
                             PageContent = y,
                             FileDocumentId = x.FileDocumentId,
-                            MetaData = x.Metadata
+                            Metadata = x.Metadata
                         })).SelectMany(x => x).ToArray(),
                     unSyncedDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToArray(),
                     existingFaissStore.Data is null
