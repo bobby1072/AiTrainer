@@ -1,3 +1,4 @@
+import { RemoveDocumentsInput } from "../Api/RequestModels/RemoveDocumentsInput";
 import { SimilaritySearchInput } from "../Api/RequestModels/SimilaritySearchInput";
 import { UpdateStoreInput } from "../Api/RequestModels/UpdateStoreInput";
 import { DocStore } from "../Models/DocStore";
@@ -44,6 +45,21 @@ export default abstract class AiTrainerFaissStoreApiService {
     );
 
     await faissStore.LoadDocumentsIntoStore(data.newDocuments.documents);
+
+    const storeItems = faissStore.GetSaveItemsFromStore();
+    return {
+      jsonDocStore: storeItems.jsonDocStore,
+      indexFile: storeItems.indexFile.toString("base64"),
+    };
+  }
+
+  public static async RemoveDocumentsFromStore(data: RemoveDocumentsInput) {
+    const faissStore = await InMemoryAiTrainerFaissStore.LoadFromInMemObjects(
+      data.jsonDocStore as DocStore,
+      data.fileInput
+    );
+
+    await faissStore.RemoveDocumentsFromStore(data.documentIdsToRemove);
 
     const storeItems = faissStore.GetSaveItemsFromStore();
     return {

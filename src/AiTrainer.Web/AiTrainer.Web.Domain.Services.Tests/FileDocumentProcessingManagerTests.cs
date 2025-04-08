@@ -89,7 +89,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
 
             _mockFileFaissReposiotory.Setup(x =>
-                x.DeleteDocumentAndStoreAndUnsyncDocuments(docToDelete)
+                x.DeleteDocumentAndUnsyncDocuments(docToDelete)
             ).ReturnsAsync(new DbResult(true));
 
             //Act
@@ -101,7 +101,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 Times.Once
             );
             _mockFileFaissReposiotory.Verify(x =>
-                x.DeleteDocumentAndStoreAndUnsyncDocuments(docToDelete),
+                x.DeleteDocumentAndUnsyncDocuments(docToDelete),
                 Times.Once
             );
             _mockJobQueue.Verify(x =>
@@ -132,7 +132,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
 
             _mockFileFaissReposiotory.Setup(x =>
-                x.DeleteDocumentAndStoreAndUnsyncDocuments(docToDelete)
+                x.DeleteDocumentAndUnsyncDocuments(docToDelete)
             ).ReturnsAsync(new DbResult(true));
 
             //Act
@@ -147,7 +147,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 Times.Once
             );
             _mockFileFaissReposiotory.Verify(x =>
-                    x.DeleteDocumentAndStoreAndUnsyncDocuments(It.IsAny<FileDocument>()),
+                    x.DeleteDocumentAndUnsyncDocuments(It.IsAny<FileDocument>()),
                 Times.Never
             );
             _mockJobQueue.Verify(x =>

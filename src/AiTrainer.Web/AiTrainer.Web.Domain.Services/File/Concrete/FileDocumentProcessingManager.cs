@@ -149,7 +149,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             }
 
             var deletedJobResult = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileCollectionFaissRepository.DeleteDocumentAndStoreAndUnsyncDocuments(documentToDelete.Data),
+                () => _fileCollectionFaissRepository.DeleteDocumentAndUnsyncDocuments(documentToDelete.Data),
                 _logger
             );
 

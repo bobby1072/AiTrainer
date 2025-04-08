@@ -35,7 +35,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             return new DbGetOneResult<FileCollectionFaiss>(foundResult?.ToModel());
         }
-        public async Task<DbResult> DeleteDocumentAndStoreAndUnsyncDocuments(FileDocument documentToDelete)
+        public async Task<DbResult> DeleteDocumentAndUnsyncDocuments(FileDocument documentToDelete)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
@@ -51,9 +51,6 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                     dbContext.FileDocuments
                         .Where(x => x.CollectionId == documentToDelete.CollectionId && x.UserId == documentToDelete.UserId)
                         .ExecuteUpdateAsync(x => x.SetProperty(y => y.FaissSynced, false)),
-                    dbContext.FileCollectionFaiss
-                        .Where(x => x.CollectionId == documentToDelete.CollectionId && x.UserId == documentToDelete.UserId)
-                        .ExecuteDeleteAsync(),
                     dbContext.FileDocuments
                         .Where(x => x.Id == documentToDelete.Id)
                         .ExecuteDeleteAsync()
