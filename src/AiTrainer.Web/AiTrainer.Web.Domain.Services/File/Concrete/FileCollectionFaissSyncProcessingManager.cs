@@ -202,17 +202,13 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
             collectionId,
             existingFaissStore.Data
         );
+        var singleChunkedDocs = FaissHelper.GetDocumentChunksFromFaissDocStore(storeToSave.JsonDocStore);
+        
         var result = await EntityFrameworkUtils.TryDbOperation(
             () =>
                 _fileCollectionFaissRepository.SaveStoreAndSyncDocs(
                     faissStoreObjectToSave,
-                    chunkedDocument.DocumentChunks.FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y =>
-                        new SingleDocumentChunk
-                        {
-                            PageContent = y,
-                            FileDocumentId = x.FileDocumentId,
-                            Metadata = x.Metadata
-                        })).SelectMany(x => x).ToArray(),
+                    singleChunkedDocs,
                     unSyncedDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToArray(),
                     existingFaissStore.Data is null
                         ? FileCollectionFaissRepositorySaveMode.Create
@@ -236,10 +232,16 @@ public class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSync
         var createStoreInput = new CoreCreateFaissStoreInput
         {
             Documents = coreChunkedDocument.DocumentChunks
-                .FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y => new CoreCreateFaissStoreInputDocument
+                .FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y =>
                 {
-                    PageContent = y,
-                    Metadata = x.Metadata
+                    x.Metadata.TryAdd(nameof(SingleChunkedDocument.FileDocumentId),
+                        x.FileDocumentId.ToString());
+                    
+                    return new CoreCreateFaissStoreInputDocument
+                    {
+                        PageContent = y,
+                        Metadata = x.Metadata,
+                    };
                 })).SelectMany(x => x).ToArray()
         };
 

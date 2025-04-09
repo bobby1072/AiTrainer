@@ -88,9 +88,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 x.GetOne((Guid)docToDelete.Id!)
             ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
 
-            _mockFileFaissReposiotory.Setup(x =>
-                x.DeleteDocumentAndUnsyncDocuments(docToDelete)
-            ).ReturnsAsync(new DbResult(true));
+            _mockFileDocumentRepository.Setup(x =>
+                x.Delete(new List<FileDocument>{docToDelete})
+            ).ReturnsAsync(new DbDeleteResult<FileDocument>(new List<FileDocument>{docToDelete}));
 
             //Act
             var result = await _fileDocumentProcessingManager.DeleteFileDocument((Guid)docToDelete.Id!, currentUser);
@@ -100,8 +100,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 x.GetOne((Guid)docToDelete.Id!),
                 Times.Once
             );
-            _mockFileFaissReposiotory.Verify(x =>
-                x.DeleteDocumentAndUnsyncDocuments(docToDelete),
+            _mockFileDocumentRepository.Verify(x =>
+                x.Delete(It.Is<IReadOnlyCollection<FileDocument>>(y => y.First() == docToDelete)),
                 Times.Once
             );
             _mockJobQueue.Verify(x =>
@@ -131,9 +131,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 x.GetOne((Guid)docToDelete.Id!)
             ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
 
-            _mockFileFaissReposiotory.Setup(x =>
-                x.DeleteDocumentAndUnsyncDocuments(docToDelete)
-            ).ReturnsAsync(new DbResult(true));
+            _mockFileDocumentRepository.Setup(x =>
+                x.Delete(new List<FileDocument>{docToDelete})
+            ).ReturnsAsync(new DbDeleteResult<FileDocument>(new List<FileDocument>{docToDelete}));
 
             //Act
             var act = () => _fileDocumentProcessingManager.DeleteFileDocument((Guid)docToDelete.Id!, currentUser);
@@ -146,8 +146,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     x.GetOne((Guid)docToDelete.Id!),
                 Times.Once
             );
-            _mockFileFaissReposiotory.Verify(x =>
-                    x.DeleteDocumentAndUnsyncDocuments(It.IsAny<FileDocument>()),
+            _mockFileDocumentRepository.Verify(x =>
+                    x.Delete(It.IsAny<IReadOnlyCollection<FileDocument>>()),
                 Times.Never
             );
             _mockJobQueue.Verify(x =>

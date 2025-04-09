@@ -3,11 +3,10 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.CoreClient.Models.Request;
 
-public record CoreSimilaritySearchInput 
+public record CoreRemoveDocumentsFromStoreInput
 {
     [JsonIgnore] 
     public required byte[] FileInput { get; init; }
     public required JsonDocument DocStore { get; init; }
-    public required int DocumentsToReturn { get; init; }
-    public required string Question { get; init; }
+    public required IReadOnlyCollection<Guid> DocumentIdsToRemove { get; init; }
 }
