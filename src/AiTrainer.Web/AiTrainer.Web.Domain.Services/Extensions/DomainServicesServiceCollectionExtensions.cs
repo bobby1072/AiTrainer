@@ -38,6 +38,7 @@ namespace AiTrainer.Web.Domain.Services.Extensions
                     IFileCollectionFaissSimilaritySearchProcessingManager,
                     FileCollectionFaissSimilaritySearchProcessingManager
                 >()
+                .AddScoped<IRemoveDocumentsFileCollectionFaissProcessingManager, RemoveDocumentsFileCollectionFaissProcessingManager>()
                 .AddScoped<
                     IFileCollectionFaissSyncProcessingManager,
                     FileCollectionFaissSyncProcessingManager

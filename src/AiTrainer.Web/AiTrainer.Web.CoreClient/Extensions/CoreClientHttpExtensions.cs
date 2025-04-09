@@ -1,3 +1,6 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.OperationTimer.Proto;
@@ -7,9 +10,21 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.CoreClient.Extensions;
 
-internal static class CoreClientFlurlExtensions
+internal static class CoreClientHttpExtensions
 {
-    public static async Task<TReturn?> CoreClientExceptionHandling<TReturn, TLoggObject>(this Task<TReturn> coreClientRequest, ILogger<TLoggObject> logger,
+    public static void AddCorrelationIdHeader(this HttpContentHeaders headers, Guid? correlationId)
+    {
+        if (correlationId is not null)
+        {
+            headers.TryAddWithoutValidation(ApiConstants.CorrelationIdHeader, correlationId.ToString());
+        }
+    }
+
+    public static void AddApiKeyHeader(this HttpContentHeaders headers, string apiKey)
+    {
+        headers.TryAddWithoutValidation(CoreClientConstants.ApiKeyHeader, apiKey);
+    }
+    public static async Task<TReturn?> CoreClientExceptionHandling<TReturn, TLoggObject>(this Task<TReturn?> coreClientRequest, ILogger<TLoggObject> logger,
         string opName) where TReturn: class 
     {
         try
@@ -24,7 +39,6 @@ internal static class CoreClientFlurlExtensions
                     opName,
                     coreResponse.ExceptionMessage);
             }
-            
             return result;
         }
         catch (FlurlHttpException ex)
@@ -39,6 +53,18 @@ internal static class CoreClientFlurlExtensions
             logger.LogError(ex, "{NameOfOp} request failed",
                 opName);
             return null;
+        }
+    }
+
+    public static Task<T?> TryDeserializeJson<T>(this HttpContent content, JsonSerializerOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return content.ReadFromJsonAsync<T>(options, cancellationToken);
+        }
+        catch
+        {
+            return Task.FromResult((T?)default);
         }
     }
     public static IFlurlRequest WithCorrelationIdHeader(this IFlurlRequest url, Guid? correlationIdHeader = null)

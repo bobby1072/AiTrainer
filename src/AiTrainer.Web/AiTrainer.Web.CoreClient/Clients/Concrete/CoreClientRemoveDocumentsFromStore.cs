@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
+using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
@@ -12,6 +13,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
@@ -24,46 +26,53 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
         
     public CoreClientRemoveDocumentsFromStore(
         ILogger<CoreClientRemoveDocumentsFromStore> logger,
-        AiTrainerCoreConfiguration aiTrainerCoreConfiguration,
+        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration,
         IHttpContextAccessor httpContextAccessor,
         HttpClient httpClient
     )
     {
         _logger = logger;
-        _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration;
+        _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration.Value;
         _httpContextAccessor = httpContextAccessor;
         _httpClient = httpClient;
     }
     
     public async Task<CoreFaissStoreResponse?> TryInvokeAsync(CoreRemoveDocumentsFromStoreInput input, CancellationToken cancellationToken = default)
     {
-        var metadata = new
+        try
         {
-            jsonDocStore = input.DocStore,
-            documentIdsToRemove = input.DocumentIdsToRemove,
-        };
-        
-        var metadataJson = JsonSerializer.Serialize(metadata);
-        
-        using var content = new MultipartFormDataContent();
-        using var fileContent = new ByteArrayContent(input.FileInput);
-        
-        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
-        fileContent.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-        fileContent.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
-        
-        content.Add(fileContent, "file", "upload.pdf"); 
-        content.Add(new StringContent(metadataJson, Encoding.UTF8, "application/json"), "metadata");
-        var retryPipeline = _aiTrainerCoreConfiguration.ToPipeline();
-        var response = await retryPipeline.ExecuteAsync(async ct => await _httpClient.PostAsync($"{_aiTrainerCoreConfiguration.BaseEndpoint}/", content,
-            ct), cancellationToken);
+            var metadataJson = JsonSerializer.Serialize(input, ApiConstants.DefaultCamelCaseSerializerOptions);
 
-        response.EnsureSuccessStatusCode();
+            using var content = new MultipartFormDataContent();
+            using var fileContent = new ByteArrayContent(input.FileInput);
 
-        var parsedResponse = await response.Content
-            .ReadFromJsonAsync<CoreFaissStoreResponse>(cancellationToken)
-            ?? throw new SerializationException("Failed to deserialize response");
-        
-        return parsedResponse;
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+            fileContent.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
+            fileContent.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
+
+            content.Add(fileContent, "file", "upload.pdf");
+            content.Add(new StringContent(metadataJson, Encoding.UTF8, "application/json"), "metadata");
+            var retryPipeline = _aiTrainerCoreConfiguration.ToPipeline();
+            var result = await retryPipeline.ExecuteAsync(async ct =>
+                {
+                    var response = await _httpClient.PostAsync($"{_aiTrainerCoreConfiguration.BaseEndpoint}/", content,
+                        ct);
+                    response.EnsureSuccessStatusCode();
+
+                    return await response.Content
+                               .TryDeserializeJson<CoreResponse<CoreFaissStoreResponse>>(
+                                   ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
+                }, cancellationToken).AsTask()
+                .CoreClientExceptionHandling(_logger, nameof(CoreClientRemoveDocumentsFromStore));
+
+            return result?.Data;
+        }
+        catch(Exception ex)
+        {
+            _logger.LogError(ex, "Exception occured in {OpName} with message {Message}",
+                nameof(CoreClientRemoveDocumentsFromStore),
+                ex.Message);
+            return null;
+        }
     }
 }
