@@ -240,9 +240,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                             (Guid)currentUser.Id!,
                             nameof(FileDocumentEntity.MetaData)
                         )
-                        : _fileDocumentRepository.GetManyDocumentPartialsByCollectionId(
-                            (Guid)collectionId!,
+                        : _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
                             (Guid)currentUser.Id!,
+                            (Guid)collectionId!,
                             nameof(FileDocumentEntity.MetaData)
                         ),
                 _logger

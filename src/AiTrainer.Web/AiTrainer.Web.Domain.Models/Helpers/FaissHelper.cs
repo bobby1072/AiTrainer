@@ -4,8 +4,8 @@ using AiTrainer.Web.Common;
 
 namespace AiTrainer.Web.Domain.Models.Helpers;
 
-public static class FaissHelper{
-    
+public static class FaissHelper
+{
     public static IReadOnlyCollection<SingleDocumentChunk> GetDocumentChunksFromFaissDocStore(JsonDocument jsonDoc)
     {
         try

@@ -10,7 +10,8 @@ public class SingleDocumentChunk : PersistableDomainModel<SingleDocumentChunk, G
 
     public override bool Equals(SingleDocumentChunk? obj)
     {
-        return PageContent == obj?.PageContent
+        return Id == obj?.Id && 
+            PageContent == obj?.PageContent
             && FileDocumentId == obj.FileDocumentId
             && Metadata.IsStringSequenceEqual(obj.Metadata);
     }

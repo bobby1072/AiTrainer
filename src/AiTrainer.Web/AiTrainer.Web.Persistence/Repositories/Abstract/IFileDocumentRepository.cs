@@ -16,11 +16,12 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             Guid userId,
             params string[] relationShips
         );
-        Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionId(
-            Guid collectionId,
+        Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionIdAndUserId(
             Guid userId,
+            Guid? collectionId,
             params string[] relationShips
         );
+        
 
         Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId);
 

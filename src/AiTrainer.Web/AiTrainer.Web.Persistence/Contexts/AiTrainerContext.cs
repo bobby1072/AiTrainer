@@ -64,10 +64,15 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .WithMany(c => c.Documents)
                     .HasForeignKey(e => e.CollectionId)
                     .HasConstraintName("fk_file_document_collection_id");
+            });
+
+            modelBuilder.Entity<SingleDocumentChunkEntity>(entity =>
+            {
+                entity.Property(e => e.FileDocumentId).HasColumnName("file_document_id");
 
                 entity
-                    .HasMany<SingleDocumentChunkEntity>()
-                    .WithOne(x => x.FileDocumentEntity)
+                    .HasOne<FileDocumentEntity>()
+                    .WithMany(x => x.Chunks)
                     .HasForeignKey(x => x.FileDocumentId);
             });
         }

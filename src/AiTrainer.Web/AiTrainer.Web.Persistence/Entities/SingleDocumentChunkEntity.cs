@@ -9,7 +9,7 @@ public record SingleDocumentChunkEntity : BaseEntity<Guid, SingleDocumentChunk>
     public required string PageContent { get; set; }
     public required Guid FileDocumentId { get; set; }
     public Dictionary<string, string>? Metadata { get; set; }
-    public FileDocumentEntity? FileDocumentEntity{ get; set; }
+
     public override SingleDocumentChunk ToModel()
     {
         return new SingleDocumentChunk
@@ -17,7 +17,7 @@ public record SingleDocumentChunkEntity : BaseEntity<Guid, SingleDocumentChunk>
             PageContent = PageContent,
             FileDocumentId = FileDocumentId,
             Metadata = Metadata,
-            Id = Id
+            Id = Id,
         };
     }
 }

@@ -162,9 +162,9 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
         public async Task<
             DbGetManyResult<FileDocumentPartial>
-        > GetManyDocumentPartialsByCollectionId(
-            Guid collectionId,
+        > GetManyDocumentPartialsByCollectionIdAndUserId(
             Guid userId,
+            Guid? collectionId,
             params string[] relationShips
         )
         {
@@ -189,7 +189,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                         })
                         .Where(x => x.CollectionId == collectionId && x.UserId == userId)
                         .ToArrayAsync(),
-                nameof(GetManyDocumentPartialsByCollectionId),
+                nameof(GetManyDocumentPartialsByCollectionIdAndUserId),
                 _entityType.Name
             );
 

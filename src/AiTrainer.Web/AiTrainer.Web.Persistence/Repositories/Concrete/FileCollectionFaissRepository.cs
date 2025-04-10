@@ -72,6 +72,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
     }
     public enum FileCollectionFaissRepositorySaveMode
     {
-        Create, Update
+        Create,
+        Update
     }
 }

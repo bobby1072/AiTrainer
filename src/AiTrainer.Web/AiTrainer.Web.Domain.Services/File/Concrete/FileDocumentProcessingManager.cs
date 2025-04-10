@@ -165,8 +165,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissRemoveDocumentsBackgroundJob
                 {
                     CurrentUser = currentUser,
-                    CollectionId = documentToDelete.Data.CollectionId,
-                    DocumentsToRemove = documentToDelete.Data.Chunks
+                    CollectionId = documentToDelete.Data.CollectionId
                 });
             }
             _logger.LogInformation(
