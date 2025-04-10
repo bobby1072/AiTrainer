@@ -32,7 +32,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                         x => DictionaryHelpers.DeserializeFromJsonString<string, string>(x)
                     );
             });
-            
+
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
                 ent.ToTable("file_document_metadata");
@@ -58,24 +58,30 @@ namespace AiTrainer.Web.Persistence.Contexts
             modelBuilder.Entity<FileDocumentEntity>(entity =>
             {
                 entity.ToTable("file_document", DbConstants.PublicSchema);
-                
+
                 entity
                     .HasOne<FileCollectionEntity>()
                     .WithMany(c => c.Documents)
                     .HasForeignKey(e => e.CollectionId)
                     .HasConstraintName("fk_file_document_collection_id");
+
+                entity
+                    .HasMany<SingleDocumentChunkEntity>()
+                    .WithOne(x => x.FileDocumentEntity)
+                    .HasForeignKey(x => x.FileDocumentId);
             });
         }
 
-        public override Task<int> SaveChangesAsync(
-            CancellationToken cancellationToken = default
-        )
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             UpdateDatesOnNewlyAddedOrModified();
             return base.SaveChangesAsync(cancellationToken);
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        public override Task<int> SaveChangesAsync(
+            bool acceptAllChangesOnSuccess,
+            CancellationToken cancellationToken = default
+        )
         {
             UpdateDatesOnNewlyAddedOrModified();
             return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
@@ -96,8 +102,12 @@ namespace AiTrainer.Web.Persistence.Contexts
         private void UpdateDatesOnNewlyAddedOrModified()
         {
             var currentTime = DateTime.UtcNow;
-            var updatingEntries = ChangeTracker.Entries()
-                .FastArrayWhere(e => e.State == EntityState.Added || e.State == EntityState.Modified).ToArray();
+            var updatingEntries = ChangeTracker
+                .Entries()
+                .FastArrayWhere(e =>
+                    e.State == EntityState.Added || e.State == EntityState.Modified
+                )
+                .ToArray();
 
             foreach (var entry in updatingEntries)
             {
@@ -105,31 +115,61 @@ namespace AiTrainer.Web.Persistence.Contexts
                 {
                     if (entry.State == EntityState.Added)
                     {
-                        UpdateEntityDatesToToday<UserEntity, Guid, User>(foundUser, [nameof(UserEntity.DateCreated), nameof(UserEntity.DateModified)], currentTime);
+                        UpdateEntityDatesToToday<UserEntity, Guid, User>(
+                            foundUser,
+                            [nameof(UserEntity.DateCreated), nameof(UserEntity.DateModified)],
+                            currentTime
+                        );
                     }
                     else
                     {
-                        UpdateEntityDatesToToday<UserEntity, Guid, User>(foundUser, [nameof(UserEntity.DateModified)], currentTime);
+                        UpdateEntityDatesToToday<UserEntity, Guid, User>(
+                            foundUser,
+                            [nameof(UserEntity.DateModified)],
+                            currentTime
+                        );
                     }
                 }
                 else if (entry.Entity is FileCollectionEntity foundCollection)
                 {
                     if (entry.State == EntityState.Added)
                     {
-                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(foundCollection, [nameof(FileCollectionEntity.DateCreated), nameof(FileCollectionEntity.DateModified)], currentTime);
+                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(
+                            foundCollection,
+                            [
+                                nameof(FileCollectionEntity.DateCreated),
+                                nameof(FileCollectionEntity.DateModified),
+                            ],
+                            currentTime
+                        );
                     }
                     else
                     {
-                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(foundCollection, [nameof(FileCollectionEntity.DateCreated)], currentTime);
+                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(
+                            foundCollection,
+                            [nameof(FileCollectionEntity.DateCreated)],
+                            currentTime
+                        );
                     }
                 }
-                else if (entry is { Entity: FileDocumentEntity foundDocument, State: EntityState.Added })
+                else if (
+                    entry is { Entity: FileDocumentEntity foundDocument, State: EntityState.Added }
+                )
                 {
-                    UpdateEntityDatesToToday<FileDocumentEntity, Guid, FileDocument>(foundDocument, [nameof(FileDocumentEntity.DateCreated)], currentTime);
+                    UpdateEntityDatesToToday<FileDocumentEntity, Guid, FileDocument>(
+                        foundDocument,
+                        [nameof(FileDocumentEntity.DateCreated)],
+                        currentTime
+                    );
                 }
             }
         }
-        private static void UpdateEntityDatesToToday<TEnt, TId, TRuntime>(TEnt ent, IReadOnlyCollection<string> propertyNames, DateTime dateTime) 
+
+        private static void UpdateEntityDatesToToday<TEnt, TId, TRuntime>(
+            TEnt ent,
+            IReadOnlyCollection<string> propertyNames,
+            DateTime dateTime
+        )
             where TEnt : BaseEntity<TId, TRuntime>
             where TRuntime : class
         {
@@ -139,11 +179,14 @@ namespace AiTrainer.Web.Persistence.Contexts
                 try
                 {
                     var propertyToUpdate = entType.GetProperty(propName);
-                    if (propertyToUpdate == null || propertyToUpdate.PropertyType != typeof(DateTime))
+                    if (
+                        propertyToUpdate == null
+                        || propertyToUpdate.PropertyType != typeof(DateTime)
+                    )
                     {
                         continue;
                     }
-                    
+
                     propertyToUpdate.SetValue(ent, dateTime);
                 }
                 catch
@@ -153,5 +196,4 @@ namespace AiTrainer.Web.Persistence.Contexts
             }
         }
     }
-    
 }

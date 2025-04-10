@@ -1,5 +1,6 @@
 using System.Runtime.Serialization;
 using System.Text.Json;
+using AiTrainer.Web.Common;
 
 namespace AiTrainer.Web.Domain.Models.Helpers;
 
@@ -19,7 +20,7 @@ public static class FaissHelper{
 
                 var innerContent =
                     JsonSerializer
-                        .Deserialize<SingleInnerFaissJsonDocFileContent>(enumedChunk.Skip(1).First().ToString())
+                        .Deserialize<SingleInnerFaissJsonDocFileContent>(enumedChunk.Skip(1).First().ToString(), ApiConstants.DefaultCamelCaseSerializerOptions)
                     ?? throw new SerializationException("Failed to deserialise file content from single doc chunk");
 
                 if (innerContent.Metadata?.TryGetValue(nameof(SingleDocumentChunk.FileDocumentId), out var fileDocId) ==

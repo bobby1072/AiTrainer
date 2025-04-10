@@ -146,15 +146,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
             }
 
-            if (documentToDelete.Data.Chunks is not null && documentToDelete.Data.Chunks.Count > 0)
-            {
-                await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissRemoveDocumentsBackgroundJob
-                {
-                    CurrentUser = currentUser,
-                    CollectionId = documentToDelete.Data.CollectionId,
-                    DocumentsToRemove = documentToDelete.Data.Chunks
-                });
-            }
             
             
             var deletedJobResult = await EntityFrameworkUtils.TryDbOperation(
@@ -167,6 +158,16 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 throw new ApiException(
                     "Could not delete document"
                 );
+            }
+
+            if (documentToDelete.Data.Chunks is not null && documentToDelete.Data.Chunks.Count > 0)
+            {
+                await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissRemoveDocumentsBackgroundJob
+                {
+                    CurrentUser = currentUser,
+                    CollectionId = documentToDelete.Data.CollectionId,
+                    DocumentsToRemove = documentToDelete.Data.Chunks
+                });
             }
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
