@@ -25,19 +25,24 @@ internal static class CoreClientHttpExtensions
         headers.TryAddWithoutValidation(CoreClientConstants.ApiKeyHeader, apiKey);
     }
     public static async Task<TReturn?> CoreClientExceptionHandling<TReturn, TLoggObject>(this Task<TReturn?> coreClientRequest, ILogger<TLoggObject> logger,
-        string opName) where TReturn: class 
+        string opName, string? correlationId = null) where TReturn: class 
     {
         try
         {
             var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(() => coreClientRequest);
             
-            logger.LogDebug("{OpName} took a total time of {TimeTaken}ms to complete", opName, timeTaken.Milliseconds);
+            logger.LogDebug("{OpName} took a total time of {TimeTaken}ms to complete for correlationId {CorrelationId}", opName, timeTaken.Milliseconds, correlationId);
 
-            if (result is CoreResponse { IsSuccess: false } coreResponse)
+            if (result is CoreResponse { IsSuccess: false } failedCoreResponse)
             {
                 logger.LogError("{OpName} Core request was unsuccessful with exception message of {ExMessage}",
                     opName,
-                    coreResponse.ExceptionMessage);
+                    failedCoreResponse.ExceptionMessage);
+            } 
+            else if (result is CoreResponse { IsSuccess: true })
+            {
+                logger.LogInformation("Successfully completed call to core api for correlationId {CorrelationId}",
+                    correlationId);
             }
             return result;
         }

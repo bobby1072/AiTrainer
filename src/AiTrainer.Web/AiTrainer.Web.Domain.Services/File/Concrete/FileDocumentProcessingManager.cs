@@ -166,7 +166,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissSyncBackgroundJob
-            { User = currentUser, CollectionId = documentToDelete.Data.CollectionId });
+            { CurrentUser = currentUser, CollectionId = documentToDelete.Data.CollectionId });
 
             return (Guid)documentToDelete.Data.Id!;
         }

@@ -41,8 +41,6 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
     {
         try
         {
-            var metadataJson = JsonSerializer.Serialize(input, ApiConstants.DefaultCamelCaseSerializerOptions);
-
             using var content = new MultipartFormDataContent();
             using var fileContent = new ByteArrayContent(input.FileInput);
 
@@ -51,18 +49,22 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
             fileContent.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
 
             content.Add(fileContent, "file", "upload.pdf");
-            content.Add(new StringContent(metadataJson, Encoding.UTF8, "application/json"), "metadata");
+            content.Add(new StringContent(JsonSerializer.Serialize(input, ApiConstants.DefaultCamelCaseSerializerOptions),
+                Encoding.UTF8,
+                "application/json"),
+                "metadata");
             var retryPipeline = _aiTrainerCoreConfiguration.ToPipeline();
             var result = await retryPipeline.ExecuteAsync(async ct =>
                 {
-                    var response = await _httpClient.PostAsync($"{_aiTrainerCoreConfiguration.BaseEndpoint}/", content,
+                    var response = await _httpClient.PostAsync($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments", content,
                         ct);
                     response.EnsureSuccessStatusCode();
 
                     return await response.Content
                                .TryDeserializeJson<CoreResponse<CoreFaissStoreResponse>>(
                                    ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
-                }, cancellationToken).AsTask()
+                }, cancellationToken)
+                .AsTask()
                 .CoreClientExceptionHandling(_logger, nameof(CoreClientRemoveDocumentsFromStore));
 
             return result?.Data;

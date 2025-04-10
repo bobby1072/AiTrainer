@@ -13,15 +13,15 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
-internal class RemoveDocumentsFileCollectionFaissProcessingManager: IRemoveDocumentsFileCollectionFaissProcessingManager
+internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollectionFaissRemoveDocumentsProcessingManager
 {
     private readonly ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse> _coreClient;
-    private readonly ILogger<RemoveDocumentsFileCollectionFaissProcessingManager> _logger;
+    private readonly ILogger<FileCollectionFaissRemoveDocumentsProcessingManager> _logger;
     private readonly IFileCollectionFaissRepository _fileCollectionFaissRepo;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    public RemoveDocumentsFileCollectionFaissProcessingManager(
+    public FileCollectionFaissRemoveDocumentsProcessingManager(
             IFileCollectionFaissRepository fileCollectionFaissRepo,
-            ILogger<RemoveDocumentsFileCollectionFaissProcessingManager> logger,
+            ILogger<FileCollectionFaissRemoveDocumentsProcessingManager> logger,
             ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse> coreClient,
             IHttpContextAccessor httpContextAccessor
         )
@@ -33,7 +33,7 @@ internal class RemoveDocumentsFileCollectionFaissProcessingManager: IRemoveDocum
     }
 
 
-    public async Task RemoveDocumentsFromFaissStoreAndSaveIt(Guid collectionId, IReadOnlyCollection<SingleDocumentChunk> documentsToRemove, Domain.Models.User currentUser, CancellationToken cancellationToken = default)
+    public async Task RemoveDocumentsFromFaissStoreAndSaveIt(Guid? collectionId, IReadOnlyCollection<SingleDocumentChunk> documentsToRemove, Domain.Models.User currentUser, CancellationToken cancellationToken = default)
     {
         var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 

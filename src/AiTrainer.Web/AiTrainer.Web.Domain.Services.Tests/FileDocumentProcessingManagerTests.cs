@@ -105,7 +105,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 Times.Once
             );
             _mockJobQueue.Verify(x =>
-                x.Enqueue(It.Is<FileCollectionFaissSyncBackgroundJob>(y => y.CollectionId == collectionId && currentUser.Equals(y.User))),
+                x.Enqueue(It.Is<FileCollectionFaissSyncBackgroundJob>(y => y.CollectionId == collectionId && currentUser.Equals(y.CurrentUser))),
                 Times.Once
             );
         }
