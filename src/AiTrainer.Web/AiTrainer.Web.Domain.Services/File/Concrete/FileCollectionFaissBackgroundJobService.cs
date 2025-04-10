@@ -22,7 +22,11 @@ internal class FileCollectionFaissBackgroundJobService : BackgroundService
         _jobQueue = jobQueue;
         _serviceScopeFactory = serviceScopeFactory;
     }
-
+    public override void Dispose()
+    {
+        _jobQueue.Dispose();
+        base.Dispose();
+    }
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogDebug(
@@ -34,23 +38,22 @@ internal class FileCollectionFaissBackgroundJobService : BackgroundService
         {
             var job = await _jobQueue.DequeueAsync(stoppingToken);
             var jobName = job.GetType().Name;
+            _logger.LogDebug(
+                "--------Processing faiss background job {JobName} in {BackgroundServiceName} for collectionId {CollectionId} and userId {UserId}--------",
+                jobName,
+                nameof(FileCollectionFaissBackgroundJobService),
+                job.CollectionId,
+                job.CurrentUser.Id
+            );
             try
             {
-                _logger.LogDebug(
-                    "--------Processing faiss background job {JobName} in {BackgroundServiceName} for collectionId {CollectionId} and userId {UserId}--------",
-                    jobName,
-                    nameof(FileCollectionFaissBackgroundJobService),
-                    job.CollectionId,
-                    job.CurrentUser.Id
-                );
-
                 await RunJob(job, stoppingToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(
                     ex,
-                    "Exceptions occurred during execution of background faiss sync job for collectionId {CollectionId} and userId {UserId}",
+                    "Exceptions occurred during execution of background faiss job for collectionId {CollectionId} and userId {UserId}",
                     job.CollectionId,
                     job.CurrentUser.Id
                 );
@@ -63,13 +66,6 @@ internal class FileCollectionFaissBackgroundJobService : BackgroundService
             );
         }
     }
-
-    public override void Dispose()
-    {
-        _jobQueue.Dispose();
-        base.Dispose();
-    }
-
     private async Task RunJob(FileCollectionFaissBackgroundJob jobToRun, CancellationToken ct)
     {
         await using var scope = _serviceScopeFactory.CreateAsyncScope();

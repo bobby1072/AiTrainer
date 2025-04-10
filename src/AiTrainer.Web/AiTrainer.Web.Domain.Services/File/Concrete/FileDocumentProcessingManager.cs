@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using AiTrainer.Web.Domain.Services.File.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Persistence.Entities;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -22,14 +23,12 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IValidator<FileDocument> _validator;
         private readonly IFileCollectionRepository _fileCollectionRepository;
-        private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
         private readonly IFileCollectionFaissSyncBackgroundJobQueue _faissSyncBackgroundJobQueue;
         private readonly IHttpContextAccessor? _httpContextAccessor;
 
         public FileDocumentProcessingManager(
             ILogger<FileDocumentProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
-            IFileCollectionFaissRepository fileCollectionFaissRepository,
             IValidator<FileDocument> validator,
             IFileCollectionRepository fileCollectionRepository,
             IFileCollectionFaissSyncBackgroundJobQueue faissSyncBackgroundJobQueue,
@@ -40,7 +39,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _logger = logger;
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
-            _fileCollectionFaissRepository = fileCollectionFaissRepository;
             _fileCollectionRepository = fileCollectionRepository;
             _faissSyncBackgroundJobQueue = faissSyncBackgroundJobQueue;
         }
@@ -139,7 +137,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             var documentToDelete =
                 await EntityFrameworkUtils.TryDbOperation(
-                    () => _fileDocumentRepository.GetOne(documentId),
+                    () => _fileDocumentRepository.GetOne(documentId, nameof(FileDocumentEntity.Chunks)),
                     _logger
                 );
 
@@ -148,6 +146,17 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
             }
 
+            if (documentToDelete.Data.Chunks is not null && documentToDelete.Data.Chunks.Count > 0)
+            {
+                await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissRemoveDocumentsBackgroundJob
+                {
+                    CurrentUser = currentUser,
+                    CollectionId = documentToDelete.Data.CollectionId,
+                    DocumentsToRemove = documentToDelete.Data.Chunks
+                });
+            }
+            
+            
             var deletedJobResult = await EntityFrameworkUtils.TryDbOperation(
                 () => _fileDocumentRepository.Delete([documentToDelete.Data]),
                 _logger
@@ -164,9 +173,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFileDocument),
                 correlationId
             );
-
-            await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissSyncBackgroundJob
-            { CurrentUser = currentUser, CollectionId = documentToDelete.Data.CollectionId });
+            
 
             return (Guid)documentToDelete.Data.Id!;
         }

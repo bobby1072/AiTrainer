@@ -15,6 +15,8 @@ namespace AiTrainer.Web.Persistence.Entities
         public string? FileDescription { get; set; }
         public bool FaissSynced { get; set; }
         public FileDocumentMetaDataEntity? MetaData { get; init; }
+        
+        public virtual IReadOnlyCollection<SingleDocumentChunk>? Chunks { get; init; }
 
         public override FileDocument ToModel() =>
             new()

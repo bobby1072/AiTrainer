@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Services.File.Abstract;
 
-public interface IFileCollectionFaissRemoveDocumentsProcessingManager: IFileCollectionFaissProcessingManager
+internal interface IFileCollectionFaissRemoveDocumentsProcessingManager: IFileCollectionFaissProcessingManager
 {
     Task RemoveDocumentsFromFaissStoreAndSaveIt(Guid? collectionId,
         IReadOnlyCollection<SingleDocumentChunk> documentsToRemove, Domain.Models.User currentUser,

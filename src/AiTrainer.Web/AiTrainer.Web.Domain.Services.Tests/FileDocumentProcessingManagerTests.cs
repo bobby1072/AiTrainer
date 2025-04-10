@@ -4,6 +4,7 @@ using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.File.Models;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.TestBase;
@@ -21,7 +22,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
         private readonly Mock<IValidator<FileDocument>> _mockValidator = new();
         private readonly Mock<IFileCollectionRepository> _mockFileCollectionRepository = new();
-        private readonly Mock<IFileCollectionFaissRepository> _mockFileFaissReposiotory = new();
         private readonly Mock<IFileCollectionFaissSyncBackgroundJobQueue> _mockJobQueue = new();
         private readonly FileDocumentProcessingManager _fileDocumentProcessingManager;
         public FileDocumentProcessingManagerTests()
@@ -29,7 +29,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _fileDocumentProcessingManager = new FileDocumentProcessingManager(
                 _mockLogger.Object,
                 _mockFileDocumentRepository.Object,
-                _mockFileFaissReposiotory.Object,
                 _mockValidator.Object,
                 _mockFileCollectionRepository.Object,
                 _mockJobQueue.Object,
@@ -76,16 +75,27 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-
+            var fileDocumentId = Guid.NewGuid();
+            
+            var singleDocumentChunks = _fixture
+                    .Build<SingleDocumentChunk>()
+                    .With(x => x.Id, Guid.NewGuid())
+                    .With(x => x.FileDocumentId, fileDocumentId)
+                    .With(x => x.PageContent, Faker.Lorem.Paragraph())
+                    .CreateMany()
+                    .ToArray();
+                
             var docToDelete = _fixture
                 .Build<FileDocument>()
-                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Id, fileDocumentId)
                 .With(x => x.UserId, (Guid)currentUser.Id!)
                 .With(x => x.CollectionId, collectionId)
+                .With(x => x.Chunks, singleDocumentChunks)
                 .Create();
+            
 
             _mockFileDocumentRepository.Setup(x =>
-                x.GetOne((Guid)docToDelete.Id!)
+                x.GetOne((Guid)docToDelete.Id!, nameof(FileDocumentEntity.Chunks))
             ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
 
             _mockFileDocumentRepository.Setup(x =>
@@ -93,11 +103,11 @@ namespace AiTrainer.Web.Domain.Services.Tests
             ).ReturnsAsync(new DbDeleteResult<FileDocument>(new List<FileDocument>{docToDelete}));
 
             //Act
-            var result = await _fileDocumentProcessingManager.DeleteFileDocument((Guid)docToDelete.Id!, currentUser);
+            await _fileDocumentProcessingManager.DeleteFileDocument((Guid)docToDelete.Id!, currentUser);
 
             //Assert
             _mockFileDocumentRepository.Verify(x =>
-                x.GetOne((Guid)docToDelete.Id!),
+                x.GetOne((Guid)docToDelete.Id!, nameof(FileDocumentEntity.Chunks)),
                 Times.Once
             );
             _mockFileDocumentRepository.Verify(x =>
@@ -105,7 +115,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 Times.Once
             );
             _mockJobQueue.Verify(x =>
-                x.Enqueue(It.Is<FileCollectionFaissSyncBackgroundJob>(y => y.CollectionId == collectionId && currentUser.Equals(y.CurrentUser))),
+                x.Enqueue(It.Is<FileCollectionFaissRemoveDocumentsBackgroundJob>(y => y.CollectionId == collectionId && currentUser.Equals(y.CurrentUser))),
                 Times.Once
             );
         }
@@ -119,7 +129,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-
+            
+                
             var docToDelete = _fixture
                 .Build<FileDocument>()
                 .With(x => x.Id, Guid.NewGuid())
@@ -128,7 +139,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Create();
 
             _mockFileDocumentRepository.Setup(x =>
-                x.GetOne((Guid)docToDelete.Id!)
+                x.GetOne((Guid)docToDelete.Id!, nameof(FileDocumentEntity.Chunks))
             ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
 
             _mockFileDocumentRepository.Setup(x =>
@@ -143,7 +154,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             
             
             _mockFileDocumentRepository.Verify(x =>
-                    x.GetOne((Guid)docToDelete.Id!),
+                    x.GetOne((Guid)docToDelete.Id!, nameof(FileDocumentEntity.Chunks)),
                 Times.Once
             );
             _mockFileDocumentRepository.Verify(x =>

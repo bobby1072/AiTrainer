@@ -2,9 +2,9 @@
 
 namespace AiTrainer.Web.Domain.Services.File.Models;
 
-public record FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob<IFileCollectionFaissSyncProcessingManager>
+internal class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob<IFileCollectionFaissSyncProcessingManager>
 {
-    internal override Task JobProcessToRun(IFileCollectionFaissSyncProcessingManager manager, CancellationToken ct)
+    public override Task JobProcessToRun(IFileCollectionFaissSyncProcessingManager manager, CancellationToken ct)
     {
         return manager.SyncUserFileCollectionFaissStore(CurrentUser, CollectionId, ct);
     }
