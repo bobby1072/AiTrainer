@@ -82,7 +82,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         Assert.IsType<ApiException>(timerEx.InnerException);
         _mockFileDocumentRepository.Verify(x =>
             x.GetManyDocumentsByCollectionIdAndUserId((Guid)currentUser.Id!, collectionId,
-                nameof(FileDocumentEntity.MetaData)), Times.Once);
+                nameof(FileDocumentEntity.MetaData)), Times.Exactly(_syncRetryAmount));
     }
 
     [Fact]
