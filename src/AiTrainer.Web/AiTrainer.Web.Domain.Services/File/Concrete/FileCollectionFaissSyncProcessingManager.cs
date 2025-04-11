@@ -41,7 +41,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
     private readonly IFileDocumentRepository _fileDocumentRepository;
     private readonly FaissSyncRetrySettingsConfiguration _retrySettings;
     private readonly IHttpContextAccessor? _httpContextAccessor;
-
+    private readonly IFileCollectionFaissSyncBackgroundJobQueue _fileCollectionFaissSyncBackgroundJobQueue;
     private int SyncAttemptCount { get; set; }
 
     public FileCollectionFaissSyncProcessingManager(
@@ -52,6 +52,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         IFileDocumentRepository fileDocumentRepository,
         IFileCollectionFaissRepository fileCollectionFaissRepository,
         IOptionsSnapshot<FaissSyncRetrySettingsConfiguration> retrySettings,
+        IFileCollectionFaissSyncBackgroundJobQueue fileCollectionFaissSyncBackgroundJobQueue,
         IHttpContextAccessor? httpContextAccessor = null
     )
     {
@@ -62,7 +63,8 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         _retrySettings = retrySettings.Value;
         _fileDocumentRepository = fileDocumentRepository;
         _fileCollectionFaissRepository = fileCollectionFaissRepository;
-        _httpContextAccessor = httpContextAccessor;
+        _fileCollectionFaissSyncBackgroundJobQueue = fileCollectionFaissSyncBackgroundJobQueue;
+        _httpContextAccessor = httpContextAccessor;        
     }
 
     public async Task SyncUserFileCollectionFaissStore(

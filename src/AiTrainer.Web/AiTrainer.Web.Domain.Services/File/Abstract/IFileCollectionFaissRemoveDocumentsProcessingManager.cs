@@ -1,5 +1,4 @@
-﻿
-namespace AiTrainer.Web.Domain.Services.File.Abstract;
+﻿namespace AiTrainer.Web.Domain.Services.File.Abstract;
 
 internal interface IFileCollectionFaissRemoveDocumentsProcessingManager: IFileCollectionFaissProcessingManager
 {

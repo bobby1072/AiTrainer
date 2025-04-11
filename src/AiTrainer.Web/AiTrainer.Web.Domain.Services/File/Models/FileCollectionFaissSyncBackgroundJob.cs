@@ -5,6 +5,7 @@ namespace AiTrainer.Web.Domain.Services.File.Models;
 
 internal class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob
 {
+
     public override Task ExecuteFaissJob(IServiceProvider sp, CancellationToken ct = default)
     {
         var syncManager = sp.GetRequiredService<IFileCollectionFaissSyncProcessingManager>();

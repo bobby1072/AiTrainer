@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Exceptions;
+﻿using System.Text.Json;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -62,16 +63,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             return;
         }
         
-        var existingFileDocuments = await EntityFrameworkUtils.TryDbOperation(
-            () =>
-                _fileCollectionRepo.GetManyDocumentPartialsByCollectionIdAndUserId(
-                    (Guid)currentUser.Id!,
-                    collectionId
-                ),
-            _logger
-        ) ?? throw new ApiException("Failed to retrieve file documents");
-
-        var existingDocumentIds = existingFileDocuments.Data.FastArraySelect(x => x.Id).ToHashSet();
+        var existingDocumentIds = await GetExistingDocumentIds((Guid)currentUser.Id!, collectionId);
         
         var analysedSingleChunkDocsToRemoveFromStore = FaissHelper
             .GetDocumentChunksFromFaissDocStore(existingFaissStore.Data.FaissJson)
@@ -83,22 +75,40 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             return;
         }
         
+        await RemoveDirectlyFromStoreAndSave(existingFaissStore.Data.FaissIndex,
+            existingFaissStore.Data.FaissJson,
+            analysedSingleChunkDocsToRemoveFromStore.FastArraySelect(x => (Guid)x.Id!).ToArray(),
+            (Guid)currentUser.Id!,
+            collectionId,
+            existingFaissStore.Data.Id,
+            cancellationToken
+        );
+    }
+
+    private async Task RemoveDirectlyFromStoreAndSave(byte[] faissIndex, 
+        JsonDocument jsonDocument,
+        IReadOnlyCollection<Guid> documentIdsToRemove,
+        Guid userId,
+        Guid? collectionId,
+        long? existingFaissId,
+        CancellationToken cancellationToken)
+    {
         var deleteInCoreResult = await _coreClient.TryInvokeAsync(new CoreRemoveDocumentsFromStoreInput
         {
-            FileInput = existingFaissStore.Data.FaissIndex,
-            JsonDocStore = existingFaissStore.Data.FaissJson,
-            DocumentIdsToRemove = analysedSingleChunkDocsToRemoveFromStore.FastArraySelect(x => (Guid)x.Id!).ToArray(),
+            FileInput = faissIndex,
+            JsonDocStore = jsonDocument,
+            DocumentIdsToRemove = documentIdsToRemove,
         }, cancellationToken) ?? throw new ApiException("Failed to delete chunks from the chosen faiss store");
 
         var storeUpdateResult = await EntityFrameworkUtils.TryDbOperation(
             () =>
                 _fileCollectionFaissRepo.Update([new FileCollectionFaiss
                 {
-                    Id = existingFaissStore.Data.Id,
+                    Id = existingFaissId,
                     CollectionId = collectionId,
                     FaissIndex = deleteInCoreResult.IndexFile,
                     FaissJson = deleteInCoreResult.JsonDocStore,
-                    UserId = (Guid)currentUser.Id!,
+                    UserId = userId,
                 }])
         );
 
@@ -107,52 +117,19 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             throw new ApiException("Failed to save new updated faiss store");
         }
     }
-    public async Task RemoveDocumentsFromFaissStoreAndSaveIt(Guid? collectionId, IReadOnlyCollection<SingleDocumentChunk> documentsToRemove, Domain.Models.User currentUser, CancellationToken cancellationToken = default)
+    private async Task<IReadOnlyCollection<Guid>> GetExistingDocumentIds(Guid currentUserId, Guid? collectionId)
     {
-        var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
-
-        _logger.LogInformation(
-            "Entering {Action} for correlationId {CorrelationId}",
-            nameof(RemoveDocumentsFromFaissStoreAndSaveIt),
-            correlationId
-        );
-
-        var existingFaissStore = await EntityFrameworkUtils.TryDbOperation(
+        var existingFileDocuments = await EntityFrameworkUtils.TryDbOperation(
             () =>
-                _fileCollectionFaissRepo.ByUserAndCollectionId(
-                    (Guid)currentUser.Id!,
+                _fileCollectionRepo.GetManyDocumentPartialsByCollectionIdAndUserId(
+                    currentUserId,
                     collectionId
                 ),
             _logger
-        );
+        ) ?? throw new ApiException("Failed to retrieve file documents");
 
-        if (existingFaissStore?.Data is null)
-        {
-            throw new ApiException("Failed to retrieve file collection faiss store");
-        }
-
-        var deleteInCoreResult = await _coreClient.TryInvokeAsync(new CoreRemoveDocumentsFromStoreInput
-        {
-            FileInput = existingFaissStore.Data.FaissIndex,
-            JsonDocStore = existingFaissStore.Data.FaissJson,
-            DocumentIdsToRemove = documentsToRemove.FastArraySelect(x => (Guid)x.Id!).ToArray(),
-        }, cancellationToken) ?? throw new ApiException("Failed to delete chunks from the chosen faiss store");
-
-        var storeUpdateResult = await EntityFrameworkUtils.TryDbOperation(
-            () =>
-                _fileCollectionFaissRepo.Update([new FileCollectionFaiss
-                {
-                    Id = existingFaissStore.Data.Id,
-                    CollectionId = collectionId,
-                    FaissIndex = deleteInCoreResult.IndexFile,
-                    FaissJson = deleteInCoreResult.JsonDocStore,
-                    UserId = (Guid)currentUser.Id!,
-                }])
-        );
-
-        if (storeUpdateResult?.IsSuccessful != true || storeUpdateResult?.Data is null)
-        {
-            throw new ApiException("Failed to save new updated faiss store");
-        }
+        var existingDocumentIds = existingFileDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToHashSet();
+        
+        return existingDocumentIds;
     }
 }
