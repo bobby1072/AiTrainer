@@ -137,7 +137,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             var documentToDelete =
                 await EntityFrameworkUtils.TryDbOperation(
-                    () => _fileDocumentRepository.GetOne(documentId, nameof(FileDocumentEntity.Chunks)),
+                    () => _fileDocumentRepository.GetOne(documentId),
                     _logger
                 );
 
@@ -160,14 +160,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 );
             }
 
-            if (documentToDelete.Data.Chunks is not null && documentToDelete.Data.Chunks.Count > 0)
+            await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissRemoveDocumentsBackgroundJob
             {
-                await _faissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissRemoveDocumentsBackgroundJob
-                {
-                    CurrentUser = currentUser,
-                    CollectionId = documentToDelete.Data.CollectionId
-                });
-            }
+                CurrentUser = currentUser,
+                CollectionId = documentToDelete.Data.CollectionId
+            });
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
                 nameof(UploadFileDocument),

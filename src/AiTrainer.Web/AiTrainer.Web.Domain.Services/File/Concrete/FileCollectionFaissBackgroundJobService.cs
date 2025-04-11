@@ -1,5 +1,4 @@
 ﻿using AiTrainer.Web.Domain.Services.File.Abstract;
-using AiTrainer.Web.Domain.Services.File.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -49,7 +48,7 @@ internal class FileCollectionFaissBackgroundJobService : BackgroundService
             {
                 await using var scope = _serviceScopeFactory.CreateAsyncScope();
         
-                await job.ExecuteFaissJob(scope.ServiceProvider, stoppingToken);
+                await job.ExecuteFaissJobAsync(scope.ServiceProvider, stoppingToken);
             }
             catch (Exception ex)
             {

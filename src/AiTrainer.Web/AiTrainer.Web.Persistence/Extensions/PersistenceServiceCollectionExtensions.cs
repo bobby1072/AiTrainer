@@ -87,8 +87,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 >()
                 .AddScoped<IFileCollectionFaissRepository, FileCollectionFaissRepository>()
                 .AddScoped<IRepository<FileDocumentMetaDataEntity, long, FileDocumentMetaData>,
-                    FileDocumentMetaDataRepository>()
-                .AddScoped<ISingleDocumentChunkRepository, SingleDocumentChunkRepository>();
+                    FileDocumentMetaDataRepository>();
 
             return services;
         }

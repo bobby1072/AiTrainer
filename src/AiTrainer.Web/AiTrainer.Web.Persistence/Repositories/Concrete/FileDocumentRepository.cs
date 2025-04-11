@@ -187,6 +187,29 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             );
         }
 
+        public async Task<DbGetManyResult<FileDocument>> GetManyDocumentsByCollectionIdAndUserId(
+            Guid userId,
+            Guid? collectionId,
+            params string[] relationShips
+        )
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            
+            var setToQuery = AddRelationsToSet(dbContext.FileDocuments, relationShips);
+            
+            var entities = await TimeAndLogDbOperation(
+                () =>
+                    setToQuery
+                        .Where(x => x.CollectionId == collectionId && x.UserId == userId)
+                        .ToArrayAsync(),
+                nameof(GetManyDocumentPartialsByCollectionIdAndUserId),
+                _entityType.Name
+            );
+
+            return new DbGetManyResult<FileDocument>(
+                entities.FastArraySelect(x => x.ToModel()).ToArray()
+            );
+        }
         public async Task<
             DbGetManyResult<FileDocumentPartial>
         > GetManyDocumentPartialsByCollectionIdAndUserId(

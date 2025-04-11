@@ -23,6 +23,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             Guid? collectionId,
             params string[] relationShips
         );
+        Task<DbGetManyResult<FileDocument>> GetManyDocumentsByCollectionIdAndUserId(
+            Guid userId,
+            Guid? collectionId,
+            params string[] relationShips
+        );
         
 
         Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId);

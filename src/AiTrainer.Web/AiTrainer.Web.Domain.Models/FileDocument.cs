@@ -22,9 +22,6 @@ namespace AiTrainer.Web.Domain.Models
         public required DateTime DateCreated { get; set; }
 
         public FileDocumentMetaData? MetaData { get; init; }
-        
-        public IReadOnlyCollection<SingleDocumentChunk>? Chunks { get; init; }
-
         public override bool Equals(FileDocument? other)
         {
             return Id == other?.Id

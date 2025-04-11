@@ -1,4 +1,3 @@
-using System.Text.Json;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
 using BT.Common.FastArray.Proto;
@@ -18,20 +17,9 @@ namespace AiTrainer.Web.Persistence.Contexts
         public virtual DbSet<FileDocumentEntity> FileDocuments { get; set; }
         public virtual DbSet<FileCollectionFaissEntity> FileCollectionFaiss { get; set; }
         public virtual DbSet<FileDocumentMetaDataEntity> FileDocumentMetaData { get; set; }
-        public virtual DbSet<SingleDocumentChunkEntity> SingleDocumentChunks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SingleDocumentChunkEntity>(ent =>
-            {
-                ent.Property(e => e.Metadata)
-                    .HasColumnType("metadata")
-                    .HasColumnType("jsonb")
-                    .HasConversion(
-                        x => x.SerialiseToJson(null),
-                        x => DictionaryHelpers.DeserializeFromJsonString<string, string>(x)
-                    );
-            });
 
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
@@ -64,16 +52,6 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .WithMany(c => c.Documents)
                     .HasForeignKey(e => e.CollectionId)
                     .HasConstraintName("fk_file_document_collection_id");
-            });
-
-            modelBuilder.Entity<SingleDocumentChunkEntity>(entity =>
-            {
-                entity.Property(e => e.FileDocumentId).HasColumnName("file_document_id");
-
-                entity
-                    .HasOne<FileDocumentEntity>()
-                    .WithMany(x => x.Chunks)
-                    .HasForeignKey(x => x.FileDocumentId);
             });
         }
 

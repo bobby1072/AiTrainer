@@ -5,11 +5,10 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract;
 
 internal interface IFileCollectionFaissRemoveDocumentsProcessingManager: IFileCollectionFaissProcessingManager
 {
-    Task RemoveDocumentsFromFaissStoreAndSaveIt(Guid? collectionId,
+    Task RemoveDocumentsFromFaissStoreAndSaveItAsync(Guid? collectionId,
         Domain.Models.User currentUser,
         CancellationToken cancellationToken = default);
 
-    Task RemoveDocumentsFromFaissStoreAndSaveIt(FileCollectionFaiss existingFaissStore,
-        Domain.Models.User currentUser,
-        CancellationToken cancellationToken = default);
+    Task<FileCollectionFaiss> RemoveDocumentsFromFaissStoreSafelyAsync(FileCollectionFaiss fileCollectionFaiss,
+        IReadOnlyCollection<Guid> existingDocumentIds, CancellationToken cancellationToken = default);
 }

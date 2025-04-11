@@ -35,14 +35,13 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             return new DbGetOneResult<FileCollectionFaiss>(foundResult?.ToModel());
         }
-        public async Task<DbSaveResult<FileCollectionFaiss>> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<SingleDocumentChunk> newChunks, IReadOnlyCollection<Guid> documentIdsToSync,
+        public async Task<DbSaveResult<FileCollectionFaiss>> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<Guid> documentIdsToSync,
             FileCollectionFaissRepositorySaveMode saveMode)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
             try
             {
-                var singleChunkEntity = newChunks.FastArraySelect(x => x.ToEntity());
                 var faissEntity = fileCollectionFaiss.ToEntity();
                 Func<Task<EntityEntry<FileCollectionFaissEntity>>> saveFunc = async () => saveMode == FileCollectionFaissRepositorySaveMode.Create ? await dbContext.FileCollectionFaiss
                     .AddAsync(faissEntity) : dbContext.FileCollectionFaiss.Update(faissEntity);
@@ -51,17 +50,13 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                     dbContext.FileDocuments
                         .Where(x => documentIdsToSync.Contains(x.Id))
                         .ExecuteUpdateAsync(x => x.SetProperty(y => y.FaissSynced, true)),
-                    saveFunc.Invoke(),
-                    dbContext.SingleDocumentChunks
-                        .AddRangeAsync(singleChunkEntity)
+                    saveFunc.Invoke()
                 );
 
                 await dbContext.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
-                var localEntsToReturn = dbContext.FileCollectionFaiss.Local.FirstOrDefault();
-                
                 return new DbSaveResult<FileCollectionFaiss>(dbContext.FileCollectionFaiss.Local.FastArraySelect(x => x.ToModel()).ToArray());
             }
             catch(Exception e)

@@ -12,15 +12,12 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
 {
     private readonly ILogger<ChatGptQueryProcessingManager> _logger;
     private readonly ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse> _chatFormattedQueryClient;
-    private readonly ISingleDocumentChunkRepository _singleDocumentChunkRepository;
     public ChatGptQueryProcessingManager(ICoreClient<FormattedChatQueryBuilder, 
         CoreFormattedChatQueryResponse> chatFormattedQueryClient,
-        ILogger<ChatGptQueryProcessingManager> logger,
-        ISingleDocumentChunkRepository singleDocumentChunkRepository)
+        ILogger<ChatGptQueryProcessingManager> logger)
     {
         _chatFormattedQueryClient = chatFormattedQueryClient;
         _logger = logger;
-        _singleDocumentChunkRepository = singleDocumentChunkRepository;
     }
 
     public Task<string> AnalyseSingleDocumentChunkInReferenceToQuestionQuery(AnalyseSingleDocumentChunkInReferenceToQuestionInput input, Domain.Models.User user, CancellationToken cancellationToken = default)

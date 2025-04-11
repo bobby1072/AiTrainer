@@ -8,8 +8,8 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract;
 public interface IFileCollectionFaissRepository : IRepository<FileCollectionFaissEntity, long, FileCollectionFaiss>
 {
     Task<DbGetOneResult<FileCollectionFaiss>> ByUserAndCollectionId(Guid userId, Guid? collectionId, params string[] relations);
+
     Task<DbSaveResult<FileCollectionFaiss>> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss,
-        IReadOnlyCollection<SingleDocumentChunk> newChunks,
         IReadOnlyCollection<Guid> documentIdsToSync,
         FileCollectionFaissRepositorySaveMode saveMode);
 }
