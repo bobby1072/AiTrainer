@@ -6,7 +6,6 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
-using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Persistence.Entities;
@@ -59,7 +58,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             _mockFileDocumentRepository.Object,
             _mockFileCollectionFaissRepository.Object,
             new TestOptionsSnapshot<FaissSyncRetrySettingsConfiguration>(_retrySettings).Object,
-            Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>());
+            Mock.Of<IFileCollectionFaissRemoveDocumentsProcessingManager>());
     }
     [Fact]
     public async Task SyncUserFileCollectionFaissStore_Should_Retry_The_Correct_Amount_Based_On_Configuration()
@@ -72,7 +71,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .Create();
 
         _mockFileDocumentRepository.Setup(x =>
-                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)))
+                x.GetManyDocumentsByCollectionIdAndUserId((Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)))
                 .ThrowsAsync(new Exception());
         
         //Act
@@ -82,7 +81,8 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         var timerEx = await Assert.ThrowsAsync<OperationTimerException>(act);
         Assert.IsType<ApiException>(timerEx.InnerException);
         _mockFileDocumentRepository.Verify(x =>
-            x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)), Times.Exactly(_syncRetryAmount));
+            x.GetManyDocumentsByCollectionIdAndUserId((Guid)currentUser.Id!, collectionId,
+                nameof(FileDocumentEntity.MetaData)), Times.Once);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .Create();
         
         _mockFileDocumentRepository.Setup(x =>
-                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)))
+                x.GetManyDocumentsByCollectionIdAndUserId((Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)))
             .ReturnsAsync(new DbGetManyResult<FileDocument>());
         
         //Act
@@ -104,7 +104,8 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         
         //Assert
         _mockFileDocumentRepository.Verify(x =>
-            x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)), Times.Once);
+            x.GetManyDocumentsByCollectionIdAndUserId((Guid)currentUser.Id!, collectionId,
+                nameof(FileDocumentEntity.MetaData)), Times.Once);
     }
     
     [Fact]
@@ -146,9 +147,8 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .With(x => x.FaissIndex, bytes)
             .Create();
         
-        _mockFileDocumentRepository
-            .Setup(x =>
-                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)))
+        _mockFileDocumentRepository.Setup(x =>
+                x.GetManyDocumentsByCollectionIdAndUserId((Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)))
             .ReturnsAsync(new DbGetManyResult<FileDocument>(fileDocInput));
         _mockFileCollectionFaissRepository
             .Setup(x => x.ByUserAndCollectionId((Guid)currentUser.Id!, collectionId))
@@ -161,16 +161,16 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .Setup(x => x.TryInvokeAsync(It.IsAny<CoreCreateFaissStoreInput>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(faissStoreResponse);
         _mockFileCollectionFaissRepository
-            .Setup(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<SingleDocumentChunk>>(),It.IsAny<IReadOnlyCollection<Guid>>(), FileCollectionFaissRepositorySaveMode.Create))
+            .Setup(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<Guid>>(), FileCollectionFaissRepositorySaveMode.Create))
             .ReturnsAsync(new DbSaveResult<FileCollectionFaiss>([faissStore]));
         
         //Act
         await _faissSyncProcessingManager.SyncUserFileCollectionFaissStore(currentUser, collectionId);
         
         //Assert
-        _mockFileDocumentRepository
-            .Verify(x =>
-                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)), Times.Once);
+        _mockFileDocumentRepository.Verify(x =>
+            x.GetManyDocumentsByCollectionIdAndUserId((Guid)currentUser.Id!, collectionId,
+                nameof(FileDocumentEntity.MetaData)), Times.Once);
         _mockFileCollectionFaissRepository
             .Verify(x => x.ByUserAndCollectionId((Guid)currentUser.Id!, collectionId), Times.Once);
         _mockDocumentChunkerClient
@@ -178,7 +178,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         _mockCreateFaissStoreService
             .Verify(x => x.TryInvokeAsync(It.IsAny<CoreCreateFaissStoreInput>(), It.IsAny<CancellationToken>()), Times.Once);
         _mockFileCollectionFaissRepository
-            .Verify(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<SingleDocumentChunk>>(),It.IsAny<IReadOnlyCollection<Guid>>(),
+            .Verify(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<Guid>>(),
                 FileCollectionFaissRepositorySaveMode.Create), Times.Once);
     }
 }
