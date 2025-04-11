@@ -43,15 +43,15 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
         await using var responseMemStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
         
         var input = _fixture
-            .Build<UpdateFaissStoreInput>()
+            .Build<CoreUpdateFaissStoreInput>()
             .With(x => x.DocStore, await JsonDocument.ParseAsync(inputMemStream))
             .Create();
         
         var response = _fixture
-            .Build<FaissStoreResponse>()
+            .Build<CoreFaissStoreResponse>()
             .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(responseMemStream))
             .Create();
-        var mockedApiResponse = new CoreResponse<FaissStoreResponse> { Data = response };
+        var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
         
         _httpTest
             .ForCallsTo($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore")

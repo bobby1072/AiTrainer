@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
-internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, ChunkedDocumentResponse>
+internal class CoreClientChunkDocument : ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse>
 {
     private readonly ILogger<CoreClientChunkDocument> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -33,17 +33,17 @@ internal class CoreClientChunkDocument : ICoreClient<DocumentToChunkInput, Chunk
         _serialiser = serialiser;
     }
     
-    public async Task<ChunkedDocumentResponse?> TryInvokeAsync(DocumentToChunkInput param, CancellationToken cancellation = default)
+    public async Task<CoreChunkedDocumentResponse?> TryInvokeAsync(CoreDocumentToChunkInput param, CancellationToken cancellation = default)
     {
         var response = await _aiTrainerCoreConfiguration.BaseEndpoint
             .AppendPathSegment("api")
             .AppendPathSegment("chunkingrouter")
             .AppendPathSegment("chunkdocument")
-            .WithAiTrainerCoreKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+            .WithAiTrainerCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
             .WithCorrelationIdHeader(_httpContextAccessor.HttpContext?.GetCorrelationId())
             .WithSerializer(_serialiser)
             .PostJsonAsync(param, HttpCompletionOption.ResponseContentRead, cancellation)
-            .ReceiveJsonAsync<CoreResponse<ChunkedDocumentResponse>>(_aiTrainerCoreConfiguration, cancellation)
+            .ReceiveJsonAsync<CoreResponse<CoreChunkedDocumentResponse>>(_aiTrainerCoreConfiguration, cancellation)
             .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
 
         return response?.Data;

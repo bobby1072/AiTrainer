@@ -14,10 +14,10 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
         where TEnt : BaseEntity<TEntId, TModel>
         where TModel : class
     {
-        protected readonly IDbContextFactory<AiTrainerContext> _contextFactory;
         private readonly ILogger<BaseRepository<TEnt, TEntId, TModel>> _logger;
+        protected readonly IDbContextFactory<AiTrainerContext> _contextFactory;
         protected static readonly Type _entityType = typeof(TEnt);
-        protected static readonly IReadOnlyCollection<PropertyInfo> _entityProperties =
+        private static readonly IReadOnlyCollection<PropertyInfo> _entityProperties =
             _entityType.GetProperties();
 
         protected BaseRepository(

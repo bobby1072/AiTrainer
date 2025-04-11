@@ -1,8 +1,7 @@
-﻿using System.Text.Json.Serialization;
-
+﻿
 namespace AiTrainer.Web.CoreClient.Models.Response;
 
-public record SimilaritySearchCoreResponse : BaseCoreClientResponseData
+public record CoreSimilaritySearchResponse
 {
     public required IReadOnlyCollection<SimilaritySearchResponseItem> Items { get; init; }
 }

@@ -133,7 +133,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 }
 
                 if (
-                    !createdCollection.ValidateAgainstOriginal<FileCollection, Guid?>(foundOne.Data)
+                    !createdCollection.ValidateAgainstOriginal(foundOne.Data)
                 )
                 {
                     throw new ApiException("Cannot edit those fields", HttpStatusCode.BadRequest);
@@ -211,7 +211,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             return deletedId.Data.First();
         }
 
-        public async Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(
+        public async Task<FlatFileDocumentPartialCollectionView> GetOneLayerFileDocPartialsAndCollections(
             Domain.Models.User currentUser,
             Guid? collectionId = null
         )
@@ -240,9 +240,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                             (Guid)currentUser.Id!,
                             nameof(FileDocumentEntity.MetaData)
                         )
-                        : _fileDocumentRepository.GetManyDocumentPartialsByCollectionId(
-                            (Guid)collectionId!,
+                        : _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
                             (Guid)currentUser.Id!,
+                            (Guid)collectionId!,
                             nameof(FileDocumentEntity.MetaData)
                         ),
                 _logger
@@ -258,7 +258,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
 
-            return new FlatFileDocumentPartialCollection
+            return new FlatFileDocumentPartialCollectionView
             {
                 Self = collections.FastArrayFirstOrDefault(x => x.Id == collectionId),
                 FileCollections = collections.FastArrayWhere(x => x.Id != collectionId).ToArray(),

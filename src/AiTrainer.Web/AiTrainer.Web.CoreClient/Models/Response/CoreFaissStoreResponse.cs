@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.CoreClient.Models.Response;
 
-public record FaissStoreResponse : BaseCoreClientResponseData
+public record CoreFaissStoreResponse
  {
      public required JsonDocument JsonDocStore { get; init; }
      public required byte[] IndexFile { get; init; }

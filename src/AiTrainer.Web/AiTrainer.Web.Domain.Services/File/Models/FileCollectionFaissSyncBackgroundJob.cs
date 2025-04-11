@@ -1,13 +1,15 @@
-﻿using System.Linq.Expressions;
-using AiTrainer.Web.Domain.Services.File.Abstract;
+﻿using AiTrainer.Web.Domain.Services.File.Abstract;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.Domain.Services.File.Models;
 
-public record FileCollectionFaissSyncBackgroundJob
+internal class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob
 {
-    public Guid? CollectionId { get; init; }
-    public required Domain.Models.User User { get; init; }
-    
-    internal Expression<Func<IFileCollectionFaissSyncProcessingManager, CancellationToken, Task>> SyncProcess 
-        => (service, ct) => service.SyncUserFileCollectionFaissStore(User, CollectionId, ct);
+
+    public override Task ExecuteFaissJobAsync(IServiceProvider sp, CancellationToken ct = default)
+    {
+        var syncManager = sp.GetRequiredService<IFileCollectionFaissSyncProcessingManager>();
+        
+        return syncManager.SyncUserFileCollectionFaissStore(CurrentUser, CollectionId, ct);
+    }
 }

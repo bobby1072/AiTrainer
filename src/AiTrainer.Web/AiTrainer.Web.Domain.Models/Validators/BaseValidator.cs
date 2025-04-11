@@ -38,7 +38,7 @@ namespace AiTrainer.Web.Domain.Models.Validators
         }
         protected static bool NotLongerThan(string? input, int amount)
         {
-            if (input is null || amount < 0)
+            if (string.IsNullOrEmpty(input) || amount < 0)
             {
                 return true;
             }

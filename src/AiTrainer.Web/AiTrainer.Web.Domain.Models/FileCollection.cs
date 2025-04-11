@@ -2,7 +2,7 @@ using AiTrainer.Web.Domain.Models.Attributes;
 
 namespace AiTrainer.Web.Domain.Models
 {
-    public record FileCollection : DomainModel<FileCollection, Guid?>
+    public class FileCollection : PersistableDomainModel<FileCollection, Guid?>
     {
         [LockedData]
         public required Guid UserId { get; set; }

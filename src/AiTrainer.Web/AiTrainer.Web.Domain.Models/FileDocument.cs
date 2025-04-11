@@ -3,7 +3,7 @@ using AiTrainer.Web.Domain.Models.Attributes;
 namespace AiTrainer.Web.Domain.Models
 {
     [LockedData]
-    public record FileDocument : DomainModel<FileDocument, Guid?>
+    public class FileDocument : PersistableDomainModel<FileDocument, Guid?>
     {
         public Guid? CollectionId { get; set; }
 
@@ -22,7 +22,6 @@ namespace AiTrainer.Web.Domain.Models
         public required DateTime DateCreated { get; set; }
 
         public FileDocumentMetaData? MetaData { get; init; }
-
         public override bool Equals(FileDocument? other)
         {
             return Id == other?.Id

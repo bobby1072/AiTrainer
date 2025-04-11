@@ -17,13 +17,13 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
 internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileCollectionFaissSimilaritySearchProcessingManager
 {
-    private readonly ICoreClient<CoreSimilaritySearchInput, SimilaritySearchCoreResponse> _similaritySearchClient;
+    private readonly ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse> _similaritySearchClient;
     private readonly ILogger<FileCollectionFaissSimilaritySearchProcessingManager> _logger;
     private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly IValidator<SimilaritySearchInput> _inputValidator;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     public FileCollectionFaissSimilaritySearchProcessingManager(
-        ICoreClient<CoreSimilaritySearchInput, SimilaritySearchCoreResponse> similaritySearchClient,
+        ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse> similaritySearchClient,
         ILogger<FileCollectionFaissSimilaritySearchProcessingManager> logger,
         IFileCollectionFaissRepository fileCollectionFaissRepository,
         IValidator<SimilaritySearchInput> inputValidator,
@@ -37,7 +37,7 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileColle
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<SimilaritySearchCoreResponse> SimilaritySearch(SimilaritySearchInput input, Domain.Models.User currentUser)
+    public async Task<CoreSimilaritySearchResponse> SimilaritySearch(SimilaritySearchInput input, Domain.Models.User currentUser)
     {
         var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 

@@ -1,5 +1,6 @@
 using AiTrainer.Web.Domain.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using BT.Common.FastArray.Proto;
 
 namespace AiTrainer.Web.Persistence.Entities
 {

@@ -14,10 +14,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 var appSettings = builder.Configuration.GetSection(ApplicationSettingsConfiguration.Key);
 
-var useStaticFiles = bool.Parse(
-    builder.Configuration.GetSection("UseStaticFiles")?.Value ?? "false"
-);
-
 if (!appSettings.Exists())
 {
     throw new Exception("ApplicationSettingsConfiguration not found in configuration");
@@ -31,7 +27,7 @@ builder
     .AddResponseCompression()
     .AddRequestTimeouts(opts =>
     {
-        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(60) };
+        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(30) };
     })
     .AddLogging()
     .AddEndpointsApiExplorer()
@@ -54,11 +50,11 @@ builder
 builder.Services.AddCors(p =>
     p.AddPolicy(
         "corsapp",
-        builder =>
+        x =>
         {
-            builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+            x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
 
-            builder.WithOrigins("http://localhost:3000").AllowCredentials();
+            x.WithOrigins("http://localhost:3000").AllowCredentials();
         }
     )
 );

@@ -1,5 +1,7 @@
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Domain.Services.Abstract;
+using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
+using AiTrainer.Web.Domain.Services.ChatGpt.Concrete;
 using AiTrainer.Web.Domain.Services.Concrete;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
@@ -38,17 +40,19 @@ namespace AiTrainer.Web.Domain.Services.Extensions
                     IFileCollectionFaissSimilaritySearchProcessingManager,
                     FileCollectionFaissSimilaritySearchProcessingManager
                 >()
+                .AddScoped<IFileCollectionFaissRemoveDocumentsProcessingManager, FileCollectionFaissRemoveDocumentsProcessingManager>()
                 .AddScoped<
                     IFileCollectionFaissSyncProcessingManager,
                     FileCollectionFaissSyncProcessingManager
                 >()
                 .AddSingleton<
                     IFileCollectionFaissSyncBackgroundJobQueue,
-                    FileCollectionFaissSyncBackgroundJobQueue
+                    FileCollectionFaissBackgroundJobQueue
                 >()
-                .AddHostedService<FileCollectionFaissSyncBackgroundJobService>()
+                .AddHostedService<FileCollectionFaissBackgroundJobService>()
                 .AddScoped<IHealthService, HealthService>()
                 .AddScoped<ICachingService, DistributedCachingService>()
+                .AddScoped<IChatGptQueryProcessingManager, ChatGptQueryProcessingManager>()
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>();
 
             return services;

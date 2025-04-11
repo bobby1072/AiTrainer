@@ -4,6 +4,7 @@ using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Extensions;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
+using BT.Common.FastArray.Proto;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
@@ -34,52 +35,17 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             return new DbGetOneResult<FileCollectionFaiss>(foundResult?.ToModel());
         }
-        public async Task<DbResult> DeleteDocumentAndStoreAndUnsyncDocuments(FileDocument documentToDelete)
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-            await using var transaction = await dbContext.Database.BeginTransactionAsync();
-            try
-            {
-                var updateModDateDbOp = () => documentToDelete.CollectionId is Guid foundColId ? UpdateFileColLastUpdate(
-                    dbContext.FileCollections,
-                    [documentToDelete.UserId],
-                    [foundColId]
-                ): Task.CompletedTask; 
-                await Task.WhenAll(
-                    updateModDateDbOp.Invoke(),
-                    dbContext.FileDocuments
-                        .Where(x => x.CollectionId == documentToDelete.CollectionId && x.UserId == documentToDelete.UserId)
-                        .ExecuteUpdateAsync(x => x.SetProperty(y => y.FaissSynced, false)),
-                    dbContext.FileCollectionFaiss
-                        .Where(x => x.CollectionId == documentToDelete.CollectionId && x.UserId == documentToDelete.UserId)
-                        .ExecuteDeleteAsync(),
-                    dbContext.FileDocuments
-                        .Where(x => x.Id == documentToDelete.Id)
-                        .ExecuteDeleteAsync()
-                );
-
-                await dbContext.SaveChangesAsync();
-
-                await transaction.CommitAsync();
-
-                return new DbResult(true);
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-        public async Task<DbResult> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<Guid> documentIdsToSync,
+        public async Task<DbSaveResult<FileCollectionFaiss>> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<Guid> documentIdsToSync,
             FileCollectionFaissRepositorySaveMode saveMode)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
             try
             {
-                var entity = fileCollectionFaiss.ToEntity();
+                var faissEntity = fileCollectionFaiss.ToEntity();
                 Func<Task<EntityEntry<FileCollectionFaissEntity>>> saveFunc = async () => saveMode == FileCollectionFaissRepositorySaveMode.Create ? await dbContext.FileCollectionFaiss
-                    .AddAsync(entity) : dbContext.FileCollectionFaiss.Update(entity);
+                    .AddAsync(faissEntity) : dbContext.FileCollectionFaiss.Update(faissEntity);
+                
                 await Task.WhenAll(
                     dbContext.FileDocuments
                         .Where(x => documentIdsToSync.Contains(x.Id))
@@ -91,10 +57,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
                 await transaction.CommitAsync();
 
-                return new DbResult(true);
+                return new DbSaveResult<FileCollectionFaiss>(dbContext.FileCollectionFaiss.Local.FastArraySelect(x => x.ToModel()).ToArray());
             }
-            catch
+            catch(Exception e)
             {
+                
                 await transaction.RollbackAsync();
                 throw;
             }
@@ -102,6 +69,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
     }
     public enum FileCollectionFaissRepositorySaveMode
     {
-        Create, Update
+        Create,
+        Update
     }
 }

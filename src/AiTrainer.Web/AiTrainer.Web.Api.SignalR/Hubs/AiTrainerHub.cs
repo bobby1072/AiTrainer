@@ -2,6 +2,7 @@ using System.Net;
 using AiTrainer.Web.Api.SignalR.Models;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Services.Abstract;
@@ -9,7 +10,6 @@ using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.User.Abstract;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
-using SimilaritySearchCoreResponse = AiTrainer.Web.CoreClient.Models.Response.SimilaritySearchCoreResponse;
 
 namespace AiTrainer.Web.Api.SignalR.Hubs
 {
@@ -50,12 +50,12 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
 
                 var result = await _domainService.ExecuteAsync<
                     IFileCollectionFaissSimilaritySearchProcessingManager,
-                    SimilaritySearchCoreResponse
+                    CoreSimilaritySearchResponse
                 >(serv => serv.SimilaritySearch(input, currentUser));
 
                 await Clients.Caller.SendAsync(
                     "SimilaritySearchFaissSuccess",
-                    new SignalRClientEvent<SimilaritySearchCoreResponse> { Data = result }
+                    new SignalRClientEvent<CoreSimilaritySearchResponse> { Data = result }
                 );
             }
             catch (System.Exception ex)

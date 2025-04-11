@@ -11,8 +11,8 @@ export default abstract class ChunkingRouter {
   private static ChunkDocument(app: Application) {
     return app.post(
       `/api/${ChunkingRouter.name.toLowerCase()}/chunkdocument`,
-      async (req: Request, res: Response) => {
-        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      (req: Request, res: Response) => {
+        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const safeParsedDocumentToChunk =
             DocumentToChunkInputSchema.safeParse(req.body);
           const actualText = safeParsedDocumentToChunk.data;

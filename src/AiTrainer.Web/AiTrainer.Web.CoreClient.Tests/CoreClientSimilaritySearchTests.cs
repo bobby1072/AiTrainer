@@ -45,13 +45,14 @@ public class CoreClientSimilaritySearchTests: CoreClientTestBase
         var input = _fixture
             .Build<CoreSimilaritySearchInput>()
             .With(x => x.DocStore, await JsonDocument.ParseAsync(memStream))
+            .With(x => x.FileInput, memStream.ToArray())
             .Create();
         
         var response = _fixture
-            .Build<SimilaritySearchCoreResponse>()
+            .Build<CoreSimilaritySearchResponse>()
             .With(x => x.Items, _fixture.CreateMany<SimilaritySearchResponseItem>().ToArray())
             .Create();
-        var mockedApiResponse = new CoreResponse<SimilaritySearchCoreResponse> { Data = response };
+        var mockedApiResponse = new CoreResponse<CoreSimilaritySearchResponse> { Data = response };
         
         _httpTest
             .ForCallsTo($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch")

@@ -8,7 +8,7 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
     {
         Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput, Domain.Models.User currentUser);
         Task<Guid> DeleteFileCollection(Guid collectionId, Domain.Models.User currentUser);
-        Task<FlatFileDocumentPartialCollection> GetOneLayerFileDocPartialsAndCollections(
+        Task<FlatFileDocumentPartialCollectionView> GetOneLayerFileDocPartialsAndCollections(
             Domain.Models.User currentUser, Guid? collectionId = null
         );
         Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId, Domain.Models.User currentUser);

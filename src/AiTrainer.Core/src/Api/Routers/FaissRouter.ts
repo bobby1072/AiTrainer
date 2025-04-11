@@ -9,15 +9,50 @@ import AiTrainerFaissStoreApiService from "../../Faiss/AiTrainerFaissStoreApiSer
 import { SimilaritySearchInputSchema } from "../RequestModels/SimilaritySearchInput";
 import { DocumentInterface } from "@langchain/core/documents";
 import AiTrainerExpressExceptionHandling from "../Helpers/AiTrainerExpressExceptionHandling";
+import { RemoveDocumentsInputSchema } from "../RequestModels/RemoveDocumentsInput";
 
 export default abstract class FaissRouter {
   private static readonly upload = multer({ storage: multer.memoryStorage() });
+  private static RemoveDocumentsFromStore(app: Application) {
+    return app.post(
+      `/api/${FaissRouter.name.toLowerCase()}/removedocuments`,
+      FaissRouter.upload.single("file"),
+      (req: Request, resp: Response) => {
+        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+          const metadata = JSON.parse(req.body.metadata);
+          const fileBuffer = req.file?.buffer;
+          const safeInput = RemoveDocumentsInputSchema.safeParse({
+            fileInput: fileBuffer,
+            jsonDocStore: metadata.docStore,
+            documentIdsToRemove: metadata.documentIdsToRemove,
+          });
+
+          if (!safeInput.success) {
+            throw new ApiException("Invalid input");
+          }
+
+          const result =
+            await AiTrainerFaissStoreApiService.RemoveDocumentsFromStore(
+              safeInput.data
+            );
+
+          resp.status(200).send({
+            isSuccess: true,
+            data: result,
+          } as SuccessfulRouteResponse<{
+            jsonDocStore: DocStore;
+            indexFile: string;
+          }>);
+        }, resp);
+      }
+    );
+  }
   private static UpdateStore(app: Application) {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/updatestore`,
       FaissRouter.upload.single("file"),
-      async (req: Request, resp: Response) => {
-        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      (req: Request, resp: Response) => {
+        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const metadata = JSON.parse(req.body.metadata);
           const fileBuffer = req.file?.buffer;
           const safeInput = UpdateStoreInputSchema.safeParse({
@@ -48,8 +83,8 @@ export default abstract class FaissRouter {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/similaritysearch`,
       FaissRouter.upload.single("file"),
-      async (req: Request, resp: Response) => {
-        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      (req: Request, resp: Response) => {
+        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const metadata = JSON.parse(req.body.metadata);
           const fileBuffer = req.file?.buffer;
           const safeInput = SimilaritySearchInputSchema.safeParse({
@@ -77,8 +112,8 @@ export default abstract class FaissRouter {
   private static CreateNewStore(app: Application) {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/createstore`,
-      async (req: Request, resp: Response) => {
-        AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      (req: Request, resp: Response) => {
+        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const parsedBody = CreateStoreInputSchema.safeParse(req.body);
           const documents = parsedBody.data?.documents;
 
@@ -106,5 +141,6 @@ export default abstract class FaissRouter {
     FaissRouter.CreateNewStore(app);
     FaissRouter.UpdateStore(app);
     FaissRouter.SimilaritySearch(app);
+    FaissRouter.RemoveDocumentsFromStore(app);
   }
 }

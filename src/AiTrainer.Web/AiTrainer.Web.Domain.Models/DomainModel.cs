@@ -1,19 +1,12 @@
-﻿using AiTrainer.Web.Domain.Models.Attributes;
+﻿namespace AiTrainer.Web.Domain.Models;
 
-namespace AiTrainer.Web.Domain.Models
+public abstract class DomainModel { }
+public abstract class DomainModel<TEquatable>:  DomainModel, IEquatable<TEquatable> where TEquatable : DomainModel<TEquatable>
 {
-    public abstract record DomainModel<TEquatable, TId> : IEquatable<TEquatable>
+    public abstract bool Equals(TEquatable? obj);
+
+    public override int GetHashCode()
     {
-        [LockedData]
-        public TId Id { get; set; }
-
-        public abstract bool Equals(TEquatable? obj);
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-
-        public virtual void ApplyCreationDefaults() { }
-    }
+        return base.GetHashCode();
+    }    
 }

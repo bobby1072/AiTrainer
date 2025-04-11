@@ -21,9 +21,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 IsEncrypted = formInput.IsEncrypted,
                 Producer = formInput.Producer,
                 Subject = formInput.Subject,
-                ExtraData = formInput.ExtraData is not null
-                    ? JsonSerializer.Serialize(formInput.ExtraData)
-                    : null,
+                ExtraData = formInput.ExtraData,
             };
 
             if (formInput.Id is long foundId)
