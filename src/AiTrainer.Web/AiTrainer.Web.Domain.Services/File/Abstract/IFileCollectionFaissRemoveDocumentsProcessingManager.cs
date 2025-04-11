@@ -5,7 +5,7 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract;
 
 internal interface IFileCollectionFaissRemoveDocumentsProcessingManager: IFileCollectionFaissProcessingManager
 {
-    Task RemoveDocumentsFromFaissStoreAndSaveItAsync(Guid? collectionId,
+    Task RemoveDocumentsFromFaissStoreAndUpdateItAsync(Guid? collectionId,
         Domain.Models.User currentUser,
         CancellationToken cancellationToken = default);
 

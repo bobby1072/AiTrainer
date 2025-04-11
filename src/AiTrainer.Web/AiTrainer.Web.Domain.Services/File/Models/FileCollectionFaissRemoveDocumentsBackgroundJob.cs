@@ -9,6 +9,6 @@ internal class FileCollectionFaissRemoveDocumentsBackgroundJob : FileCollectionF
     {
         var removeManager = sp.GetRequiredService<IFileCollectionFaissRemoveDocumentsProcessingManager>();
         
-        return removeManager.RemoveDocumentsFromFaissStoreAndSaveItAsync(CollectionId, CurrentUser, ct);
+        return removeManager.RemoveDocumentsFromFaissStoreAndUpdateItAsync(CollectionId, CurrentUser, ct);
     }
 }

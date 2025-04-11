@@ -73,7 +73,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             FaissJson = deleteInCoreResult.JsonDocStore,
         };
     }
-    public async Task RemoveDocumentsFromFaissStoreAndSaveItAsync(Guid? collectionId,
+    public async Task RemoveDocumentsFromFaissStoreAndUpdateItAsync(Guid? collectionId,
         Domain.Models.User currentUser,
         CancellationToken cancellationToken = default)
     {
@@ -81,7 +81,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
 
         _logger.LogInformation(
             "Entering {Action} for correlationId {CorrelationId}",
-            nameof(RemoveDocumentsFromFaissStoreAndSaveItAsync),
+            nameof(RemoveDocumentsFromFaissStoreAndUpdateItAsync),
             correlationId
         );
         
@@ -101,9 +101,11 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
         }
         
         var existingDocumentIds = await GetExistingDocumentIds((Guid)currentUser.Id!, collectionId);
+        var allAnalysedChunksFromStore = FaissHelper
+            .GetDocumentChunksFromFaissDocStore(existingFaissStore.Data.FaissJson);
         
-        var analysedSingleChunkDocsToRemoveFromStore = FaissHelper
-            .GetDocumentChunksFromFaissDocStore(existingFaissStore.Data.FaissJson)
+        
+        var analysedSingleChunkDocsToRemoveFromStore = allAnalysedChunksFromStore
             .FastArrayWhere(x => !existingDocumentIds.Contains(x.FileDocumentId))
             .ToArray();
 
@@ -137,21 +139,40 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             DocumentIdsToRemove = documentIdsToRemove,
         }, cancellationToken) ?? throw new ApiException("Failed to delete chunks from the chosen faiss store");
 
-        var storeUpdateResult = await EntityFrameworkUtils.TryDbOperation(
-            () =>
-                _fileCollectionFaissRepo.Update([new FileCollectionFaiss
-                {
-                    Id = existingFaissId,
-                    CollectionId = collectionId,
-                    FaissIndex = deleteInCoreResult.IndexFile,
-                    FaissJson = deleteInCoreResult.JsonDocStore,
-                    UserId = userId,
-                }])
-        );
-
-        if (storeUpdateResult?.IsSuccessful != true || storeUpdateResult?.Data is null)
+        var newFileCollectionFaiss = new FileCollectionFaiss
         {
-            throw new ApiException("Failed to save new updated faiss store");
+            Id = existingFaissId,
+            CollectionId = collectionId,
+            FaissIndex = deleteInCoreResult.IndexFile,
+            FaissJson = deleteInCoreResult.JsonDocStore,
+            UserId = userId,
+        };
+
+        var analysedFileDocuments = 
+            FaissHelper.GetDocumentChunksFromFaissDocStore(newFileCollectionFaiss.FaissJson);
+        if (analysedFileDocuments.Count < 1)
+        {
+            var storeUpdateResult = await EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    _fileCollectionFaissRepo.Delete([(long)newFileCollectionFaiss.Id!])
+            );
+
+            if (storeUpdateResult?.Data is null)
+            {
+                throw new ApiException("Failed to save new updated faiss store");
+            }
+        }
+        else
+        {
+            var storeUpdateResult = await EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    _fileCollectionFaissRepo.Update([newFileCollectionFaiss])
+            );
+
+            if (storeUpdateResult?.IsSuccessful != true || storeUpdateResult?.Data is null)
+            {
+                throw new ApiException("Failed to save new updated faiss store");
+            }
         }
     }
     private async Task<IReadOnlyCollection<Guid>> GetExistingDocumentIds(Guid currentUserId, Guid? collectionId)
