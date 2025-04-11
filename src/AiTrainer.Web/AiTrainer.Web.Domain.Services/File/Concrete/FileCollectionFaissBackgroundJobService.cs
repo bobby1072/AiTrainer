@@ -47,7 +47,9 @@ internal class FileCollectionFaissBackgroundJobService : BackgroundService
             );
             try
             {
-                await RunJob(job, stoppingToken);
+                await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        
+                await job.ExecuteFaissJob(scope.ServiceProvider, stoppingToken);
             }
             catch (Exception ex)
             {
@@ -66,22 +68,4 @@ internal class FileCollectionFaissBackgroundJobService : BackgroundService
             );
         }
     }
-    private async Task RunJob(FileCollectionFaissBackgroundJob jobToRun, CancellationToken ct)
-    {
-        await using var scope = _serviceScopeFactory.CreateAsyncScope();
-        if (jobToRun is FileCollectionFaissSyncBackgroundJob syncJob)
-        {
-            var syncManager =
-                scope.ServiceProvider.GetRequiredService<IFileCollectionFaissSyncProcessingManager>();
-            
-            await syncJob.JobProcessToRun(syncManager, ct);
-        }
-        else if (jobToRun is FileCollectionFaissRemoveDocumentsBackgroundJob removeDocumentsJob)
-        {
-            var removeDocumentsManager = 
-                scope.ServiceProvider.GetRequiredService<IFileCollectionFaissRemoveDocumentsProcessingManager>();
-            
-            await removeDocumentsJob.JobProcessToRun(removeDocumentsManager, ct);
-        }
-    } 
 }

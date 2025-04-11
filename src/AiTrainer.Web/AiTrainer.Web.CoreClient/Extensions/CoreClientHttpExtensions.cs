@@ -12,7 +12,7 @@ namespace AiTrainer.Web.CoreClient.Extensions;
 
 internal static class CoreClientHttpExtensions
 {
-    public static void AddCorrelationIdHeader(this HttpContentHeaders headers, Guid? correlationId)
+    public static void AddCorrelationIdHeader(this HttpRequestHeaders headers, Guid? correlationId)
     {
         if (correlationId is not null)
         {
@@ -20,7 +20,7 @@ internal static class CoreClientHttpExtensions
         }
     }
 
-    public static void AddApiKeyHeader(this HttpContentHeaders headers, string apiKey)
+    public static void AddApiKeyHeader(this HttpRequestHeaders headers, string apiKey)
     {
         headers.TryAddWithoutValidation(CoreClientConstants.ApiKeyHeader, apiKey);
     }

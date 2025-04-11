@@ -149,7 +149,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         var unSyncedDocuments =
             await EntityFrameworkUtils.TryDbOperation(
                 () =>
-                    _fileDocumentRepository.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)),
+                    _fileDocumentRepository.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)),
                 _logger
             ) ?? throw new ApiException("Failed to retrieve file documents");
         if (unSyncedDocuments.Data.Count == 0)
@@ -202,7 +202,16 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
             collectionId,
             existingFaissStore.Data
         );
-        var singleChunkedDocs = FaissHelper.GetDocumentChunksFromFaissDocStore(storeToSave.JsonDocStore);
+        var existingChunkIds = unSyncedDocuments.Data
+            .FastArraySelect(x => x.Chunks?.FastArraySelect(y => y.Id) ?? [])
+            .SelectMany(x => x)
+            .FastArrayWhere(y => y is not null)
+            .FastArraySelect(x => (Guid)x!)
+            .ToArray();
+        var singleChunkedDocs = FaissHelper
+            .GetDocumentChunksFromFaissDocStore(storeToSave.JsonDocStore)
+            .FastArrayWhere(x => unSyncedDocuments.Data.Any(y => y.Id == x.FileDocumentId) && !existingChunkIds.Contains((Guid)x.Id!))
+            .ToArray();
         
         var result = await EntityFrameworkUtils.TryDbOperation(
             () =>

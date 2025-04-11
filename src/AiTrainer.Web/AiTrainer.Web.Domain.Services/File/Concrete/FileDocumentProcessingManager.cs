@@ -149,11 +149,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             
             
             var deletedJobResult = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.Delete([documentToDelete.Data]),
+                () => _fileDocumentRepository.Delete(documentToDelete.Data),
                 _logger
             );
 
-            if (deletedJobResult?.IsSuccessful != true)
+            if (deletedJobResult?.Data is null || deletedJobResult.Data.Count > 1)
             {
                 throw new ApiException(
                     "Could not delete document"

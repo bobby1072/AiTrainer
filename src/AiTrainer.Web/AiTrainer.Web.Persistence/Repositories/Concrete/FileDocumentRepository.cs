@@ -66,6 +66,33 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 throw;
             }
         }
+
+        public async Task<DbDeleteResult<FileDocument>> Delete(
+            FileDocument document)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                var documentEntity = document.ToEntity();
+
+                if (document.CollectionId is Guid foundColId)
+                {
+                    await UpdateFileColLastUpdate(dbContext.FileCollections, [document.UserId], [foundColId]);
+                }
+                dbContext.FileDocuments.Remove(documentEntity);
+                
+                await dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return new DbDeleteResult<FileDocument> { Data = [documentEntity.ToModel()] };
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
         public async Task<DbSaveResult<FileDocument>> Create(
             FileDocument document,
             FileDocumentMetaData metaData
@@ -102,7 +129,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
                 return new DbSaveResult<FileDocument>([newlySavedDoc.ToModel()]);
             }
-            catch (Exception)
+            catch
             {
                 await transaction.RollbackAsync();
                 throw;

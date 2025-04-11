@@ -41,22 +41,32 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
     {
         try
         {
-            using var content = new MultipartFormDataContent();
             using var fileContent = new ByteArrayContent(input.FileInput);
-
             fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
-            fileContent.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-            fileContent.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
-
-            content.Add(fileContent, "file", "upload.pdf");
-            content.Add(new StringContent(JsonSerializer.Serialize(input, ApiConstants.DefaultCamelCaseSerializerOptions),
-                Encoding.UTF8,
-                "application/json"),
+            
+            using var formContent = new MultipartFormDataContent();
+            formContent.Add(fileContent, "file", "upload.pdf");
+            formContent.Add(new StringContent(JsonSerializer.Serialize(new
+                    {
+                        docStore = input.JsonDocStore,
+                        documentIdsToRemove = input.DocumentIdsToRemove
+                    }),
+                    Encoding.UTF8,
+                    "application/json"),
                 "metadata");
+            
+            using var request = new HttpRequestMessage();
+            request.Method = HttpMethod.Post;
+            request.RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments");
+            request.Content = formContent;
+            request.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
+            request.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
+
+            
             var retryPipeline = _aiTrainerCoreConfiguration.ToPipeline();
             var result = await retryPipeline.ExecuteAsync(async ct =>
                 {
-                    var response = await _httpClient.PostAsync($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments", content,
+                    var response = await _httpClient.SendAsync(request,
                         ct);
                     response.EnsureSuccessStatusCode();
 

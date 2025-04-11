@@ -1,11 +1,14 @@
 ﻿using AiTrainer.Web.Domain.Services.File.Abstract;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.Domain.Services.File.Models;
 
-internal class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob<IFileCollectionFaissSyncProcessingManager>
+internal class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob
 {
-    public override Task JobProcessToRun(IFileCollectionFaissSyncProcessingManager manager, CancellationToken ct)
+    public override Task ExecuteFaissJob(IServiceProvider sp, CancellationToken ct = default)
     {
-        return manager.SyncUserFileCollectionFaissStore(CurrentUser, CollectionId, ct);
+        var syncManager = sp.GetRequiredService<IFileCollectionFaissSyncProcessingManager>();
+        
+        return syncManager.SyncUserFileCollectionFaissStore(CurrentUser, CollectionId, ct);
     }
 }
