@@ -7,6 +7,7 @@ using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Extensions;
+using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
@@ -57,7 +58,8 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             Mock.Of<ILogger<FileCollectionFaissSyncProcessingManager>>(),
             _mockFileDocumentRepository.Object,
             _mockFileCollectionFaissRepository.Object,
-            new TestOptionsSnapshot<FaissSyncRetrySettingsConfiguration>(_retrySettings).Object);
+            new TestOptionsSnapshot<FaissSyncRetrySettingsConfiguration>(_retrySettings).Object,
+            Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>());
     }
     [Fact]
     public async Task SyncUserFileCollectionFaissStore_Should_Retry_The_Correct_Amount_Based_On_Configuration()
@@ -70,7 +72,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .Create();
 
         _mockFileDocumentRepository.Setup(x =>
-                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)))
+                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)))
                 .ThrowsAsync(new Exception());
         
         //Act
@@ -80,7 +82,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         var timerEx = await Assert.ThrowsAsync<OperationTimerException>(act);
         Assert.IsType<ApiException>(timerEx.InnerException);
         _mockFileDocumentRepository.Verify(x =>
-            x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)), Times.Exactly(_syncRetryAmount));
+            x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)), Times.Exactly(_syncRetryAmount));
     }
 
     [Fact]
@@ -94,7 +96,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .Create();
         
         _mockFileDocumentRepository.Setup(x =>
-                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)))
+                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)))
             .ReturnsAsync(new DbGetManyResult<FileDocument>());
         
         //Act
@@ -102,7 +104,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         
         //Assert
         _mockFileDocumentRepository.Verify(x =>
-            x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)), Times.Once);
+            x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)), Times.Once);
     }
     
     [Fact]
@@ -129,16 +131,24 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             .Create();
         
         var stringJson = JsonSerializer.Serialize(chunkedDocResp);
-        await using var memStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
+        var bytes = Encoding.UTF8.GetBytes(stringJson);
+        await using var memStream = new MemoryStream(bytes);
+        var jsonDocStore = await JsonDocument.ParseAsync(memStream);
         
-        var faissStore = _fixture
+        var faissStoreResponse = _fixture
             .Build<CoreFaissStoreResponse>()
-            .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(memStream))
+            .With(x => x.JsonDocStore, jsonDocStore)
+            .Create();
+
+        var faissStore = _fixture
+            .Build<FileCollectionFaiss>()
+            .With(x => x.FaissJson, jsonDocStore)
+            .With(x => x.FaissIndex, bytes)
             .Create();
         
         _mockFileDocumentRepository
             .Setup(x =>
-                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)))
+                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)))
             .ReturnsAsync(new DbGetManyResult<FileDocument>(fileDocInput));
         _mockFileCollectionFaissRepository
             .Setup(x => x.ByUserAndCollectionId((Guid)currentUser.Id!, collectionId))
@@ -149,10 +159,10 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         
         _mockCreateFaissStoreService
             .Setup(x => x.TryInvokeAsync(It.IsAny<CoreCreateFaissStoreInput>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(faissStore);
+            .ReturnsAsync(faissStoreResponse);
         _mockFileCollectionFaissRepository
-            .Setup(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<Guid>>(), FileCollectionFaissRepositorySaveMode.Create))
-            .ReturnsAsync(new DbResult(true));
+            .Setup(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<SingleDocumentChunk>>(),It.IsAny<IReadOnlyCollection<Guid>>(), FileCollectionFaissRepositorySaveMode.Create))
+            .ReturnsAsync(new DbSaveResult<FileCollectionFaiss>([faissStore]));
         
         //Act
         await _faissSyncProcessingManager.SyncUserFileCollectionFaissStore(currentUser, collectionId);
@@ -160,7 +170,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         //Assert
         _mockFileDocumentRepository
             .Verify(x =>
-                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)), Times.Once);
+                x.GetDocumentsBySync(false, (Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData), nameof(FileDocumentEntity.Chunks)), Times.Once);
         _mockFileCollectionFaissRepository
             .Verify(x => x.ByUserAndCollectionId((Guid)currentUser.Id!, collectionId), Times.Once);
         _mockDocumentChunkerClient
@@ -168,7 +178,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         _mockCreateFaissStoreService
             .Verify(x => x.TryInvokeAsync(It.IsAny<CoreCreateFaissStoreInput>(), It.IsAny<CancellationToken>()), Times.Once);
         _mockFileCollectionFaissRepository
-            .Verify(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<Guid>>(),
+            .Verify(x => x.SaveStoreAndSyncDocs(It.IsAny<FileCollectionFaiss>(), It.IsAny<IReadOnlyCollection<SingleDocumentChunk>>(),It.IsAny<IReadOnlyCollection<Guid>>(),
                 FileCollectionFaissRepositorySaveMode.Create), Times.Once);
     }
 }

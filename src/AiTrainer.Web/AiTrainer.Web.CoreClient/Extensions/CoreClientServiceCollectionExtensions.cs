@@ -34,38 +34,38 @@ namespace AiTrainer.Web.CoreClient.Extensions
                 .AddScoped<
                     ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse>
                 >(sp => new CoreClientChunkDocument(
-                     GetLoggerForClient<CoreClientChunkDocument>(sp),
-                     GetConfigForClient(sp),
-                     GetContextAccessorForClient(sp),
-                     ApiConstants.DefaultCamelFlurlJsonSerializer
+                    GetLoggerForClient<CoreClientChunkDocument>(sp),
+                    GetConfigForClient(sp),
+                    GetContextAccessorForClient(sp),
+                    ApiConstants.DefaultCamelFlurlJsonSerializer
                 ))
                 .AddScoped<ICoreClient<CoreClientHealthResponse>>
                 (sp => new CoreClientHealth(
-                     GetLoggerForClient<CoreClientHealth>(sp),
-                     GetConfigForClient(sp),
-                     GetContextAccessorForClient(sp),
-                     ApiConstants.DefaultCamelFlurlJsonSerializer
+                    GetLoggerForClient<CoreClientHealth>(sp),
+                    GetConfigForClient(sp),
+                    GetContextAccessorForClient(sp),
+                    ApiConstants.DefaultCamelFlurlJsonSerializer
                 ))
                 .AddScoped<ICoreClient<CoreCreateFaissStoreInput, CoreFaissStoreResponse>>
                 (sp => new CoreClientCreateFaissStore(
-                     GetLoggerForClient<CoreClientCreateFaissStore>(sp),
-                     GetConfigForClient(sp),
-                     GetContextAccessorForClient(sp),
-                     ApiConstants.DefaultCamelFlurlJsonSerializer
+                    GetLoggerForClient<CoreClientCreateFaissStore>(sp),
+                    GetConfigForClient(sp),
+                    GetContextAccessorForClient(sp),
+                    ApiConstants.DefaultCamelFlurlJsonSerializer
                 ))
                 .AddScoped<ICoreClient<CoreUpdateFaissStoreInput, CoreFaissStoreResponse>>
                 (sp => new CoreClientUpdateFaissStore(
-                     GetLoggerForClient<CoreClientUpdateFaissStore>(sp),
-                     GetConfigForClient(sp),
-                     GetContextAccessorForClient(sp),
-                     ApiConstants.DefaultCamelFlurlJsonSerializer
+                    GetLoggerForClient<CoreClientUpdateFaissStore>(sp),
+                    GetConfigForClient(sp),
+                    GetContextAccessorForClient(sp),
+                    ApiConstants.DefaultCamelFlurlJsonSerializer
                 ))
                 .AddScoped<ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse>>
                 (sp => new CoreClientSimilaritySearch(
-                     GetLoggerForClient<CoreClientSimilaritySearch>(sp),
-                     GetConfigForClient(sp),
-                     GetContextAccessorForClient(sp),
-                     ApiConstants.DefaultCamelFlurlJsonSerializer
+                    GetLoggerForClient<CoreClientSimilaritySearch>(sp),
+                    GetConfigForClient(sp),
+                    GetContextAccessorForClient(sp),
+                    ApiConstants.DefaultCamelFlurlJsonSerializer
                 ))
                 .AddScoped<ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse>>
                 (sp => new CoreClientFormattedChatQuery(
@@ -73,7 +73,9 @@ namespace AiTrainer.Web.CoreClient.Extensions
                     GetConfigForClient(sp),
                     GetContextAccessorForClient(sp),
                     ApiConstants.DefaultCamelFlurlJsonSerializer
-                ));  
+                ))
+                .AddHttpClient<ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse>,
+                    CoreClientRemoveDocumentsFromStore>();
             
 
             return serviceCollection;

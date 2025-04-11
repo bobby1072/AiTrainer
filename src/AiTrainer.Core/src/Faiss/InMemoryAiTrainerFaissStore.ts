@@ -15,7 +15,9 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
   private constructor(embeds: EmbeddingsInterface, args: FaissLibArgs) {
     super(embeds, args);
   }
-
+  public async RemoveDocumentsFromStore(documentIds: string[]) {
+    await this.delete({ ids: documentIds });
+  }
   public async LoadDocumentsIntoStore(documents: Document[]): Promise<void> {
     await this.addDocuments(documents, {
       ids: documents.map((_) => Guid.NewGuidString()),

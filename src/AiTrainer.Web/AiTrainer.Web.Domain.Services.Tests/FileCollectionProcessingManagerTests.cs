@@ -368,9 +368,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
 
             _mockFileDocumentRepository
                 .Setup(x =>
-                    x.GetManyDocumentPartialsByCollectionId(
-                        (Guid)foundSingleFileDocument.CollectionId!,
-                        (Guid)currentUser.Id!
+                    x.GetManyDocumentPartialsByCollectionIdAndUserId(
+                        (Guid)currentUser.Id!,
+                        (Guid)foundSingleFileDocument.CollectionId!
                     )
                 )
                 .ReturnsAsync(new DbGetManyResult<FileDocumentPartial>([foundSingleFileDocument]));
@@ -392,9 +392,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
 
             _mockFileDocumentRepository.Verify(
                 x =>
-                    x.GetManyDocumentPartialsByCollectionId(
-                        (Guid)foundSingleFileCollection.Id!,
+                    x.GetManyDocumentPartialsByCollectionIdAndUserId(
                         (Guid)currentUser.Id!,
+                        (Guid)foundSingleFileCollection.Id!,
                         nameof(FileDocumentEntity.MetaData)
                     ),
                 Times.Once

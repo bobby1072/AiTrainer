@@ -7,6 +7,8 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 {
     public interface IFileDocumentRepository : IRepository<FileDocumentEntity, Guid, FileDocument>
     {
+        Task<DbDeleteResult<FileDocument>> Delete(
+            FileDocument document);
         Task<DbGetManyResult<FileDocument>> GetDocumentsBySync(bool syncSate, Guid userId, Guid? collectionId = null, params string[] relations);
         Task<DbSaveResult<FileDocument>> Create(
             FileDocument document,
@@ -16,11 +18,12 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             Guid userId,
             params string[] relationShips
         );
-        Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionId(
-            Guid collectionId,
+        Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionIdAndUserId(
             Guid userId,
+            Guid? collectionId,
             params string[] relationShips
         );
+        
 
         Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId);
 

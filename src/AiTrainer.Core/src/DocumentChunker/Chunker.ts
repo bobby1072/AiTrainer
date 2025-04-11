@@ -17,11 +17,13 @@ export default abstract class Chunker {
   }: {
     documentsToChunk: {
       documentText: string;
+      fileDocumentId: string;
       metadata?: Record<string, string | null | undefined> | null | undefined;
     }[];
   }): Promise<
     {
       chunkedTexts: string[];
+      fileDocumentId: string;
       metadata: Record<string, string | null | undefined> | null | undefined;
     }[]
   > {
@@ -32,6 +34,7 @@ export default abstract class Chunker {
 
       return jobs.map((x, index) => ({
         chunkedTexts: x,
+        fileDocumentId: documentsToChunk[index].fileDocumentId,
         metadata: documentsToChunk[index].metadata,
       }));
     } catch (e) {

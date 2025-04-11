@@ -1,3 +1,6 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.OperationTimer.Proto;
@@ -7,24 +10,40 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.CoreClient.Extensions;
 
-internal static class CoreClientFlurlExtensions
+internal static class CoreClientHttpExtensions
 {
-    public static async Task<TReturn?> CoreClientExceptionHandling<TReturn, TLoggObject>(this Task<TReturn> coreClientRequest, ILogger<TLoggObject> logger,
-        string opName) where TReturn: class 
+    public static void AddCorrelationIdHeader(this HttpRequestHeaders headers, Guid? correlationId)
+    {
+        if (correlationId is not null)
+        {
+            headers.TryAddWithoutValidation(ApiConstants.CorrelationIdHeader, correlationId.ToString());
+        }
+    }
+
+    public static void AddApiKeyHeader(this HttpRequestHeaders headers, string apiKey)
+    {
+        headers.TryAddWithoutValidation(CoreClientConstants.ApiKeyHeader, apiKey);
+    }
+    public static async Task<TReturn?> CoreClientExceptionHandling<TReturn, TLoggObject>(this Task<TReturn?> coreClientRequest, ILogger<TLoggObject> logger,
+        string opName, string? correlationId = null) where TReturn: class 
     {
         try
         {
             var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(() => coreClientRequest);
             
-            logger.LogDebug("{OpName} took a total time of {TimeTaken}ms to complete", opName, timeTaken.Milliseconds);
+            logger.LogDebug("{OpName} took a total time of {TimeTaken}ms to complete for correlationId {CorrelationId}", opName, timeTaken.Milliseconds, correlationId);
 
-            if (result is CoreResponse { IsSuccess: false } coreResponse)
+            if (result is CoreResponse { IsSuccess: false } failedCoreResponse)
             {
                 logger.LogError("{OpName} Core request was unsuccessful with exception message of {ExMessage}",
                     opName,
-                    coreResponse.ExceptionMessage);
+                    failedCoreResponse.ExceptionMessage);
+            } 
+            else if (result is CoreResponse { IsSuccess: true })
+            {
+                logger.LogInformation("Successfully completed call to core api for correlationId {CorrelationId}",
+                    correlationId);
             }
-            
             return result;
         }
         catch (FlurlHttpException ex)
@@ -39,6 +58,18 @@ internal static class CoreClientFlurlExtensions
             logger.LogError(ex, "{NameOfOp} request failed",
                 opName);
             return null;
+        }
+    }
+
+    public static Task<T?> TryDeserializeJson<T>(this HttpContent content, JsonSerializerOptions? options = null, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return content.ReadFromJsonAsync<T>(options, cancellationToken);
+        }
+        catch
+        {
+            return Task.FromResult((T?)default);
         }
     }
     public static IFlurlRequest WithCorrelationIdHeader(this IFlurlRequest url, Guid? correlationIdHeader = null)

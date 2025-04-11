@@ -38,15 +38,16 @@ namespace AiTrainer.Web.Domain.Services.Extensions
                     IFileCollectionFaissSimilaritySearchProcessingManager,
                     FileCollectionFaissSimilaritySearchProcessingManager
                 >()
+                .AddScoped<IFileCollectionFaissRemoveDocumentsProcessingManager, FileCollectionFaissRemoveDocumentsProcessingManager>()
                 .AddScoped<
                     IFileCollectionFaissSyncProcessingManager,
                     FileCollectionFaissSyncProcessingManager
                 >()
                 .AddSingleton<
                     IFileCollectionFaissSyncBackgroundJobQueue,
-                    FileCollectionFaissSyncBackgroundJobQueue
+                    FileCollectionFaissBackgroundJobQueue
                 >()
-                .AddHostedService<FileCollectionFaissSyncBackgroundJobService>()
+                .AddHostedService<FileCollectionFaissBackgroundJobService>()
                 .AddScoped<IHealthService, HealthService>()
                 .AddScoped<ICachingService, DistributedCachingService>()
                 .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>();

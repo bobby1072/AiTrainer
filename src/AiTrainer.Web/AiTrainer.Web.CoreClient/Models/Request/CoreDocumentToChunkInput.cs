@@ -8,6 +8,7 @@ namespace AiTrainer.Web.CoreClient.Models.Request
     public record SingleDocumentToChunk
     {
         public required string DocumentText { get; init; }
+        public required Guid FileDocumentId { get; init; }
         public Dictionary<string, string> Metadata { get; init; } = [];
     }
 }

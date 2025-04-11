@@ -1,5 +1,6 @@
 using AiTrainer.Web.Domain.Models;
 using System.ComponentModel.DataAnnotations.Schema;
+using BT.Common.FastArray.Proto;
 
 namespace AiTrainer.Web.Persistence.Entities
 {
@@ -15,6 +16,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public string? FileDescription { get; set; }
         public bool FaissSynced { get; set; }
         public FileDocumentMetaDataEntity? MetaData { get; init; }
+        public virtual IReadOnlyCollection<SingleDocumentChunkEntity>? Chunks { get; init; }
 
         public override FileDocument ToModel() =>
             new()
@@ -29,6 +31,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 FileName = FileName,
                 FileDescription = FileDescription,
                 MetaData = MetaData?.ToModel(),
+                Chunks = Chunks?.FastArraySelect(x => x.ToModel()).ToArray(),
             };
     }
 }
