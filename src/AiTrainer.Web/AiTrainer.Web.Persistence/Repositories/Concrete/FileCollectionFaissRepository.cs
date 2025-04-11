@@ -35,7 +35,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             return new DbGetOneResult<FileCollectionFaiss>(foundResult?.ToModel());
         }
-        public async Task<DbResult> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<SingleDocumentChunk> newChunks, IReadOnlyCollection<Guid> documentIdsToSync,
+        public async Task<DbSaveResult<FileCollectionFaiss>> SaveStoreAndSyncDocs(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<SingleDocumentChunk> newChunks, IReadOnlyCollection<Guid> documentIdsToSync,
             FileCollectionFaissRepositorySaveMode saveMode)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
@@ -60,7 +60,9 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
                 await transaction.CommitAsync();
 
-                return new DbResult(true);
+                var localEntsToReturn = dbContext.FileCollectionFaiss.Local.FirstOrDefault();
+                
+                return new DbSaveResult<FileCollectionFaiss>(dbContext.FileCollectionFaiss.Local.FastArraySelect(x => x.ToModel()).ToArray());
             }
             catch(Exception e)
             {

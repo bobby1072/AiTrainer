@@ -19,6 +19,7 @@ using Microsoft.Extensions.Options;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Domain.Models.Helpers;
+using AiTrainer.Web.Domain.Services.File.Models;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
@@ -232,6 +233,13 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         {
             throw new ApiException("Failed to save file collection faiss store");
         }
+
+
+        await _fileCollectionFaissSyncBackgroundJobQueue.Enqueue(new FileCollectionFaissRemoveDocumentsBackgroundJob
+        {
+            CurrentUser = currentUser,
+            ExistingFaiss = result.Data.First()
+        });
     }
 
     private async Task<CoreFaissStoreResponse> GetFaissStoreFromCoreApi(
@@ -272,7 +280,8 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         {
             throw new ApiException("Failed to build file collection faiss store in core");
         }
-
+        
+        
         return storeToSave;
     }
 

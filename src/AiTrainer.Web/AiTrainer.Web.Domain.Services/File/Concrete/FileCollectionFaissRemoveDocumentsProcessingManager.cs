@@ -36,6 +36,39 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
         _httpContextAccessor = httpContextAccessor;
         _fileCollectionRepo = fileCollectionRepo;
     }
+    public async Task RemoveDocumentsFromFaissStoreAndSaveIt(FileCollectionFaiss existingFaissStore,
+        Domain.Models.User currentUser,
+        CancellationToken cancellationToken = default)
+    {
+        var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
+
+        _logger.LogInformation(
+            "Entering {Action} for correlationId {CorrelationId}",
+            nameof(RemoveDocumentsFromFaissStoreAndSaveIt),
+            correlationId
+        );
+
+        var existingDocumentIds = await GetExistingDocumentIds((Guid)currentUser.Id!, existingFaissStore.CollectionId);
+        
+        var analysedSingleChunkDocsToRemoveFromStore = FaissHelper
+            .GetDocumentChunksFromFaissDocStore(existingFaissStore.FaissJson)
+            .FastArrayWhere(x => !existingDocumentIds.Contains(x.FileDocumentId))
+            .ToArray();
+
+        if (analysedSingleChunkDocsToRemoveFromStore.Length < 1)
+        {
+            return;
+        }
+        
+        await RemoveDirectlyFromStoreAndSave(existingFaissStore.FaissIndex,
+            existingFaissStore.FaissJson,
+            analysedSingleChunkDocsToRemoveFromStore.FastArraySelect(x => (Guid)x.Id!).ToArray(),
+            (Guid)currentUser.Id!,
+            existingFaissStore.CollectionId,
+            existingFaissStore.Id,
+            cancellationToken
+        );
+    }
     public async Task RemoveDocumentsFromFaissStoreAndSaveIt(Guid? collectionId,
         Domain.Models.User currentUser,
         CancellationToken cancellationToken = default)
