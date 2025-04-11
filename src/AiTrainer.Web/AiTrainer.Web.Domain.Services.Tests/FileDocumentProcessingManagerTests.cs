@@ -99,7 +99,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
 
             _mockFileDocumentRepository.Setup(x =>
-                x.Delete(new List<FileDocument>{docToDelete})
+                x.Delete(docToDelete)
             ).ReturnsAsync(new DbDeleteResult<FileDocument>(new List<FileDocument>{docToDelete}));
 
             //Act
@@ -111,7 +111,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 Times.Once
             );
             _mockFileDocumentRepository.Verify(x =>
-                x.Delete(It.Is<IReadOnlyCollection<FileDocument>>(y => y.First() == docToDelete)),
+                x.Delete(docToDelete),
                 Times.Once
             );
             _mockJobQueue.Verify(x =>
