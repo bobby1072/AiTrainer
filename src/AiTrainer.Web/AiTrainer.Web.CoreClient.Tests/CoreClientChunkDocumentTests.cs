@@ -21,11 +21,9 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
     public async Task CoreClientChunkDocument_Should_Build_Request_Correctly()
     {
         //Arrange
-        var fixture = new Fixture().AddMockHttp();
-
-        var mockInput = fixture.Create<CoreDocumentToChunkInput>();
+        var mockInput = _fixture.Create<CoreDocumentToChunkInput>();
         var expectedUri = "http://localhost:5000/api/chunkingrouter/chunkdocument";
-        var expectedResult = fixture.Create<CoreResponse<CoreChunkedDocumentResponse>>();
+        var expectedResult = _fixture.Create<CoreResponse<CoreChunkedDocumentResponse>>();
 
         var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult);
         httpClient.Timeout = TimeSpan.FromSeconds(2);
