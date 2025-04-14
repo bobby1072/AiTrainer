@@ -1,4 +1,6 @@
-﻿using AiTrainer.Web.Common;
+﻿using System.Net;
+using System.Net.Http.Json;
+using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -6,65 +8,45 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.TestBase;
 using AutoFixture;
 using Flurl.Http;
-using Flurl.Http.Testing;
 using Microsoft.Extensions.Logging;
 using Moq;
+using RichardSzalay.MockHttp;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
 public class CoreClientChunkDocumentTests : CoreClientTestBase
 {
-    private readonly Mock<ILogger<CoreClientChunkDocument>> _mockLogger = new();
     private readonly CoreClientChunkDocument _clientChunkDocument;
     public CoreClientChunkDocumentTests()
     {
         SetUpBasicHttpContext();
-        _httpTest.WithSettings(x =>
-        {
-            x.JsonSerializer = ApiConstants.DefaultCamelFlurlJsonSerializer;
-        });
-        
-        _clientChunkDocument = new CoreClientChunkDocument(
-            _mockLogger.Object,
-            new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
-            _mockHttpContextAccessor.Object,
-            ApiConstants.DefaultCamelFlurlJsonSerializer
-        );
     }
+
     [Fact]
     public async Task CoreClientChunkDocument_Should_Build_Request_Correctly()
     {
         //Arrange
-        var documentToChunk = _fixture
-            .Build<CoreDocumentToChunkInput>()
-            .With(x => x.DocumentsToChunk, _fixture.CreateMany<SingleDocumentToChunk>().ToArray())
-            .Create();
+        var fixture = new Fixture().AddMockHttp();
 
-        var chunkedDoc = _fixture
-            .Build<CoreChunkedDocumentResponse>()
-            .With(x => x.DocumentChunks, _fixture.CreateMany<SingleChunkedDocument>().ToArray())
-            .Create();
-        var mockedApiResponse = new CoreResponse<CoreChunkedDocumentResponse> { Data = chunkedDoc };
+        var mockInput = fixture.Create<CoreDocumentToChunkInput>();
+        var expectedUri = "http://localhost:5000/api/chunkingrouter/chunkdocument";
+        var expectedResult = fixture.Create<CoreResponse<CoreChunkedDocumentResponse>>();
 
-        _httpTest
-            .ForCallsTo($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/chunkingrouter/chunkdocument")
-            .WithVerb(HttpMethod.Post)
-            .WithHeader(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey)
-            .WithHeader(ApiConstants.CorrelationIdHeader)
-            .WithRequestJson(documentToChunk)
-            .RespondWithJson(mockedApiResponse);
+        var handler = fixture.Freeze<MockHttpMessageHandler>();
+        handler.When(HttpMethod.Post, expectedUri)
+            .Respond(HttpStatusCode.OK, JsonContent.Create(expectedResult, null, ApiConstants.DefaultCamelCaseSerializerOptions));
 
+        var service = new CoreClientChunkDocument(
+            Mock.Of<ILogger<CoreClientChunkDocument>>(),
+            handler.ToHttpClient(),
+            new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
+            _mockHttpContextAccessor.Object
+        );
+        
         //Act
-        var result = await _clientChunkDocument.TryInvokeAsync(documentToChunk);
-
+        var result = await service.TryInvokeAsync(mockInput);
+        
         //Assert
-        Assert.NotNull(result);
-        Assert.IsAssignableFrom(mockedApiResponse.Data.GetType(), result);
-        _httpTest
-            .ShouldHaveCalled($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/chunkingrouter/chunkdocument")
-            .WithVerb(HttpMethod.Post)
-            .WithHeader(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey)
-            .WithHeader(ApiConstants.CorrelationIdHeader)
-            .WithRequestJson(documentToChunk);
+        Assert.Equal(result, expectedResult.Data);
     }
 }

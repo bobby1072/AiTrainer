@@ -12,9 +12,9 @@ namespace AiTrainer.Web.CoreClient.Tests
         {
             ApiKey = Guid.NewGuid().ToString(),
             BaseEndpoint = "http://localhost:5000",
-            TotalAttempts = 56,
+            TotalAttempts = 3,
             TimeoutInSeconds = 2,
-            DelayBetweenAttemptsInSeconds = 2
+            DelayBetweenAttemptsInSeconds = 0
         };
         public void Dispose()
         {

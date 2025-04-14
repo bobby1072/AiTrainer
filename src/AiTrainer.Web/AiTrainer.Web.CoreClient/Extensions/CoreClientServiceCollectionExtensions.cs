@@ -30,16 +30,7 @@ namespace AiTrainer.Web.CoreClient.Extensions
 
             serviceCollection.Configure<AiTrainerCoreConfiguration>(aiTrainerCoreSection);
 
-            serviceCollection
-                .AddScoped<
-                    ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse>
-                >(sp => new CoreClientChunkDocument(
-                    GetLoggerForClient<CoreClientChunkDocument>(sp),
-                    GetConfigForClient(sp),
-                    GetContextAccessorForClient(sp),
-                    ApiConstants.DefaultCamelFlurlJsonSerializer
-                ))
-                .AddScoped<ICoreClient<CoreClientHealthResponse>>
+            serviceCollection.AddScoped<ICoreClient<CoreClientHealthResponse>>
                 (sp => new CoreClientHealth(
                     GetLoggerForClient<CoreClientHealth>(sp),
                     GetConfigForClient(sp),
@@ -73,7 +64,14 @@ namespace AiTrainer.Web.CoreClient.Extensions
                     GetConfigForClient(sp),
                     GetContextAccessorForClient(sp),
                     ApiConstants.DefaultCamelFlurlJsonSerializer
-                ))
+                ));
+            
+            
+            serviceCollection
+                .AddHttpClient<
+                    ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse>
+                >();
+            serviceCollection
                 .AddHttpClient<ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse>,
                     CoreClientRemoveDocumentsFromStore>();
             

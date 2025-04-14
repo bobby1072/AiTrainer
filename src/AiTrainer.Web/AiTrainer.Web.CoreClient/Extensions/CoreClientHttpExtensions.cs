@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Text.Json;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.CoreClient.Models.Response;
@@ -12,6 +13,11 @@ namespace AiTrainer.Web.CoreClient.Extensions;
 
 internal static class CoreClientHttpExtensions
 {
+    public static JsonContent CreateApplicationJson<T>(T param, JsonSerializerOptions? serializerOptions = null) where T : class
+    {
+        return JsonContent.Create(param, MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json), serializerOptions);
+    }
+    
     public static void AddCorrelationIdHeader(this HttpRequestHeaders headers, Guid? correlationId)
     {
         if (correlationId is not null)
