@@ -32,32 +32,40 @@ internal class CoreClientChunkDocument : ICoreClient<CoreDocumentToChunkInput, C
     
     public async Task<CoreChunkedDocumentResponse?> TryInvokeAsync(CoreDocumentToChunkInput param, CancellationToken cancellationToken = default)
     {
-        using var requestContent = CoreClientHttpExtensions.CreateApplicationJson(param, ApiConstants.DefaultCamelCaseSerializerOptions);
-        using var requestMessage = new HttpRequestMessage();
-        requestMessage.Method = HttpMethod.Post;
-        requestMessage.RequestUri =
-            new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/chunkingrouter/chunkdocument");
-        requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-        requestMessage.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
-        
-        requestMessage.Content = requestContent;
-        
-        
-        var retryPipeline = _aiTrainerCoreConfiguration.ToPipeline();
-        var result = await retryPipeline.ExecuteAsync(async ct =>
-            {
-                var response = await _httpClient.SendAsync(requestMessage,
-                    ct);
-                response.EnsureSuccessStatusCode();
+        try
+        {
+            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            
+            using var requestContent =
+                CoreClientHttpExtensions.CreateApplicationJson(param, ApiConstants.DefaultCamelCaseSerializerOptions);
 
-                return await response.Content
-                    .TryDeserializeJson<CoreResponse<CoreChunkedDocumentResponse>>(
-                        ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
-            }, cancellationToken)
-            .AsTask()
-            .CoreClientExceptionHandling(_logger, nameof(CoreClientChunkDocument));
+            var httpResult = await _httpClient.SendRetryRequest(
+                requestMessage =>
+                {
+                    requestMessage.Method = HttpMethod.Post;
+                    requestMessage.RequestUri =
+                        new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/chunkingrouter/chunkdocument");
+                    requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
+                    requestMessage.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
 
-        return result?.Data;
+                    requestMessage.Content = requestContent;
+                }, 
+                _aiTrainerCoreConfiguration,
+                _logger,
+                nameof(CoreClientChunkDocument),
+                correlationId?.ToString(),
+                cancellationToken);
+
+            var finalResult = await httpResult.Content
+                .TryDeserializeJson<CoreResponse<CoreChunkedDocumentResponse>>(
+                    ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
+
+            return finalResult?.Data;
+        }
+        catch
+        {
+            return null;
+        }
     }
 }
 

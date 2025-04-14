@@ -5,6 +5,8 @@ using System.Text.Json;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.OperationTimer.Proto;
+using BT.Common.Polly.Extensions;
+using BT.Common.Polly.Models.Abstract;
 using Flurl;
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
@@ -13,6 +15,32 @@ namespace AiTrainer.Web.CoreClient.Extensions;
 
 internal static class CoreClientHttpExtensions
 {
+    public static async Task<HttpResponseMessage> SendRetryRequest<TLoggerObject>(this HttpClient client, Action<HttpRequestMessage> buildRequest, IPollyRetrySettings retrySettings, ILogger<TLoggerObject>? logger = null, string? opName = null, string? correlationId = null, CancellationToken cancellationToken = default)
+    {
+        var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(() => client.SendRetryRequest(buildRequest, retrySettings, cancellationToken));
+        
+        logger?.LogDebug("{OpName} took a total time of {TimeTaken}ms to complete for correlationId {CorrelationId}", opName, timeTaken.Milliseconds, correlationId);
+        
+        return result;
+    }
+    private static async Task<HttpResponseMessage> SendRetryRequest(this HttpClient client, Action<HttpRequestMessage> buildRequest, IPollyRetrySettings retrySettings, CancellationToken cancellationToken = default)
+    {
+        var retryPipeline =  retrySettings.ToPipeline();
+
+        var result = await retryPipeline.ExecuteAsync(async ct =>
+        {
+            using var httpRequest = new HttpRequestMessage();
+            buildRequest.Invoke(httpRequest);
+            
+            var responseFromRoute = await client.SendAsync(httpRequest, ct);
+            
+            responseFromRoute.EnsureSuccessStatusCode();
+            
+            return responseFromRoute;
+        }, cancellationToken);
+        
+        return result;
+    }
     public static JsonContent CreateApplicationJson<T>(T param, JsonSerializerOptions? serializerOptions = null) where T : class
     {
         return JsonContent.Create(param, MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Json), serializerOptions);

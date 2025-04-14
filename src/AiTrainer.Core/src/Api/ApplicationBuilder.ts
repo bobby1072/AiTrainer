@@ -15,7 +15,7 @@ export default abstract class ApplicationBuilder {
     app.use(bodyParser.urlencoded({ extended: true }));
   }
 
-  public static AddDomainMiddleware(app: Application): void {
+  public static AddDomainMiddlewares(app: Application): void {
     app.use(ApiKeyHeaderMiddleware.InvokeMiddleware());
   }
   public static AddRoutes(app: Application): void {

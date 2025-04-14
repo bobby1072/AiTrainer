@@ -16,7 +16,6 @@ namespace AiTrainer.Web.CoreClient.Tests;
 
 public class CoreClientChunkDocumentTests : CoreClientTestBase
 {
-    private readonly CoreClientChunkDocument _clientChunkDocument;
     public CoreClientChunkDocumentTests()
     {
         SetUpBasicHttpContext();
@@ -33,7 +32,10 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
         var expectedResult = fixture.Create<CoreResponse<CoreChunkedDocumentResponse>>();
 
         var handler = fixture.Freeze<MockHttpMessageHandler>();
-        handler.When(HttpMethod.Post, expectedUri)
+        handler.Fallback.Respond(_ => throw new Exception());
+        
+        handler
+            .When(HttpMethod.Post, expectedUri)
             .Respond(HttpStatusCode.OK, JsonContent.Create(expectedResult, null, ApiConstants.DefaultCamelCaseSerializerOptions));
 
         var service = new CoreClientChunkDocument(
