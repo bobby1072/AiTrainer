@@ -41,6 +41,8 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
     {
         try
         {
+            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            
             using var fileContent = new ByteArrayContent(input.FileInput);
             fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
             
@@ -54,28 +56,25 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
                     Encoding.UTF8,
                     "application/json"),
                 "metadata");
-            
-            using var request = new HttpRequestMessage();
-            request.Method = HttpMethod.Post;
-            request.RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments");
-            request.Content = formContent;
-            request.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-            request.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
 
-            
-            var retryPipeline = _aiTrainerCoreConfiguration.ToPipeline();
-            var result = await retryPipeline.ExecuteAsync(async ct =>
+            using var httpResult = await _httpClient.SendRetryRequest(
+                request =>
                 {
-                    var response = await _httpClient.SendAsync(request,
-                        ct);
-                    response.EnsureSuccessStatusCode();
-
-                    return await response.Content
-                               .TryDeserializeJson<CoreResponse<CoreFaissStoreResponse>>(
-                                   ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
-                }, cancellationToken)
-                .AsTask()
-                .CoreClientExceptionHandling(_logger, nameof(CoreClientRemoveDocumentsFromStore));
+                    request.Method = HttpMethod.Post;
+                    request.RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments");
+                    request.Content = formContent;
+                    request.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
+                    request.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
+                },
+                _aiTrainerCoreConfiguration,
+                _logger,
+                nameof(CoreClientRemoveDocumentsFromStore),
+                correlationId?.ToString(),
+                cancellationToken
+            );
+            
+            
+            var result = await httpResult.Content.TryDeserializeJson<CoreResponse<CoreFaissStoreResponse>>(ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
 
             return result?.Data;
         }
@@ -84,6 +83,7 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
             _logger.LogError(ex, "Exception occured in {OpName} with message {Message}",
                 nameof(CoreClientRemoveDocumentsFromStore),
                 ex.Message);
+            
             return null;
         }
     }
