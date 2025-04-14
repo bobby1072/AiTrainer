@@ -1,6 +1,8 @@
-﻿using AiTrainer.Web.Common.Configuration;
+﻿using System.Net;
+using AiTrainer.Web.Common;
+using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.TestBase;
-using AutoFixture;
+using AiTrainer.Web.TestBase.Helpers;
 using Flurl.Http.Testing;
 
 namespace AiTrainer.Web.CoreClient.Tests
@@ -16,9 +18,17 @@ namespace AiTrainer.Web.CoreClient.Tests
             TimeoutInSeconds = 2,
             DelayBetweenAttemptsInSeconds = 0
         };
-        public void Dispose()
+        public virtual void Dispose()
         {
             _httpTest.Dispose();
+        }
+
+        protected HttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData) where T: class
+        {
+            var handler = new StaticJsonHandler<T>(responseData, statusCode, ApiConstants.DefaultCamelCaseSerializerOptions);
+            var httpClient = new HttpClient(handler);
+            
+            return httpClient;
         }
     }
 }

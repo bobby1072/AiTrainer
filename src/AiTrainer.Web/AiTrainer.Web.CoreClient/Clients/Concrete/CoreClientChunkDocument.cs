@@ -39,7 +39,7 @@ internal class CoreClientChunkDocument : ICoreClient<CoreDocumentToChunkInput, C
             using var requestContent =
                 CoreClientHttpExtensions.CreateApplicationJson(param, ApiConstants.DefaultCamelCaseSerializerOptions);
 
-            var httpResult = await _httpClient.SendRetryRequest(
+            using var httpResult = await _httpClient.SendRetryRequest(
                 requestMessage =>
                 {
                     requestMessage.Method = HttpMethod.Post;

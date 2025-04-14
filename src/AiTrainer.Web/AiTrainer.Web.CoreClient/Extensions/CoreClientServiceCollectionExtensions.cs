@@ -69,7 +69,8 @@ namespace AiTrainer.Web.CoreClient.Extensions
             
             serviceCollection
                 .AddHttpClient<
-                    ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse>
+                    ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse>,
+                    CoreClientChunkDocument
                 >();
             serviceCollection
                 .AddHttpClient<ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse>,
