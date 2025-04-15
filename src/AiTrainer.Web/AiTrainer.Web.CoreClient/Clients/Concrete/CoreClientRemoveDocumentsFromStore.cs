@@ -57,7 +57,7 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
                     "application/json"),
                 "metadata");
 
-            using var httpResult = await _httpClient.SendRetryRequest(
+            using var httpResult = await _httpClient.SendWithRetry(
                 request =>
                 {
                     request.Method = HttpMethod.Post;

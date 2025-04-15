@@ -37,13 +37,6 @@ namespace AiTrainer.Web.CoreClient.Extensions
                     GetContextAccessorForClient(sp),
                     ApiConstants.DefaultCamelFlurlJsonSerializer
                 ))
-                .AddScoped<ICoreClient<CoreCreateFaissStoreInput, CoreFaissStoreResponse>>
-                (sp => new CoreClientCreateFaissStore(
-                    GetLoggerForClient<CoreClientCreateFaissStore>(sp),
-                    GetConfigForClient(sp),
-                    GetContextAccessorForClient(sp),
-                    ApiConstants.DefaultCamelFlurlJsonSerializer
-                ))
                 .AddScoped<ICoreClient<CoreUpdateFaissStoreInput, CoreFaissStoreResponse>>
                 (sp => new CoreClientUpdateFaissStore(
                     GetLoggerForClient<CoreClientUpdateFaissStore>(sp),
@@ -65,8 +58,10 @@ namespace AiTrainer.Web.CoreClient.Extensions
                     GetContextAccessorForClient(sp),
                     ApiConstants.DefaultCamelFlurlJsonSerializer
                 ));
+
             
-            
+            serviceCollection
+                .AddHttpClient<ICoreClient<CoreCreateFaissStoreInput, CoreFaissStoreResponse>>();
             serviceCollection
                 .AddHttpClient<
                     ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse>,
@@ -76,7 +71,6 @@ namespace AiTrainer.Web.CoreClient.Extensions
                 .AddHttpClient<ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse>,
                     CoreClientRemoveDocumentsFromStore>();
             
-
             return serviceCollection;
         }
         private static IOptionsSnapshot<AiTrainerCoreConfiguration> GetConfigForClient(IServiceProvider sp)

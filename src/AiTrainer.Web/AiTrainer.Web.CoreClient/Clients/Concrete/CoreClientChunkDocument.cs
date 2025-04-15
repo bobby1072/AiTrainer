@@ -39,14 +39,14 @@ internal class CoreClientChunkDocument : ICoreClient<CoreDocumentToChunkInput, C
             using var requestContent =
                 CoreClientHttpExtensions.CreateApplicationJson(param, ApiConstants.DefaultCamelCaseSerializerOptions);
 
-            using var httpResult = await _httpClient.SendRetryRequest(
+            using var httpResult = await _httpClient.SendWithRetry(
                 requestMessage =>
                 {
                     requestMessage.Method = HttpMethod.Post;
                     requestMessage.RequestUri =
                         new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/chunkingrouter/chunkdocument");
                     requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-                    requestMessage.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
+                    requestMessage.Headers.AddCorrelationIdHeader(correlationId);
 
                     requestMessage.Content = requestContent;
                 }, 

@@ -23,10 +23,11 @@ namespace AiTrainer.Web.CoreClient.Tests
             _httpTest.Dispose();
         }
 
-        protected HttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData) where T: class
+        protected TestHttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData, string expectedUrl) where T: class
         {
             var handler = new StaticJsonHandler<T>(responseData, statusCode, ApiConstants.DefaultCamelCaseSerializerOptions);
-            var httpClient = new HttpClient(handler);
+            var httpClient = new TestHttpClient(handler, expectedUrl);
+            httpClient.Timeout = TimeSpan.FromSeconds(2);
             
             return httpClient;
         }

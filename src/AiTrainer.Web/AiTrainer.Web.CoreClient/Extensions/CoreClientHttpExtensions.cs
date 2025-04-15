@@ -15,15 +15,15 @@ namespace AiTrainer.Web.CoreClient.Extensions;
 
 internal static class CoreClientHttpExtensions
 {
-    public static async Task<HttpResponseMessage> SendRetryRequest<TLoggerObject>(this HttpClient client, Action<HttpRequestMessage> buildRequest, IPollyRetrySettings retrySettings, ILogger<TLoggerObject>? logger = null, string? opName = null, string? correlationId = null, CancellationToken cancellationToken = default)
+    public static async Task<HttpResponseMessage> SendWithRetry<TLoggerObject>(this HttpClient client, Action<HttpRequestMessage> buildRequest, IPollyRetrySettings retrySettings, ILogger<TLoggerObject>? logger = null, string? opName = null, string? correlationId = null, CancellationToken cancellationToken = default)
     {
-        var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(() => client.SendRetryRequest(buildRequest, retrySettings, cancellationToken));
+        var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(() => client.SendWithRetry(buildRequest, retrySettings, cancellationToken));
         
         logger?.LogDebug("{OpName} took a total time of {TimeTaken}ms to complete for correlationId {CorrelationId}", opName, timeTaken.Milliseconds, correlationId);
         
         return result;
     }
-    private static async Task<HttpResponseMessage> SendRetryRequest(this HttpClient client, Action<HttpRequestMessage> buildRequest, IPollyRetrySettings retrySettings, CancellationToken cancellationToken = default)
+    private static async Task<HttpResponseMessage> SendWithRetry(this HttpClient client, Action<HttpRequestMessage> buildRequest, IPollyRetrySettings retrySettings, CancellationToken cancellationToken = default)
     {
         var retryPipeline =  retrySettings.ToPipeline();
 
