@@ -60,7 +60,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
         var deleteInCoreResult = await _coreClient.TryInvokeAsync(new CoreRemoveDocumentsFromStoreInput
         {
             FileInput = fileCollectionFaiss.FaissIndex,
-            JsonDocStore = fileCollectionFaiss.FaissJson,
+            DocStore = fileCollectionFaiss.FaissJson,
             DocumentIdsToRemove = analysedSingleChunkDocsToRemoveFromStore.FastArraySelect(x => x.Id).ToArray(),
         }, cancellationToken) ?? throw new ApiException("Failed to delete chunks from the chosen faiss store");
 
@@ -135,7 +135,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
         var deleteInCoreResult = await _coreClient.TryInvokeAsync(new CoreRemoveDocumentsFromStoreInput
         {
             FileInput = faissIndex,
-            JsonDocStore = jsonDocument,
+            DocStore = jsonDocument,
             DocumentIdsToRemove = documentIdsToRemove,
         }, cancellationToken) ?? throw new ApiException("Failed to delete chunks from the chosen faiss store");
 

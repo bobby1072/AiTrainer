@@ -62,8 +62,12 @@ internal class CoreClientChunkDocument : ICoreClient<CoreDocumentToChunkInput, C
 
             return finalResult?.Data;
         }
-        catch
+        catch(Exception ex)
         {
+            _logger.LogError(ex, "Exception occured in {OpName} with message {Message}",
+                nameof(CoreClientChunkDocument),
+                ex.Message);
+            
             return null;
         }
     }

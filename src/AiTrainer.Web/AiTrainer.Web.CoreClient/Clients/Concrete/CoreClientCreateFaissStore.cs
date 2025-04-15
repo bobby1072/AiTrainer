@@ -63,6 +63,10 @@ internal class CoreClientCreateFaissStore : ICoreClient<CoreCreateFaissStoreInpu
         }
         catch(Exception ex)
         {
+            _logger.LogError(ex, "Exception occured in {OpName} with message {Message}",
+                nameof(CoreClientCreateFaissStore),
+                ex.Message);
+            
             return null;
         }
     }
