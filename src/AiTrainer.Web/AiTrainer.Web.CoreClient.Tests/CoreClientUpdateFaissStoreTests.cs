@@ -1,39 +1,23 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using System.Text.Json;
-using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.TestBase;
 using AutoFixture;
-using Flurl.Http;
-using Microsoft.Extensions.Logging;
-using Moq;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
 public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
 {
-    private readonly Mock<ILogger<CoreClientUpdateFaissStore>> _mockLogger = new();
-    private readonly CoreClientUpdateFaissStore _coreClientUpdateFaissStore;
-
     public CoreClientUpdateFaissStoreTests()
     {
         SetUpBasicHttpContext();
-        
-        _httpTest.WithSettings(x =>
-        {
-            x.JsonSerializer = ApiConstants.DefaultCamelFlurlJsonSerializer;
-        });
-        
-        _coreClientUpdateFaissStore = new CoreClientUpdateFaissStore(
-            _mockLogger.Object,
-            new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
-            _mockHttpContextAccessor.Object,
-            ApiConstants.DefaultCamelFlurlJsonSerializer
-        );
     }
+
     [Fact]
     public async Task CoreClientUpdateFaissStore_Should_Build_Request_Correctly()
     {
@@ -53,22 +37,24 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
             .Create();
         var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
         
-        _httpTest
-            .ForCallsTo($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore")
-            .WithVerb(HttpMethod.Post)
-            .WithHeader(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey)
-            .WithHeader(ApiConstants.CorrelationIdHeader)
-            .RespondWithJson(mockedApiResponse);
+        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
+            mockedApiResponse,
+            $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore");
+        var service = new CoreClientUpdateFaissStore(
+            new NullLogger<CoreClientUpdateFaissStore>(),
+            new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
+            httpClient,
+            _mockHttpContextAccessor.Object
+        );
         
         //Act
-        var result = await _coreClientUpdateFaissStore.TryInvokeAsync(input);
+        var result = await service.TryInvokeAsync(input);
         
         //Assert
+        Assert.True(httpClient.WasExpectedUrlCalled());
         Assert.NotNull(result);
-        _httpTest
-            .ShouldHaveCalled($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore")
-            .WithVerb(HttpMethod.Post)
-            .WithHeader(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey)
-            .WithHeader(ApiConstants.CorrelationIdHeader);
+        Assert.IsType<JsonDocument>(result.JsonDocStore);
+        Assert.Equal(result.IndexFile, mockedApiResponse.Data.IndexFile);
+        
     }
 }
