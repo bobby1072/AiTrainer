@@ -19,7 +19,12 @@ export default abstract class ChunkingRouter {
           if (!actualText) {
             throw new ApiException(ExceptionConstants.DocumentTextIsRequired);
           }
-          const chunks = await Chunker.Chunk(actualText);
+          const chunks = await Chunker.Chunk({
+            documentsToChunk: actualText.documentsToChunk.map((x) => ({
+              ...x,
+              fileDocumentId: x.fileDocumentId.ToString(),
+            })),
+          });
 
           res.status(200).json({
             data: { documentChunks: chunks },

@@ -7,7 +7,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete;
 internal class FileCollectionFaissBackgroundJobQueue : IFileCollectionFaissSyncBackgroundJobQueue
 {
     private readonly Channel<FileCollectionFaissBackgroundJob> _channel = Channel.CreateUnbounded<FileCollectionFaissBackgroundJob>();
-
     public Task EnqueueAsync(FileCollectionFaissBackgroundJob job)
     {
         return _channel.Writer.WriteAsync(job).AsTask();
