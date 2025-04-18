@@ -18,13 +18,14 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse>
+public class CoreClientRemoveDocumentsFromStore
+    : ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse>
 {
     private readonly ILogger<CoreClientRemoveDocumentsFromStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly HttpClient _httpClient; 
-        
+    private readonly HttpClient _httpClient;
+
     public CoreClientRemoveDocumentsFromStore(
         ILogger<CoreClientRemoveDocumentsFromStore> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration,
@@ -37,31 +38,41 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
         _httpContextAccessor = httpContextAccessor;
         _httpClient = httpClient;
     }
-    
-    public async Task<CoreFaissStoreResponse?> TryInvokeAsync(CoreRemoveDocumentsFromStoreInput input, CancellationToken cancellationToken = default)
+
+    public async Task<CoreFaissStoreResponse?> TryInvokeAsync(
+        CoreRemoveDocumentsFromStoreInput input,
+        CancellationToken cancellationToken = default
+    )
     {
         try
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
-            
+
             using var fileContent = new ByteArrayContent(input.FileInput);
-            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Octet);
-            
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                MediaTypeNames.Application.Octet
+            );
+
             using var formContent = new MultipartFormDataContent();
             formContent.Add(fileContent, "file", "docStore.index");
-            formContent.Add(new StringContent(JsonSerializer.Serialize(input, ApiConstants.DefaultCamelCaseSerializerOptions),
-                    Encoding.UTF8,
-                    "application/json"),
-                "metadata");
+            formContent.Add(
+                CoreClientHttpExtensions.CreateApplicationJson(
+                    input,
+                    ApiConstants.DefaultCamelCaseSerializerOptions
+                ),
+                "metadata"
+            );
 
             using var httpResult = await _httpClient.SendWithRetry(
                 request =>
                 {
                     request.Method = HttpMethod.Post;
-                    request.RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments");
+                    request.RequestUri = new Uri(
+                        $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments"
+                    );
                     request.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-                    request.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
-                    
+                    request.Headers.AddCorrelationIdHeader(correlationId);
+
                     request.Content = formContent;
                 },
                 _aiTrainerCoreConfiguration,
@@ -70,18 +81,22 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
                 correlationId?.ToString(),
                 cancellationToken
             );
-            
-            
-            var result = await httpResult.Content.TryDeserializeJson<CoreResponse<CoreFaissStoreResponse>>(ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
+
+            var result = await httpResult.Content.TryDeserializeJson<
+                CoreResponse<CoreFaissStoreResponse>
+            >(ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
 
             return result?.Data;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occured in {OpName} with message {Message}",
+            _logger.LogError(
+                ex,
+                "Exception occured in {OpName} with message {Message}",
                 nameof(CoreClientRemoveDocumentsFromStore),
-                ex.Message);
-            
+                ex.Message
+            );
+
             return null;
         }
     }

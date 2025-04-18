@@ -45,9 +45,7 @@ public class CoreClientSimilaritySearch: ICoreClient<CoreSimilaritySearchInput, 
             
             using var formContent = new MultipartFormDataContent();
             formContent.Add(fileContent, "file", "docStore.index");
-            formContent.Add(new StringContent(JsonSerializer.Serialize(input, ApiConstants.DefaultCamelCaseSerializerOptions),
-                    Encoding.UTF8,
-                    "application/json"),
+            formContent.Add(CoreClientHttpExtensions.CreateApplicationJson(input, ApiConstants.DefaultCamelCaseSerializerOptions),
                 "metadata");
 
             using var httpResult = await _httpClient

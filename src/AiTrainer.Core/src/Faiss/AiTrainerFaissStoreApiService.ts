@@ -59,7 +59,9 @@ export default abstract class AiTrainerFaissStoreApiService {
       data.fileInput
     );
 
-    await faissStore.RemoveDocumentsFromStore(data.documentIdsToRemove);
+    await faissStore.RemoveDocumentsFromStore(
+      data.documentIdsToRemove.map((x) => x.ToString())
+    );
 
     const storeItems = faissStore.GetSaveItemsFromStore();
     return {

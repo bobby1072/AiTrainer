@@ -16,7 +16,7 @@ internal static class CoreClientHttpExtensions
     {
         var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(() => client.SendWithRetry(buildRequest, retrySettings, cancellationToken));
         
-        logger?.LogDebug("{OpName} took a total time of {TimeTaken}ms to complete for correlationId {CorrelationId}", opName, timeTaken.Milliseconds, correlationId);
+        logger?.LogInformation("{OpName} took a total time of {TimeTaken}ms to complete for correlationId {CorrelationId}", opName, timeTaken.Milliseconds, correlationId);
         
         return result;
     }

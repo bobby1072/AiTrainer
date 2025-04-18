@@ -47,15 +47,25 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             correlationId
         );
         
-        var analysedSingleChunkDocsToRemoveFromStore = FaissHelper
-            .GetDocumentChunksFromFaissDocStore(fileCollectionFaiss.FaissJson)
+        var analysedSingleChunkDocsToRemoveFromStore = fileCollectionFaiss.SingleDocuments.Value
             .FastArrayWhere(x => !existingDocumentIds.Contains(x.FileDocumentId))
             .ToArray();
 
         if (analysedSingleChunkDocsToRemoveFromStore.Length < 1)
         {
+            
+            _logger.LogInformation(
+                "No documents to remove for correlationId {CorrelationId}",
+                correlationId
+            );
             return fileCollectionFaiss;
         }
+
+        _logger.LogDebug("Going to attempt to remove {@Documents} from faiss store for correlationId {CorrelationId}",
+            analysedSingleChunkDocsToRemoveFromStore,
+            correlationId
+        );
+        
         
         var deleteInCoreResult = await _coreClient.TryInvokeAsync(new CoreRemoveDocumentsFromStoreInput
         {
@@ -64,6 +74,12 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             DocumentIdsToRemove = analysedSingleChunkDocsToRemoveFromStore.FastArraySelect(x => x.Id).ToArray(),
         }, cancellationToken) ?? throw new ApiException("Failed to delete chunks from the chosen faiss store");
 
+        _logger.LogInformation(
+            "Exiting {Action} for correlationId {CorrelationId}",
+            nameof(RemoveDocumentsFromFaissStoreSafelyAsync),
+            correlationId
+        );
+        
         return new FileCollectionFaiss
         {
             Id = fileCollectionFaiss.Id,
@@ -101,8 +117,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
         }
         
         var existingDocumentIds = await GetExistingDocumentIds((Guid)currentUser.Id!, collectionId);
-        var allAnalysedChunksFromStore = FaissHelper
-            .GetDocumentChunksFromFaissDocStore(existingFaissStore.Data.FaissJson);
+        var allAnalysedChunksFromStore = existingFaissStore.Data.SingleDocuments.Value;
         
         
         var analysedSingleChunkDocsToRemoveFromStore = allAnalysedChunksFromStore
@@ -111,6 +126,10 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
 
         if (analysedSingleChunkDocsToRemoveFromStore.Length < 1)
         {
+            _logger.LogInformation(
+                "No documents to remove for correlationId {CorrelationId}",
+                correlationId
+            );
             return;
         }
         
@@ -120,7 +139,14 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             (Guid)currentUser.Id!,
             collectionId,
             existingFaissStore.Data.Id,
+            correlationId?.ToString(),
             cancellationToken
+        );
+        
+        _logger.LogInformation(
+            "Exiting {Action} for correlationId {CorrelationId}",
+            nameof(RemoveDocumentsFromFaissStoreAndUpdateItAsync),
+            correlationId
         );
     }
 
@@ -130,8 +156,14 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
         Guid userId,
         Guid? collectionId,
         long? existingFaissId,
+        string? correlationId,
         CancellationToken cancellationToken)
     {
+        
+        _logger.LogInformation(
+            "Attempting to delete documents in core for correlationId {CorrelationId}",
+            correlationId
+        );
         var deleteInCoreResult = await _coreClient.TryInvokeAsync(new CoreRemoveDocumentsFromStoreInput
         {
             FileInput = faissIndex,
@@ -148,10 +180,14 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             UserId = userId,
         };
 
-        var analysedFileDocuments = 
-            FaissHelper.GetDocumentChunksFromFaissDocStore(newFileCollectionFaiss.FaissJson);
+        var analysedFileDocuments = newFileCollectionFaiss.SingleDocuments.Value;
         if (analysedFileDocuments.Count < 1)
         {
+            _logger.LogInformation(
+                "No documents left in faiss store for correlationId {CorrelationId}. Attempting to delete faiss store",
+                correlationId
+            );
+            
             var storeUpdateResult = await EntityFrameworkUtils.TryDbOperation(
                 () =>
                     _fileCollectionFaissRepo.Delete([(long)newFileCollectionFaiss.Id!])
@@ -159,11 +195,15 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
 
             if (storeUpdateResult?.Data is null)
             {
-                throw new ApiException("Failed to save new updated faiss store");
+                throw new ApiException("Failed to delete faiss store");
             }
         }
         else
         {
+            _logger.LogInformation(
+                "Documents left in faissstore for correlationId {CorrelationId}. Attempting to save updated faiss store",
+                correlationId
+            );
             var storeUpdateResult = await EntityFrameworkUtils.TryDbOperation(
                 () =>
                     _fileCollectionFaissRepo.Update([newFileCollectionFaiss])
