@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using BT.Common.Http.Serializers;
 
 namespace AiTrainer.Web.Common
 {
@@ -11,6 +10,5 @@ namespace AiTrainer.Web.Common
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         };
-        public static readonly DefaultFlurlJsonSerializer DefaultCamelFlurlJsonSerializer=  new(DefaultCamelCaseSerializerOptions);
     }
 }

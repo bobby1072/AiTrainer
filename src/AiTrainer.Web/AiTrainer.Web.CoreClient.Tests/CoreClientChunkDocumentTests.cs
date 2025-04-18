@@ -25,8 +25,7 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
         var expectedUri = "http://localhost:5000/api/chunkingrouter/chunkdocument";
         var expectedResult = _fixture.Create<CoreResponse<CoreChunkedDocumentResponse>>();
 
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult);
-        httpClient.Timeout = TimeSpan.FromSeconds(2);
+        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult, expectedUri);
         var service = new CoreClientChunkDocument(
             Mock.Of<ILogger<CoreClientChunkDocument>>(),
             httpClient,
@@ -38,6 +37,7 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
         var result = await service.TryInvokeAsync(mockInput);
         
         //Assert
+        Assert.True(httpClient.WasExpectedUrlCalled());
         Assert.NotNull(result);
         for (int i = 0; i < expectedResult.Data!.DocumentChunks.Count; i++)
         {

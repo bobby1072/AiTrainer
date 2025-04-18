@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.Mime;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
@@ -44,27 +45,24 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
             
             using var fileContent = new ByteArrayContent(input.FileInput);
-            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Octet);
             
             using var formContent = new MultipartFormDataContent();
-            formContent.Add(fileContent, "file", "upload.pdf");
-            formContent.Add(new StringContent(JsonSerializer.Serialize(new
-                    {
-                        docStore = input.JsonDocStore,
-                        documentIdsToRemove = input.DocumentIdsToRemove
-                    }),
+            formContent.Add(fileContent, "file", "docStore.index");
+            formContent.Add(new StringContent(JsonSerializer.Serialize(input, ApiConstants.DefaultCamelCaseSerializerOptions),
                     Encoding.UTF8,
                     "application/json"),
                 "metadata");
 
-            using var httpResult = await _httpClient.SendRetryRequest(
+            using var httpResult = await _httpClient.SendWithRetry(
                 request =>
                 {
                     request.Method = HttpMethod.Post;
                     request.RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments");
-                    request.Content = formContent;
                     request.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
                     request.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
+                    
+                    request.Content = formContent;
                 },
                 _aiTrainerCoreConfiguration,
                 _logger,

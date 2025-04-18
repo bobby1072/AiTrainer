@@ -3,13 +3,11 @@ using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.TestBase;
 using AiTrainer.Web.TestBase.Helpers;
-using Flurl.Http.Testing;
 
 namespace AiTrainer.Web.CoreClient.Tests
 {
-    public abstract class CoreClientTestBase: AiTrainerTestBase, IDisposable
+    public abstract class CoreClientTestBase: AiTrainerTestBase
     {
-        protected readonly HttpTest _httpTest = new();
         protected readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration = new()
         {
             ApiKey = Guid.NewGuid().ToString(),
@@ -18,15 +16,12 @@ namespace AiTrainer.Web.CoreClient.Tests
             TimeoutInSeconds = 2,
             DelayBetweenAttemptsInSeconds = 0
         };
-        public virtual void Dispose()
-        {
-            _httpTest.Dispose();
-        }
 
-        protected HttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData) where T: class
+        protected TestHttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData, string expectedUrl) where T: class
         {
             var handler = new StaticJsonHandler<T>(responseData, statusCode, ApiConstants.DefaultCamelCaseSerializerOptions);
-            var httpClient = new HttpClient(handler);
+            var httpClient = new TestHttpClient(handler, expectedUrl);
+            httpClient.Timeout = TimeSpan.FromSeconds(2);
             
             return httpClient;
         }
