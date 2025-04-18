@@ -4,6 +4,6 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract;
 
 internal interface IFileCollectionFaissSyncBackgroundJobQueue: IDisposable
 {
-    Task Enqueue(FileCollectionFaissBackgroundJob job);
+    Task EnqueueAsync(FileCollectionFaissBackgroundJob job);
     Task<FileCollectionFaissBackgroundJob> DequeueAsync(CancellationToken cancellationToken = default);
 }

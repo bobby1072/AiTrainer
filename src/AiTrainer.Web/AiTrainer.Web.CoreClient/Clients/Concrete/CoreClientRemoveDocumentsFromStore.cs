@@ -51,7 +51,7 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
             formContent.Add(fileContent, "file", "docStore.index");
             formContent.Add(new StringContent(JsonSerializer.Serialize(input, ApiConstants.DefaultCamelCaseSerializerOptions),
                     Encoding.UTF8,
-                    "application/json"),
+                    MediaTypeNames.Application.Json),
                 "metadata");
 
             using var httpResult = await _httpClient.SendWithRetry(
@@ -60,7 +60,7 @@ public class CoreClientRemoveDocumentsFromStore: ICoreClient<CoreRemoveDocuments
                     request.Method = HttpMethod.Post;
                     request.RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments");
                     request.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-                    request.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
+                    request.Headers.AddCorrelationIdHeader(correlationId);
                     
                     request.Content = formContent;
                 },

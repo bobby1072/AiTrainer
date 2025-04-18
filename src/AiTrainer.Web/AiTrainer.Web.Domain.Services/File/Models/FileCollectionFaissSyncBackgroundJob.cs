@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.Domain.Services.File.Models;
 
-internal class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob
+internal class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob<FileCollectionFaissSyncBackgroundJob>
 {
 
     public override Task ExecuteFaissJobAsync(IServiceProvider sp, CancellationToken ct = default)
