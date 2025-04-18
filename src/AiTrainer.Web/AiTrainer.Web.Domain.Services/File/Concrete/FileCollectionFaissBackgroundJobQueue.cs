@@ -10,8 +10,6 @@ internal class FileCollectionFaissBackgroundJobQueue : IFileCollectionFaissSyncB
 
     public Task EnqueueAsync(FileCollectionFaissBackgroundJob job)
     {
-        
-        
         return _channel.Writer.WriteAsync(job).AsTask();
     }
 
