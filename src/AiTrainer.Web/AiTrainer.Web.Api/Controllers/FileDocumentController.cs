@@ -16,7 +16,7 @@ namespace AiTrainer.Web.Api.Controllers
         private readonly ILogger<FileDocumentController> _logger;
 
         public FileDocumentController(
-            IDomainServiceActionExecutor actionExecutor,
+            IHttpDomainServiceActionExecutor actionExecutor,
             ILogger<FileDocumentController> logger
         )
             : base(actionExecutor)

@@ -11,7 +11,7 @@ namespace AiTrainer.Web.Api.Controllers
     [RequireUserLogin]
     public class FileCollectionController : BaseController
     {
-        public FileCollectionController(IDomainServiceActionExecutor actionExecutor)
+        public FileCollectionController(IHttpDomainServiceActionExecutor actionExecutor)
             : base(actionExecutor) { }
 
         [HttpPost("Download")]

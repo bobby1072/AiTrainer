@@ -59,9 +59,8 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
                 return new DbSaveResult<FileCollectionFaiss>(dbContext.FileCollectionFaiss.Local.FastArraySelect(x => x.ToModel()).ToArray());
             }
-            catch(Exception e)
+            catch(Exception)
             {
-                
                 await transaction.RollbackAsync();
                 throw;
             }

@@ -15,15 +15,15 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
 {
     public class AiTrainerHub : Hub
     {
-        private readonly IDomainServiceActionExecutor _domainService;
+        private readonly IHttpDomainServiceActionExecutor _iHttpDomainService;
         private readonly ILogger<AiTrainerHub> _logger;
 
         public AiTrainerHub(
             ILogger<AiTrainerHub> logger,
-            IDomainServiceActionExecutor domainService
+            IHttpDomainServiceActionExecutor iHttpDomainService
         )
         {
-            _domainService = domainService;
+            _iHttpDomainService = iHttpDomainService;
             _logger = logger;
         }
 
@@ -43,12 +43,12 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                 var accessToken = hubHttpContext?.GetAccessTokenFromQuery("access_token")!;
 
                 var currentUser =
-                    await _domainService.ExecuteAsync<IUserProcessingManager, User?>(
+                    await _iHttpDomainService.ExecuteAsync<IUserProcessingManager, User?>(
                         userProcessingManager =>
                             userProcessingManager.TryGetUserFromCache(accessToken)
                     ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
-                var result = await _domainService.ExecuteAsync<
+                var result = await _iHttpDomainService.ExecuteAsync<
                     IFileCollectionFaissSimilaritySearchProcessingManager,
                     CoreSimilaritySearchResponse
                 >(serv => serv.SimilaritySearch(input, currentUser));
@@ -96,12 +96,12 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                 var accessToken = hubHttpContext?.GetAccessTokenFromQuery("access_token")!;
 
                 var currentUser =
-                    await _domainService.ExecuteAsync<IUserProcessingManager, User?>(
+                    await _iHttpDomainService.ExecuteAsync<IUserProcessingManager, User?>(
                         userProcessingManager =>
                             userProcessingManager.TryGetUserFromCache(accessToken)
                     ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
 
-                await _domainService.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(serv =>
+                await _iHttpDomainService.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(serv =>
                     serv.SyncUserFileCollectionFaissStore(
                         currentUser,
                         input.CollectionId,
@@ -143,7 +143,7 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
             var accessToken = hubHttpContext?.GetAccessTokenFromQuery("access_token")!;
 
             _ =
-                await _domainService.ExecuteAsync<IUserProcessingManager, User>(
+                await _iHttpDomainService.ExecuteAsync<IUserProcessingManager, User>(
                     userProcessingManager => userProcessingManager.SaveAndCacheUser(accessToken)
                 ) ?? throw new ApiException("Can't find user", HttpStatusCode.Unauthorized);
             _logger.LogInformation(

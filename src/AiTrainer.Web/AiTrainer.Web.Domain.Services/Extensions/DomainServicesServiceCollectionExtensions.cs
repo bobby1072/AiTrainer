@@ -53,7 +53,7 @@ namespace AiTrainer.Web.Domain.Services.Extensions
                 .AddScoped<IHealthService, HealthService>()
                 .AddScoped<ICachingService, DistributedCachingService>()
                 .AddScoped<IChatGptQueryProcessingManager, ChatGptQueryProcessingManager>()
-                .AddTransient<IDomainServiceActionExecutor, DomainServiceActionExecutor>();
+                .AddTransient<IHttpDomainServiceActionExecutor, HttpDomainServiceActionExecutor>();
 
             return services;
         }

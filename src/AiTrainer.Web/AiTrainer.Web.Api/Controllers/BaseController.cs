@@ -12,8 +12,8 @@ namespace AiTrainer.Web.Api.Controllers
     [Route("Api/[controller]")]
     public abstract class BaseController : ControllerBase
     {
-        protected IDomainServiceActionExecutor _actionExecutor;
-        protected BaseController(IDomainServiceActionExecutor actionExecutor)
+        protected IHttpDomainServiceActionExecutor _actionExecutor;
+        protected BaseController(IHttpDomainServiceActionExecutor actionExecutor)
         {
             _actionExecutor = actionExecutor;
         }

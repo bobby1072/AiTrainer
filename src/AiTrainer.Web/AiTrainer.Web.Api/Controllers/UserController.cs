@@ -11,7 +11,7 @@ namespace AiTrainer.Web.Api.Controllers;
 [RequireUserLogin]
 public class UserController : BaseController
 {
-    public UserController(IDomainServiceActionExecutor actionExecutor)
+    public UserController(IHttpDomainServiceActionExecutor actionExecutor)
         : base(actionExecutor) { }
 
     [HttpGet("Initiate")]
