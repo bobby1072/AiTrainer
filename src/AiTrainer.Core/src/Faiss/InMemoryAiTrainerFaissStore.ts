@@ -9,7 +9,7 @@ import { Document } from "@langchain/core/documents";
 import { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { DocStore, DocStorePageInfo } from "../Models/DocStore";
 import { fs } from "memfs";
-const in_memory_js_1 = require("./in_memory.cjs");
+const in_memory_js_1 = require("./in_memory.ts");
 export default class InMemoryAiTrainerFaissStore extends FaissStore {
   private static readonly _directoryToSaveTo: string = "/filestore/";
   private constructor(embeds: EmbeddingsInterface, args: FaissLibArgs) {
