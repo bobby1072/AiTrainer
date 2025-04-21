@@ -1,11 +1,11 @@
 import InMemoryAiTrainerFaissStore from "./InMemoryAiTrainerFaissStore";
 import { faker } from "@faker-js/faker";
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, it } from "@jest/globals";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
 import { FaissEmbeddings } from "./FaissEmbeddings";
 
 describe(InMemoryAiTrainerFaissStore.name, () => {
-  test(`${InMemoryAiTrainerFaissStore.name}.CreateFaissStore can create new stores`, () => {
+  it(`${InMemoryAiTrainerFaissStore.name}.CreateFaissStore can create new stores`, () => {
     //Act
     const storeResult = InMemoryAiTrainerFaissStore.CreateFaissStore();
 

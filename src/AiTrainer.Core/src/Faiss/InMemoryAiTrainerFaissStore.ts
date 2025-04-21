@@ -9,6 +9,8 @@ import { Document } from "@langchain/core/documents";
 import { EmbeddingsInterface } from "@langchain/core/embeddings";
 import { DocStore, DocStorePageInfo } from "../Models/DocStore";
 import { fs } from "memfs";
+import { IndexFlatL2 } from "faiss-node";
+
 const in_memory_js_1 = require("./in_memory.ts");
 export default class InMemoryAiTrainerFaissStore extends FaissStore {
   private static readonly _directoryToSaveTo: string = "/filestore/";
@@ -41,7 +43,6 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
     rawIndex: Buffer
   ) {
     const [docstoreFiles, mapping] = jsonDocStore;
-    const { IndexFlatL2 } = await this.importFaiss();
     const index = IndexFlatL2.fromBuffer(rawIndex);
     const docstore = new in_memory_js_1.SynchronousInMemoryDocstore(
       new Map(docstoreFiles)
