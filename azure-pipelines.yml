@@ -176,10 +176,9 @@ stages:
   - stage: Publish
     condition: eq(variables.isMain, true)
     jobs:
-      - job: push_core_image
+      - job: login_to_dockerhub
+        displayName: Login to dockerhub
         steps:
-          - checkout: self
-            submodules: recursive
 
           - task: Docker@2
             displayName: Login to Docker Hub
@@ -189,25 +188,13 @@ stages:
               username: $(pipeline.dockerHubUsername)
               password: $(pipeline.dockerHubPassword)
 
-          - task: Docker@2
-            displayName: Build Core Image
-            inputs:
-              command: build
-              repository: $(pipeline.core-api-docker-repository)
-              tags: |
-                latest
-                $(Build.BuildNumber)
-              Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Core/dockerfile"
-              buildContext: "$(Build.SourcesDirectory)"
-
-          - task: Docker@2
-            displayName: Push Core Image
-            inputs:
-              command: push
-              repository: $(pipeline.core-api-docker-repository)
-              tags: |
-                latest
-                $(Build.BuildNumber)
+      - job: push_web_image
+        displayName: Push web image
+        dependsOn: login_to_dockerhub
+        condition: succeeded()  # Optional, but explicit
+        steps:
+          - checkout: self
+            submodules: recursive
 
           - task: Docker@2
             displayName: Build Web Image
@@ -225,6 +212,35 @@ stages:
             inputs:
               command: push
               repository: $(pipeline.web-api-docker-repository)
+              tags: |
+                latest
+                $(Build.BuildNumber)
+
+      - job: push_core_image
+        displayName: Push core image
+        dependsOn: login_to_dockerhub
+        condition: succeeded()  # Optional, but explicit
+        steps:
+          - checkout: self
+            submodules: recursive
+
+
+          - task: Docker@2
+            displayName: Build Core Image
+            inputs:
+              command: build
+              repository: $(pipeline.core-api-docker-repository)
+              tags: |
+                latest
+                $(Build.BuildNumber)
+              Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Core/dockerfile"
+              buildContext: "$(Build.SourcesDirectory)"
+
+          - task: Docker@2
+            displayName: Push Core Image
+            inputs:
+              command: push
+              repository: $(pipeline.core-api-docker-repository)
               tags: |
                 latest
                 $(Build.BuildNumber)
