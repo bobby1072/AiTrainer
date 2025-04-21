@@ -97,12 +97,12 @@ stages:
               customCommand: "run check-types"
               workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
 
-          # - task: Npm@1
-          #   displayName: "Test"
-          #   inputs:
-          #     command: "custom"
-          #     customCommand: "test --watchAll=false --coverage --ci"
-          #     workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
+          - task: Npm@1
+            displayName: "Test"
+            inputs:
+              command: "custom"
+              customCommand: "test --watchAll=false --coverage --ci"
+              workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
 
           - task: Npm@1
             displayName: "Build"
@@ -110,11 +110,6 @@ stages:
               command: "custom"
               customCommand: "run build"
               workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
-
-          - publish: "$(Build.SourcesDirectory)/src/AiTrainer.Core/build"
-            condition: eq(variables.isMain, true)
-            displayName: "Publish core api files"
-            artifact: core-api
 
       - job: build_frontend
         displayName: "Build frontend"
@@ -166,55 +161,70 @@ stages:
           #     customCommand: "test --watchAll=false --coverage --ci"
           #     workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
 
-          - task: Npm@1
-            displayName: "Build"
+          # - task: Npm@1
+          #   displayName: "Build"
+          #   inputs:
+          #     command: "custom"
+          #     customCommand: "run build"
+          #     workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
+
+          # - publish: "$(Build.SourcesDirectory)/src/aitrainer-test-client/build"
+          #   condition: eq(variables.isMain, true)
+          #   displayName: "Publish frontend build files"
+          #   artifact: chrome-ext
+
+  - stage: Publish
+    condition: eq(variables.isMain, true)
+    jobs:
+      - job: push_core_image
+        steps:
+          - checkout: self
+            submodules: recursive
+
+          - task: Docker@2
+            displayName: Login to Docker Hub
             inputs:
-              command: "custom"
-              customCommand: "run build"
-              workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
+              command: login
+              containerRegistry: DockerHub
+              username: $(dockerHubUsername)
+              password: $(dockerHubPassword)
 
-          - publish: "$(Build.SourcesDirectory)/src/aitrainer-test-client/build"
-            condition: eq(variables.isMain, true)
-            displayName: "Publish frontend build files"
-            artifact: chrome-ext
+          - task: Docker@2
+            displayName: Build Core Image
+            inputs:
+              command: build
+              repository: $(core-api-docker-repository)
+              tags: |
+                latest
+                $(Build.BuildNumber)
+              Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Core/dockerfile"
+              buildContext: "$(Build.SourcesDirectory)"
 
-  # - stage: Publish
-  #   condition: eq(variables.isMain, true)
-  #   jobs:
-  #     - job: push_core_image
-  #       steps:
-  #         - checkout: self
-  #           submodules: recursive
-  #         - task: DownloadPipelineArtifact@2
-  #           inputs:
-  #             artifact: client
-  #             path: $(Build.SourcesDirectory)/src/client/build
+          - task: Docker@2
+            displayName: Push Core Image
+            inputs:
+              command: push
+              repository: $(core-api-docker-repository)
+              tags: |
+                latest
+                $(Build.BuildNumber)
 
-  #         - task: Docker@2
-  #           displayName: Login to Docker Hub
-  #           inputs:
-  #             command: login
-  #             containerRegistry: DockerHub
-  #             username: $(dockerHubUsername)
-  #             password: $(dockerHubPassword)
+          - task: Docker@2
+            displayName: Build Web Image
+            inputs:
+              command: build
+              repository: $(web-api-docker-repository)
+              tags: |
+                latest
+                $(Build.BuildNumber)
+              Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Web/dockerfile"
+              buildContext: "$(Build.SourcesDirectory)"
 
-  #         - task: Docker@2
-  #           displayName: Build Core Image
-  #           inputs:
-  #             command: build
-  #             repository: $(core-dockerRepository)
-  #             tags: |
-  #               latest
-  #               $(Build.BuildNumber)
-  #             Dockerfile: "$(Build.SourcesDirectory)/src/fsCore/dockerfile"
-  #             buildContext: "$(Build.SourcesDirectory)"
-  #             arguments: --build-arg WEB_APP_CLIENT_PATH=src/client/build/
-
-  #         - task: Docker@2
-  #           displayName: Push Core Image
-  #           inputs:
-  #             command: push
-  #             repository: $(core-dockerRepository)
-  #             tags: |
-  #               latest
-  #               $(Build.BuildNumber)
+          - task: Docker@2
+            displayName: Push Core Image
+            inputs:
+              command: push
+              repository: $(web-api-docker-repository)
+              tags: |
+                latest
+                $(Build.BuildNumber)
