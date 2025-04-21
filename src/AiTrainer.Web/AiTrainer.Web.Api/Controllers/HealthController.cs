@@ -9,7 +9,7 @@ namespace AiTrainer.Web.Api.Controllers
     public class HealthController : BaseController
     {
         public HealthController(
-            IDomainServiceActionExecutor actionExecutor
+            IHttpDomainServiceActionExecutor actionExecutor
         )
             : base(actionExecutor)
         {

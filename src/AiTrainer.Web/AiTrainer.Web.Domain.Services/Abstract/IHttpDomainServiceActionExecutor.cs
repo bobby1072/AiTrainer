@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Services.Abstract
 {
-    public interface IDomainServiceActionExecutor
+    public interface IHttpDomainServiceActionExecutor
     {
         Task ExecuteAsync<TService>(
             Expression<Func<TService, Task>> serviceAction,

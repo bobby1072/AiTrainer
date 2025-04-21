@@ -13,7 +13,7 @@ namespace AiTrainer.Web.Api.Controllers
         private readonly ClientSettingsConfiguration _clientSettingsConfiguration;
 
         public ClientConfigurationController(
-            IDomainServiceActionExecutor actionExecutor,
+            IHttpDomainServiceActionExecutor actionExecutor,
             IOptionsSnapshot<ClientSettingsConfiguration> clientSettingsConfiguration
         )
             : base(actionExecutor)

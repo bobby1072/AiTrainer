@@ -8,12 +8,12 @@ using System.Linq.Expressions;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
-    internal class DomainServiceActionExecutor : IDomainServiceActionExecutor
+    internal class HttpDomainServiceActionExecutor : IHttpDomainServiceActionExecutor
     {
-        private readonly ILogger<DomainServiceActionExecutor> _logger;
+        private readonly ILogger<IHttpDomainServiceActionExecutor> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public DomainServiceActionExecutor(
-            ILogger<DomainServiceActionExecutor> logger,
+        public HttpDomainServiceActionExecutor(
+            ILogger<IHttpDomainServiceActionExecutor> logger,
             IHttpContextAccessor httpContextAccessor
         )
         {

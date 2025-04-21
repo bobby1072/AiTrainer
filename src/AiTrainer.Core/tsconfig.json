@@ -13,5 +13,6 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true
   },
+  "exclude": ["src/**/*.test.ts"],
   "include": ["src/**/*.ts", "src/**/*.json"]
 }
