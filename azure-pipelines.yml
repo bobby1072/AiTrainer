@@ -118,48 +118,48 @@ stages:
               Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Core/dockerfile"
               buildContext: "$(Build.SourcesDirectory)"
 
-      - job: build_frontend
-        displayName: "Build frontend"
-        variables:
-          - name: version
-            value: $(Build.BuildNumber)
-        steps:
-          - task: NodeTool@0
-            inputs:
-              versionSpec: 22.x
+      # - job: build_test_app
+      #   displayName: "Build test client"
+      #   variables:
+      #     - name: version
+      #       value: $(Build.BuildNumber)
+      #   steps:
+      #     - task: NodeTool@0
+      #       inputs:
+      #         versionSpec: 22.x
 
-          - powershell: $(Build.SourcesDirectory)/build-scripts/create_react_app_settings_json.ps1
-            displayName: "Add react app settings environment"
+      #     - powershell: $(Build.SourcesDirectory)/build-scripts/create_react_app_settings_json.ps1
+      #       displayName: "Add react app settings environment"
 
-          - task: FileTransform@2
-            displayName: "Transform react app settings"
-            inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-test-client/src/Data"
-              fileType: "json"
-              xmlTransformationRules:
-              jsonTargetFiles: "reactappsettings.json"
+      #     - task: FileTransform@2
+      #       displayName: "Transform react app settings"
+      #       inputs:
+      #         folderPath: "$(Build.SourcesDirectory)/src/aitrainer-test-client/src/Data"
+      #         fileType: "json"
+      #         xmlTransformationRules:
+      #         jsonTargetFiles: "reactappsettings.json"
 
-          - task: FileTransform@2
-            displayName: "Transform package json"
-            inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/aitrainer-test-client"
-              fileType: "json"
-              xmlTransformationRules:
-              jsonTargetFiles: "package.json"
+      #     - task: FileTransform@2
+      #       displayName: "Transform package json"
+      #       inputs:
+      #         folderPath: "$(Build.SourcesDirectory)/src/aitrainer-test-client"
+      #         fileType: "json"
+      #         xmlTransformationRules:
+      #         jsonTargetFiles: "package.json"
 
-          - task: Npm@1
-            displayName: "NPM install"
-            inputs:
-              command: "custom"
-              customCommand: "ci"
-              workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
+      #     - task: Npm@1
+      #       displayName: "NPM install"
+      #       inputs:
+      #         command: "custom"
+      #         customCommand: "ci"
+      #         workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
 
-          - task: Npm@1
-            displayName: "Check types"
-            inputs:
-              commands: "custom"
-              customCommand: "run check-types"
-              workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
+      #     - task: Npm@1
+      #       displayName: "Check types"
+      #       inputs:
+      #         commands: "custom"
+      #         customCommand: "run check-types"
+      #         workingDir: $(Build.SourcesDirectory)/src/aitrainer-test-client
 
           # - task: Npm@1
           #   displayName: "Test"
