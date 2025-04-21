@@ -191,7 +191,7 @@ stages:
       - job: push_web_image
         displayName: Push web image
         dependsOn: login_to_dockerhub
-        condition: succeeded()  # Optional, but explicit
+        condition: succeeded() 
         steps:
           - checkout: self
             submodules: recursive
@@ -219,7 +219,7 @@ stages:
       - job: push_core_image
         displayName: Push core image
         dependsOn: login_to_dockerhub
-        condition: succeeded()  # Optional, but explicit
+        condition: succeeded()
         steps:
           - checkout: self
             submodules: recursive
