@@ -186,14 +186,14 @@ stages:
             inputs:
               command: login
               containerRegistry: DockerHub
-              username: $(dockerHubUsername)
-              password: $(dockerHubPassword)
+              username: $(pipeline.dockerHubUsername)
+              password: $(pipeline.dockerHubPassword)
 
           - task: Docker@2
             displayName: Build Core Image
             inputs:
               command: build
-              repository: $(core-api-docker-repository)
+              repository: $(pipeline.core-api-docker-repository)
               tags: |
                 latest
                 $(Build.BuildNumber)
@@ -204,7 +204,7 @@ stages:
             displayName: Push Core Image
             inputs:
               command: push
-              repository: $(core-api-docker-repository)
+              repository: $(pipeline.core-api-docker-repository)
               tags: |
                 latest
                 $(Build.BuildNumber)
@@ -213,7 +213,7 @@ stages:
             displayName: Build Web Image
             inputs:
               command: build
-              repository: $(web-api-docker-repository)
+              repository: $(pipeline.web-api-docker-repository)
               tags: |
                 latest
                 $(Build.BuildNumber)
@@ -221,10 +221,10 @@ stages:
               buildContext: "$(Build.SourcesDirectory)"
 
           - task: Docker@2
-            displayName: Push Core Image
+            displayName: Push Web Image
             inputs:
               command: push
-              repository: $(web-api-docker-repository)
+              repository: $(pipeline.web-api-docker-repository)
               tags: |
                 latest
                 $(Build.BuildNumber)
