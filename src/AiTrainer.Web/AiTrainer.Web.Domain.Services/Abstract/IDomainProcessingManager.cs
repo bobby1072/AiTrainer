@@ -1,4 +1,4 @@
 namespace AiTrainer.Web.Domain.Services.Abstract
 {
-    public interface IDomainService { }
+    public interface IDomainProcessingManager { }
 }

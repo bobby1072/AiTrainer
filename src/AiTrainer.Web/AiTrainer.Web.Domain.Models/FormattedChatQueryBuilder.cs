@@ -24,11 +24,9 @@ public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBui
     public override bool Equals(FormattedChatQueryBuilder? obj)
     {
         return obj?.SystemMessage == SystemMessage && obj?.HumanMessage == HumanMessage
-            && obj?.QueryParameters.IsStringSequenceEqual(QueryParameters) == true;
+            && obj?.QueryParameters.IsStringSequenceEqual(QueryParameters) == true && _formatType == obj._formatType;
     }
     public string GetQueryName() => _formatType.GetDisplayName();
-    public bool IsSameQueryFormat(FormattedChatQueryBuilder formattedChatQueryBuilder) => formattedChatQueryBuilder._formatType == _formatType;
-
     /// <summary>
     /// This query format can be used to analyse a section of text in reference to a question about said text.
     /// </summary>

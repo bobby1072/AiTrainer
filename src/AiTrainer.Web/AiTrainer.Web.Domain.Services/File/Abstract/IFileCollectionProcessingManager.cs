@@ -4,7 +4,7 @@ using AiTrainer.Web.Domain.Services.Abstract;
 
 namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
-    public interface IFileCollectionProcessingManager : IDomainService
+    public interface IFileCollectionProcessingManager : IDomainProcessingManager
     {
         Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput, Domain.Models.User currentUser);
         Task<Guid> DeleteFileCollection(Guid collectionId, Domain.Models.User currentUser);

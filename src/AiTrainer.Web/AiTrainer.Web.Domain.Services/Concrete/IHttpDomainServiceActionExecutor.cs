@@ -28,7 +28,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             Expression<Func<TService, Task>> serviceAction,
             string? serviceActionName = null
         )
-            where TService : IDomainService
+            where TService : IDomainProcessingManager
         {
             var compiledAction = serviceAction.Compile();
             await ExecuteAsync((Func<TService, Task<bool>>)(async serv =>
@@ -41,12 +41,12 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             Expression<Func<TService, Task<TReturn>>> serviceAction,
             string? serviceActionName = null
         )
-            where TService : IDomainService => ExecuteAsync(serviceAction.Compile(), serviceActionName);
+            where TService : IDomainProcessingManager => ExecuteAsync(serviceAction.Compile(), serviceActionName);
         private async Task<TReturn> ExecuteAsync<TService, TReturn>(
             Func<TService, Task<TReturn>> serviceAction,
             string? serviceActionName = null
         )
-            where TService : IDomainService
+            where TService : IDomainProcessingManager
         {
             var actionName = serviceActionName ?? serviceAction.Method.Name;
             var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();

@@ -1,8 +1,9 @@
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Services.Abstract;
 
 namespace AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 
-public interface IChatGptQueryProcessingManager
+public interface IChatGptQueryProcessingManager: IDomainProcessingManager
 {
     Task<string> ChatGptFaissQuery(
         ChatGptFormattedQueryInput input,

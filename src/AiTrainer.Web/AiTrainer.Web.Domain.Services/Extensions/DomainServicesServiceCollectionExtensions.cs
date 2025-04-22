@@ -50,7 +50,7 @@ namespace AiTrainer.Web.Domain.Services.Extensions
                     FileCollectionFaissBackgroundJobQueue
                 >()
                 .AddHostedService<FileCollectionFaissBackgroundJobService>()
-                .AddScoped<IHealthService, HealthService>()
+                .AddScoped<IHealthProcessingManager, HealthProcessingManager>()
                 .AddScoped<ICachingService, DistributedCachingService>()
                 .AddScoped<IChatGptQueryProcessingManager, ChatGptQueryProcessingManager>()
                 .AddTransient<IHttpDomainServiceActionExecutor, HttpDomainServiceActionExecutor>();

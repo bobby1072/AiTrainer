@@ -8,11 +8,11 @@ namespace AiTrainer.Web.Domain.Services.Abstract
             Expression<Func<TService, Task>> serviceAction,
             string? serviceActionName = null
         )
-            where TService : IDomainService;
+            where TService : IDomainProcessingManager;
         Task<TReturn> ExecuteAsync<TService, TReturn>(
             Expression<Func<TService, Task<TReturn>>> serviceAction,
             string? serviceActionName = null
         )
-            where TService : IDomainService;
+            where TService : IDomainProcessingManager;
     }
 }

@@ -5,7 +5,7 @@ using AiTrainer.Web.Domain.Services.Abstract;
 
 namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
-    public interface IFileDocumentProcessingManager : IDomainService
+    public interface IFileDocumentProcessingManager : IDomainProcessingManager
     {
         Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Domain.Models.User currentUser);
         Task<Guid> DeleteFileDocument(Guid documentId, Domain.Models.User currentUser);

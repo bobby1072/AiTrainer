@@ -14,6 +14,7 @@ using AiTrainer.Web.Persistence.Utils;
 using BT.Common.FastArray.Proto;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.ChatGpt.Concrete;
@@ -23,23 +24,22 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
     private readonly ILogger<ChatGptQueryProcessingManager> _logger;
     private readonly ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse> _chatFormattedQueryClient;
     private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
-    private readonly IValidator<ChatGptFormattedQueryInput> _chatGptFormattedQueryValidator;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IValidator<AnalyseChunkInReferenceToQuestionQueryInput> _analyseChunkInReferenceToQuestionQueryValidator;
-    private static readonly IReadOnlyCollection<PropertyInfo> _selfProperties = typeof(ChatGptQueryProcessingManager).GetProperties();
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IValidator<ChatGptFormattedQueryInput> _chatGptFormattedQueryValidator;
     public ChatGptQueryProcessingManager(ICoreClient<FormattedChatQueryBuilder, 
         CoreFormattedChatQueryResponse> chatFormattedQueryClient,
         IValidator<ChatGptFormattedQueryInput> chatGptFormattedQueryValidator,
-        IValidator<AnalyseChunkInReferenceToQuestionQueryInput> analyseChunkInReferenceToQuestionQueryValidator,
         IFileCollectionFaissRepository fileCollectionFaissRepository,
         ILogger<ChatGptQueryProcessingManager> logger,
+        IServiceProvider serviceProvider,
         IHttpContextAccessor httpContextAccessor)
     {
         _chatFormattedQueryClient = chatFormattedQueryClient;
         _chatGptFormattedQueryValidator = chatGptFormattedQueryValidator;
-        _analyseChunkInReferenceToQuestionQueryValidator = analyseChunkInReferenceToQuestionQueryValidator;
         _fileCollectionFaissRepository = fileCollectionFaissRepository;
         _logger = logger;
+        _serviceProvider = serviceProvider;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -79,7 +79,13 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
         {
             throw new ApiException("No chunk with that id found.", HttpStatusCode.BadRequest);
         }
-
+        
+        _logger.LogInformation(
+            "Single chunk being used in the query is id: {ChunkId} and file document id: {FileDocumentId}",
+            foundSingleChunk.Id,
+            foundSingleChunk.FileDocumentId           
+        );
+        
         var queryEnum = (DefinedQueryFormatsEnum)input.DefinedQueryFormatsEnum;
 
         string queryResult = queryEnum switch
@@ -130,8 +136,8 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
     private async Task ValidateQuery<TQueryType>(TQueryType queryInput, CancellationToken cancellationToken)
         where TQueryType : ChatQueryInput
     {
-        var foundValidator = _selfProperties.FirstOrDefault(x => x.PropertyType == typeof(IValidator<TQueryType>))?.GetValue(this) as IValidator<TQueryType>;
-
+        var foundValidator = _serviceProvider.GetService<IValidator<TQueryType>>();
+        
         if (foundValidator is null)
         {
             return;
