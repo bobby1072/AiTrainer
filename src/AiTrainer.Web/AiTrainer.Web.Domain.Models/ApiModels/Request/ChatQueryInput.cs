@@ -1,4 +1,4 @@
-﻿namespace AiTrainer.Web.Domain.Models;
+﻿namespace AiTrainer.Web.Domain.Models.ApiModels.Request;
 
-public abstract record ChatQueryInput 
-{}
+public abstract record ChatQueryInput
+{ }

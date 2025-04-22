@@ -25,12 +25,12 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
     private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly IValidator<ChatGptFormattedQueryInput> _chatGptFormattedQueryValidator;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IValidator<AnalyseChunkInReferenceToQuestionQuery> _analyseChunkInReferenceToQuestionQueryValidator;
+    private readonly IValidator<AnalyseChunkInReferenceToQuestionQueryInput> _analyseChunkInReferenceToQuestionQueryValidator;
     private static readonly IReadOnlyCollection<PropertyInfo> _selfProperties = typeof(ChatGptQueryProcessingManager).GetProperties();
     public ChatGptQueryProcessingManager(ICoreClient<FormattedChatQueryBuilder, 
         CoreFormattedChatQueryResponse> chatFormattedQueryClient,
         IValidator<ChatGptFormattedQueryInput> chatGptFormattedQueryValidator,
-        IValidator<AnalyseChunkInReferenceToQuestionQuery> analyseChunkInReferenceToQuestionQueryValidator,
+        IValidator<AnalyseChunkInReferenceToQuestionQueryInput> analyseChunkInReferenceToQuestionQueryValidator,
         IFileCollectionFaissRepository fileCollectionFaissRepository,
         ILogger<ChatGptQueryProcessingManager> logger,
         IHttpContextAccessor httpContextAccessor)
@@ -85,7 +85,7 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
         string queryResult = queryEnum switch
         {
             DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion => await
-                Query<AnalyseChunkInReferenceToQuestionQuery>(
+                Query<AnalyseChunkInReferenceToQuestionQueryInput>(
                     input, 
                     x => FormattedChatQueryBuilder.BuildAnalyseChunkInReferenceToQuestionQueryFormat(foundSingleChunk.PageContent, x.Question), 
                     correlationId?.ToString(),
@@ -106,7 +106,7 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
         Func<TQueryType, FormattedChatQueryBuilder> formattedQueryBuilderFactory,
         string? correlationId,
         CancellationToken cancellationToken)
-        where TQueryType: ChatQuery<TQueryType>
+        where TQueryType: ChatQueryInput
     {
         _logger.LogInformation("Attempting query: {QueryName} for correlationId: {CorrelationId}",
             nameof(TQueryType),
@@ -128,7 +128,7 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
     }
 
     private async Task ValidateQuery<TQueryType>(TQueryType queryInput, CancellationToken cancellationToken)
-        where TQueryType : ChatQuery<TQueryType>
+        where TQueryType : ChatQueryInput
     {
         var foundValidator = _selfProperties.FirstOrDefault(x => x.PropertyType == typeof(IValidator<TQueryType>))?.GetValue(this) as IValidator<TQueryType>;
 

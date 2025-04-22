@@ -1,8 +1,9 @@
-﻿using FluentValidation;
+﻿using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using FluentValidation;
 
 namespace AiTrainer.Web.Domain.Models.Validators;
 
-internal class AnalyseChunkInReferenceToQuestionQueryValidator: BaseValidator<AnalyseChunkInReferenceToQuestionQuery>
+internal class AnalyseChunkInReferenceToQuestionQueryValidator: BaseValidator<AnalyseChunkInReferenceToQuestionQueryInput>
 {
     public AnalyseChunkInReferenceToQuestionQueryValidator()
     {
