@@ -12,12 +12,15 @@ namespace AiTrainer.Web.Domain.Services.Concrete
     {
         private readonly ILogger<IHttpDomainServiceActionExecutor> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IServiceProvider _serviceProvider;
         public HttpDomainServiceActionExecutor(
             ILogger<IHttpDomainServiceActionExecutor> logger,
+            IServiceProvider serviceProvider,
             IHttpContextAccessor httpContextAccessor
         )
         {
             _logger = logger;
+            _serviceProvider = serviceProvider;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -53,12 +56,22 @@ namespace AiTrainer.Web.Domain.Services.Concrete
                 correlationId
             );
 
-            var service = _httpContextAccessor.HttpContext!.RequestServices.GetService<TService>() ?? throw new InvalidOperationException("No service");
+            var service = _serviceProvider.GetRequiredService<TService>();
 
             var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(
                 () => serviceAction.Invoke(service)
             );
 
+            if (service is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync();
+            }
+            else if (service is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            
             _logger.LogInformation(
                 "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
                 actionName,

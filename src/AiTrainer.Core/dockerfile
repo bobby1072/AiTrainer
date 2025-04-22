@@ -5,13 +5,14 @@ WORKDIR /app
 
 COPY src/AiTrainer.Core/ /app
 COPY src/AiTrainer.Core/package.json /app
+COPY src/AiTrainer.Core/package-lock.json /app
 COPY src/AiTrainer.Core/src/Data/*.json ./src/Data/
 
 
 
-RUN npm install
+RUN npm run ci
 
 RUN npm run build
 
 
-CMD ["node", "build/index.js"]
+CMD ["npm", "start"]

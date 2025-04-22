@@ -243,7 +243,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
             Documents = coreChunkedDocument.DocumentChunks
                 .FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y =>
                 {
-                    x.Metadata.TryAdd(nameof(SingleChunkedDocument.FileDocumentId),
+                    x.Metadata.TryAdd(nameof(CoreSingleChunkedDocument.FileDocumentId),
                         x.FileDocumentId.ToString());
                     
                     return new CoreCreateFaissStoreInputDocument
