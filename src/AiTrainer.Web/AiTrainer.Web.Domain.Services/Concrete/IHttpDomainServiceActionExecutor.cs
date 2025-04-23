@@ -12,12 +12,15 @@ namespace AiTrainer.Web.Domain.Services.Concrete
     {
         private readonly ILogger<IHttpDomainServiceActionExecutor> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IServiceProvider _serviceProvider;
         public HttpDomainServiceActionExecutor(
             ILogger<IHttpDomainServiceActionExecutor> logger,
+            IServiceProvider serviceProvider,
             IHttpContextAccessor httpContextAccessor
         )
         {
             _logger = logger;
+            _serviceProvider = serviceProvider;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -25,7 +28,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             Expression<Func<TService, Task>> serviceAction,
             string? serviceActionName = null
         )
-            where TService : IDomainService
+            where TService : IDomainProcessingManager
         {
             var compiledAction = serviceAction.Compile();
             await ExecuteAsync((Func<TService, Task<bool>>)(async serv =>
@@ -38,12 +41,12 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             Expression<Func<TService, Task<TReturn>>> serviceAction,
             string? serviceActionName = null
         )
-            where TService : IDomainService => ExecuteAsync(serviceAction.Compile(), serviceActionName);
+            where TService : IDomainProcessingManager => ExecuteAsync(serviceAction.Compile(), serviceActionName);
         private async Task<TReturn> ExecuteAsync<TService, TReturn>(
             Func<TService, Task<TReturn>> serviceAction,
             string? serviceActionName = null
         )
-            where TService : IDomainService
+            where TService : IDomainProcessingManager
         {
             var actionName = serviceActionName ?? serviceAction.Method.Name;
             var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
@@ -53,12 +56,22 @@ namespace AiTrainer.Web.Domain.Services.Concrete
                 correlationId
             );
 
-            var service = _httpContextAccessor.HttpContext!.RequestServices.GetService<TService>() ?? throw new InvalidOperationException("No service");
+            var service = _serviceProvider.GetRequiredService<TService>();
 
             var (timeTaken, result) = await OperationTimerUtils.TimeWithResultsAsync(
                 () => serviceAction.Invoke(service)
             );
 
+            if (service is IAsyncDisposable asyncDisposable)
+            {
+                await asyncDisposable.DisposeAsync();
+            }
+            else if (service is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+
+            
             _logger.LogInformation(
                 "Service action {ServiceAction} for correlationId {CorrelationId} completed in {TimeTaken}ms",
                 actionName,

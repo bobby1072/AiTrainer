@@ -1,6 +1,6 @@
 namespace AiTrainer.Web.Domain.Services.Abstract;
 
-public interface IHealthService: IDomainService
+public interface IHealthProcessingManager: IDomainProcessingManager
 {
     Task<Models.AiTrainerHealth> GetHealth();
 }

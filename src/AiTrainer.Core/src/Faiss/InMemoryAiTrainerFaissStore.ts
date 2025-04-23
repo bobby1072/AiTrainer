@@ -11,7 +11,7 @@ import { DocStore, DocStorePageInfo } from "../Models/DocStore";
 import { fs } from "memfs";
 import { IndexFlatL2 } from "faiss-node";
 
-const in_memory_js_1 = require("./in_memory.ts");
+const in_memory_js_1 = require("./in_memory");
 export default class InMemoryAiTrainerFaissStore extends FaissStore {
   private static readonly _directoryToSaveTo: string = "/filestore/";
   private constructor(embeds: EmbeddingsInterface, args: FaissLibArgs) {
@@ -21,8 +21,14 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
     await this.delete({ ids: documentIds });
   }
   public async LoadDocumentsIntoStore(documents: Document[]): Promise<void> {
-    await this.addDocuments(documents, {
-      ids: documents.map((_) => Guid.NewGuidString()),
+    const documentsWithIds = documents.map((x) => {
+      x.metadata["Id"] = Guid.NewGuidString();
+
+      return x;
+    });
+
+    await this.addDocuments(documentsWithIds, {
+      ids: documentsWithIds.map((x) => x.metadata.Id),
     });
   }
   public GetSaveItemsFromStore(): {
@@ -58,8 +64,6 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
     const [docstoreFiles, mapping] = JSON.parse(
       fs.readFileSync(path.join(directory, "docstore.json"), "utf8").toString()
     );
-
-    const { IndexFlatL2 } = await this.importFaiss();
 
     const readIndex = fs.readFileSync(path.join(directory, "faiss.index"), {
       encoding: undefined,

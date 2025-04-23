@@ -112,7 +112,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (!isValid.IsValid)
             {
-                throw new ApiException("Collection is not valid", HttpStatusCode.BadRequest);
+                throw new ApiException($"{nameof(FileCollection)} is not valid", HttpStatusCode.BadRequest);
             }
 
             if (hasId)

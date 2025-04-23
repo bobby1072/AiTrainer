@@ -128,7 +128,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
         
         var chunkedDocResp = _fixture
             .Build<CoreChunkedDocumentResponse>()
-            .With(x => x.DocumentChunks, _fixture.CreateMany<SingleChunkedDocument>().ToArray())
+            .With(x => x.DocumentChunks, _fixture.CreateMany<CoreSingleChunkedDocument>().ToArray())
             .Create();
         
         var stringJson = JsonSerializer.Serialize(chunkedDocResp);

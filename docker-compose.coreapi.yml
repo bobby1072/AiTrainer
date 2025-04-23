@@ -4,6 +4,6 @@ services:
       context: .
       dockerfile: src/AiTrainer.Core/dockerfile
     ports:
-      - 4000:4000
+      - 8000:8000
     environment:
       NODE_ENV: development

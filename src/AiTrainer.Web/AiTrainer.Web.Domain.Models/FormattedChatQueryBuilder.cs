@@ -4,12 +4,12 @@ namespace AiTrainer.Web.Domain.Models;
 
 public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBuilder>
 {
-    private readonly DefinedQueryFormats _formatType;
+    private readonly DefinedQueryFormatsEnum _formatType;
     public string SystemMessage { get; private init; }
     public string HumanMessage { get; private init; }
     public Dictionary<string, string> QueryParameters { get; private init; }
     private FormattedChatQueryBuilder(
-        DefinedQueryFormats formatType,
+        DefinedQueryFormatsEnum formatType,
         string systemMessage,
         string humanMessage,
         Dictionary<string, string> queryParameters
@@ -24,16 +24,14 @@ public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBui
     public override bool Equals(FormattedChatQueryBuilder? obj)
     {
         return obj?.SystemMessage == SystemMessage && obj?.HumanMessage == HumanMessage
-            && obj?.QueryParameters.IsStringSequenceEqual(QueryParameters) == true;
+            && obj?.QueryParameters.IsStringSequenceEqual(QueryParameters) == true && _formatType == obj._formatType;
     }
     public string GetQueryName() => _formatType.GetDisplayName();
-    public bool IsSameQueryFormat(FormattedChatQueryBuilder formattedChatQueryBuilder) => formattedChatQueryBuilder._formatType == _formatType;
-
     /// <summary>
     /// This query format can be used to analyse a section of text in reference to a question about said text.
     /// </summary>
     public static FormattedChatQueryBuilder BuildAnalyseChunkInReferenceToQuestionQueryFormat(string textChunk, string question) => new(
-        DefinedQueryFormats.AnalyseChunkInReferenceToQuestion,
+        DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion,
         "You need to analyse questions in reference to this section of text: {textChunk}",
         question,
         new Dictionary<string, string>
@@ -41,9 +39,4 @@ public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBui
             { "textChunk", textChunk },
         }
     );
-
-    private enum DefinedQueryFormats
-    {
-        AnalyseChunkInReferenceToQuestion
-    }
 }

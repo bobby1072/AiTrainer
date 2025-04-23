@@ -17,6 +17,12 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly HttpClient _httpClient;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private static readonly PollyRetrySettings _pollyHealthRetrySettings = new()
+    {
+        TotalAttempts = 2,
+        TimeoutInSeconds = 5,
+        DelayBetweenAttemptsInSeconds = 1,
+    }; 
     public CoreClientHealth(
         ILogger<CoreClientHealth> logger,
         IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
@@ -45,12 +51,7 @@ internal class CoreClientHealth: ICoreClient<CoreClientHealthResponse>
                         requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
                         requestMessage.Headers.AddCorrelationIdHeader(correlationId);
                     },
-                    new PollyRetrySettings
-                    {
-                        TotalAttempts = 2,
-                        TimeoutInSeconds = 5,
-                        DelayBetweenAttemptsInSeconds = 1,
-                    },
+                    _pollyHealthRetrySettings,
                     _logger,
                     nameof(CoreClientHealth),
                     correlationId?.ToString(),

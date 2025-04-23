@@ -35,9 +35,6 @@ internal class CoreClientChunkDocument : ICoreClient<CoreDocumentToChunkInput, C
         try
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
-            
-            using var requestContent =
-                CoreClientHttpExtensions.CreateApplicationJson(param, ApiConstants.DefaultCamelCaseSerializerOptions);
 
             using var httpResult = await _httpClient.SendWithRetry(
                 requestMessage =>
@@ -48,7 +45,7 @@ internal class CoreClientChunkDocument : ICoreClient<CoreDocumentToChunkInput, C
                     requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
                     requestMessage.Headers.AddCorrelationIdHeader(correlationId);
 
-                    requestMessage.Content = requestContent;
+                    requestMessage.Content = CoreClientHttpExtensions.CreateApplicationJson(param, ApiConstants.DefaultCamelCaseSerializerOptions);
                 }, 
                 _aiTrainerCoreConfiguration,
                 _logger,

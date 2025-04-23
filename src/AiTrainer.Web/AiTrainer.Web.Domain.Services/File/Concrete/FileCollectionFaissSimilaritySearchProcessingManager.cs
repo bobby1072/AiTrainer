@@ -4,11 +4,13 @@ using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
+using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
+using BT.Common.FastArray.Proto;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -37,7 +39,7 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileColle
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<CoreSimilaritySearchResponse> SimilaritySearch(SimilaritySearchInput input, Domain.Models.User currentUser)
+    public async Task<IReadOnlyCollection<SingleDocumentChunk>> SimilaritySearch(SimilaritySearchInput input, Domain.Models.User currentUser)
     {
         var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
@@ -85,6 +87,15 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileColle
             correlationId
         );
 
-        return result;
+        return existingFaissStore
+            .Data
+            .SingleDocuments
+            .Value
+            .FastArrayWhere(x => 
+                result.Items.Any(y => 
+                    y.Metadata.Any(z => z.Key == nameof(SingleDocumentChunk.Id) && z.Value == x.Id.ToString())
+                    )
+                )
+            .ToArray();
     }
 }
