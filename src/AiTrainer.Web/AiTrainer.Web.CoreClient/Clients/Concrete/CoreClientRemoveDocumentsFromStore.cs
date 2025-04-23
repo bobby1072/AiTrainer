@@ -48,20 +48,7 @@ public class CoreClientRemoveDocumentsFromStore
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
-            using var fileContent = new ByteArrayContent(input.FileInput);
-            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
-                MediaTypeNames.Application.Octet
-            );
 
-            using var formContent = new MultipartFormDataContent();
-            formContent.Add(fileContent, "file", "docStore.index");
-            formContent.Add(
-                CoreClientHttpExtensions.CreateApplicationJson(
-                    input,
-                    ApiConstants.DefaultCamelCaseSerializerOptions
-                ),
-                "metadata"
-            );
 
             using var httpResult = await _httpClient.SendWithRetry(
                 request =>
@@ -73,6 +60,19 @@ public class CoreClientRemoveDocumentsFromStore
                     request.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
                     request.Headers.AddCorrelationIdHeader(correlationId);
 
+                    var fileContent = new ByteArrayContent(input.FileInput);
+                    fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                        MediaTypeNames.Application.Octet
+                    );
+                    var formContent = new MultipartFormDataContent();
+                    formContent.Add(fileContent, "file", "docStore.index");
+                    formContent.Add(
+                        CoreClientHttpExtensions.CreateApplicationJson(
+                            input,
+                            ApiConstants.DefaultCamelCaseSerializerOptions
+                        ),
+                        "metadata"
+                    );
                     request.Content = formContent;
                 },
                 _aiTrainerCoreConfiguration,

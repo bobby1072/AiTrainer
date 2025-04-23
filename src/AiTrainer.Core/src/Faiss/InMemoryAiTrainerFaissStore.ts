@@ -11,7 +11,7 @@ import { DocStore, DocStorePageInfo } from "../Models/DocStore";
 import { fs } from "memfs";
 import { IndexFlatL2 } from "faiss-node";
 
-const in_memory_js_1 = require("./in_memory.ts");
+const in_memory_js_1 = require("./in_memory");
 export default class InMemoryAiTrainerFaissStore extends FaissStore {
   private static readonly _directoryToSaveTo: string = "/filestore/";
   private constructor(embeds: EmbeddingsInterface, args: FaissLibArgs) {

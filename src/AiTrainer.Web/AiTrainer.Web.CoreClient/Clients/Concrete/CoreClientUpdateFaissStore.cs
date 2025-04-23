@@ -41,13 +41,6 @@ internal class CoreClientUpdateFaissStore: ICoreClient<CoreUpdateFaissStoreInput
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
-            using var fileContent = new ByteArrayContent(input.FileInput);
-            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Octet);
-            
-            using var formContent = new MultipartFormDataContent();
-            formContent.Add(fileContent, "file", "docStore.index");
-            formContent.Add(CoreClientHttpExtensions.CreateApplicationJson(input, ApiConstants.DefaultCamelCaseSerializerOptions),
-                "metadata");
             
             using var httpResult = await _httpClient
                 .SendWithRetry(
@@ -58,6 +51,13 @@ internal class CoreClientUpdateFaissStore: ICoreClient<CoreUpdateFaissStoreInput
                         requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
                         requestMessage.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
                         
+                        var fileContent = new ByteArrayContent(input.FileInput);
+                        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Octet);
+                        
+                        var formContent = new MultipartFormDataContent();
+                        formContent.Add(fileContent, "file", "docStore.index");
+                        formContent.Add(CoreClientHttpExtensions.CreateApplicationJson(input, ApiConstants.DefaultCamelCaseSerializerOptions),
+                            "metadata");
                         requestMessage.Content = formContent;
                     },
                     _aiTrainerCoreConfiguration,

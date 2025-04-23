@@ -36,10 +36,7 @@ internal class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryBuild
         try
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
-
-            using var requestContent =
-                CoreClientHttpExtensions.CreateApplicationJson(request.ToCoreInput(),
-                    ApiConstants.DefaultCamelCaseSerializerOptions);
+            
 
             using var httpResult = await _httpClient.SendWithRetry(
                 requestMessage =>
@@ -50,7 +47,8 @@ internal class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryBuild
                     requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
                     requestMessage.Headers.AddCorrelationIdHeader(correlationId);
 
-                    requestMessage.Content = requestContent;
+                    requestMessage.Content = CoreClientHttpExtensions.CreateApplicationJson(request.ToCoreInput(),
+                        ApiConstants.DefaultCamelCaseSerializerOptions);
                 },
                 _aiTrainerCoreConfiguration,
                 _logger,

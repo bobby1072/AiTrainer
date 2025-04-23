@@ -1,4 +1,4 @@
-FROM node
+FROM node:slim
 
 WORKDIR /app
 
@@ -7,7 +7,6 @@ COPY src/AiTrainer.Core/ /app
 COPY src/AiTrainer.Core/package.json /app
 COPY src/AiTrainer.Core/package-lock.json /app
 COPY src/AiTrainer.Core/src/Data/*.json ./src/Data/
-
 
 
 RUN npm ci
