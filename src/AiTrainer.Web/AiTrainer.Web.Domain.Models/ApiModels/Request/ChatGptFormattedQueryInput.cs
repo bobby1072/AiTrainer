@@ -15,5 +15,5 @@ public record ChatGptFormattedQueryInput
     public required Guid ChunkId { get; init; }
 
     [JsonPropertyName("collectionId")]
-    public required Guid? CollectionId { get; init; }
+    public Guid? CollectionId { get; init; }
 }

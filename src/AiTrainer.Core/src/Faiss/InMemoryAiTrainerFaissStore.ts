@@ -21,8 +21,14 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
     await this.delete({ ids: documentIds });
   }
   public async LoadDocumentsIntoStore(documents: Document[]): Promise<void> {
-    await this.addDocuments(documents, {
-      ids: documents.map((_) => Guid.NewGuidString()),
+    const documentsWithIds = documents.map((x) => {
+      x.metadata["Id"] = Guid.NewGuidString();
+
+      return x;
+    });
+
+    await this.addDocuments(documentsWithIds, {
+      ids: documentsWithIds.map((x) => x.metadata.Id),
     });
   }
   public GetSaveItemsFromStore(): {

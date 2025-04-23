@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export default class Guid {
-  private readonly _actualValue: string;
   private static readonly _uuidSchema = z.string().uuid();
+  private readonly _actualValue: string;
   private constructor(guidVal?: string) {
     this._actualValue = guidVal || Guid.GenerateUUIDv4();
   }
@@ -16,7 +16,7 @@ export default class Guid {
     return new Guid();
   }
   public static NewGuidString(): string {
-    return new Guid().ToString();
+    return this.NewGuid().ToString();
   }
   public static Parse(uuid: string): Guid {
     if (!Guid.IsValidUUID(uuid)) {

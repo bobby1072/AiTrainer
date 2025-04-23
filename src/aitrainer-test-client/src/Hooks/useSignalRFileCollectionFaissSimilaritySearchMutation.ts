@@ -4,13 +4,13 @@ import {
   AiTrainerWebOutcome,
   AiTrainerWebOutcomeBase,
 } from "../Models/AiTrainerWebOutcome";
-import { SimilaritySearchResponse } from "../Models/SimilaritySearchResponse";
+import { SingleDocumentChunk } from "../Models/SingleDocumentChunk";
 import { useMutation } from "react-query";
 
 export const useSignalRFileCollectionFaissSimilaritySearchMutation = () => {
   const { hubConnection } = useGetSignalRHubContext();
   const [customMutationState, setCustomMutationState] = useState<{
-    data?: SimilaritySearchResponse | null;
+    data?: SingleDocumentChunk[] | null;
     error?: Error | null;
     isLoading: boolean;
   }>({
@@ -29,7 +29,7 @@ export const useSignalRFileCollectionFaissSimilaritySearchMutation = () => {
   );
   hubConnection.on(
     "SimilaritySearchFaissSuccess",
-    (data: AiTrainerWebOutcome<SimilaritySearchResponse>) => {
+    (data: AiTrainerWebOutcome<SingleDocumentChunk[]>) => {
       if (data.data) {
         setCustomMutationState({
           data: data.data,

@@ -75,9 +75,12 @@ export const CollectionFaissSearch: React.FC<{
           </Button>
         </Grid2>
         {similaritySearchData &&
-          similaritySearchData.items.map((x, i) => (
+          similaritySearchData.map((x, i) => (
             <Grid2 width={"40%"} key={i}>
-              <SingleFaissResponseItemTab responseItem={x} />
+              <SingleFaissResponseItemTab
+                responseItem={x}
+                collectionId={collectionId}
+              />
             </Grid2>
           ))}
         {similaritySearchLoading && (

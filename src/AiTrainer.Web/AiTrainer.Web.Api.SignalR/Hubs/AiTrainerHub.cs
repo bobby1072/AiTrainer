@@ -50,15 +50,15 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
 
                 var result = await _iHttpDomainService.ExecuteAsync<
                     IFileCollectionFaissSimilaritySearchProcessingManager,
-                    CoreSimilaritySearchResponse
+                    IReadOnlyCollection<SingleDocumentChunk>
                 >(serv => serv.SimilaritySearch(input, currentUser));
 
                 await Clients.Caller.SendAsync(
                     "SimilaritySearchFaissSuccess",
-                    new SignalRClientEvent<CoreSimilaritySearchResponse> { Data = result }
+                    new SignalRClientEvent<IReadOnlyCollection<SingleDocumentChunk>> { Data = result }
                 );
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(
                     ex,
