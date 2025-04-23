@@ -59,8 +59,6 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
       fs.readFileSync(path.join(directory, "docstore.json"), "utf8").toString()
     );
 
-    const { IndexFlatL2 } = await this.importFaiss();
-
     const readIndex = fs.readFileSync(path.join(directory, "faiss.index"), {
       encoding: undefined,
     });

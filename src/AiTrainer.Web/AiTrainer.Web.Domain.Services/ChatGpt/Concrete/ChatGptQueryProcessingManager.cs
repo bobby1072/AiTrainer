@@ -19,21 +19,29 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.ChatGpt.Concrete;
 
-internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
+internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
 {
     private readonly ILogger<ChatGptQueryProcessingManager> _logger;
-    private readonly ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse> _chatFormattedQueryClient;
+    private readonly ICoreClient<
+        FormattedChatQueryBuilder,
+        CoreFormattedChatQueryResponse
+    > _chatFormattedQueryClient;
     private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IServiceProvider _serviceProvider;
     private readonly IValidator<ChatGptFormattedQueryInput> _chatGptFormattedQueryValidator;
-    public ChatGptQueryProcessingManager(ICoreClient<FormattedChatQueryBuilder, 
-        CoreFormattedChatQueryResponse> chatFormattedQueryClient,
+
+    public ChatGptQueryProcessingManager(
+        ICoreClient<
+            FormattedChatQueryBuilder,
+            CoreFormattedChatQueryResponse
+        > chatFormattedQueryClient,
         IValidator<ChatGptFormattedQueryInput> chatGptFormattedQueryValidator,
         IFileCollectionFaissRepository fileCollectionFaissRepository,
         ILogger<ChatGptQueryProcessingManager> logger,
         IServiceProvider serviceProvider,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor
+    )
     {
         _chatFormattedQueryClient = chatFormattedQueryClient;
         _chatGptFormattedQueryValidator = chatGptFormattedQueryValidator;
@@ -46,57 +54,84 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
     public async Task<string> ChatGptFaissQuery(
         ChatGptFormattedQueryInput input,
         Domain.Models.User user,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default
+    )
     {
         var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
-        
+
         _logger.LogInformation(
             "Entering {Action} for correlationId {CorrelationId}",
             nameof(ChatGptFaissQuery),
             correlationId
         );
-        var validationResult = await _chatGptFormattedQueryValidator.ValidateAsync(input, cancellationToken);
+        var validationResult = await _chatGptFormattedQueryValidator.ValidateAsync(
+            input,
+            cancellationToken
+        );
         if (!validationResult.IsValid)
         {
-            throw new ApiException($"{nameof(ChatGptFormattedQueryInput)} is not valid", HttpStatusCode.BadRequest);
+            throw new ApiException(
+                $"{nameof(ChatGptFormattedQueryInput)} is not valid",
+                HttpStatusCode.BadRequest
+            );
         }
-        
-        var foundFileCollection = await EntityFrameworkUtils.TryDbOperation(() => _fileCollectionFaissRepository.ByUserAndCollectionId((Guid)user.Id!,
-            input.CollectionId), _logger);
+
+        var foundFileCollection = await EntityFrameworkUtils.TryDbOperation(
+            () =>
+                _fileCollectionFaissRepository.ByUserAndCollectionId(
+                    (Guid)user.Id!,
+                    input.CollectionId
+                ),
+            _logger
+        );
 
         if (foundFileCollection is null)
         {
             throw new InvalidOperationException("Failed to retrieve file collection faiss");
-        } 
+        }
         if (foundFileCollection.Data is null)
         {
-            throw new ApiException($"No faiss store found for user: {user.Id} and collectionId: {input.CollectionId}", HttpStatusCode.BadRequest);
+            throw new ApiException(
+                $"No faiss store found for user: {user.Id} and collectionId: {input.CollectionId}",
+                HttpStatusCode.BadRequest
+            );
         }
 
-        var foundSingleChunk = foundFileCollection.Data.SingleDocuments.Value.FastArrayFirstOrDefault(x => x.Id == input.ChunkId);
-        
+        var foundSingleChunk =
+            foundFileCollection.Data.SingleDocuments.Value.FastArrayFirstOrDefault(x =>
+                x.Id == input.ChunkId
+            );
+
         if (foundSingleChunk is null)
         {
             throw new ApiException("No chunk with that id found.", HttpStatusCode.BadRequest);
         }
-        
+
         _logger.LogInformation(
             "Single chunk being used in the query is id: {ChunkId} and file document id: {FileDocumentId}",
             foundSingleChunk.Id,
-            foundSingleChunk.FileDocumentId           
+            foundSingleChunk.FileDocumentId
         );
-        
+
         var queryEnum = (DefinedQueryFormatsEnum)input.DefinedQueryFormatsEnum;
 
         string queryResult = queryEnum switch
         {
-            DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion => await
-                Query<AnalyseChunkInReferenceToQuestionQueryInput>(
-                    input, 
-                    x => FormattedChatQueryBuilder.BuildAnalyseChunkInReferenceToQuestionQueryFormat(foundSingleChunk.PageContent, x.Question), 
+            DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion =>
+                await Query<AnalyseChunkInReferenceToQuestionQueryInput>(
+                    input,
+                    x =>
+                        FormattedChatQueryBuilder.BuildAnalyseChunkInReferenceToQuestionQueryFormat(
+                            foundSingleChunk.PageContent,
+                            x.Question
+                        ),
                     correlationId?.ToString(),
-                    cancellationToken),
-            _ => throw new ApiException($"Unsupported query format: {queryEnum}", HttpStatusCode.BadRequest)
+                    cancellationToken
+                ),
+            _ => throw new ApiException(
+                $"Unsupported query format: {queryEnum}",
+                HttpStatusCode.BadRequest
+            ),
         };
 
         _logger.LogInformation(
@@ -104,45 +139,52 @@ internal class ChatGptQueryProcessingManager: IChatGptQueryProcessingManager
             nameof(ChatGptFaissQuery),
             correlationId
         );
-        
+
         return queryResult;
     }
+
     private async Task<string> Query<TQueryType>(
         ChatGptFormattedQueryInput input,
         Func<TQueryType, FormattedChatQueryBuilder> formattedQueryBuilderFactory,
         string? correlationId,
-        CancellationToken cancellationToken)
-        where TQueryType: ChatQueryInput
+        CancellationToken cancellationToken
+    )
+        where TQueryType : ChatQueryInput
     {
-        _logger.LogInformation("Attempting query: {QueryName} for correlationId: {CorrelationId}",
+        _logger.LogInformation(
+            "Attempting query: {QueryName} for correlationId: {CorrelationId}",
             nameof(TQueryType),
             correlationId
         );
-        
+
         var parsedQueryInput =
-            JsonSerializer.Deserialize<TQueryType>(input.InputJson, ApiConstants
-                .DefaultCamelCaseSerializerOptions) ?? throw new JsonException($"Failed to deserialize {nameof(TQueryType)}");
+            input.InputJson.Deserialize<TQueryType>(ApiConstants.DefaultCamelCaseSerializerOptions
+            ) ?? throw new JsonException($"Failed to deserialize {nameof(TQueryType)}");
 
         await ValidateQuery(parsedQueryInput, cancellationToken);
-        
-        var actualQueryResult = await _chatFormattedQueryClient.TryInvokeAsync(
-            formattedQueryBuilderFactory.Invoke(parsedQueryInput),
-            cancellationToken
-        ) ?? throw new InvalidOperationException("Failed to retrieve query result");
-        
+
+        var actualQueryResult =
+            await _chatFormattedQueryClient.TryInvokeAsync(
+                formattedQueryBuilderFactory.Invoke(parsedQueryInput),
+                cancellationToken
+            ) ?? throw new InvalidOperationException("Failed to retrieve query result");
+
         return actualQueryResult.Content;
     }
 
-    private async Task ValidateQuery<TQueryType>(TQueryType queryInput, CancellationToken cancellationToken)
+    private async Task ValidateQuery<TQueryType>(
+        TQueryType queryInput,
+        CancellationToken cancellationToken
+    )
         where TQueryType : ChatQueryInput
     {
         var foundValidator = _serviceProvider.GetService<IValidator<TQueryType>>();
-        
+
         if (foundValidator is null)
         {
             return;
         }
-        
+
         var validationResult = await foundValidator.ValidateAsync(queryInput, cancellationToken);
         if (!validationResult.IsValid)
         {

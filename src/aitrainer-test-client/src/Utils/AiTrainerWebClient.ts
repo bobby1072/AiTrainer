@@ -10,6 +10,7 @@ import { FlatFileDocumentPartialCollection } from "../Models/FlatFileDocumentPar
 import { FileCollectionSaveInput } from "../Models/FileCollectionSaveInput";
 import { FileCollection } from "../Models/FileCollection";
 import { FileDocumentPartial } from "../Models/FileDocument";
+import { ChatFormattedQueryInput } from "../Models/ChatFormattedQueryInput";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl =
@@ -191,6 +192,26 @@ export default abstract class AiTrainerWebClient {
 
     return response;
   }
+  public static async ChatQuery<T>(
+    query: ChatFormattedQueryInput<T>,
+    accessToken: string
+  ): Promise<string> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcome<string>>("Api/Faiss/Chat/Query", query, {
+        headers: {
+          Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+        },
+      })
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
+
+    if (!response) {
+      throw new Error(ErrorMessages.ErrorHasOccurred);
+    }
+
+    return response;
+  }
+
   private static HandleError(e: any): PromiseLike<never> {
     if (e instanceof AxiosError) {
       const axiosError = e as AxiosError;
