@@ -61,10 +61,10 @@ export const SingleFaissResponseItemTab: React.FC<{
                 }}
                 onClick={() =>
                   askQuestion({
-                    chunkId: responseItem.id,
                     definedQueryFormatsEnum: 1,
                     collectionId,
                     inputJson: {
+                      chunkId: responseItem.id,
                       question: question!,
                     },
                   })
