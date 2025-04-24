@@ -52,7 +52,7 @@ internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<string> ChunkChatGptFaissQuery(
+    public async Task<string> ChatGptFaissQuery(
         ChatGptFormattedQueryInput input,
         Domain.Models.User user,
         CancellationToken cancellationToken = default
@@ -62,7 +62,7 @@ internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
 
         _logger.LogInformation(
             "Entering {Action} for correlationId {CorrelationId}",
-            nameof(ChunkChatGptFaissQuery),
+            nameof(ChatGptFaissQuery),
             correlationId
         );
         var validationResult = await _chatGptFormattedQueryValidator.ValidateAsync(
@@ -101,7 +101,7 @@ internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
 
         _logger.LogInformation(
             "Exiting {Action} for correlationId {CorrelationId}",
-            nameof(ChunkChatGptFaissQuery),
+            nameof(ChatGptFaissQuery),
             correlationId
         );
 
@@ -142,7 +142,7 @@ internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
     {
 
         var parsedQueryInput =
-            input.InputJson.Deserialize<TQueryType>() ?? throw new JsonException($"Failed to deserialize {nameof(TQueryType)}");
+            input.InputJson.Deserialize<TQueryType>() ?? throw new JsonException($"Failed to deserialize {typeof(TQueryType).Name}");
 
         await ValidateQuery(parsedQueryInput, cancellationToken);
 
@@ -171,7 +171,7 @@ internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
         var validationResult = await foundValidator.ValidateAsync(queryInput, cancellationToken);
         if (!validationResult.IsValid)
         {
-            throw new ApiException($"{nameof(TQueryType)} is not valid", HttpStatusCode.BadRequest);
+            throw new ApiException($"{typeof(TQueryType).Name} is not valid", HttpStatusCode.BadRequest);
         }
     }
 

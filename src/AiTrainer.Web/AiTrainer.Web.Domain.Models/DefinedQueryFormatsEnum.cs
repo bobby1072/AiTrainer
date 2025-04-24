@@ -2,5 +2,5 @@
 
 public enum DefinedQueryFormatsEnum
 {
-    AnalyseChunkInReferenceToQuestion
+    AnalyseChunkInReferenceToQuestion = 1
 }

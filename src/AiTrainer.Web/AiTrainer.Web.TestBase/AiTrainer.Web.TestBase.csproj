@@ -16,6 +16,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestData\faiss.index">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="TestData\docstore.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+
+  <ItemGroup>
     <ProjectReference Include="..\AiTrainer.Web.Domain.Models\AiTrainer.Web.Domain.Models.csproj" />
   </ItemGroup>
 
