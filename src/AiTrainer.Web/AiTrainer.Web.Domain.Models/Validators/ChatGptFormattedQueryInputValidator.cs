@@ -9,7 +9,6 @@ internal class ChatGptFormattedQueryInputValidator : BaseValidator<ChatGptFormat
 
     public ChatGptFormattedQueryInputValidator()
     {
-        RuleFor(x => x.ChunkId).NotEmpty().WithMessage("ChunkId cannot be empty");
         RuleFor(x => x.DefinedQueryFormatsEnum)
             .Must(x => Enum.IsDefined(DefinedQueryFormatsEnumType, x))
             .WithMessage("DefinedQueryFormatsEnum is not a valid value");

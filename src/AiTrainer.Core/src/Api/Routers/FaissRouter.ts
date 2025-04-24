@@ -17,8 +17,8 @@ export default abstract class FaissRouter {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/removedocuments`,
       FaissRouter.upload.single("file"),
-      (req: Request, resp: Response) => {
-        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      async (req: Request, resp: Response) => {
+        return await AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const metadata = JSON.parse(req.body.metadata);
           const fileBuffer = req.file?.buffer;
           const safeInput = RemoveDocumentsInputSchema.safeParse({
@@ -51,8 +51,8 @@ export default abstract class FaissRouter {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/updatestore`,
       FaissRouter.upload.single("file"),
-      (req: Request, resp: Response) => {
-        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      async (req: Request, resp: Response) => {
+        return await AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const metadata = JSON.parse(req.body.metadata);
           const fileBuffer = req.file?.buffer;
           const safeInput = UpdateStoreInputSchema.safeParse({
@@ -83,8 +83,8 @@ export default abstract class FaissRouter {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/similaritysearch`,
       FaissRouter.upload.single("file"),
-      (req: Request, resp: Response) => {
-        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      async (req: Request, resp: Response) => {
+        return await AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const metadata = JSON.parse(req.body.metadata);
           const fileBuffer = req.file?.buffer;
           const safeInput = SimilaritySearchInputSchema.safeParse({
@@ -112,8 +112,8 @@ export default abstract class FaissRouter {
   private static CreateNewStore(app: Application) {
     return app.post(
       `/api/${FaissRouter.name.toLowerCase()}/createstore`,
-      (req: Request, resp: Response) => {
-        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      async (req: Request, resp: Response) => {
+        return await AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const parsedBody = CreateStoreInputSchema.safeParse(req.body);
           const documents = parsedBody.data?.documents;
 
