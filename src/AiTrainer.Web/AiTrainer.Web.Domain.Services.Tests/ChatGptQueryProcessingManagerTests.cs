@@ -46,7 +46,6 @@ public class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             _mockHttpContextAccessor.Object
         );
     }
-
     [Fact]
     public async Task ChatGptFaissQuery_Should_Correctly_Build_AnalyseChunkInReferenceToQuestionQuery_FormattedQuery()
     {
@@ -94,7 +93,13 @@ public class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             .Setup(x => x.ByUserAndCollectionId((Guid)currentUser.Id!, collectionId))
             .ReturnsAsync(new DbGetOneResult<FileCollectionFaiss>(existingFaissStore));
         _mockChatFormattedQueryClient
-            .Setup(x => x.TryInvokeAsync(It.IsAny<FormattedChatQueryBuilder>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.TryInvokeAsync(It.Is<FormattedChatQueryBuilder>(
+                    z => 
+                        z.HumanMessage == innerChatQueryStartingInput.Question && 
+                        z.QueryParameters.Any(y => y.Key == "textChunk" && y.Value == singleChunkToUse.PageContent) &&
+                        z.SystemMessage == "You need to analyse questions in reference to this section of text: {textChunk}"
+                ),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CoreFormattedChatQueryResponse {Content = "45000 every second"});
 
         //Act
