@@ -13,6 +13,7 @@ namespace AiTrainer.Web.Domain.Models
         public required DateTime DateCreated { get; set; }
         public required DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
+        public bool AutoFaissSync { get; init; }
         public FileCollectionFaiss? FaissStore { get; init; }
         public IReadOnlyCollection<FileDocument>? Documents { get; init; }
 

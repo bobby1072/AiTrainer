@@ -79,6 +79,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 UserId = fileCollection.UserId,
                 ParentId = fileCollection.ParentId,
                 CollectionDescription = fileCollection.CollectionDescription,
+                AutoFaissSync = fileCollection.AutoFaissSync,
             };
             if (fileCollection.Id is not null)
             {
