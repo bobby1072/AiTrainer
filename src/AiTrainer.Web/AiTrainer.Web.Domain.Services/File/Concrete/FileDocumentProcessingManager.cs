@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using AiTrainer.Web.Domain.Services.File.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
-using AiTrainer.Web.Persistence.Entities;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -119,7 +118,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 throw new ApiException("Invalid file document", HttpStatusCode.BadRequest);
             }
 
-            if (foundParentCollection is { AutoFaissSync: true })
+            if (foundParentCollection is { AutoFaissSync: true } ||
+                (newFileDoc.CollectionId == null && currentUser.GlobalFileCollectionConfig?.AutoFaissSync == true))
             {
                 await _faissSyncBackgroundJobQueue.EnqueueAsync(new FileCollectionFaissSyncBackgroundJob
                 {

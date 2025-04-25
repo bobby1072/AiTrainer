@@ -38,6 +38,11 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .WithOne(x => x.MetaData)
                     .HasForeignKey<FileDocumentMetaDataEntity>(e => e.DocumentId);
             });
+            modelBuilder.Entity<GlobalFileCollectionConfigEntity>(ent =>
+            {
+                ent.HasOne<UserEntity>()
+                    .WithOne(x => x.GlobalFileCollectionConfig);
+            });
             modelBuilder.Entity<FileCollectionFaissEntity>(ent =>
             {
                 ent.HasOne<FileCollectionEntity>()

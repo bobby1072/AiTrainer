@@ -7,7 +7,7 @@ namespace AiTrainer.Web.Persistence.Entities;
 public record GlobalFileCollectionConfigEntity: BaseEntity<long, GlobalFileCollectionConfig>
 {
     public bool AutoFaissSync { get; init; }
-    public required Guid UserId { get; init; } 
+    public required Guid UserId { get; init; }
     public override GlobalFileCollectionConfig ToModel()
     {
         return new GlobalFileCollectionConfig
