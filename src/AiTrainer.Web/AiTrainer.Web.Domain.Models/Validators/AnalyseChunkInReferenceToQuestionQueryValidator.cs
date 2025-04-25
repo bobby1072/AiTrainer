@@ -7,6 +7,7 @@ internal class AnalyseChunkInReferenceToQuestionQueryValidator: BaseValidator<An
 {
     public AnalyseChunkInReferenceToQuestionQueryValidator()
     {
+        RuleFor(x => x.ChunkId).NotEmpty().WithMessage("ChunkId cannot be empty");
         RuleFor(x => x.Question).NotEmpty().WithMessage("Question cannot be empty");
         RuleFor(x => x.Question).Must(x => NotLongerThan(x, 10000)).WithMessage("Question cannot be empty");
     }

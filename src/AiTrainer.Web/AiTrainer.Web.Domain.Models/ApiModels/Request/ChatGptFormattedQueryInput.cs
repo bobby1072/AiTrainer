@@ -10,10 +10,6 @@ public record ChatGptFormattedQueryInput
 
     [JsonPropertyName("definedQueryFormatsEnum")]
     public required int DefinedQueryFormatsEnum { get; init; }
-
-    [JsonPropertyName("chunkId")]
-    public required Guid ChunkId { get; init; }
-
     [JsonPropertyName("collectionId")]
     public Guid? CollectionId { get; init; }
 }

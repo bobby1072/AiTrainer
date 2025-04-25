@@ -6,4 +6,6 @@ public sealed record AnalyseChunkInReferenceToQuestionQueryInput : ChatQueryInpu
 {
     [JsonPropertyName("question")]
     public required string Question { get; init; }
+    [JsonPropertyName("chunkId")]
+    public required Guid ChunkId { get; init; }
 }

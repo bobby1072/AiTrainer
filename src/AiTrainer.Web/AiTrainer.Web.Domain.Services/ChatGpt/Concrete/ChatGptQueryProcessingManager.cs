@@ -12,6 +12,7 @@ using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using BT.Common.FastArray.Proto;
+using BT.Common.Helpers.Extensions;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,57 +76,21 @@ internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
                 HttpStatusCode.BadRequest
             );
         }
-
-        var foundFileCollection = await EntityFrameworkUtils.TryDbOperation(
-            () =>
-                _fileCollectionFaissRepository.ByUserAndCollectionId(
-                    (Guid)user.Id!,
-                    input.CollectionId
-                ),
-            _logger
-        );
-
-        if (foundFileCollection is null)
-        {
-            throw new InvalidOperationException("Failed to retrieve file collection faiss");
-        }
-        if (foundFileCollection.Data is null)
-        {
-            throw new ApiException(
-                $"No faiss store found for user: {user.Id} and collectionId: {input.CollectionId}",
-                HttpStatusCode.BadRequest
-            );
-        }
-
-        var foundSingleChunk =
-            foundFileCollection.Data.SingleDocuments.Value.FastArrayFirstOrDefault(x =>
-                x.Id == input.ChunkId
-            );
-
-        if (foundSingleChunk is null)
-        {
-            throw new ApiException("No chunk with that id found.", HttpStatusCode.BadRequest);
-        }
-
-        _logger.LogInformation(
-            "Single chunk being used in the query is id: {ChunkId} and file document id: {FileDocumentId}",
-            foundSingleChunk.Id,
-            foundSingleChunk.FileDocumentId
-        );
+        
 
         var queryEnum = (DefinedQueryFormatsEnum)input.DefinedQueryFormatsEnum;
 
-        string queryResult = queryEnum switch
+        _logger.LogInformation(
+            "Attempting query: {QueryName} for correlationId: {CorrelationId}",
+            queryEnum.GetDisplayName(),
+            correlationId
+        );
+        var queryResult = queryEnum switch
         {
             DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion =>
                 await Query<AnalyseChunkInReferenceToQuestionQueryInput>(
                     input,
-                    x =>
-                        FormattedChatQueryBuilder.BuildAnalyseChunkInReferenceToQuestionQueryFormat(
-                            foundSingleChunk.PageContent,
-                            x.Question
-                        ),
-                    correlationId?.ToString(),
+                    x => AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(x, (Guid)user.Id!, input.CollectionId),
                     cancellationToken
                 ),
             _ => throw new ApiException(
@@ -143,29 +108,47 @@ internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
         return queryResult;
     }
 
+    private async Task<FormattedChatQueryBuilder> AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(
+        AnalyseChunkInReferenceToQuestionQueryInput input, Guid userId, Guid? collectionId)
+    {
+        var fileCollectionFaiss = await GetFaissForFileCollection(userId, collectionId);
+        
+        var foundSingleChunk =
+            fileCollectionFaiss.SingleDocuments.Value.FastArrayFirstOrDefault(y =>
+                y.Id == input.ChunkId
+            );
+
+        if (foundSingleChunk is null)
+        {
+            throw new ApiException("No chunk with that id found.", HttpStatusCode.BadRequest);
+        }
+
+        _logger.LogInformation(
+            "Single chunk being used in the query is id: {ChunkId} and file document id: {FileDocumentId}",
+            foundSingleChunk.Id,
+            foundSingleChunk.FileDocumentId
+        );
+        return FormattedChatQueryBuilder.BuildAnalyseChunkInReferenceToQuestionQueryFormat(
+            foundSingleChunk.PageContent,
+            input.Question
+        );
+    }
     private async Task<string> Query<TQueryType>(
         ChatGptFormattedQueryInput input,
-        Func<TQueryType, FormattedChatQueryBuilder> formattedQueryBuilderFactory,
-        string? correlationId,
+        Func<TQueryType, Task<FormattedChatQueryBuilder>> formattedQueryBuilderFactory,
         CancellationToken cancellationToken
     )
         where TQueryType : ChatQueryInput
     {
-        _logger.LogInformation(
-            "Attempting query: {QueryName} for correlationId: {CorrelationId}",
-            nameof(TQueryType),
-            correlationId
-        );
 
         var parsedQueryInput =
-            input.InputJson.Deserialize<TQueryType>(ApiConstants.DefaultCamelCaseSerializerOptions
-            ) ?? throw new JsonException($"Failed to deserialize {nameof(TQueryType)}");
+            input.InputJson.Deserialize<TQueryType>() ?? throw new JsonException($"Failed to deserialize {typeof(TQueryType).Name}");
 
         await ValidateQuery(parsedQueryInput, cancellationToken);
 
         var actualQueryResult =
             await _chatFormattedQueryClient.TryInvokeAsync(
-                formattedQueryBuilderFactory.Invoke(parsedQueryInput),
+                await formattedQueryBuilderFactory.Invoke(parsedQueryInput),
                 cancellationToken
             ) ?? throw new InvalidOperationException("Failed to retrieve query result");
 
@@ -188,7 +171,29 @@ internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
         var validationResult = await foundValidator.ValidateAsync(queryInput, cancellationToken);
         if (!validationResult.IsValid)
         {
-            throw new ApiException($"{nameof(TQueryType)} is not valid", HttpStatusCode.BadRequest);
+            throw new ApiException($"{typeof(TQueryType).Name} is not valid", HttpStatusCode.BadRequest);
         }
+    }
+
+
+    private async Task<FileCollectionFaiss> GetFaissForFileCollection(Guid userId, Guid? collectionId)
+    {
+        var foundFileCollection = await EntityFrameworkUtils.TryDbOperation(
+            () =>
+                _fileCollectionFaissRepository.ByUserAndCollectionId(
+                    userId,
+                    collectionId
+                ),
+            _logger
+        ) ?? throw new InvalidOperationException("Failed to retrieve file collection faiss");
+        if (foundFileCollection.Data is null)
+        {
+            throw new ApiException(
+                $"No faiss store found for user: {userId} and collectionId: {collectionId}",
+                HttpStatusCode.BadRequest
+            );
+        }
+        
+        return foundFileCollection.Data;
     }
 }

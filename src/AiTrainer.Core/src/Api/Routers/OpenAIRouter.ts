@@ -10,8 +10,8 @@ export default abstract class OpenAIRouter {
   private static FormattedChatQuery(app: Application) {
     return app.post(
       `/api/${OpenAIRouter.name.toLowerCase()}/formattedchatquery`,
-      (req: Request, resp: Response) => {
-        return AiTrainerExpressExceptionHandling.HandleAsync(async () => {
+      async (req: Request, resp: Response) => {
+        return await AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const parsedInput = FormattedChatQueryOptsSchema.safeParse({
             ...req.body,
           });
