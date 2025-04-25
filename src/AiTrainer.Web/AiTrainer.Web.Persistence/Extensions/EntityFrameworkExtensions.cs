@@ -5,6 +5,22 @@ namespace AiTrainer.Web.Persistence.Extensions
 {
     internal static class EntityFrameworkExtensions
     {
+        public static GlobalFileCollectionConfigEntity ToEntity(
+            this GlobalFileCollectionConfig globalFileCollectionConfig)
+        {
+            var entity = new GlobalFileCollectionConfigEntity
+            {
+                UserId = globalFileCollectionConfig.UserId,
+                AutoFaissSync = globalFileCollectionConfig.AutoFaissSync,
+            };
+
+            if (globalFileCollectionConfig.Id is long foundId)
+            {
+                entity.Id = foundId;
+            }
+
+            return entity;
+        }
         public static FileDocumentMetaDataEntity ToEntity(this FileDocumentMetaData formInput)
         {
             var entity = new FileDocumentMetaDataEntity
