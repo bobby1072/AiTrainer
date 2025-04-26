@@ -371,8 +371,8 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
             FaissIndex = storeToSave.IndexFile,
             UserId = userId,
             FaissJson = storeToSave.JsonDocStore,
-            DateCreated = DateTime.UtcNow,
-            DateModified = DateTime.UtcNow,
+            DateCreated = existingEntry?.DateCreated ?? DateTime.UtcNow,
+            DateModified = existingEntry?.DateModified ?? DateTime.UtcNow,
         };
 
         if (existingEntry is not null)
