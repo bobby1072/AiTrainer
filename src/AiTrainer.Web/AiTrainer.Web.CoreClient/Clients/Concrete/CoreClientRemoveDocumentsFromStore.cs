@@ -28,7 +28,7 @@ public class CoreClientRemoveDocumentsFromStore
 
     public CoreClientRemoveDocumentsFromStore(
         ILogger<CoreClientRemoveDocumentsFromStore> logger,
-        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration,
+        IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration,
         IHttpContextAccessor httpContextAccessor,
         HttpClient httpClient
     )
@@ -47,8 +47,6 @@ public class CoreClientRemoveDocumentsFromStore
         try
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
-
-
 
             using var httpResult = await _httpClient.SendWithRetry(
                 request =>

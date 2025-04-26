@@ -20,10 +20,11 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
         private readonly UserInfoClientConfiguration _userInfoClientConfiguration;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly HttpClient _httpClient;
+
         public UserInfoClient(
             IOptions<ClientSettingsConfiguration> options,
             IHttpContextAccessor httpContextAccessor,
-            IOptionsSnapshot<UserInfoClientConfiguration> userInfoClientConfiguration,
+            IOptions<UserInfoClientConfiguration> userInfoClientConfiguration,
             ILogger<UserInfoClient> logger,
             HttpClient httpClient
         )
@@ -40,12 +41,16 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
             try
             {
                 var retryPipeline = _userInfoClientConfiguration.ToPipeline();
-                var (timeTaken, results) = await OperationTimerUtils.TimeWithResultsAsync(() => retryPipeline.ExecuteAsync(async ct => await InvokeAsync(accessToken)));
-                
-                _logger.LogDebug("It took {TimeTaken}ms for the userinfo request to complete for correlationId {CorrelationId}",
+                var (timeTaken, results) = await OperationTimerUtils.TimeWithResultsAsync(
+                    () => retryPipeline.ExecuteAsync(async ct => await InvokeAsync(accessToken))
+                );
+
+                _logger.LogDebug(
+                    "It took {TimeTaken}ms for the userinfo request to complete for correlationId {CorrelationId}",
                     timeTaken,
-                    _httpContextAccessor.HttpContext?.GetCorrelationId());
-                
+                    _httpContextAccessor.HttpContext?.GetCorrelationId()
+                );
+
                 return results;
             }
             catch (Exception ex)
@@ -63,13 +68,17 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
         private async Task<UserInfoResponse> InvokeAsync(string accessToken)
         {
             using var requestMessage = new HttpRequestMessage(HttpMethod.Get, _userInfoEndpoint);
-            requestMessage.Headers.TryAddWithoutValidation(HeaderNames.Authorization, $"Bearer {accessToken}");
+            requestMessage.Headers.TryAddWithoutValidation(
+                HeaderNames.Authorization,
+                $"Bearer {accessToken}"
+            );
 
             using var httpResult = await _httpClient.SendAsync(requestMessage);
 
             var finalResult = await httpResult.Content.ReadFromJsonAsync<UserInfoResponse>();
-            
-            return finalResult ?? throw new SerializationException("User info client returned null response");
+
+            return finalResult
+                ?? throw new SerializationException("User info client returned null response");
         }
     }
 }

@@ -102,7 +102,31 @@ namespace AiTrainer.Web.Persistence.Contexts
 
             foreach (var entry in updatingEntries)
             {
-                if (entry.Entity is UserEntity foundUser)
+                if (entry.Entity is FileCollectionFaissEntity foundFaissCollection)
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                            foundFaissCollection,
+                            [
+                                nameof(FileCollectionEntity.DateCreated),
+                                nameof(FileCollectionEntity.DateModified),
+                            ],
+                            currentTime
+                        );
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                            foundFaissCollection,
+                            [
+                                nameof(FileCollectionEntity.DateModified),
+                            ],
+                            currentTime
+                        );
+                    }
+                }
+                else if (entry.Entity is UserEntity foundUser)
                 {
                     if (entry.State == EntityState.Added)
                     {
@@ -117,7 +141,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                             currentTime
                         );
                     }
-                    else
+                    else if (entry.State == EntityState.Modified)
                     {
                         UpdateEntityDatesToToday<UserEntity, Guid, User>(
                             foundUser,
@@ -139,7 +163,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                             currentTime
                         );
                     }
-                    else
+                    else if (entry.State == EntityState.Modified)
                     {
                         UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(
                             foundCollection,

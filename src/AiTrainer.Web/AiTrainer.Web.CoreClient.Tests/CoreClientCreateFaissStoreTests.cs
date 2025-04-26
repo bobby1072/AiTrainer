@@ -41,7 +41,7 @@ public class CoreClientCreateFaissStoreTests: CoreClientTestBase
         var service = new CoreClientCreateFaissStore(
             new NullLogger<CoreClientCreateFaissStore>(),
             httpClient,
-            new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
+            new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
             _mockHttpContextAccessor.Object
         );
         

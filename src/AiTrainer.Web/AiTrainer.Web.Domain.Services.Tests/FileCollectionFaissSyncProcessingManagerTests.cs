@@ -57,7 +57,7 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             Mock.Of<ILogger<FileCollectionFaissSyncProcessingManager>>(),
             _mockFileDocumentRepository.Object,
             _mockFileCollectionFaissRepository.Object,
-            new TestOptionsSnapshot<FaissSyncRetrySettingsConfiguration>(_retrySettings).Object,
+            new TestOptions<FaissSyncRetrySettingsConfiguration>(_retrySettings),
             Mock.Of<IFileCollectionFaissRemoveDocumentsProcessingManager>());
     }
     [Fact]

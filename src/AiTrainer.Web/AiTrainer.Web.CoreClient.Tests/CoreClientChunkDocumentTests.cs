@@ -29,7 +29,7 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
         var service = new CoreClientChunkDocument(
             Mock.Of<ILogger<CoreClientChunkDocument>>(),
             httpClient,
-            new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
+            new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
             _mockHttpContextAccessor.Object
         );
         

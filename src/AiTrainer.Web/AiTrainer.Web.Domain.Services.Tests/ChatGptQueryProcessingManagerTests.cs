@@ -65,6 +65,8 @@ public class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             FaissIndex = testFaiss.FaissIndex,
             FaissJson = testFaiss.DocStore,
             UserId = (Guid)currentUser.Id!,
+            DateCreated = DateTime.UtcNow,
+            DateModified = DateTime.UtcNow,
         };
         var singleChunkToUse = existingFaissStore.SingleDocuments.Value.FirstOrDefault();
         var innerChatQueryStartingInput = new AnalyseChunkInReferenceToQuestionQueryInput

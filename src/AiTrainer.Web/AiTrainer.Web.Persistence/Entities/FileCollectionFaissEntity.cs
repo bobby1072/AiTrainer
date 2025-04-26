@@ -11,7 +11,9 @@ namespace AiTrainer.Web.Persistence.Entities
         public required byte[] FaissIndex { get; set; }
         public required JsonDocument FaissJson { get; set; }
         public required Guid UserId { get; set; }
-
+        
+        public required DateTime DateCreated { get; set; }
+        public required DateTime DateModified { get; set; }
         public override FileCollectionFaiss ToModel() =>
             new()
             {
@@ -20,6 +22,8 @@ namespace AiTrainer.Web.Persistence.Entities
                 CollectionId = CollectionId,
                 FaissIndex = FaissIndex,
                 FaissJson = FaissJson,
+                DateCreated = DateCreated,
+                DateModified = DateModified,
             };
     }
 }

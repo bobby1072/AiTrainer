@@ -11,16 +11,18 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientCreateFaissStore : ICoreClient<CoreCreateFaissStoreInput, CoreFaissStoreResponse>
+internal class CoreClientCreateFaissStore
+    : ICoreClient<CoreCreateFaissStoreInput, CoreFaissStoreResponse>
 {
     private readonly ILogger<CoreClientCreateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly HttpClient _httpClient;
+
     public CoreClientCreateFaissStore(
         ILogger<CoreClientCreateFaissStore> logger,
         HttpClient httpClient,
-        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration,
+        IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfiguration,
         IHttpContextAccessor httpContextAccessor
     )
     {
@@ -30,7 +32,10 @@ internal class CoreClientCreateFaissStore : ICoreClient<CoreCreateFaissStoreInpu
         _httpClient = httpClient;
     }
 
-    public async Task<CoreFaissStoreResponse?> TryInvokeAsync(CoreCreateFaissStoreInput param, CancellationToken cancellation = default)
+    public async Task<CoreFaissStoreResponse?> TryInvokeAsync(
+        CoreCreateFaissStoreInput param,
+        CancellationToken cancellation = default
+    )
     {
         try
         {
@@ -40,11 +45,16 @@ internal class CoreClientCreateFaissStore : ICoreClient<CoreCreateFaissStoreInpu
                 requestMessage =>
                 {
                     requestMessage.Method = HttpMethod.Post;
-                    requestMessage.RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/createstore");
+                    requestMessage.RequestUri = new Uri(
+                        $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/createstore"
+                    );
                     requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
                     requestMessage.Headers.AddCorrelationIdHeader(correlationId);
-                    
-                    requestMessage.Content = CoreClientHttpExtensions.CreateApplicationJson(param, ApiConstants.DefaultCamelCaseSerializerOptions);
+
+                    requestMessage.Content = CoreClientHttpExtensions.CreateApplicationJson(
+                        param,
+                        ApiConstants.DefaultCamelCaseSerializerOptions
+                    );
                 },
                 _aiTrainerCoreConfiguration,
                 _logger,
@@ -52,18 +62,22 @@ internal class CoreClientCreateFaissStore : ICoreClient<CoreCreateFaissStoreInpu
                 correlationId?.ToString(),
                 cancellation
             );
-            
-            var finalResult = await httpResult.Content
-                .TryDeserializeJson<CoreResponse<CoreFaissStoreResponse>>(ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
-            
+
+            var finalResult = await httpResult.Content.TryDeserializeJson<
+                CoreResponse<CoreFaissStoreResponse>
+            >(ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
+
             return finalResult?.Data;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occured in {OpName} with message {Message}",
+            _logger.LogError(
+                ex,
+                "Exception occured in {OpName} with message {Message}",
                 nameof(CoreClientCreateFaissStore),
-                ex.Message);
-            
+                ex.Message
+            );
+
             return null;
         }
     }

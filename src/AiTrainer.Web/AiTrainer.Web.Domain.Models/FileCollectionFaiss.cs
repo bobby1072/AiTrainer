@@ -10,11 +10,16 @@ namespace AiTrainer.Web.Domain.Models
         public required Guid? CollectionId { get; set; }
         public required byte[] FaissIndex { get; set; }
         public required JsonDocument FaissJson { get; set; }
+
         [LockedData]
         public required Guid UserId { get; set; }
 
+        [LockedData]
+        public required DateTime DateCreated { get; set; }
+        public required DateTime DateModified { get; set; }
         public Lazy<IReadOnlyCollection<SingleDocumentChunk>> SingleDocuments =>
             new(() => FaissHelper.GetDocumentChunksFromFaissDocStore(FaissJson));
+
         public override bool Equals(FileCollectionFaiss? other)
         {
             return Id == other?.Id

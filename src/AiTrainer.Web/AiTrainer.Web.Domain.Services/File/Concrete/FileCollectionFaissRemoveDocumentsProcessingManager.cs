@@ -87,6 +87,8 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             CollectionId = fileCollectionFaiss.CollectionId,
             FaissIndex = deleteInCoreResult.IndexFile,
             FaissJson = deleteInCoreResult.JsonDocStore,
+            DateCreated = fileCollectionFaiss.DateCreated,
+            DateModified = fileCollectionFaiss.DateModified,
         };
     }
     public async Task RemoveDocumentsFromFaissStoreAndUpdateItAsync(Guid? collectionId,
@@ -138,7 +140,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
             analysedSingleChunkDocsToRemoveFromStore.FastArraySelect(x => (Guid)x.Id!).ToArray(),
             (Guid)currentUser.Id!,
             collectionId,
-            existingFaissStore.Data.Id,
+            existingFaissStore.Data,
             correlationId?.ToString(),
             cancellationToken
         );
@@ -155,7 +157,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
         IReadOnlyCollection<Guid> documentIdsToRemove,
         Guid userId,
         Guid? collectionId,
-        long? existingFaissId,
+        FileCollectionFaiss existingFaiss,
         string? correlationId,
         CancellationToken cancellationToken)
     {
@@ -173,11 +175,13 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
 
         var newFileCollectionFaiss = new FileCollectionFaiss
         {
-            Id = existingFaissId,
+            Id = existingFaiss.Id,
             CollectionId = collectionId,
             FaissIndex = deleteInCoreResult.IndexFile,
             FaissJson = deleteInCoreResult.JsonDocStore,
             UserId = userId,
+            DateCreated = existingFaiss.DateCreated,
+            DateModified = DateTime.UtcNow,
         };
 
         var analysedFileDocuments = newFileCollectionFaiss.SingleDocuments.Value;

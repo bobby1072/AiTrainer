@@ -14,7 +14,7 @@ namespace AiTrainer.Web.Api.Controllers
 
         public ClientConfigurationController(
             IHttpDomainServiceActionExecutor actionExecutor,
-            IOptionsSnapshot<ClientSettingsConfiguration> clientSettingsConfiguration
+            IOptions<ClientSettingsConfiguration> clientSettingsConfiguration
         )
             : base(actionExecutor)
         {

@@ -15,7 +15,8 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientUpdateFaissStore: ICoreClient<CoreUpdateFaissStoreInput, CoreFaissStoreResponse>
+internal class CoreClientUpdateFaissStore
+    : ICoreClient<CoreUpdateFaissStoreInput, CoreFaissStoreResponse>
 {
     private readonly ILogger<CoreClientUpdateFaissStore> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
@@ -24,7 +25,7 @@ internal class CoreClientUpdateFaissStore: ICoreClient<CoreUpdateFaissStoreInput
 
     public CoreClientUpdateFaissStore(
         ILogger<CoreClientUpdateFaissStore> logger,
-        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+        IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
         HttpClient httpClient,
         IHttpContextAccessor httpContextAccessor
     )
@@ -32,53 +33,68 @@ internal class CoreClientUpdateFaissStore: ICoreClient<CoreUpdateFaissStoreInput
         _logger = logger;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfig.Value;
         _httpClient = httpClient;
-        _httpContextAccessor = httpContextAccessor; 
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<CoreFaissStoreResponse?> TryInvokeAsync(CoreUpdateFaissStoreInput input, CancellationToken cancellation = default)
+    public async Task<CoreFaissStoreResponse?> TryInvokeAsync(
+        CoreUpdateFaissStoreInput input,
+        CancellationToken cancellation = default
+    )
     {
         try
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
-            
-            using var httpResult = await _httpClient
-                .SendWithRetry(
-                    requestMessage =>
-                    {
-                        requestMessage.Method = HttpMethod.Post;
-                        requestMessage.RequestUri = new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore");
-                        requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-                        requestMessage.Headers.AddCorrelationIdHeader(_httpContextAccessor.HttpContext.GetCorrelationId());
-                        
-                        var fileContent = new ByteArrayContent(input.FileInput);
-                        fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Application.Octet);
-                        
-                        var formContent = new MultipartFormDataContent();
-                        formContent.Add(fileContent, "file", "docStore.index");
-                        formContent.Add(CoreClientHttpExtensions.CreateApplicationJson(input, ApiConstants.DefaultCamelCaseSerializerOptions),
-                            "metadata");
-                        requestMessage.Content = formContent;
-                    },
-                    _aiTrainerCoreConfiguration,
-                    _logger,
-                    nameof(CoreClientUpdateFaissStore),
-                    correlationId?.ToString(),
-                    cancellation
-                );
+            using var httpResult = await _httpClient.SendWithRetry(
+                requestMessage =>
+                {
+                    requestMessage.Method = HttpMethod.Post;
+                    requestMessage.RequestUri = new Uri(
+                        $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore"
+                    );
+                    requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
+                    requestMessage.Headers.AddCorrelationIdHeader(
+                        _httpContextAccessor.HttpContext.GetCorrelationId()
+                    );
 
-            var result = await httpResult.Content
-                .TryDeserializeJson<CoreResponse<CoreFaissStoreResponse>>(
-                    ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
-            
+                    var fileContent = new ByteArrayContent(input.FileInput);
+                    fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                        MediaTypeNames.Application.Octet
+                    );
+
+                    var formContent = new MultipartFormDataContent();
+                    formContent.Add(fileContent, "file", "docStore.index");
+                    formContent.Add(
+                        CoreClientHttpExtensions.CreateApplicationJson(
+                            input,
+                            ApiConstants.DefaultCamelCaseSerializerOptions
+                        ),
+                        "metadata"
+                    );
+                    requestMessage.Content = formContent;
+                },
+                _aiTrainerCoreConfiguration,
+                _logger,
+                nameof(CoreClientUpdateFaissStore),
+                correlationId?.ToString(),
+                cancellation
+            );
+
+            var result = await httpResult.Content.TryDeserializeJson<
+                CoreResponse<CoreFaissStoreResponse>
+            >(ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
+
             return result?.Data;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occured in {OpName} with message {Message}",
+            _logger.LogError(
+                ex,
+                "Exception occured in {OpName} with message {Message}",
                 nameof(CoreClientUpdateFaissStore),
-                ex.Message);
-            
+                ex.Message
+            );
+
             return null;
         }
     }
