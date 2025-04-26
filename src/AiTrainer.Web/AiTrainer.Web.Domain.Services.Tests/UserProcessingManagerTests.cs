@@ -8,7 +8,6 @@ using AiTrainer.Web.TestBase;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using AiTrainer.Web.UserInfoClient.Models;
 using AutoFixture;
-using FluentAssertions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -49,7 +48,13 @@ namespace AiTrainer.Web.Domain.Services.Tests
             };
             var accessToken = Faker.Lorem.GetFirstWord();
             _repo
-                .Setup(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email), nameof(UserEntity.GlobalFileCollectionConfig)))
+                .Setup(x =>
+                    x.GetOne(
+                        mockedUser.Email,
+                        nameof(UserEntity.Email),
+                        nameof(UserEntity.GlobalFileCollectionConfig)
+                    )
+                )
                 .ReturnsAsync(new DbGetOneResult<Models.User>(mockedUser));
 
             _userInfoClient
@@ -60,7 +65,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var result = await _userProcessingManager.SaveAndCacheUser(accessToken);
 
             //Assert
-            result.Should().Be(mockedUser);
+            Assert.Equal(mockedUser, result);
             _cachingService.Verify(
                 x =>
                     x.SetObject(
@@ -74,7 +79,15 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 x => x.TryGetObject<Models.User>($"cacheUser-{accessToken}"),
                 Times.Once
             );
-            _repo.Verify(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email), nameof(UserEntity.GlobalFileCollectionConfig)), Times.Once);
+            _repo.Verify(
+                x =>
+                    x.GetOne(
+                        mockedUser.Email,
+                        nameof(UserEntity.Email),
+                        nameof(UserEntity.GlobalFileCollectionConfig)
+                    ),
+                Times.Once
+            );
             _userInfoClient.Verify(x => x.TryInvokeAsync(accessToken), Times.Once);
         }
 
@@ -91,7 +104,13 @@ namespace AiTrainer.Web.Domain.Services.Tests
             };
             var accessToken = Faker.Lorem.GetFirstWord();
             _repo
-                .Setup(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email), nameof(UserEntity.GlobalFileCollectionConfig)))
+                .Setup(x =>
+                    x.GetOne(
+                        mockedUser.Email,
+                        nameof(UserEntity.Email),
+                        nameof(UserEntity.GlobalFileCollectionConfig)
+                    )
+                )
                 .ReturnsAsync(new DbGetOneResult<Models.User>());
             var validationResult = new FluentValidation.Results.ValidationResult();
             _userValidator
@@ -108,12 +127,20 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var result = await _userProcessingManager.SaveAndCacheUser(accessToken);
 
             //Assert
-            result.Should().Be(mockedUser);
+            Assert.Equal(mockedUser, result);
             _cachingService.Verify(
                 x => x.TryGetObject<Models.User>($"cacheUser-{accessToken}"),
                 Times.Once
             );
-            _repo.Verify(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email), nameof(UserEntity.GlobalFileCollectionConfig)), Times.Once);
+            _repo.Verify(
+                x =>
+                    x.GetOne(
+                        mockedUser.Email,
+                        nameof(UserEntity.Email),
+                        nameof(UserEntity.GlobalFileCollectionConfig)
+                    ),
+                Times.Once
+            );
             _userInfoClient.Verify(x => x.TryInvokeAsync(accessToken), Times.Once);
             _repo.Verify(x => x.Create(It.IsAny<IReadOnlyCollection<Models.User>>()), Times.Once);
         }
@@ -131,7 +158,13 @@ namespace AiTrainer.Web.Domain.Services.Tests
             };
             var accessToken = Faker.Lorem.GetFirstWord();
             _repo
-                .Setup(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email), nameof(UserEntity.GlobalFileCollectionConfig)))
+                .Setup(x =>
+                    x.GetOne(
+                        mockedUser.Email,
+                        nameof(UserEntity.Email),
+                        nameof(UserEntity.GlobalFileCollectionConfig)
+                    )
+                )
                 .ReturnsAsync(new DbGetOneResult<Models.User>(mockedUser));
             var validationResult = new FluentValidation.Results.ValidationResult();
             _userValidator
@@ -148,12 +181,20 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var result = await _userProcessingManager.SaveAndCacheUser(accessToken);
 
             //Assert
-            result.Should().Be(mockedUser);
+            Assert.Equal(mockedUser, result);
             _cachingService.Verify(
                 x => x.TryGetObject<Models.User>($"cacheUser-{accessToken}"),
                 Times.Once
             );
-            _repo.Verify(x => x.GetOne(mockedUser.Email, nameof(UserEntity.Email), nameof(UserEntity.GlobalFileCollectionConfig)), Times.Once);
+            _repo.Verify(
+                x =>
+                    x.GetOne(
+                        mockedUser.Email,
+                        nameof(UserEntity.Email),
+                        nameof(UserEntity.GlobalFileCollectionConfig)
+                    ),
+                Times.Once
+            );
             _userInfoClient.Verify(x => x.TryInvokeAsync(accessToken), Times.Once);
             _repo.Verify(x => x.Update(It.IsAny<IReadOnlyCollection<Models.User>>()), Times.Once);
         }
