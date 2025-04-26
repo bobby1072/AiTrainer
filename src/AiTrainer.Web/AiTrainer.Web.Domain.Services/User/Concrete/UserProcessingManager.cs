@@ -22,6 +22,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         private readonly IValidator<Models.User> _userValidator;
         private readonly ICachingService _cachingService;
         private readonly IHttpContextAccessor? _httpContextAccessor;
+        private const string _cacheKey = "cacheUser-";
 
         public UserProcessingManager(
             IHttpContextAccessor? httpContextAccessor,
@@ -197,7 +198,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
                 ?? throw new InvalidDataException("Can't get user info");
 
             var foundUserFromDb = await EntityFrameworkUtils.TryDbOperation(
-                () => _repo.GetOne(userInfo.Email, nameof(UserEntity.Email)),
+                () => _repo.GetOne(userInfo.Email, nameof(UserEntity.Email), nameof(UserEntity.GlobalFileCollectionConfig)),
                 _logger
             );
 
@@ -206,7 +207,6 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 
         private static string GetCacheKey(string accessToken) => $"{_cacheKey}{accessToken}";
 
-        private const string _cacheKey = "cacheUser-";
 
         private enum UserSaveEnum
         {

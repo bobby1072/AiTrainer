@@ -10,15 +10,16 @@ namespace AiTrainer.Web.Persistence.Entities
         public string? Name { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
-
+        public virtual GlobalFileCollectionConfigEntity? GlobalFileCollectionConfig { get; init; }
         public override User ToModel() =>
-            new User
+            new()
             {
                 Email = Email,
                 DateCreated = DateCreated,
                 DateModified = DateModified,
                 Name = Name,
                 Id = Id,
+                GlobalFileCollectionConfig = GlobalFileCollectionConfig?.ToModel(),
             };
     }
 }

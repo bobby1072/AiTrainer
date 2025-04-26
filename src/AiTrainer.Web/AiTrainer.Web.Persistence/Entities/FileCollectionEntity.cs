@@ -13,6 +13,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
+        public bool AutoFaissSync { get; init; }
         public virtual IReadOnlyCollection<FileDocumentEntity>? Documents { get; set; }
         public virtual FileCollectionFaissEntity? FaissStore { get; set; }
         public override FileCollection ToModel() =>
@@ -21,6 +22,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 Id = Id,
                 UserId = UserId,
                 CollectionName = CollectionName,
+                AutoFaissSync = AutoFaissSync,
                 DateCreated = DateCreated,
                 DateModified = DateModified,
                 ParentId = ParentId,

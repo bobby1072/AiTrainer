@@ -1,5 +1,6 @@
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Entities;
+using AiTrainer.Web.Persistence.Extensions;
 using BT.Common.FastArray.Proto;
 using BT.Common.Helpers;
 using BT.Common.Helpers.Extensions;
@@ -17,7 +18,7 @@ namespace AiTrainer.Web.Persistence.Contexts
         public virtual DbSet<FileDocumentEntity> FileDocuments { get; set; }
         public virtual DbSet<FileCollectionFaissEntity> FileCollectionFaiss { get; set; }
         public virtual DbSet<FileDocumentMetaDataEntity> FileDocumentMetaData { get; set; }
-
+        public virtual DbSet<GlobalFileCollectionConfigEntity> GlobalFileCollectionConfigs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
@@ -37,6 +38,13 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .WithOne(x => x.MetaData)
                     .HasForeignKey<FileDocumentMetaDataEntity>(e => e.DocumentId);
             });
+            modelBuilder.Entity<GlobalFileCollectionConfigEntity>(ent =>
+            {
+                ent.HasOne<UserEntity>()
+                    .WithOne(x => x.GlobalFileCollectionConfig)
+                    .HasForeignKey<GlobalFileCollectionConfigEntity>(x => x.UserId);
+                    
+            });
             modelBuilder.Entity<FileCollectionFaissEntity>(ent =>
             {
                 ent.HasOne<FileCollectionEntity>()
@@ -55,34 +63,34 @@ namespace AiTrainer.Web.Persistence.Contexts
             });
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            UpdateDatesOnNewlyAddedOrModified();
-            return base.SaveChangesAsync(cancellationToken);
+            await UpdateDatesOnNewlyAddedOrModified();
+            return await base.SaveChangesAsync(cancellationToken);
         }
 
-        public override Task<int> SaveChangesAsync(
+        public override async Task<int> SaveChangesAsync(
             bool acceptAllChangesOnSuccess,
             CancellationToken cancellationToken = default
         )
         {
-            UpdateDatesOnNewlyAddedOrModified();
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+            await UpdateDatesOnNewlyAddedOrModified();
+            return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            UpdateDatesOnNewlyAddedOrModified();
+            UpdateDatesOnNewlyAddedOrModified().GetAwaiter().GetResult();
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
         public override int SaveChanges()
         {
-            UpdateDatesOnNewlyAddedOrModified();
+            UpdateDatesOnNewlyAddedOrModified().GetAwaiter().GetResult();
             return base.SaveChanges();
         }
 
-        private void UpdateDatesOnNewlyAddedOrModified()
+        private async Task UpdateDatesOnNewlyAddedOrModified()
         {
             var currentTime = DateTime.UtcNow;
             var updatingEntries = ChangeTracker
@@ -98,6 +106,11 @@ namespace AiTrainer.Web.Persistence.Contexts
                 {
                     if (entry.State == EntityState.Added)
                     {
+                        var globalAutoSync = new GlobalFileCollectionConfig
+                        {
+                            UserId = foundUser.Id,
+                        };
+                        await GlobalFileCollectionConfigs.AddAsync(globalAutoSync.ToEntity());
                         UpdateEntityDatesToToday<UserEntity, Guid, User>(
                             foundUser,
                             [nameof(UserEntity.DateCreated), nameof(UserEntity.DateModified)],

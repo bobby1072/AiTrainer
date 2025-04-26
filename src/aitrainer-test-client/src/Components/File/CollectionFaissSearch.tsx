@@ -46,6 +46,7 @@ export const CollectionFaissSearch: React.FC<{
         direction="column"
         textAlign="center"
         spacing={2}
+        maxHeight={"90vh"}
         width="100%"
       >
         <Grid2 width="60%">
@@ -74,15 +75,28 @@ export const CollectionFaissSearch: React.FC<{
             Search
           </Button>
         </Grid2>
-        {similaritySearchData &&
-          similaritySearchData.map((x, i) => (
-            <Grid2 width={"40%"} key={i}>
-              <SingleFaissResponseItemTab
-                responseItem={x}
-                collectionId={collectionId}
-              />
+        {similaritySearchData && (
+          <Grid2 width={"40%"}>
+            <Grid2
+              container
+              direction="column"
+              spacing={2}
+              width="100%"
+              sx={{
+                overflowY: "auto",
+              }}
+            >
+              {similaritySearchData.map((x, i) => (
+                <Grid2 width={"100%"} key={i}>
+                  <SingleFaissResponseItemTab
+                    responseItem={x}
+                    collectionId={collectionId}
+                  />
+                </Grid2>
+              ))}
             </Grid2>
-          ))}
+          </Grid2>
+        )}
         {similaritySearchLoading && (
           <Grid2 width={"40%"}>
             <Loading />
