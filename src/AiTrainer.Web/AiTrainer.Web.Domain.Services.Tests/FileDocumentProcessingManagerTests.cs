@@ -105,7 +105,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 Times.Once
             );
             _mockJobQueue.Verify(x =>
-                x.EnqueueAsync(It.Is<FileCollectionFaissRemoveDocumentsBackgroundJob>(y => y.CollectionId == collectionId && currentUser.Equals(y.CurrentUser))),
+                x.EnqueueAsync(It.Is<FileCollectionFaissRemoveDocumentsBackgroundJob>(y => y.CollectionId == collectionId && currentUser.Equals(y.CurrentUser)) , It.IsAny<CancellationToken>()),
                 Times.Once
             );
         }
@@ -152,7 +152,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 Times.Never
             );
             _mockJobQueue.Verify(x =>
-                    x.EnqueueAsync(It.IsAny<FileCollectionFaissSyncBackgroundJob>()),
+                    x.EnqueueAsync(It.IsAny<FileCollectionFaissSyncBackgroundJob>(), It.IsAny<CancellationToken>()),
                 Times.Never
             );
         }

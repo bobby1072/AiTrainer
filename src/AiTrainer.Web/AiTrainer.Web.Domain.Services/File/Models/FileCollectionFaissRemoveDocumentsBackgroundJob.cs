@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.Domain.Services.File.Models;
 
-internal class FileCollectionFaissRemoveDocumentsBackgroundJob : FileCollectionFaissBackgroundJob
+public class FileCollectionFaissRemoveDocumentsBackgroundJob : FileCollectionFaissBackgroundJob
 {
-    public override Task ExecuteFaissJobAsync(IServiceProvider sp, CancellationToken ct = default)
+    internal override Task ExecuteFaissJobAsync(IServiceProvider sp, CancellationToken ct = default)
     {
         var removeManager = sp.GetRequiredService<IFileCollectionFaissRemoveDocumentsProcessingManager>();
         

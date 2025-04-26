@@ -204,7 +204,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
                 new CoreDocumentToChunkInput
                 {
                     DocumentsToChunk = allUnsyncedDocumentText
-                        .FastArraySelect(x => new SingleDocumentToChunk
+                        .FastArraySelect(x => new CoreSingleDocumentToChunk
                         {
                             DocumentText = x.DocText,
                             Metadata = x.Metadata,

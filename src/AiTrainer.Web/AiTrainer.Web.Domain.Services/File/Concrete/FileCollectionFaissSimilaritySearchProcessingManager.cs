@@ -39,7 +39,7 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileColle
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IReadOnlyCollection<SingleDocumentChunk>> SimilaritySearch(SimilaritySearchInput input, Domain.Models.User currentUser)
+    public async Task<IReadOnlyCollection<SingleDocumentChunk>> SimilaritySearch(SimilaritySearchInput input, Domain.Models.User currentUser, CancellationToken token = default)
     {
         var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
@@ -79,7 +79,7 @@ internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileColle
             FileInput = existingFaissStore.Data.FaissIndex,
             DocStore = existingFaissStore.Data.FaissJson,
             DocumentsToReturn = input.DocumentsToReturn,
-        }) ?? throw new ApiException();
+        }, token) ?? throw new ApiException();
 
         _logger.LogInformation(
             "Exiting {Action} for correlationId {CorrelationId}",

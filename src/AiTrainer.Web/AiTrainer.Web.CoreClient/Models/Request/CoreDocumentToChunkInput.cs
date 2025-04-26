@@ -3,9 +3,9 @@ namespace AiTrainer.Web.CoreClient.Models.Request
 {
     public record CoreDocumentToChunkInput
     {
-        public required IReadOnlyCollection<SingleDocumentToChunk> DocumentsToChunk { get; init; }
+        public required IReadOnlyCollection<CoreSingleDocumentToChunk> DocumentsToChunk { get; init; }
     }
-    public record SingleDocumentToChunk
+    public record CoreSingleDocumentToChunk
     {
         public required string DocumentText { get; init; }
         public required Guid FileDocumentId { get; init; }
