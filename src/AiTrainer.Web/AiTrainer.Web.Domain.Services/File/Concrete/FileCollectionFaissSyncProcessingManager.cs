@@ -70,6 +70,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
     public async Task SyncUserFileCollectionFaissStore(
         Domain.Models.User currentUser,
         Guid? collectionId = null,
+        bool? retryOverride = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -83,7 +84,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
             correlationId
         );
 
-        if (!_retrySettings.UseRetry)
+        if (retryOverride == false || (retryOverride == null && !_retrySettings.UseRetry))
         {
             var timeTakenForNoRetryOp = await OperationTimerUtils.TimeAsync(
                 () =>

@@ -125,6 +125,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 {
                     CurrentUser = currentUser,
                     CollectionId = newFileDoc.CollectionId,
+                    RetryOverride = false
                 });
             }
 

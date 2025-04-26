@@ -105,6 +105,7 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                     serv.SyncUserFileCollectionFaissStore(
                         currentUser,
                         input.CollectionId,
+                        null,
                         CancellationToken.None
                     )
                 );

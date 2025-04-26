@@ -9,7 +9,6 @@ using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.TestBase;
 using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
-using FluentAssertions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -86,10 +85,10 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var result = await _fileCollectionManager.SaveFileCollection(fileCollectionInput, currentUser);
 
             //Assert
-            result.Should().NotBeNull();
-            result.CollectionName.Should().Be(fileCollectionInput.CollectionName);
-            result.ParentId.Should().Be(fileCollectionInput.ParentId);
-            result.UserId.Should().Be((Guid)currentUser.Id!);
+            Assert.NotNull(result);
+            Assert.Equal(fileCollectionInput.CollectionName, result.CollectionName);
+            Assert.Equal(fileCollectionInput.ParentId, result.ParentId);
+            Assert.Equal((Guid)currentUser.Id!, result.UserId);
 
             _mockValidator.Verify(
                 x =>
@@ -174,10 +173,10 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var result = await _fileCollectionManager.SaveFileCollection(newFileCollectionInput, currentUser);
 
             //Assert
-            result.Should().NotBeNull();
-            result.CollectionName.Should().Be(newFileCollectionInput.CollectionName);
-            result.ParentId.Should().Be(newFileCollectionInput.ParentId);
-            result.UserId.Should().Be((Guid)currentUser.Id!);
+            Assert.NotNull(result);
+            Assert.Equal(newFileCollectionInput.CollectionName, result.CollectionName);
+            Assert.Equal(newFileCollectionInput.ParentId, result.ParentId);
+            Assert.Equal((Guid)currentUser.Id!, result.UserId);
 
 
             _mockValidator.Verify(
@@ -258,7 +257,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var act = () => _fileCollectionManager.SaveFileCollection(newFileCollectionInput, currentUser);
 
             //Assert
-            await act.Should().ThrowAsync<ApiException>().WithMessage("Cannot edit those fields");
+            var thrownException = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal("Cannot edit those fields", thrownException.Message);
 
 
             _mockValidator.Verify(
