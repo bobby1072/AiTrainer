@@ -29,7 +29,7 @@ public class FaissController: BaseController
         var currentUser = await GetCurrentUser();
 
         var result = await _actionExecutor
-            .ExecuteAsync<IChatGptQueryProcessingManager, string>(serv => serv.ChatGptFaissQuery(input, currentUser, ct));
+            .ExecuteAsync<IChatGptQueryProcessingManager, string>(serv => serv.ChatGptFaissQuery(input, currentUser, ct), nameof(IChatGptQueryProcessingManager.ChatGptFaissQuery));
         
         return new Outcome<string>
         {
@@ -48,7 +48,7 @@ public class FaissController: BaseController
                 input.CollectionId,
                 false,
                 ct
-            )
+            ), nameof(IFileCollectionFaissSyncProcessingManager.SyncUserFileCollectionFaissStore)
         );
 
         return new Outcome();
@@ -80,7 +80,7 @@ public class FaissController: BaseController
         var result = await _actionExecutor.ExecuteAsync<
             IFileCollectionFaissSimilaritySearchProcessingManager,
             IReadOnlyCollection<SingleDocumentChunk>
-        >(serv => serv.SimilaritySearch(input, currentUser, ct)); 
+        >(serv => serv.SimilaritySearch(input, currentUser, ct), nameof(IFileCollectionFaissSimilaritySearchProcessingManager.SimilaritySearch)); 
         
         return new Outcome<IReadOnlyCollection<SingleDocumentChunk>> { Data = result };
     }

@@ -32,7 +32,7 @@ namespace AiTrainer.Web.Api.Controllers
             var result = await _actionExecutor.ExecuteAsync<
                 IFileDocumentProcessingManager,
                 FileDocument
-            >(service => service.GetFileDocumentForDownload(input.Id, currentUser));
+            >(service => service.GetFileDocumentForDownload(input.Id, currentUser), nameof(IFileDocumentProcessingManager.GetFileDocumentForDownload));
 
             var memoryStream = new MemoryStream(result.FileData);
             return File(memoryStream, result.GetMimeType(), result.FileName);
@@ -58,7 +58,7 @@ namespace AiTrainer.Web.Api.Controllers
             var result = await _actionExecutor.ExecuteAsync<
                 IFileDocumentProcessingManager,
                 FileDocumentPartial
-            >(service => service.UploadFileDocument(formInput, currentUser));
+            >(service => service.UploadFileDocument(formInput, currentUser), nameof(IFileDocumentProcessingManager.UploadFileDocument));
 
             return new Outcome<FileDocumentPartial> { Data = result };
         }
@@ -69,7 +69,7 @@ namespace AiTrainer.Web.Api.Controllers
             var currentUser = await GetCurrentUser();
 
             var result = await _actionExecutor.ExecuteAsync<IFileDocumentProcessingManager, Guid>(
-                service => service.DeleteFileDocument(input.Id, currentUser)
+                service => service.DeleteFileDocument(input.Id, currentUser), nameof(IFileDocumentProcessingManager.DeleteFileDocument)
             );
 
             return new Outcome<Guid> { Data = result };

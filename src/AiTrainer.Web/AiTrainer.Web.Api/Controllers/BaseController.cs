@@ -21,6 +21,6 @@ namespace AiTrainer.Web.Api.Controllers
         protected async Task<User> GetCurrentUser() =>
             await _actionExecutor.ExecuteAsync<IUserProcessingManager, User?>(service => service.TryGetUserFromCache(
                HttpContext.GetAccessToken() 
-            )) ?? throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
+            ), nameof(IUserProcessingManager.TryGetUserFromCache)) ?? throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
     }
 }

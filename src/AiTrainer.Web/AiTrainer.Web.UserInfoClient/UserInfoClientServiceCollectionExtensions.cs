@@ -3,6 +3,7 @@ using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.UserInfoClient
 {
@@ -10,7 +11,7 @@ namespace AiTrainer.Web.UserInfoClient
     {
         public static IServiceCollection AddUserInfoClient(this IServiceCollection services, IConfiguration config)
         {
-            var userInfoSettingsSection =  config.GetSection(UserInfoClientConfiguration.Key).Get<UserInfoClientConfiguration>();
+            var userInfoSettingsSection =  config.GetSection(UserInfoClientConfiguration.Key);
 
             if (userInfoSettingsSection is null)
             {
@@ -18,12 +19,14 @@ namespace AiTrainer.Web.UserInfoClient
             }
             
             services
-                .AddOptions<UserInfoClientConfiguration>(UserInfoClientConfiguration.Key);
+                .Configure<UserInfoClientConfiguration>(userInfoSettingsSection);
             
             services
-                .AddHttpClient<IUserInfoClient, Clients.Concrete.UserInfoClient>(cli =>
+                .AddHttpClient<IUserInfoClient, Clients.Concrete.UserInfoClient>((sp, cli) =>
                 {
-                    cli.Timeout = TimeSpan.FromSeconds(userInfoSettingsSection.TimeoutInSeconds ?? 5);
+                    var infoConfig = sp.GetRequiredService<IOptions<UserInfoClientConfiguration>>();
+                    
+                    cli.Timeout = TimeSpan.FromSeconds(infoConfig.Value.TimeoutInSeconds ?? 5);
                 });
 
 

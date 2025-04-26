@@ -22,7 +22,7 @@ public class UserController : BaseController
     public async Task<ActionResult<Outcome<User?>>> GetSelf()
     {
         var self = await _actionExecutor.ExecuteAsync<IUserProcessingManager, User?>(service =>
-            service.TryGetUserFromCache(HttpContext.GetAccessToken())
+            service.TryGetUserFromCache(HttpContext.GetAccessToken()), nameof(IUserProcessingManager.TryGetUserFromCache)
         );
 
         return new Outcome<User?> { Data = self };

@@ -21,7 +21,7 @@ namespace AiTrainer.Web.Api.Controllers
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FileCollection
-            >(service => service.GetFileCollectionWithContents(input.Id, currentUser));
+            >(service => service.GetFileCollectionWithContents(input.Id, currentUser), nameof(IFileCollectionProcessingManager.GetFileCollectionWithContents));
 
             await using var memoryStream = new MemoryStream();
             using (
@@ -54,7 +54,7 @@ namespace AiTrainer.Web.Api.Controllers
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FileCollection
-            >(service => service.SaveFileCollection(fileCollection, currentUser));
+            >(service => service.SaveFileCollection(fileCollection, currentUser), nameof(IFileCollectionProcessingManager.SaveFileCollection));
 
             return new Outcome<FileCollection> { Data = result };
         }
@@ -69,7 +69,7 @@ namespace AiTrainer.Web.Api.Controllers
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FlatFileDocumentPartialCollectionView
-            >(service => service.GetOneLayerFileDocPartialsAndCollections(currentUser, input.Id));
+            >(service => service.GetOneLayerFileDocPartialsAndCollections(currentUser, input.Id), nameof(IFileCollectionProcessingManager.GetOneLayerFileDocPartialsAndCollections));
 
             return new Outcome<FlatFileDocumentPartialCollectionView> { Data = result };
         }
@@ -80,7 +80,7 @@ namespace AiTrainer.Web.Api.Controllers
             var currentUser = await GetCurrentUser();
             
             var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, Guid>(
-                service => service.DeleteFileCollection(input.Id, currentUser)
+                service => service.DeleteFileCollection(input.Id, currentUser), nameof(IFileCollectionProcessingManager.DeleteFileCollection)
             );
 
             return new Outcome<Guid> { Data = result };

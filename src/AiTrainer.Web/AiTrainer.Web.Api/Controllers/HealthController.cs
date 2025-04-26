@@ -19,7 +19,7 @@ namespace AiTrainer.Web.Api.Controllers
         public async Task<ActionResult<Outcome<Domain.Models.AiTrainerHealth>>> Health()
         {   
             var result = await _actionExecutor.ExecuteAsync<IHealthProcessingManager, Domain.Models.AiTrainerHealth>(service =>
-                service.GetHealth()
+                service.GetHealth(), nameof(IHealthProcessingManager.GetHealth)
             );
             
             return new Outcome<Domain.Models.AiTrainerHealth> {
