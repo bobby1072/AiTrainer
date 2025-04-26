@@ -1,5 +1,5 @@
 using System.Net.Http.Json;
-using System.Runtime.Serialization;
+using System.Text.Json;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.UserInfoClient.Clients.Abstract;
@@ -78,7 +78,7 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
             var finalResult = await httpResult.Content.ReadFromJsonAsync<UserInfoResponse>();
 
             return finalResult
-                ?? throw new SerializationException("User info client returned null response");
+                ?? throw new JsonException("User info client returned null response");
         }
     }
 }
