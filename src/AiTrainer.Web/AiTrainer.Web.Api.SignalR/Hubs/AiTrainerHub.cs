@@ -28,7 +28,7 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
         }
 
         [HubMethodName("SimilaritySearchFaissStore")]
-        public async Task SimilaritySearchFaissStore(SimilaritySearchInput input, CancellationToken ct = default)
+        public async Task SimilaritySearchFaissStore(SimilaritySearchInput input)
         {
             var hubHttpContext = Context.GetHttpContext();
             var correlationId = hubHttpContext?.GetCorrelationId();
@@ -51,12 +51,11 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                 var result = await _iHttpDomainService.ExecuteAsync<
                     IFileCollectionFaissSimilaritySearchProcessingManager,
                     IReadOnlyCollection<SingleDocumentChunk>
-                >(serv => serv.SimilaritySearch(input, currentUser, ct), nameof(IFileCollectionFaissSimilaritySearchProcessingManager.SimilaritySearch));
+                >(serv => serv.SimilaritySearch(input, currentUser, CancellationToken.None), nameof(IFileCollectionFaissSimilaritySearchProcessingManager.SimilaritySearch));
 
                 await Clients.Caller.SendAsync(
                     "SimilaritySearchFaissSuccess",
-                    new SignalRClientEvent<IReadOnlyCollection<SingleDocumentChunk>> { Data = result },
-                    ct
+                    new SignalRClientEvent<IReadOnlyCollection<SingleDocumentChunk>> { Data = result }
                 );
             }
             catch (Exception ex)
@@ -75,14 +74,13 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                     {
                         ExceptionMessage =
                             "An error occurred whilst trying to do similarity search",
-                    },
-                    ct
+                    }
                 );
             }
         }
 
         [HubMethodName("SyncFaissStore")]
-        public async Task SyncFaissStore(SyncFaissStoreHubInput input,  CancellationToken ct = default)
+        public async Task SyncFaissStore(SyncFaissStoreHubInput input)
         {
             var hubHttpContext = Context.GetHttpContext();
             var correlationId = hubHttpContext?.GetCorrelationId();
@@ -108,15 +106,14 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                         currentUser,
                         input.CollectionId,
                         null,
-                        ct
+                        CancellationToken.None
                     ),
                     nameof(IFileCollectionFaissSyncProcessingManager.SyncUserFileCollectionFaissStore)
                 );
 
                 await Clients.Caller.SendAsync(
                     "SyncFaissStoreSuccess",
-                    new SignalRClientEvent<string> { Data = "Successfully faiss synced collection" },
-                    ct
+                    new SignalRClientEvent<string> { Data = "Successfully faiss synced collection" }
                 );
             }
             catch (Exception ex)
@@ -134,8 +131,7 @@ namespace AiTrainer.Web.Api.SignalR.Hubs
                     new SignalRClientEvent
                     {
                         ExceptionMessage = "An error occurred whilst syncing the file collection",
-                    },
-                    ct
+                    }
                 );
             }
         }

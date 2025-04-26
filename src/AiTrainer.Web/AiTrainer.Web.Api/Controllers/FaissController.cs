@@ -71,7 +71,7 @@ public class FaissController: BaseController
 
         return new Outcome();
     }
-
+    [HttpPost("SimilaritySearch")]
     public async Task<Outcome<IReadOnlyCollection<SingleDocumentChunk>>> SimilaritySearchFaissStore(
         [FromBody] SimilaritySearchInput input, CancellationToken ct = default)
     {
