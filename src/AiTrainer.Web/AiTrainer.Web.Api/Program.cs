@@ -77,7 +77,7 @@ app.UseResponseCompression();
 app.UseAuthorization();
 app.UseAuthentication();
 app.UseAiTrainerDefaultMiddlewares();
-app.MapAiTrainerSignalRHubs();
+// app.MapAiTrainerSignalRHubs();
 app.MapControllers();
 
 await app.RunAsync();

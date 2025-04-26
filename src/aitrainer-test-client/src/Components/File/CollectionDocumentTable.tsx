@@ -10,9 +10,9 @@ import { useFileCollectionLevelContext } from "../Contexts/FileCollectionLevelCo
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import SyncIcon from "@mui/icons-material/Sync";
-import { useSignalRFileCollectionFaissSyncMutation } from "../../Hooks/useSignalRFileCollectionFaissSyncMutation";
 import { useSnackbar } from "notistack";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { useHttpFileCollectionFaissSyncMutation } from "../../Hooks/useHttpFileCollectionFaissSyncMutation";
 
 export const CollectionDocumentTable: React.FC<{
   flatCollection: FlatFileDocumentPartialCollection;
@@ -31,7 +31,7 @@ export const CollectionDocumentTable: React.FC<{
     error: syncError,
     isLoading: syncLoading,
     mutate: sync,
-  } = useSignalRFileCollectionFaissSyncMutation(flatCollection);
+  } = useHttpFileCollectionFaissSyncMutation();
   const { fileColId, setFileColId } = useFileCollectionLevelContext();
   useEffect(() => {
     if (syncData) {
@@ -122,7 +122,9 @@ export const CollectionDocumentTable: React.FC<{
                       disabled={syncDisabled}
                       color="inherit"
                       size="large"
-                      onClick={() => sync()}
+                      onClick={() =>
+                        sync({ collectionId: flatCollection?.self?.id })
+                      }
                     >
                       <SyncIcon />
                     </IconButton>

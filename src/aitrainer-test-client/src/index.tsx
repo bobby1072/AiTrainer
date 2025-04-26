@@ -13,11 +13,6 @@ import { App } from "./App";
 import { AuthenticatedRoutes } from "./Components/Authentication/AutheticatedRoutes";
 import { SnackbarProvider } from "notistack";
 import { FileCollectionLevelContextProvider } from "./Components/Contexts/FileCollectionLevelContext";
-import {
-  AiTrainerSignalRStartConnectionProvider,
-  AiTrainerSignalRProvider,
-} from "./Components/Contexts/AiTrainerSignalRContext";
-import { InitiateUserConnectionContextProvider } from "./Components/Contexts/InitiateUserConnectionContext";
 const FallbackRoute: React.FC = () => {
   const { isLoggedIn } = useAuthentication();
   return isLoggedIn ? (
@@ -65,11 +60,11 @@ const AppRoutes = [
     element: (
       <Wrapper>
         <AuthenticatedRouteWrapper>
-          <InitiateUserConnectionContextProvider>
-            <AiTrainerSignalRStartConnectionProvider>
-              {component()}
-            </AiTrainerSignalRStartConnectionProvider>
-          </InitiateUserConnectionContextProvider>
+          {/* <InitiateUserConnectionContextProvider> */}
+          {/* <AiTrainerSignalRStartConnectionProvider> */}
+          {component()}
+          {/* </AiTrainerSignalRStartConnectionProvider> */}
+          {/* </InitiateUserConnectionContextProvider> */}
         </AuthenticatedRouteWrapper>
       </Wrapper>
     ),
@@ -97,15 +92,15 @@ if (window.location.pathname === "/oidc-silent-renew") {
         <SnackbarProvider>
           <ClientSettingsConfigurationContextProvider>
             <FileCollectionLevelContextProvider>
-              <AiTrainerSignalRProvider>
-                <BrowserRouter>
-                  <Routes>
-                    {AppRoutes?.map((r) => (
-                      <Route element={r.element} path={r.path} key={r.path} />
-                    ))}
-                  </Routes>
-                </BrowserRouter>
-              </AiTrainerSignalRProvider>
+              {/* <AiTrainerSignalRProvider> */}
+              <BrowserRouter>
+                <Routes>
+                  {AppRoutes?.map((r) => (
+                    <Route element={r.element} path={r.path} key={r.path} />
+                  ))}
+                </Routes>
+              </BrowserRouter>
+              {/* </AiTrainerSignalRProvider> */}
             </FileCollectionLevelContextProvider>
           </ClientSettingsConfigurationContextProvider>
         </SnackbarProvider>

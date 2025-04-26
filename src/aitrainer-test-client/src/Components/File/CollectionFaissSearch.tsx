@@ -1,11 +1,11 @@
 import { Button, Grid2, TextField } from "@mui/material";
-import { useSignalRFileCollectionFaissSimilaritySearchMutation } from "../../Hooks/useSignalRFileCollectionFaissSimilaritySearchMutation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ErrorComponent } from "../Common/ErrorComponent";
 import { Loading } from "../Common/Loading";
 import { SingleFaissResponseItemTab } from "./SingleFaissResponseItemTab";
+import { useHttpFileCollectionFaissSimilaritySearchMutation } from "../../Hooks/useHttpFileCollectionFaissSimilaritySearchMutation";
 
 const searchSchema = z.object({
   question: z.string().min(1).max(500),
@@ -22,7 +22,7 @@ export const CollectionFaissSearch: React.FC<{
     mutate: similaritySearch,
     data: similaritySearchData,
     error: similaritySearchError,
-  } = useSignalRFileCollectionFaissSimilaritySearchMutation();
+  } = useHttpFileCollectionFaissSimilaritySearchMutation();
   const {
     register: formRegister,
     handleSubmit: formSubmit,
