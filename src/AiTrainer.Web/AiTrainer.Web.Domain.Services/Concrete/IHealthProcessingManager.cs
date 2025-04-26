@@ -6,11 +6,15 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.Domain.Services.Concrete;
 
-internal class HealthProcessingManager: IHealthProcessingManager
+internal class HealthProcessingManager : IHealthProcessingManager
 {
     private readonly ICoreClient<CoreClientHealthResponse> _coreClient;
     private readonly ApplicationSettingsConfiguration _aiTrainerCoreConfiguration;
-    public HealthProcessingManager(ICoreClient<CoreClientHealthResponse> coreClient, IOptionsSnapshot<ApplicationSettingsConfiguration> aiTrainerCoreConfiguration)
+
+    public HealthProcessingManager(
+        ICoreClient<CoreClientHealthResponse> coreClient,
+        IOptions<ApplicationSettingsConfiguration> aiTrainerCoreConfiguration
+    )
     {
         _coreClient = coreClient;
         _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration.Value;

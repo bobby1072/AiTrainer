@@ -115,6 +115,8 @@ namespace AiTrainer.Web.Persistence.Extensions
                 FaissIndex = fileCollectionFaiss.FaissIndex,
                 UserId = fileCollectionFaiss.UserId,
                 FaissJson = fileCollectionFaiss.FaissJson,
+                DateCreated = fileCollectionFaiss.DateCreated,
+                DateModified = fileCollectionFaiss.DateModified,
             };
             if (fileCollectionFaiss.Id is not null)
             {

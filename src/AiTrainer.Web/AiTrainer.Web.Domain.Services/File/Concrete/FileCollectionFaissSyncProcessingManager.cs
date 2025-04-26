@@ -1,10 +1,12 @@
-﻿using AiTrainer.Web.Common.Exceptions;
+﻿using AiTrainer.Web.Common.Configuration;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Common.Helpers;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
@@ -16,8 +18,6 @@ using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using AiTrainer.Web.Domain.Models.Extensions;
-using AiTrainer.Web.Common.Configuration;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
@@ -50,7 +50,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         ILogger<FileCollectionFaissSyncProcessingManager> logger,
         IFileDocumentRepository fileDocumentRepository,
         IFileCollectionFaissRepository fileCollectionFaissRepository,
-        IOptionsSnapshot<FaissSyncRetrySettingsConfiguration> retrySettings,
+        IOptions<FaissSyncRetrySettingsConfiguration> retrySettings,
         IFileCollectionFaissRemoveDocumentsProcessingManager fileCollectionFaissRemoveDocumentsProcessingManager,
         IHttpContextAccessor? httpContextAccessor = null
     )
@@ -62,8 +62,9 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         _retrySettings = retrySettings.Value;
         _fileDocumentRepository = fileDocumentRepository;
         _fileCollectionFaissRepository = fileCollectionFaissRepository;
-        _fileCollectionFaissRemoveDocumentsProcessingManager = fileCollectionFaissRemoveDocumentsProcessingManager;
-        _httpContextAccessor = httpContextAccessor;        
+        _fileCollectionFaissRemoveDocumentsProcessingManager =
+            fileCollectionFaissRemoveDocumentsProcessingManager;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task SyncUserFileCollectionFaissStore(
@@ -112,13 +113,14 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
 
         var timeTakenForRetryOp = await OperationTimerUtils.TimeAsync(
             () =>
-                retryPipeline.ExecuteAsync(async ct =>
-                    await SyncUserCollectionFaissStoreInnerMethod(
-                        currentUser,
-                        collectionId,
-                        correlationId,
-                        ct
-                    ),
+                retryPipeline.ExecuteAsync(
+                    async ct =>
+                        await SyncUserCollectionFaissStoreInnerMethod(
+                            currentUser,
+                            collectionId,
+                            correlationId,
+                            ct
+                        ),
                     cancellationToken
                 )
         );
@@ -146,14 +148,21 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
     )
     {
         SyncAttemptCount++;
-        
-        var allExistingDocuments = await EntityFrameworkUtils.TryDbOperation(
-            () =>
-                _fileDocumentRepository.GetManyDocumentsByCollectionIdAndUserId((Guid)currentUser.Id!, collectionId, nameof(FileDocumentEntity.MetaData)),
-            _logger
-        ) ?? throw new ApiException("Failed to retrieve file documents");
 
-        var unSyncedDocuments = allExistingDocuments.Data.FastArrayWhere(x => x.FaissSynced == false).ToArray();
+        var allExistingDocuments =
+            await EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    _fileDocumentRepository.GetManyDocumentsByCollectionIdAndUserId(
+                        (Guid)currentUser.Id!,
+                        collectionId,
+                        nameof(FileDocumentEntity.MetaData)
+                    ),
+                _logger
+            ) ?? throw new ApiException("Failed to retrieve file documents");
+
+        var unSyncedDocuments = allExistingDocuments
+            .Data.FastArrayWhere(x => x.FaissSynced == false)
+            .ToArray();
         if (unSyncedDocuments.Length == 0)
         {
             _logger.LogInformation(
@@ -171,10 +180,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
                 ),
             _logger
         );
-        var allUnsyncedDocumentTextJob = GetTextFromFileDocuments(
-            unSyncedDocuments,
-            correlationId
-        );
+        var allUnsyncedDocumentTextJob = GetTextFromFileDocuments(unSyncedDocuments, correlationId);
         await Task.WhenAll(existingFaissStoreJob, allUnsyncedDocumentTextJob);
 
         var allUnsyncedDocumentText = await allUnsyncedDocumentTextJob;
@@ -184,28 +190,35 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         var faissStoreBeforeUpdate = existingFaissStore.Data;
         if (existingFaissStore.Data is not null)
         {
-            faissStoreBeforeUpdate = await _fileCollectionFaissRemoveDocumentsProcessingManager
-                .RemoveDocumentsFromFaissStoreSafelyAsync(existingFaissStore.Data,
+            faissStoreBeforeUpdate =
+                await _fileCollectionFaissRemoveDocumentsProcessingManager.RemoveDocumentsFromFaissStoreSafelyAsync(
+                    existingFaissStore.Data,
                     allExistingDocuments.Data.FastArraySelect(x => (Guid)x.Id!).ToArray(),
                     cancelToken
                 );
         }
-        
+
         var chunkedDocument =
             await _documentChunkerClient.TryInvokeAsync(
                 new CoreDocumentToChunkInput
                 {
                     DocumentsToChunk = allUnsyncedDocumentText
-                                .FastArraySelect(x => new SingleDocumentToChunk
-                                {
-                                    DocumentText = x.DocText, 
-                                    Metadata = x.Metadata,
-                                    FileDocumentId = x.DocId
-                                }).ToArray()
-                }, cancelToken
+                        .FastArraySelect(x => new SingleDocumentToChunk
+                        {
+                            DocumentText = x.DocText,
+                            Metadata = x.Metadata,
+                            FileDocumentId = x.DocId,
+                        })
+                        .ToArray(),
+                },
+                cancelToken
             ) ?? throw new ApiException("Failed to retrieve file collection faiss store");
 
-        var storeToSave = await GetFaissStoreFromCoreApi(chunkedDocument, faissStoreBeforeUpdate, cancelToken);
+        var storeToSave = await GetFaissStoreFromCoreApi(
+            chunkedDocument,
+            faissStoreBeforeUpdate,
+            cancelToken
+        );
 
         var faissStoreObjectToSave = CreateFileCollectionFaissStoreObject(
             storeToSave,
@@ -213,7 +226,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
             collectionId,
             faissStoreBeforeUpdate
         );
-        
+
         var result = await EntityFrameworkUtils.TryDbOperation(
             () =>
                 _fileCollectionFaissRepository.SaveStoreAndSyncDocs(
@@ -240,18 +253,24 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
     {
         var createStoreInput = new CoreCreateFaissStoreInput
         {
-            Documents = coreChunkedDocument.DocumentChunks
-                .FastArraySelect(x => x.ChunkedTexts.FastArraySelect(y =>
-                {
-                    x.Metadata.TryAdd(nameof(CoreSingleChunkedDocument.FileDocumentId),
-                        x.FileDocumentId.ToString());
-                    
-                    return new CoreCreateFaissStoreInputDocument
+            Documents = coreChunkedDocument
+                .DocumentChunks.FastArraySelect(x =>
+                    x.ChunkedTexts.FastArraySelect(y =>
                     {
-                        PageContent = y,
-                        Metadata = x.Metadata,
-                    };
-                })).SelectMany(x => x).ToArray()
+                        x.Metadata.TryAdd(
+                            nameof(CoreSingleChunkedDocument.FileDocumentId),
+                            x.FileDocumentId.ToString()
+                        );
+
+                        return new CoreCreateFaissStoreInputDocument
+                        {
+                            PageContent = y,
+                            Metadata = x.Metadata,
+                        };
+                    })
+                )
+                .SelectMany(x => x)
+                .ToArray(),
         };
 
         var storeToSave = existingFaissStore is null
@@ -270,37 +289,67 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         {
             throw new ApiException("Failed to build file collection faiss store in core");
         }
-        
+
         return storeToSave;
     }
 
-    private async Task<IReadOnlyCollection<(string DocText, Guid DocId,Dictionary<string, string> Metadata)>> GetTextFromFileDocuments(
-        IReadOnlyCollection<FileDocument> fileDocuments,
-        Guid? correlationId
-    )
+    private async Task<
+        IReadOnlyCollection<(string DocText, Guid DocId, Dictionary<string, string> Metadata)>
+    > GetTextFromFileDocuments(IReadOnlyCollection<FileDocument> fileDocuments, Guid? correlationId)
     {
         _logger.LogInformation(
             "Getting text from the file documents for correlationId {CorrelationId}",
             correlationId
         );
 
-        var getTextJobList = new List<Task<IReadOnlyCollection<(string DocText, Guid DocId, Dictionary<string, string> Metadata)>>>();
+        var getTextJobList =
+            new List<
+                Task<
+                    IReadOnlyCollection<(
+                        string DocText,
+                        Guid DocId,
+                        Dictionary<string, string> Metadata
+                    )>
+                >
+            >();
 
         foreach (var doc in fileDocuments)
         {
             if (doc.FileType == FileTypeEnum.Pdf)
             {
-                async Task<IReadOnlyCollection<(string DocText, Guid DocId, Dictionary<string, string> Metadata)>> GetFileTextAndMeta()
+                async Task<
+                    IReadOnlyCollection<(
+                        string DocText,
+                        Guid DocId,
+                        Dictionary<string, string> Metadata
+                    )>
+                > GetFileTextAndMeta()
                 {
-                    var fileResult = await Task.Run(() => FileHelper.GetTextFromPdfFile(doc.FileData));
-                    return fileResult.FastArraySelect(x => (x, (Guid)doc.Id!, doc.ToMetaDictionary())).ToArray();
+                    var fileResult = await Task.Run(
+                        () => FileHelper.GetTextFromPdfFile(doc.FileData)
+                    );
+                    return fileResult
+                        .FastArraySelect(x => (x, (Guid)doc.Id!, doc.ToMetaDictionary()))
+                        .ToArray();
                 }
                 getTextJobList.Add(GetFileTextAndMeta());
             }
             else if (doc.FileType == FileTypeEnum.Text)
             {
-                async Task<IReadOnlyCollection<(string DocText, Guid DocId, Dictionary<string, string> Metadata)>> GetTextFunc() =>
-                    [(await Task.Run(() => FileHelper.GetTextFromTextFile(doc.FileData)), (Guid)doc.Id!, doc.ToMetaDictionary())];
+                async Task<
+                    IReadOnlyCollection<(
+                        string DocText,
+                        Guid DocId,
+                        Dictionary<string, string> Metadata
+                    )>
+                > GetTextFunc() =>
+                    [
+                        (
+                            await Task.Run(() => FileHelper.GetTextFromTextFile(doc.FileData)),
+                            (Guid)doc.Id!,
+                            doc.ToMetaDictionary()
+                        ),
+                    ];
                 getTextJobList.Add(GetTextFunc());
             }
         }
@@ -322,6 +371,8 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
             FaissIndex = storeToSave.IndexFile,
             UserId = userId,
             FaissJson = storeToSave.JsonDocStore,
+            DateCreated = existingEntry?.DateCreated ?? DateTime.UtcNow,
+            DateModified = existingEntry?.DateModified ?? DateTime.UtcNow,
         };
 
         if (existingEntry is not null)

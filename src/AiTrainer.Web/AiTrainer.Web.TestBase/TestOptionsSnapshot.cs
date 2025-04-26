@@ -1,13 +1,19 @@
 ﻿using Microsoft.Extensions.Options;
-using Moq;
 
 namespace AiTrainer.Web.TestBase
 {
-    public class TestOptionsSnapshot<T>: Mock<IOptionsSnapshot<T>> where T : class
+    public class TestOptions<T> : IOptionsSnapshot<T>, IOptions<T>
+        where T : class
     {
-        public TestOptionsSnapshot(T optionsVal)
+        public T Value { get; set; }
+
+        public TestOptions(T value)
         {
-            Setup(x => x.Value).Returns(optionsVal);
+            Value = value;
+        }
+        public T Get(string? stringKey)
+        {
+            return Value;
         }
     }
 }

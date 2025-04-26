@@ -43,7 +43,7 @@ public class CoreClientSimilaritySearchTests: CoreClientTestBase
             $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch");
         var service = new CoreClientSimilaritySearch(
             new NullLogger<CoreClientSimilaritySearch>(),
-            new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
+            new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
             httpClient,
             _mockHttpContextAccessor.Object
         );

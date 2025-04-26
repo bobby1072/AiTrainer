@@ -11,15 +11,17 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.CoreClient.Clients.Concrete;
 
-internal class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse>
+internal class CoreClientFormattedChatQuery
+    : ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse>
 {
     private readonly ILogger<CoreClientFormattedChatQuery> _logger;
     private readonly AiTrainerCoreConfiguration _aiTrainerCoreConfiguration;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly HttpClient _httpClient;
+
     public CoreClientFormattedChatQuery(
         ILogger<CoreClientFormattedChatQuery> logger,
-        IOptionsSnapshot<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
+        IOptions<AiTrainerCoreConfiguration> aiTrainerCoreConfig,
         HttpClient httpClient,
         IHttpContextAccessor httpContextAccessor
     )
@@ -30,25 +32,29 @@ internal class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryBuild
         _httpClient = httpClient;
     }
 
-    public async Task<CoreFormattedChatQueryResponse?> TryInvokeAsync(FormattedChatQueryBuilder request,
-        CancellationToken cancellationToken = default)
+    public async Task<CoreFormattedChatQueryResponse?> TryInvokeAsync(
+        FormattedChatQueryBuilder request,
+        CancellationToken cancellationToken = default
+    )
     {
         try
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
-            
 
             using var httpResult = await _httpClient.SendWithRetry(
                 requestMessage =>
                 {
                     requestMessage.Method = HttpMethod.Post;
-                    requestMessage.RequestUri =
-                        new Uri($"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/openairouter/formattedchatquery");
+                    requestMessage.RequestUri = new Uri(
+                        $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/openairouter/formattedchatquery"
+                    );
                     requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
                     requestMessage.Headers.AddCorrelationIdHeader(correlationId);
 
-                    requestMessage.Content = CoreClientHttpExtensions.CreateApplicationJson(request.ToCoreInput(),
-                        ApiConstants.DefaultCamelCaseSerializerOptions);
+                    requestMessage.Content = CoreClientHttpExtensions.CreateApplicationJson(
+                        request.ToCoreInput(),
+                        ApiConstants.DefaultCamelCaseSerializerOptions
+                    );
                 },
                 _aiTrainerCoreConfiguration,
                 _logger,
@@ -57,18 +63,21 @@ internal class CoreClientFormattedChatQuery: ICoreClient<FormattedChatQueryBuild
                 cancellationToken
             );
 
-            var finalResult = await httpResult.Content
-                .TryDeserializeJson<CoreResponse<CoreFormattedChatQueryResponse>>(
-                    ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
+            var finalResult = await httpResult.Content.TryDeserializeJson<
+                CoreResponse<CoreFormattedChatQueryResponse>
+            >(ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
 
             return finalResult?.Data;
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occured in {OpName} with message {Message}",
+            _logger.LogError(
+                ex,
+                "Exception occured in {OpName} with message {Message}",
                 nameof(CoreClientFormattedChatQuery),
-                ex.Message);
-            
+                ex.Message
+            );
+
             return null;
         }
     }

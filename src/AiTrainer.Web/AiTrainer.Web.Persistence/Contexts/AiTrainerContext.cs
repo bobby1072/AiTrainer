@@ -50,6 +50,11 @@ namespace AiTrainer.Web.Persistence.Contexts
                 ent.HasOne<FileCollectionEntity>()
                     .WithOne(x => x.FaissStore)
                     .HasForeignKey<FileCollectionFaissEntity>(x => x.CollectionId);
+                
+                ent.Property(x => x.DateCreated)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+                ent.Property(x => x.DateModified)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
             });
             modelBuilder.Entity<FileDocumentEntity>(entity =>
             {
@@ -65,7 +70,7 @@ namespace AiTrainer.Web.Persistence.Contexts
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            await UpdateDatesOnNewlyAddedOrModified();
+            await UpdateDatesOnNewlyAddedOrModifiedAsync();
             return await base.SaveChangesAsync(cancellationToken);
         }
 
@@ -74,23 +79,23 @@ namespace AiTrainer.Web.Persistence.Contexts
             CancellationToken cancellationToken = default
         )
         {
-            await UpdateDatesOnNewlyAddedOrModified();
+            await UpdateDatesOnNewlyAddedOrModifiedAsync();
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
-            UpdateDatesOnNewlyAddedOrModified().GetAwaiter().GetResult();
+            UpdateDatesOnNewlyAddedOrModified();
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
         public override int SaveChanges()
         {
-            UpdateDatesOnNewlyAddedOrModified().GetAwaiter().GetResult();
+            UpdateDatesOnNewlyAddedOrModified();
             return base.SaveChanges();
         }
 
-        private async Task UpdateDatesOnNewlyAddedOrModified()
+        private async Task UpdateDatesOnNewlyAddedOrModifiedAsync()
         {
             var currentTime = DateTime.UtcNow;
             var updatingEntries = ChangeTracker
@@ -102,7 +107,31 @@ namespace AiTrainer.Web.Persistence.Contexts
 
             foreach (var entry in updatingEntries)
             {
-                if (entry.Entity is UserEntity foundUser)
+                if (entry.Entity is FileCollectionFaissEntity foundFaissCollection)
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                            foundFaissCollection,
+                            [
+                                nameof(FileCollectionEntity.DateCreated),
+                                nameof(FileCollectionEntity.DateModified),
+                            ],
+                            currentTime
+                        );
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                            foundFaissCollection,
+                            [
+                                nameof(FileCollectionEntity.DateModified),
+                            ],
+                            currentTime
+                        );
+                    }
+                }
+                else if (entry.Entity is UserEntity foundUser)
                 {
                     if (entry.State == EntityState.Added)
                     {
@@ -117,7 +146,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                             currentTime
                         );
                     }
-                    else
+                    else if (entry.State == EntityState.Modified)
                     {
                         UpdateEntityDatesToToday<UserEntity, Guid, User>(
                             foundUser,
@@ -139,7 +168,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                             currentTime
                         );
                     }
-                    else
+                    else if (entry.State == EntityState.Modified)
                     {
                         UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(
                             foundCollection,
@@ -160,7 +189,100 @@ namespace AiTrainer.Web.Persistence.Contexts
                 }
             }
         }
+        private void UpdateDatesOnNewlyAddedOrModified()
+        {
+            var currentTime = DateTime.UtcNow;
+            var updatingEntries = ChangeTracker
+                .Entries()
+                .FastArrayWhere(e =>
+                    e.State == EntityState.Added || e.State == EntityState.Modified
+                )
+                .ToArray();
 
+            foreach (var entry in updatingEntries)
+            {
+                if (entry.Entity is FileCollectionFaissEntity foundFaissCollection)
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                            foundFaissCollection,
+                            [
+                                nameof(FileCollectionEntity.DateCreated),
+                                nameof(FileCollectionEntity.DateModified),
+                            ],
+                            currentTime
+                        );
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                            foundFaissCollection,
+                            [
+                                nameof(FileCollectionEntity.DateModified),
+                            ],
+                            currentTime
+                        );
+                    }
+                }
+                else if (entry.Entity is UserEntity foundUser)
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        var globalAutoSync = new GlobalFileCollectionConfig
+                        {
+                            UserId = foundUser.Id,
+                        };
+                        GlobalFileCollectionConfigs.Add(globalAutoSync.ToEntity());
+                        UpdateEntityDatesToToday<UserEntity, Guid, User>(
+                            foundUser,
+                            [nameof(UserEntity.DateCreated), nameof(UserEntity.DateModified)],
+                            currentTime
+                        );
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        UpdateEntityDatesToToday<UserEntity, Guid, User>(
+                            foundUser,
+                            [nameof(UserEntity.DateModified)],
+                            currentTime
+                        );
+                    }
+                }
+                else if (entry.Entity is FileCollectionEntity foundCollection)
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(
+                            foundCollection,
+                            [
+                                nameof(FileCollectionEntity.DateCreated),
+                                nameof(FileCollectionEntity.DateModified),
+                            ],
+                            currentTime
+                        );
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        UpdateEntityDatesToToday<FileCollectionEntity, Guid, FileCollection>(
+                            foundCollection,
+                            [nameof(FileCollectionEntity.DateCreated)],
+                            currentTime
+                        );
+                    }
+                }
+                else if (
+                    entry is { Entity: FileDocumentEntity foundDocument, State: EntityState.Added }
+                )
+                {
+                    UpdateEntityDatesToToday<FileDocumentEntity, Guid, FileDocument>(
+                        foundDocument,
+                        [nameof(FileDocumentEntity.DateCreated)],
+                        currentTime
+                    );
+                }
+            }
+        }
         private static void UpdateEntityDatesToToday<TEnt, TId, TRuntime>(
             TEnt ent,
             IReadOnlyCollection<string> propertyNames,

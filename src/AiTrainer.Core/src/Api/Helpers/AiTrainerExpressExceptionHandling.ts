@@ -20,7 +20,7 @@ export default abstract class AiTrainerExpressExceptionHandling {
         return;
       }
 
-      res.status(200).json({
+      res.status(500).json({
         exceptionMessage: defaultErrorMessage,
         isSuccess: false,
       } as UnsuccessfulRouteResponse);

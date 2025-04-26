@@ -42,7 +42,7 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
             $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore");
         var service = new CoreClientUpdateFaissStore(
             new NullLogger<CoreClientUpdateFaissStore>(),
-            new TestOptionsSnapshot<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration).Object,
+            new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
             httpClient,
             _mockHttpContextAccessor.Object
         );
