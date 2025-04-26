@@ -5,4 +5,5 @@ export type FileCollectionSaveInput = {
   collectionDescription?: string | null;
   dateCreated?: string | null;
   dateModified?: string | null;
+  autoFaissSync?: boolean | null;
 };

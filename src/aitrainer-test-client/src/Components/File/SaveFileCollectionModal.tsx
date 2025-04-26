@@ -3,7 +3,9 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  FormControlLabel,
   Grid2,
+  Switch,
   TextField,
 } from "@mui/material";
 import { useSaveFileCollectionMutation } from "../../Hooks/useSaveFileCollectionMutation";
@@ -19,6 +21,7 @@ import { FileCollectionSaveInput } from "../../Models/FileCollectionSaveInput";
 const fileCollectionFormSchema = z.object({
   collectionName: z.string().max(100).nonempty("Collection name is required"),
   collectionDescription: z.string().max(500).optional().nullable(),
+  autoFaissSync: z.boolean(),
 });
 
 type FileCollectionFormSchemaType = z.infer<typeof fileCollectionFormSchema>;
@@ -29,6 +32,9 @@ const mapToDefaultValues = (
   return {
     collectionName: fileCollInput.collectionName,
     collectionDescription: fileCollInput.collectionDescription,
+    autoFaissSync: fileCollInput.autoFaissSync
+      ? fileCollInput.autoFaissSync
+      : false,
   };
 };
 
@@ -40,6 +46,7 @@ export const SaveFileCollectionModal: React.FC<{
     handleSubmit,
     register,
     reset: formReset,
+    watch,
     formState: { errors: formErrors },
   } = useForm<FileCollectionFormSchemaType>({
     resolver: zodResolver(fileCollectionFormSchema),
@@ -55,6 +62,7 @@ export const SaveFileCollectionModal: React.FC<{
     }
   }, [data, closeModal, enqueueSnackbar]);
 
+  const { autoFaissSync } = watch();
   return (
     <Dialog open onClose={() => !isLoading && closeModal()}>
       <form
@@ -69,6 +77,7 @@ export const SaveFileCollectionModal: React.FC<{
               id: fileCollInput.id,
               dateCreated: fileCollInput.dateCreated,
               dateModified: fileCollInput.dateModified,
+              autoFaissSync: formVals.autoFaissSync,
             },
           });
           formReset();
@@ -110,6 +119,18 @@ export const SaveFileCollectionModal: React.FC<{
                   formErrors.collectionDescription
                     ? formErrors.collectionDescription.message
                     : undefined
+                }
+              />
+            </Grid2>
+            <Grid2>
+              <FormControlLabel
+                label="Auto faiss sync"
+                control={
+                  <Switch
+                    {...register("autoFaissSync", { required: true })}
+                    checked={autoFaissSync}
+                    defaultChecked={autoFaissSync}
+                  />
                 }
               />
             </Grid2>

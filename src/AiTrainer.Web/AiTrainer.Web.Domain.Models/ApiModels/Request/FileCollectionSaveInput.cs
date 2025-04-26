@@ -10,7 +10,7 @@ namespace AiTrainer.Web.Domain.Models.ApiModels.Request
         public Guid? ParentId { get; init; }
         [JsonPropertyName("collectionName")]
         public required string CollectionName { get; init; }
-        [JsonPropertyName("AutoFaissSync")]
+        [JsonPropertyName("autoFaissSync")]
         public bool? AutoFaissSync { get; init; }
         [JsonPropertyName("collectionDescription")]
         public string? CollectionDescription { get; set; }

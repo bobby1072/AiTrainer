@@ -41,7 +41,9 @@ namespace AiTrainer.Web.Persistence.Contexts
             modelBuilder.Entity<GlobalFileCollectionConfigEntity>(ent =>
             {
                 ent.HasOne<UserEntity>()
-                    .WithOne(x => x.GlobalFileCollectionConfig);
+                    .WithOne(x => x.GlobalFileCollectionConfig)
+                    .HasForeignKey<GlobalFileCollectionConfigEntity>(x => x.UserId);
+                    
             });
             modelBuilder.Entity<FileCollectionFaissEntity>(ent =>
             {
