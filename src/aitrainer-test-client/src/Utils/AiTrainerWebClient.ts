@@ -11,6 +11,7 @@ import { FileCollectionSaveInput } from "../Models/FileCollectionSaveInput";
 import { FileCollection } from "../Models/FileCollection";
 import { FileDocumentPartial } from "../Models/FileDocument";
 import { ChatFormattedQueryInput } from "../Models/ChatFormattedQueryInput";
+import { SingleDocumentChunk } from "../Models/SingleDocumentChunk";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl =
@@ -53,7 +54,59 @@ export default abstract class AiTrainerWebClient {
 
     return response;
   }
+  public static async SyncFaissStore(
+    accessToken: string,
+    collectionId?: string | null
+  ): Promise<boolean> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcomeBase>(
+        "Api/Faiss/Sync",
+        { collectionId },
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
+      )
+      .catch(AiTrainerWebClient.HandleError)
+      .then((x) => {
+        AiTrainerWebClient.HandleThen(x);
+        return x.data.isSuccess;
+      });
 
+    if (!response) {
+      throw new Error(ErrorMessages.ErrorHasOccurred);
+    }
+
+    return response;
+  }
+  public static async SimilaritySearch(
+    input: {
+      question: string;
+      documentsToReturn: number;
+      collectionId?: string | null;
+    },
+    accessToken: string
+  ): Promise<SingleDocumentChunk[]> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcome<SingleDocumentChunk[]>>(
+        "Api/Faiss/SimilaritySearch",
+        input,
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
+      )
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
+
+    if (!response) {
+      throw new Error(ErrorMessages.ErrorHasOccurred);
+    }
+
+    return response;
+  }
   public static async SaveFileDocument(
     accessToken: string,
     uploadFormData: FormData
