@@ -9,6 +9,8 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
+using BT.Common.Http.Extensions;
+using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -45,44 +47,33 @@ internal class CoreClientUpdateFaissStore
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
-            using var httpResult = await _httpClient.SendWithRetry(
-                requestMessage =>
+            var fileContent = new ByteArrayContent(input.FileInput);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                MediaTypeNames.Application.Octet
+            );
+            
+            var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
+
+            var result = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
+                .AppendPathSegment("api")
+                .AppendPathSegment("faissrouter")
+                .AppendPathSegment("updatestore")
+                .WithCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+                .WithCorrelationIdHeader(correlationId?.ToString())
+                .WithMultipartFormData(x =>
                 {
-                    requestMessage.Method = HttpMethod.Post;
-                    requestMessage.RequestUri = new Uri(
-                        $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore"
-                    );
-                    requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-                    requestMessage.Headers.AddCorrelationIdHeader(
-                        _httpContextAccessor.HttpContext.GetCorrelationId()
-                    );
-
-                    var fileContent = new ByteArrayContent(input.FileInput);
-                    fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
-                        MediaTypeNames.Application.Octet
-                    );
-
-                    var formContent = new MultipartFormDataContent();
-                    formContent.Add(fileContent, "file", "docStore.index");
-                    formContent.Add(
+                    x.Add(fileContent, "file", "docStore.index");
+                    x.Add(
                         CoreClientHttpExtensions.CreateApplicationJson(
                             input,
                             ApiConstants.DefaultCamelCaseSerializerOptions
                         ),
                         "metadata"
                     );
-                    requestMessage.Content = formContent;
-                },
-                _aiTrainerCoreConfiguration,
-                _logger,
-                nameof(CoreClientUpdateFaissStore),
-                correlationId?.ToString(),
-                cancellation
-            );
-
-            var result = await httpResult.Content.TryDeserializeJson<
-                CoreResponse<CoreFaissStoreResponse>
-            >(ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
+                })
+                .PostJsonAsync<CoreResponse<CoreFaissStoreResponse>>(_httpClient,
+                    ApiConstants.DefaultCamelCaseSerializerOptions, ct), cancellation);
+            
 
             return result?.Data;
         }
