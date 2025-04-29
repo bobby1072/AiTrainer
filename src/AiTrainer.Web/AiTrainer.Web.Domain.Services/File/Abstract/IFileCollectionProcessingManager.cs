@@ -1,5 +1,6 @@
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Models.Views;
 using AiTrainer.Web.Domain.Services.Abstract;
 
 namespace AiTrainer.Web.Domain.Services.File.Abstract

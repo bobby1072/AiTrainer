@@ -34,8 +34,8 @@ export default abstract class Chunker {
 
       return jobs.map((x, index) => ({
         chunkedTexts: x,
-        fileDocumentId: documentsToChunk[index].fileDocumentId,
-        metadata: documentsToChunk[index].metadata,
+        fileDocumentId: documentsToChunk[index]!.fileDocumentId,
+        metadata: documentsToChunk[index]!.metadata,
       }));
     } catch (e) {
       throw new ApiException(ExceptionConstants.ChunkerError, e as Error);

@@ -13,6 +13,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using AiTrainer.Web.Domain.Models.Views;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {

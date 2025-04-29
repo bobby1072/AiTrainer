@@ -1,6 +1,6 @@
 ﻿using AiTrainer.Web.Domain.Models.Partials;
 
-namespace AiTrainer.Web.Domain.Models
+namespace AiTrainer.Web.Domain.Models.Views
 {
     public record FlatFileDocumentPartialCollectionView
     {

@@ -60,7 +60,10 @@ export default class InMemoryAiTrainerFaissStore extends FaissStore {
     });
   }
 
-  public static async load(directory: string, embeddings: EmbeddingsInterface) {
+  public static override async load(
+    directory: string,
+    embeddings: EmbeddingsInterface
+  ) {
     const [docstoreFiles, mapping] = JSON.parse(
       fs.readFileSync(path.join(directory, "docstore.json"), "utf8").toString()
     );

@@ -1,7 +1,9 @@
-﻿using AiTrainer.Web.Api.Attributes;
+﻿using System.IO.Compression;
+using AiTrainer.Web.Api.Attributes;
 using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Models.Views;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using Microsoft.AspNetCore.Mvc;
@@ -25,9 +27,9 @@ namespace AiTrainer.Web.Api.Controllers
 
             await using var memoryStream = new MemoryStream();
             using (
-                var archive = new System.IO.Compression.ZipArchive(
+                var archive = new ZipArchive(
                     memoryStream,
-                    System.IO.Compression.ZipArchiveMode.Create,
+                    ZipArchiveMode.Create,
                     true
                 )
             )

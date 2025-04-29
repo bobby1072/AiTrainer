@@ -38,8 +38,8 @@ export default class Guid {
     const randomBytes = new Uint8Array(16);
     crypto.getRandomValues(randomBytes);
 
-    randomBytes[6] = (randomBytes[6] & 0x0f) | 0x40;
-    randomBytes[8] = (randomBytes[8] & 0x3f) | 0x80;
+    randomBytes[6] = (randomBytes[6]! & 0x0f) | 0x40;
+    randomBytes[8] = (randomBytes[8]! & 0x3f) | 0x80;
     const finalGuid = [...randomBytes]
       .map((byte, i) => {
         const hex = byte.toString(16).padStart(2, "0");
