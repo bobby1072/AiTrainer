@@ -9,6 +9,8 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
+using BT.Common.Http.Extensions;
+using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -44,47 +46,36 @@ public class CoreClientSimilaritySearch
         try
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            
+            var fileContent = new ByteArrayContent(input.FileInput);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                MediaTypeNames.Application.Octet
+            );
 
-            using var httpResult = await _httpClient.SendWithRetry(
-                requestMessage =>
+            var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
+            
+            var response = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
+                .AppendPathSegment("api")
+                .AppendPathSegment("faissrouter")
+                .AppendPathSegment("similaritysearch")
+                .WithCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+                .WithCorrelationIdHeader(correlationId?.ToString())
+                .WithMultipartFormData(x =>
                 {
-                    requestMessage.Method = HttpMethod.Post;
-                    requestMessage.RequestUri = new Uri(
-                        $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch"
-                    );
-                    requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-                    requestMessage.Headers.AddCorrelationIdHeader(
-                        _httpContextAccessor.HttpContext.GetCorrelationId()
-                    );
-
-                    var fileContent = new ByteArrayContent(input.FileInput);
-                    fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(
-                        MediaTypeNames.Application.Octet
-                    );
-
-                    var formContent = new MultipartFormDataContent();
-                    formContent.Add(fileContent, "file", "docStore.index");
-                    formContent.Add(
+                    x.Add(fileContent, "file", "docStore.index");
+                    x.Add(
                         CoreClientHttpExtensions.CreateApplicationJson(
                             input,
                             ApiConstants.DefaultCamelCaseSerializerOptions
                         ),
                         "metadata"
                     );
-                    requestMessage.Content = formContent;
-                },
-                _aiTrainerCoreConfiguration,
-                _logger,
-                nameof(CoreClientSimilaritySearch),
-                correlationId?.ToString(),
-                cancellation
-            );
+                })
+                .PostJsonAsync<CoreResponse<CoreSimilaritySearchResponse>>(_httpClient,
+                    ApiConstants.DefaultCamelCaseSerializerOptions, ct), cancellation);
+            
 
-            var result = await httpResult.Content.TryDeserializeJson<
-                CoreResponse<CoreSimilaritySearchResponse>
-            >(ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
-
-            return result?.Data;
+            return response?.Data;
         }
         catch (Exception ex)
         {

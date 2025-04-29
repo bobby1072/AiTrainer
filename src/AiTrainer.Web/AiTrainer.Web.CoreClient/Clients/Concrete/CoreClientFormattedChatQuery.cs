@@ -5,6 +5,8 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
+using BT.Common.Http.Extensions;
+using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -41,33 +43,19 @@ internal class CoreClientFormattedChatQuery
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
-            using var httpResult = await _httpClient.SendWithRetry(
-                requestMessage =>
-                {
-                    requestMessage.Method = HttpMethod.Post;
-                    requestMessage.RequestUri = new Uri(
-                        $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/openairouter/formattedchatquery"
-                    );
-                    requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-                    requestMessage.Headers.AddCorrelationIdHeader(correlationId);
+            var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
+            
+            var response = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
+                .AppendPathSegment("api")
+                .AppendPathSegment("openairouter")
+                .AppendPathSegment("formattedchatquery")
+                .WithCorrelationIdHeader(correlationId.ToString())
+                .WithCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+                .WithApplicationJson(request.ToCoreInput(), ApiConstants.DefaultCamelCaseSerializerOptions)
+                .PostJsonAsync<CoreResponse<CoreFormattedChatQueryResponse>>(_httpClient,
+                    ApiConstants.DefaultCamelCaseSerializerOptions, ct), cancellationToken);
 
-                    requestMessage.Content = CoreClientHttpExtensions.CreateApplicationJson(
-                        request.ToCoreInput(),
-                        ApiConstants.DefaultCamelCaseSerializerOptions
-                    );
-                },
-                _aiTrainerCoreConfiguration,
-                _logger,
-                nameof(CoreClientFormattedChatQuery),
-                correlationId?.ToString(),
-                cancellationToken
-            );
-
-            var finalResult = await httpResult.Content.TryDeserializeJson<
-                CoreResponse<CoreFormattedChatQueryResponse>
-            >(ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
-
-            return finalResult?.Data;
+            return response?.Data;
         }
         catch (Exception ex)
         {

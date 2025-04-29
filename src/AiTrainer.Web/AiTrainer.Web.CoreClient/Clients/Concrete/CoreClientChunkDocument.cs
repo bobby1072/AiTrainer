@@ -5,6 +5,8 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
+using BT.Common.Http.Extensions;
+using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -41,33 +43,20 @@ internal class CoreClientChunkDocument
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
-            using var httpResult = await _httpClient.SendWithRetry(
-                requestMessage =>
-                {
-                    requestMessage.Method = HttpMethod.Post;
-                    requestMessage.RequestUri = new Uri(
-                        $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/chunkingrouter/chunkdocument"
-                    );
-                    requestMessage.Headers.AddApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey);
-                    requestMessage.Headers.AddCorrelationIdHeader(correlationId);
+            var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
+            
+            var response = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
+                .AppendPathSegment("api")
+                .AppendPathSegment("chunkingrouter")
+                .AppendPathSegment("chunkdocument")
+                .WithCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
+                .WithCorrelationIdHeader(correlationId?.ToString())
+                .WithApplicationJson(param, ApiConstants.DefaultCamelCaseSerializerOptions)
+                .PostJsonAsync<CoreResponse<CoreChunkedDocumentResponse>>(_httpClient,
+                    ApiConstants.DefaultCamelCaseSerializerOptions, ct), cancellationToken);
+            
 
-                    requestMessage.Content = CoreClientHttpExtensions.CreateApplicationJson(
-                        param,
-                        ApiConstants.DefaultCamelCaseSerializerOptions
-                    );
-                },
-                _aiTrainerCoreConfiguration,
-                _logger,
-                nameof(CoreClientChunkDocument),
-                correlationId?.ToString(),
-                cancellationToken
-            );
-
-            var finalResult = await httpResult.Content.TryDeserializeJson<
-                CoreResponse<CoreChunkedDocumentResponse>
-            >(ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
-
-            return finalResult?.Data;
+            return response?.Data;
         }
         catch (Exception ex)
         {
