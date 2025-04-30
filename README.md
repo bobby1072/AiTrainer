@@ -14,7 +14,7 @@
 
 ## Setup
 
-1. In the repo run:
+1. Open a new terminal:
 
    ```
    dotnet dev-certs https -ep .aspnet/https/aitrainer.pfx -p password -t -v
