@@ -1,8 +1,20 @@
 # ATrainer
 
+## Prerequisites
+
+#### - Docker desktop
+
+#### - NodeJS
+
+#### - NPM
+
+#### - .NET 9.0
+
+#### - Some .net ide (such as Visual Studio or Jestbrains Rider)
+
 ## Setup
 
-1. In the repo run:
+1. Open a new terminal:
 
    ```
    dotnet dev-certs https -ep .aspnet/https/aitrainer.pfx -p password -t -v
@@ -33,6 +45,10 @@
 
    #### You can use flags:
 
-   ##### -webDebug (runs core api in container and you need to manually run the web api)
+   ##### - webDebug (runs core api in container and you need to manually run the web api)
 
-   ##### -debug (only runs db and identity in container you need to manually run web and core apis)
+   ##### - debug (only runs db and identity in container you need to manually run web and core apis)
+
+## Extra info
+
+#### - in the AiTrainer.Core api you can use command 'npm run start:dev' to not have to keep rebuilding and compiling the project
