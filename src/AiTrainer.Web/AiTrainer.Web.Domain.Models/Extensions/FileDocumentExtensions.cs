@@ -72,9 +72,9 @@ namespace AiTrainer.Web.Domain.Models.Extensions
         {
             var baseDictionary = document.MetaData.ToDictionary();
 
-            baseDictionary.Add("File name", document.FileName);
-            baseDictionary.Add("File description", document.FileName);
-            baseDictionary.Add("File type", document.FileType.ToString());
+            baseDictionary.Add("FileName", document.FileName);
+            baseDictionary.Add("FileDescription", document.FileName);
+            baseDictionary.Add("FileType", document.FileType.ToString());
 
             return baseDictionary;
         }

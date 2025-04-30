@@ -14,6 +14,7 @@ export const DocumentToChunkInputSchema = z.object({
       })
     )
     .min(1),
+  chunkingType: z.string().refine((x) => x === "semantic" || x === "recursive"),
 });
 
 export type DocumentToChunkInput = z.infer<typeof DocumentToChunkInputSchema>;

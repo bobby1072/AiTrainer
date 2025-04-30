@@ -44,6 +44,8 @@ internal class CoreClientChunkDocument
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
             var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
+
+            param.CoreDocumentToChunkInputChunkingType = (CoreDocumentToChunkInputChunkingTypeEnum)_aiTrainerCoreConfiguration.DocumentChunkingType;
             
             var response = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
                 .AppendPathSegment("api")
