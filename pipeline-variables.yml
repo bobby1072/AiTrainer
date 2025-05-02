@@ -14,8 +14,11 @@ variables:
   - name: AiTrainerCore.BaseEndpoint
     value: $(pipeline.AiTrainerCore.BaseEndpoint)
 
+  - name: AiTrainerCore.DocumentChunkingType
+    value: $(pipeline.AiTrainerCore.DocumentChunkingType)
+
   - name: AiTrainerWebEndpoint
     value: $(pipeline.AiTrainerWebEndpoint)
 
   - name: OPENAI_API_KEY
-    value: $(pipeline.OPENAI_API_KEY) 
+    value: $(pipeline.OPENAI_API_KEY)
