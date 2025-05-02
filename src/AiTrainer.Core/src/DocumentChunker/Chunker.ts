@@ -29,23 +29,17 @@ export default abstract class Chunker {
     }[]
   > {
     try {
-      const chunks = await Promise.all(
-        chunkit(
-          documentsToChunk.map((x) => ({
-            document_name:
-              (x.metadata?.Title || x.metadata?.FileName) ?? undefined,
-            document_text: x.documentText,
-          })) as any,
-          {
-            maxTokenSize:
-              Number(
-                ApplicationSettings.AllAppSettings.DocumentChunkerChunkSize
-              ) || 512,
-          }
-        )
-      );
+      const chunkitInput = documentsToChunk.map((x) => ({
+        document_name: (x.metadata?.Title || x.metadata?.FileName) ?? undefined,
+        document_text: x.documentText,
+      }));
+      const chunks = await chunkit(chunkitInput, {
+        maxTokenSize:
+          Number(ApplicationSettings.AllAppSettings.DocumentChunkerChunkSize) ||
+          512,
+      });
 
-      return chunks.map((x, index) => ({
+      return chunks.map((x: any, index: number) => ({
         chunkedTexts: x,
         fileDocumentId: documentsToChunk[index]!.fileDocumentId,
         metadata: documentsToChunk[index]!.metadata,

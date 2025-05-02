@@ -17,6 +17,7 @@ filestore/
 .config/
 wwwroot/
 *.sln.DotSettings.user
+src/AiTrainer.Core/models/
 
 .idea/
 /.pnp

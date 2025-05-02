@@ -47,7 +47,7 @@ internal class CoreClientChunkDocument
             
             // WHEN SEMANTIC CHUNKING WORKS WILL ASSIGN FROM CONFIG
             // param.CoreDocumentToChunkInputChunkingType = (CoreDocumentToChunkInputChunkingTypeEnum)_aiTrainerCoreConfiguration.DocumentChunkingType;
-            param.CoreDocumentToChunkInputChunkingType = CoreDocumentToChunkInputChunkingTypeEnum.Recursive;
+            param.CoreDocumentToChunkInputChunkingType = CoreDocumentToChunkInputChunkingTypeEnum.Semantic;
             
             var response = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
                 .AppendPathSegment("api")
