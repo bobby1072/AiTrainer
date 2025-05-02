@@ -47,7 +47,7 @@ public static class FileDocumentMetaDataHelper
                 {
                     continue;
                 }
-                extraData.Add(data.Key, data.Value?.ToString());
+                extraData.Add(data.Key.Replace(" ", "_"), data.Value?.ToString());
             }
         }
         return extraData.Count > 0 ? extraData : null;

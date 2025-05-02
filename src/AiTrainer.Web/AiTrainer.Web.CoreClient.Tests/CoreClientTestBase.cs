@@ -14,7 +14,8 @@ namespace AiTrainer.Web.CoreClient.Tests
             BaseEndpoint = "http://localhost:5000",
             TotalAttempts = 3,
             TimeoutInSeconds = 2,
-            DelayBetweenAttemptsInSeconds = 0
+            DelayBetweenAttemptsInSeconds = 0,
+            DocumentChunkingType = 1
         };
 
         protected TestHttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData, string expectedUrl) where T: class

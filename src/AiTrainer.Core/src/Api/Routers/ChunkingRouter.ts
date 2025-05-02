@@ -15,16 +15,21 @@ export default abstract class ChunkingRouter {
         return await AiTrainerExpressExceptionHandling.HandleAsync(async () => {
           const safeParsedDocumentToChunk =
             DocumentToChunkInputSchema.safeParse(req.body);
-          const actualText = safeParsedDocumentToChunk.data;
-          if (!actualText) {
+          if (!safeParsedDocumentToChunk.success) {
             throw new ApiException(ExceptionConstants.DocumentTextIsRequired);
           }
-          const chunks = await Chunker.Chunk({
+          const actualText = safeParsedDocumentToChunk.data;
+          const chunkingInput = {
             documentsToChunk: actualText.documentsToChunk.map((x) => ({
               ...x,
               fileDocumentId: x.fileDocumentId.ToString(),
             })),
-          });
+          };
+
+          const chunks =
+            safeParsedDocumentToChunk.data.chunkingType === "recursive"
+              ? await Chunker.RecursiveChunk(chunkingInput)
+              : await Chunker.SemanticChunk(chunkingInput);
 
           res.status(200).json({
             data: { documentChunks: chunks },
