@@ -27,14 +27,14 @@ export default abstract class ChunkingRouter {
           };
 
           const chunks =
-            (await safeParsedDocumentToChunk.data.chunkingType) === "recursive"
-              ? Chunker.RecursiveChunk(chunkingInput)
-              : Chunker.SemanticChunk(chunkingInput);
+            safeParsedDocumentToChunk.data.chunkingType === "recursive"
+              ? await Chunker.RecursiveChunk(chunkingInput)
+              : await Chunker.SemanticChunk(chunkingInput);
 
           res.status(200).json({
             data: { documentChunks: chunks },
             isSuccess: true,
-          } as any);
+          } as SuccessfulRouteResponse<ChunkedDocument>);
         }, res);
       }
     );
