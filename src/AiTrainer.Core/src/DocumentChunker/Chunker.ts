@@ -39,11 +39,11 @@ export default abstract class Chunker {
           512,
       });
 
-      return chunks.map((x: any, index: number) => ({
-        chunkedTexts: x,
+      return chunks.map((x, index: number) => ({
+        chunkedTexts: x.text,
         fileDocumentId: documentsToChunk[index]!.fileDocumentId,
         metadata: documentsToChunk[index]!.metadata,
-      }));
+      })) as any;
     } catch (e) {
       throw new ApiException(ExceptionConstants.ChunkerError, e as Error);
     }
