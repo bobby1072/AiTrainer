@@ -30,7 +30,7 @@ export default abstract class Chunker {
   > {
     try {
       const chunkitInput = documentsToChunk.map((x) => ({
-        document_name: (x.metadata?.Title || x.metadata?.FileName) ?? undefined,
+        document_name: x.fileDocumentId,
         document_text: x.documentText,
       }));
       const chunks = await chunkit(chunkitInput, {
@@ -38,12 +38,18 @@ export default abstract class Chunker {
           Number(ApplicationSettings.AllAppSettings.DocumentChunkerChunkSize) ||
           512,
       });
-
-      return chunks.map((x, index: number) => ({
-        chunkedTexts: x.text,
-        fileDocumentId: documentsToChunk[index]!.fileDocumentId,
-        metadata: documentsToChunk[index]!.metadata,
-      })) as any;
+      const finalChunks = [
+        ...new Map(
+          documentsToChunk.map((doc) => [doc.fileDocumentId, doc])
+        ).values(),
+      ].map((x) => ({
+        chunkedTexts: chunks
+          .filter((y) => y.document_name == x.fileDocumentId)
+          .map((y) => y.text),
+        metadata: x.metadata,
+        fileDocumentId: x.fileDocumentId,
+      }));
+      return finalChunks;
     } catch (e) {
       throw new ApiException(ExceptionConstants.ChunkerError, e as Error);
     }
