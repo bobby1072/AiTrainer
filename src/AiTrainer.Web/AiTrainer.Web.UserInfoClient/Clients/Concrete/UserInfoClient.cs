@@ -29,7 +29,7 @@ namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
             HttpClient httpClient
         )
         {
-            _userInfoEndpoint = options.Value.UserInfoEndpoint;
+            _userInfoEndpoint = options.Value.InternalUserInfoEndpoint;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _userInfoClientConfiguration = userInfoClientConfiguration.Value;
