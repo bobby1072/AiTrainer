@@ -6,7 +6,7 @@ namespace AiTrainer.Web.CoreClient.Models.Response
         public bool IsSuccess { get; init; }
         public string? ExceptionMessage { get; init; }
     }
-    internal record CoreResponse<T>: CoreResponse
+    internal sealed record CoreResponse<T>: CoreResponse
     {
         public T? Data { get; init; }
     }

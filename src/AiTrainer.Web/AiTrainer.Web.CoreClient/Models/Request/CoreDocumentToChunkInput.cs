@@ -5,7 +5,7 @@ using BT.Common.Helpers.Extensions;
 
 namespace AiTrainer.Web.CoreClient.Models.Request
 {
-    public record CoreDocumentToChunkInput
+    public sealed record CoreDocumentToChunkInput
     {
         public required IReadOnlyCollection<CoreSingleDocumentToChunk> DocumentsToChunk { get; init; }
 
@@ -14,7 +14,7 @@ namespace AiTrainer.Web.CoreClient.Models.Request
             CoreDocumentToChunkInputChunkingTypeEnum.Recursive;
         public string ChunkingType => CoreDocumentToChunkInputChunkingType.GetDisplayName();
     }
-    public record CoreSingleDocumentToChunk
+    public sealed record CoreSingleDocumentToChunk
     {
         public required string DocumentText { get; init; }
         public required Guid FileDocumentId { get; init; }

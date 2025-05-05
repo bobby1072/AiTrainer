@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.CoreClient.Models.Request;
 
-public record CoreSimilaritySearchInput
+public sealed record CoreSimilaritySearchInput
 {
     [JsonIgnore] public byte[] FileInput { get; init; } = [];
     public required JsonDocument DocStore { get; init; }
