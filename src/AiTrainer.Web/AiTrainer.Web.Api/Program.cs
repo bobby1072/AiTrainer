@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AiTrainer.Web.Api.Auth;
 using AiTrainer.Web.Api.Middlewares;
 using AiTrainer.Web.Api.SignalR.Extensions;
@@ -8,7 +9,6 @@ using AiTrainer.Web.Domain.Services.Extensions;
 using AiTrainer.Web.Persistence.Extensions;
 using AiTrainer.Web.UserInfoClient;
 using Microsoft.AspNetCore.Http.Timeouts;
-using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
@@ -49,11 +49,10 @@ builder
 
 builder.Services.AddCors(p =>
     p.AddPolicy(
-        "corsapp",
+        "localcorsapp",
         x =>
         {
             x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-
             x.WithOrigins("http://localhost:3000").AllowCredentials();
         }
     )
@@ -65,7 +64,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseCors("corsapp");
+    app.UseCors("localcorsapp");
 }
 else
 {
@@ -77,6 +76,7 @@ app.UseResponseCompression();
 app.UseAuthorization();
 app.UseAuthentication();
 app.UseAiTrainerDefaultMiddlewares();
+
 // app.MapAiTrainerSignalRHubs();
 app.MapControllers();
 
