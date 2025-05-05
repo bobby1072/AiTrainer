@@ -19,7 +19,7 @@ namespace AiTrainer.Web.Api.Auth
                 throw new Exception("ClientSettingsConfiguration not found in configuration");
             }
 
-            var issuerHost = clientConfig.GetValue<string>("AuthorityHost");
+            var issuerHost = clientConfig.GetValue<string>("InternalAuthorityHost");
 
             services
                 .AddAuthorization()

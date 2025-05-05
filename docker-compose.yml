@@ -34,18 +34,8 @@ services:
       CLIENTS_CONFIGURATION_PATH: /tmp/config/clients-config.json
       SERVER_OPTIONS_INLINE: |
         {
-         "IssuerUri": "https://localhost:44363"
+         "IssuerUri": "http://localhost:80"
         }
     volumes:
       - ./mocks/oidc:/tmp/config:ro
       - ./.aspnet/https:/https:ro
-
-  oidc-https-proxy:
-    image: mockserver/mockserver:latest
-    container_name: oidc.https-proxy
-    command: -serverPort 1090
-    environment:
-      MOCKSERVER_WATCH_INITIALIZATION_JSON: "true"
-      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/expectations.json
-    volumes:
-      - ./mocks/oidc-https-proxy:/config
