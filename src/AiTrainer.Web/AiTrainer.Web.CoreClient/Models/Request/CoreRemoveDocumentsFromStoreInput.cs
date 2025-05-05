@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.CoreClient.Models.Request;
 
-public record CoreRemoveDocumentsFromStoreInput
+public sealed record CoreRemoveDocumentsFromStoreInput
 {
     [JsonIgnore] public byte[] FileInput { get; init; } = [];
     public required JsonDocument DocStore { get; init; }
