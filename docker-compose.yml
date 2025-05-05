@@ -34,7 +34,7 @@ services:
       CLIENTS_CONFIGURATION_PATH: /tmp/config/clients-config.json
       SERVER_OPTIONS_INLINE: |
         {
-         "IssuerUri": "https://localhost:44363"
+         "IssuerUri": "http://localhost:80"
         }
     volumes:
       - ./mocks/oidc:/tmp/config:ro
