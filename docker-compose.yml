@@ -26,13 +26,8 @@ services:
       - "44363:443"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: http://+:443;http://+90
-      ASPNETCORE_HTTP_PORT: 44363
+      ASPNETCORE_URLS: http://+:443;http://+:90;
       USERS_CONFIGURATION_PATH: /tmp/config/users.json
       CLIENTS_CONFIGURATION_PATH: /tmp/config/clients-config.json
-      SERVER_OPTIONS_INLINE: |
-        {
-         "IssuerUri": "http://localhost:44363"
-        }
     volumes:
       - ./mocks/oidc:/tmp/config:ro
