@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace AiTrainer.Web.Domain.Models.Validators;
 
-internal class SimilaritySearchInputValidator : BaseValidator<SimilaritySearchInput>
+internal sealed class SimilaritySearchInputValidator : BaseValidator<SimilaritySearchInput>
 {
     public SimilaritySearchInputValidator()
     {

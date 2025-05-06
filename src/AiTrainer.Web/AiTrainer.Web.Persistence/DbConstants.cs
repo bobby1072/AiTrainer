@@ -1,6 +1,6 @@
 namespace AiTrainer.Web.Persistence
 {
-    internal static class DbConstants
+    internal struct DbConstants
     {
         public const string PublicSchema = "public";
     }

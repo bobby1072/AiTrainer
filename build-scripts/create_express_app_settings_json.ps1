@@ -1,5 +1,5 @@
 param (
-    [string] $filePath = ".\src\AiTrainer.Core\src\Data\expressappsettings.json"
+    [string] $filePath = ".\..\src\AiTrainer.Core\src\Data\expressappsettings.json"
 )
 $ErrorActionPreference = "Stop"
 $data = @{

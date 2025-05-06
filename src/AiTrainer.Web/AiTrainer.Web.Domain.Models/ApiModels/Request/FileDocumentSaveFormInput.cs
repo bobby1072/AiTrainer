@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Domain.Models.ApiModels.Request
 {
-    public record FileDocumentSaveFormInput
+    public sealed record FileDocumentSaveFormInput
     {
         [JsonPropertyName("collectionId")]
         public Guid? CollectionId { get; init; }

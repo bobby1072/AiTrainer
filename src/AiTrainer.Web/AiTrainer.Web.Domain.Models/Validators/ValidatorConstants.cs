@@ -1,6 +1,6 @@
 ﻿namespace AiTrainer.Web.Domain.Models.Validators
 {
-    internal static class ValidatorConstants
+    internal struct ValidatorConstants
     {
         public const string InvalidDescription = "Invalid description";
         public const string InvalidUserId = "Invalid user id";
@@ -12,6 +12,5 @@
         public const string InvalidFileType = "Invalid file type";
         public const string InvalidFileName = "Invalid file name";
         public const string InvalidFileData = "Invalid file data";
-
     }
 }
