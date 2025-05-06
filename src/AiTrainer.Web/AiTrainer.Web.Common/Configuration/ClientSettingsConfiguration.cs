@@ -6,7 +6,6 @@
         public required string Scope { get; init; }
         public required string InternalUserInfoEndpoint { get; init; }
         public required string AuthorityHost { get; init; }
-        public required string InternalAuthorityHost { get; init; }
         public required string AuthorityClientId { get; init; }
     }
 }

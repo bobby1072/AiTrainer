@@ -55,5 +55,24 @@
         "Value": "True"
       }
     ]
+  },
+  {
+    "SubjectId": "b06501cb-984f-4a1d-a8ab-3ad8e77c7e72",
+    "Username": "k6user",
+    "Password": "k6password",
+    "Claims": [
+      {
+        "Type": "name",
+        "Value": "k6 name"
+      },
+      {
+        "Type": "email",
+        "Value": "k6@example.com"
+      },
+      {
+        "Type": "email_verified",
+        "Value": "True"
+      }
+    ]
   }
 ]
