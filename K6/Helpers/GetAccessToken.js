@@ -1,5 +1,19 @@
-import { userDetails } from "./Details";
+import { oidcDetails, tokenEndpoint } from "./Details";
+import http from "k6/http";
 
-const GetAccessToken = () => {};
+const getAccessToken = () => {
+  const reqPayload = new URLSearchParams({
+    ...oidcDetails,
+    grant_type: "password",
+  });
 
-export default GetAccessToken;
+  const response = http.post(tokenEndpoint, reqPayload.toString(), {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+
+  return response.access_token;
+};
+
+export default getAccessToken;
