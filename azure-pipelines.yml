@@ -64,9 +64,8 @@ stages:
             inputs:
               versionSpec: 22.x
 
-          - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1
+          - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1 -filePath '.\src\AiTrainer.Core\src\Data\expressappsettings.json'
             displayName: "Add express app settings environment"
-            arguments: '-filePath ".\src\AiTrainer.Core\src\Data\expressappsettings.json"'
 
           - task: FileTransform@2
             displayName: "Transform express app settings"
