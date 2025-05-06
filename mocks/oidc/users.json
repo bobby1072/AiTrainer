@@ -58,21 +58,102 @@
   },
   {
     "SubjectId": "b06501cb-984f-4a1d-a8ab-3ad8e77c7e72",
-    "Username": "k6user",
-    "Password": "k6password",
+    "Username": "k6user1",
+    "Password": "k6password1",
     "Claims": [
-      {
-        "Type": "name",
-        "Value": "k6 name"
-      },
-      {
-        "Type": "email",
-        "Value": "k6@example.com"
-      },
-      {
-        "Type": "email_verified",
-        "Value": "True"
-      }
+      { "Type": "name", "Value": "k6 name 1" },
+      { "Type": "email", "Value": "k6user1@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "a11201ab-9a3f-4aa1-b8cd-4bd8c33a1123",
+    "Username": "k6user2",
+    "Password": "k6password2",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 2" },
+      { "Type": "email", "Value": "k6user2@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "c25401bb-893e-41a5-9d3b-7cc8f11b2345",
+    "Username": "k6user3",
+    "Password": "k6password3",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 3" },
+      { "Type": "email", "Value": "k6user3@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "d30502cc-1a2e-48b2-8e9f-9de8d44c3456",
+    "Username": "k6user4",
+    "Password": "k6password4",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 4" },
+      { "Type": "email", "Value": "k6user4@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "e40603dd-4a3e-59c3-b5ae-5ab8e55d4567",
+    "Username": "k6user5",
+    "Password": "k6password5",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 5" },
+      { "Type": "email", "Value": "k6user5@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "f50704ee-5b4f-60d4-c7bf-6cc9f66e5678",
+    "Username": "k6user6",
+    "Password": "k6password6",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 6" },
+      { "Type": "email", "Value": "k6user6@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "a60805ff-6c5a-71e5-d8d0-7ddaf77f6789",
+    "Username": "k6user7",
+    "Password": "k6password7",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 7" },
+      { "Type": "email", "Value": "k6user7@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "b70906aa-7d6b-82f6-e9e1-8eeb08807890",
+    "Username": "k6user8",
+    "Password": "k6password8",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 8" },
+      { "Type": "email", "Value": "k6user8@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "c80a07bb-8e7c-93g7-f0f2-9ffc19918901",
+    "Username": "k6user9",
+    "Password": "k6password9",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 9" },
+      { "Type": "email", "Value": "k6user9@example.com" },
+      { "Type": "email_verified", "Value": "True" }
+    ]
+  },
+  {
+    "SubjectId": "d90b08cc-9f8d-a4h8-g1g3-a11d2aa29a12",
+    "Username": "k6user10",
+    "Password": "k6password10",
+    "Claims": [
+      { "Type": "name", "Value": "k6 name 10" },
+      { "Type": "email", "Value": "k6user10@example.com" },
+      { "Type": "email_verified", "Value": "True" }
     ]
   }
 ]
