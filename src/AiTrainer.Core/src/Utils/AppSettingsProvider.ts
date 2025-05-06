@@ -10,6 +10,7 @@ const appSettingsDevJson: Record<
 const isForceProduction: boolean = appSettingsJson["UseProd"];
 
 enum AppSettingsKeys {
+  Test = "PROCESSOR_LEVEL",
   OpenAiApiKey = "OPENAI_API_KEY",
   ApiKey = "AiTrainerCore.ApiKey",
   DocumentChunkerChunkSize = "DocumentChunker.ChunkSize",
@@ -38,11 +39,16 @@ class AppSettingsProvider {
         AppSettingsProvider.FindVal(key.toString(), appSettingsDevJson),
         AppSettingsProvider.FindVal(key.toString(), appSettingsJson),
       ];
-      return isForceProduction
-        ? prodResult?.toString()
-        : process.env.NODE_ENV === "development"
-        ? devResult?.toString() || prodResult?.toString()
-        : prodResult?.toString();
+      const straightFromEnvVars = process.env[key];
+
+      return (
+        straightFromEnvVars ??
+        (isForceProduction
+          ? prodResult?.toString()
+          : process.env.NODE_ENV === "development"
+          ? devResult?.toString() || prodResult?.toString()
+          : prodResult?.toString())
+      );
     } catch {
       return undefined;
     }
