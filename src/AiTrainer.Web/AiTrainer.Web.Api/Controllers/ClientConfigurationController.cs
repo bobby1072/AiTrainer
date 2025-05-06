@@ -1,5 +1,7 @@
 using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Configuration;
+using AiTrainer.Web.Domain.Models.ApiModels.Response;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,10 +24,10 @@ namespace AiTrainer.Web.Api.Controllers
         }
 
         [HttpGet]
-        public Task<ActionResult<Outcome<ClientSettingsConfiguration>>> GetConfig()
+        public Task<ActionResult<Outcome<ClientConfigurationResponse>>> GetConfig()
         {
-            return Task.FromResult<ActionResult<Outcome<ClientSettingsConfiguration>>>(
-                Ok(new Outcome<ClientSettingsConfiguration> { Data = _clientSettingsConfiguration })
+            return Task.FromResult<ActionResult<Outcome<ClientConfigurationResponse>>>(
+                Ok(new Outcome<ClientConfigurationResponse> { Data = _clientSettingsConfiguration.ToClientConfigurationResponse() })
             );
         }
     }
