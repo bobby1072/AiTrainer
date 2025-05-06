@@ -1,6 +1,10 @@
 volumes:
   influxdb-data:
 
+networks:
+  k6:
+  grafana:
+
 services:
   influxdb:
     image: influxdb:1.8

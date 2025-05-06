@@ -1,8 +1,14 @@
-import { defaultOidcDetails, tokenEndpoint } from "./Details";
+import { defaultOidcDetails, tokenEndpoint } from "./Details.js";
 import http from "k6/http";
 
+function encodeForm(data) {
+  return Object.entries(data)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join("&");
+}
+
 const getAccessToken = (username, password) => {
-  const reqPayload = new URLSearchParams({
+  const reqPayload = encodeForm({
     ...defaultOidcDetails,
     ...(username && { username }),
     ...(password && { password }),
@@ -15,9 +21,11 @@ const getAccessToken = (username, password) => {
     },
   });
 
-  console.log(`Access token: ${response.access_token}`);
+  const token = JSON.parse(response.body).access_token;
 
-  return response.access_token;
+  //   console.log(`Access token: ${token}`);
+
+  return token;
 };
 
 export default getAccessToken;

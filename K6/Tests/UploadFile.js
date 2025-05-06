@@ -1,11 +1,14 @@
-import { webApiEndpoint } from "../Helpers/Details";
-import getAccessToken from "../Helpers/GetAccessToken";
+import { webApiEndpoint } from "../Helpers/Details.js";
+import getAccessToken from "../Helpers/GetAccessToken.js";
+import http from "k6/http";
+import { check } from "k6";
 
 export const options = {
   vus: 1,
   iterations: 10,
 };
-const url = `http://${webApiEndpoint}/Api/FileDocument/Upload`;
+const url = `${webApiEndpoint}/Api/FileDocument/Upload`;
+const fileBin = open("./../Data/MockCompanyHandbook.pdf", "b");
 
 export default function () {
   const testNum = __ITER;
@@ -15,7 +18,6 @@ export default function () {
   );
 
   // Read the file from the local filesystem
-  const fileBin = readFileSync("./../Data/MockCompanyHandbook.pdf", "binary");
 
   const formData = {
     collectionId: null,
