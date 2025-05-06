@@ -1,6 +1,6 @@
 ﻿namespace AiTrainer.Web.Common.Configuration
 {
-    public class ClientSettingsConfiguration : BaseConfiguration
+    public sealed class ClientSettingsConfiguration : BaseConfiguration
     {
         public static readonly string Key = GetKey(nameof(ClientSettingsConfiguration));
         public required string Scope { get; init; }

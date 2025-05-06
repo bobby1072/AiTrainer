@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace AiTrainer.Web.Domain.Models.Validators;
 
-internal class AnalyseChunkInReferenceToQuestionQueryValidator: BaseValidator<AnalyseChunkInReferenceToQuestionQueryInput>
+internal sealed class AnalyseChunkInReferenceToQuestionQueryValidator: BaseValidator<AnalyseChunkInReferenceToQuestionQueryInput>
 {
     public AnalyseChunkInReferenceToQuestionQueryValidator()
     {

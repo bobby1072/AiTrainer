@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace AiTrainer.Web.Domain.Models.Validators
 {
-    internal class UserValidator : BaseValidator<User>
+    internal sealed class UserValidator : BaseValidator<User>
     {
         public UserValidator()
         {

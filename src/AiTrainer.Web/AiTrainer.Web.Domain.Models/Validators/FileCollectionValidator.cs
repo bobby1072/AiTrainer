@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace AiTrainer.Web.Domain.Models.Validators
 {
-    internal class FileCollectionValidator : BaseValidator<FileCollection>
+    internal sealed class FileCollectionValidator : BaseValidator<FileCollection>
     {
         public FileCollectionValidator()
         {

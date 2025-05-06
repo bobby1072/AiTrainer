@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Models.Views
 {
-    public record FlatFileDocumentPartialCollectionView
+    public sealed record FlatFileDocumentPartialCollectionView
     {
         public FileCollection? Self { get; init; }
         public required IReadOnlyCollection<FileCollection> FileCollections { get; init; }

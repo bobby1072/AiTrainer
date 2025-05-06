@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Models.ApiModels.Request;
 
-public record SyncFaissStoreHubInput
+public sealed record SyncFaissStoreHubInput
 {
     [JsonPropertyName("collectionId")]
     public Guid? CollectionId { get; init; }

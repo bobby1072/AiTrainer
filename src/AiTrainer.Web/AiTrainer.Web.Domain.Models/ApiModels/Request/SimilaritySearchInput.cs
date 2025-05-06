@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Models.ApiModels.Request;
 
-public record SimilaritySearchInput
+public sealed record SimilaritySearchInput
 {
     [JsonPropertyName("collectionId")]
     public Guid? CollectionId { get; init; }

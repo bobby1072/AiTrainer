@@ -1,13 +1,14 @@
 ﻿using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Partials;
 using Microsoft.AspNetCore.Http;
+using System.Net.Mime;
 
 namespace AiTrainer.Web.Domain.Models.Extensions
 {
     public static class FileDocumentExtensions
     {
         private static readonly Dictionary<FileTypeEnum, string> _fileTypeToMimeType =
-            new() { { FileTypeEnum.Pdf, "application/pdf" }, { FileTypeEnum.Text, "text/plain" } };
+            new() { { FileTypeEnum.Pdf, MediaTypeNames.Application.Pdf }, { FileTypeEnum.Text, MediaTypeNames.Text.Plain } };
 
         public static string GetMimeType(this FileDocument document)
         {

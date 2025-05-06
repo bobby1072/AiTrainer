@@ -2,7 +2,7 @@ using BT.Common.Polly.Models.Abstract;
 
 namespace AiTrainer.Web.Common.Configuration;
 
-public class UserInfoClientConfiguration : BaseConfiguration, IPollyRetrySettings
+public sealed class UserInfoClientConfiguration : BaseConfiguration, IPollyRetrySettings
 {
     public static readonly string Key = GetKey(nameof(UserInfoClientConfiguration));
 

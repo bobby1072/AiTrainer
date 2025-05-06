@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Models.ApiModels.Request
 {
-    public record FileCollectionSaveInput
+    public sealed record FileCollectionSaveInput
     {
         [JsonPropertyName("id")]
         public Guid? Id { get; init; }

@@ -5,5 +5,5 @@
     /// Meaning that the property or model type should not be updated and persisted.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
-    public class LockedDataAttribute : Attribute { }
+    public sealed class LockedDataAttribute : Attribute { }
 }

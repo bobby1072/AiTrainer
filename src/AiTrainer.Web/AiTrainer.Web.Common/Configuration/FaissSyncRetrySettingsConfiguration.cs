@@ -2,7 +2,7 @@ using BT.Common.Polly.Models.Abstract;
 
 namespace AiTrainer.Web.Common.Configuration;
 
-public class FaissSyncRetrySettingsConfiguration : BaseConfiguration, IPollyRetrySettings
+public sealed class FaissSyncRetrySettingsConfiguration : BaseConfiguration, IPollyRetrySettings
 {
     public static readonly string Key = GetKey(nameof(FaissSyncRetrySettingsConfiguration));
     public int? TimeoutInSeconds { get; init; }

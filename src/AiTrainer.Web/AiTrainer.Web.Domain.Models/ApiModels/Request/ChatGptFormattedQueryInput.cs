@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Domain.Models.ApiModels.Request;
 
-public record ChatGptFormattedQueryInput
+public sealed record ChatGptFormattedQueryInput
 {
     [JsonPropertyName("inputJson")]
     public required JsonDocument InputJson { get; init; }

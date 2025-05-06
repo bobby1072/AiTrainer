@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Models.ApiModels.Request
 {
-    public record OptionalIdInput
+    public sealed record OptionalIdInput
     {
         [JsonPropertyName("id")]
         public Guid? Id { get; init; }
