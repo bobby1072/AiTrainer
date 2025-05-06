@@ -1,3 +1,5 @@
-import { userDetails } from "./UserDetails";
+import { userDetails } from "./Details";
 
-export const getAccessToken = () => {};
+const GetAccessToken = () => {};
+
+export default GetAccessToken;
