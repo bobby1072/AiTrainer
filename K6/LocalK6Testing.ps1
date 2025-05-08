@@ -5,3 +5,7 @@ sleep 4
 
 
 k6 run Tests/UploadFile.js
+
+k6 run Tests/GetOneLayer.js
+
+k6 run Tests/SaveFileCollection.js
