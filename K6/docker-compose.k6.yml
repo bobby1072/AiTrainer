@@ -37,9 +37,9 @@ services:
       - GF_AUTH_BASIC_ENABLED=false
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     volumes:
-      - ./Config/dashboards:/var/lib/grafana/dashboards
-      - ./Config/grafana-dashboard.yml:/etc/grafana/provisioning/dashboards/dashboard.yaml
-      - ./Config/grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yaml
+      - ./K6/Config/dashboards:/var/lib/grafana/dashboards
+      - ./K6/Config/grafana-dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - ./K6/Config/grafana-datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
 
   webapi:
     build:
