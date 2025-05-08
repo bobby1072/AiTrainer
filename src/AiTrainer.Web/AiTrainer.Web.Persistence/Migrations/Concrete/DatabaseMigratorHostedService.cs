@@ -1,5 +1,8 @@
-﻿using AiTrainer.Web.Persistence.Migrations.Abstract;
+﻿using AiTrainer.Web.Common.Configuration;
+using AiTrainer.Web.Persistence.Migrations.Abstract;
+using BT.Common.Polly.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.Persistence.Migrations.Concrete
 {
@@ -7,12 +10,29 @@ namespace AiTrainer.Web.Persistence.Migrations.Concrete
     {
         private readonly IEnumerable<IMigrator> _databaseMigrators;
         private readonly DatabaseMigratorHealthCheck _databaseMigratorHealthCheck;
-        public DatabaseMigratorHostedService(IEnumerable<IMigrator>? databaseMigrators, DatabaseMigratorHealthCheck databaseMigratorHealthCheck)
+        private readonly DbMigrationsConfiguration _dbMigrationsConfiguration;
+        public DatabaseMigratorHostedService(
+            IEnumerable<IMigrator>? databaseMigrators, 
+            DatabaseMigratorHealthCheck databaseMigratorHealthCheck,
+            IOptions<DbMigrationsConfiguration> dbMigrationsConfiguration)
         {
             _databaseMigrators = databaseMigrators ?? new List<IMigrator>();
             _databaseMigratorHealthCheck = databaseMigratorHealthCheck;
+            _dbMigrationsConfiguration = dbMigrationsConfiguration.Value;
         }
         public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            await Task.Delay(2000, cancellationToken);
+            var pipeline = _dbMigrationsConfiguration.ToPipeline();
+            
+            await pipeline.ExecuteAsync(async _ => await Migrate(), cancellationToken);
+        }
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
+
+        private async Task Migrate()
         {
             foreach (var migrator in _databaseMigrators)
             {
@@ -21,9 +41,5 @@ namespace AiTrainer.Web.Persistence.Migrations.Concrete
             _databaseMigratorHealthCheck.MigrationCompleted = true;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            return Task.CompletedTask;
-        }
     }
 }

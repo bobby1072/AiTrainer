@@ -1,4 +1,5 @@
-﻿using AiTrainer.Web.Common.Exceptions;
+﻿using AiTrainer.Web.Common.Configuration;
+using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Persistence.Contexts;
 using AiTrainer.Web.Persistence.Entities;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace AiTrainer.Web.Persistence.Extensions
@@ -23,10 +25,19 @@ namespace AiTrainer.Web.Persistence.Extensions
         )
         {
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            var migrationStartVersion = configuration
-                .GetSection("Migration")
-                .GetSection("StartVersion")
-                ?.Value;
+            var migrationConfigSection = configuration.GetSection(DbMigrationsConfiguration.Key);
+            if (!migrationConfigSection.Exists())
+            {
+                throw new InvalidDataException(ExceptionConstants.MissingEnvVars);
+            }
+            var migrationConfig = migrationConfigSection.Get<DbMigrationsConfiguration>();
+            if (migrationConfig is null)
+            {
+                throw new InvalidDataException(ExceptionConstants.MissingEnvVars);
+            }
+
+
+            var migrationStartVersion = migrationConfig.StartVersion;
 
             if (
                 string.IsNullOrEmpty(connectionString)
@@ -37,6 +48,8 @@ namespace AiTrainer.Web.Persistence.Extensions
             }
             var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString);
 
+            services.AddSingleton(Options.Create(migrationConfig));
+            
             services.AddSingleton<IMigrator, DatabaseMigrations>(sp => new DatabaseMigrations(
                 sp.GetRequiredService<ILoggerFactory>().CreateLogger<DatabaseMigrations>(),
                 connectionString,
@@ -64,9 +77,9 @@ namespace AiTrainer.Web.Persistence.Extensions
                             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                             .UseNpgsql(
                                 connectionStringBuilder.ConnectionString,
-                                options =>
+                                npgOpts =>
                                 {
-                                    options.UseQuerySplittingBehavior(
+                                    npgOpts.UseQuerySplittingBehavior(
                                         QuerySplittingBehavior.SingleQuery
                                     );
                                 }

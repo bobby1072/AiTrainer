@@ -1,0 +1,59 @@
+volumes:
+  influxdb-data:
+
+networks:
+  k6:
+  grafana:
+
+services:
+  influxdb:
+    image: influxdb:1.8
+    container_name: influxdb
+    ports:
+      - 8086:8086
+    networks:
+      - k6
+      - grafana
+    environment:
+      - INFLUXDB_DB=k6
+      - INFLUXDB_HTTP_AUTH_ENABLED=FALSE
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=admin123
+      - INFLUXDB_USER=k6user
+      - INFLUXDB_USER_PASSWORD=k6password
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    networks:
+      - grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_BASIC_ENABLED=false
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    volumes:
+      - ./K6/Config/dashboards:/var/lib/grafana/dashboards
+      - ./K6/Config/grafana-dashboard.yaml:/etc/grafana/provisioning/dashboards/dashboard.yaml
+      - ./K6/Config/grafana-datasource.yaml:/etc/grafana/provisioning/datasources/datasource.yaml
+
+  webapi:
+    build:
+      context: .
+      dockerfile: src/AiTrainer.Web/dockerfile
+    ports:
+      - 5222:80
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+80
+      ConnectionStrings__DefaultConnection: Server=postgres;Port=5432;Database=ai_trainer;User ID=postgres;Password=postgres;SslMode=Disable
+      ClientSettings__InternalUserInfoEndpoint: http://oidc:80/connect/userinfo
+      ClientSettings__InternalAuthorityHost: http://oidc:80
+      ClientSettings__AuthorityClientId: aitrainer-k6-local
+      AiTrainerCore__BaseEndpoint: http://coreapi:4000
+    depends_on:
+      - "postgres"

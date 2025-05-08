@@ -1,0 +1,32 @@
+import { webApiEndpoint } from "../Helpers/Details.js";
+import getAccessToken from "../Helpers/GetAccessToken.js";
+import http from "k6/http";
+import { check } from "k6";
+
+export const options = {
+  vus: 1,
+  iterations: 30,
+};
+const url = `${webApiEndpoint}/Api/FileCollection/GetOneLayer`;
+
+export default function () {
+  const testNum = __ITER + 1;
+  const accessToken = getAccessToken(
+    `k6user${testNum}`,
+    `k6password${testNum}`
+  );
+
+  const idInput = {
+    id: null,
+  };
+
+  const res = http.post(url, JSON.stringify(idInput), {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-type": "application/json",
+    },
+  });
+  check(res, {
+    "get one layer succeeded": (r) => r.status === 200,
+  });
+}

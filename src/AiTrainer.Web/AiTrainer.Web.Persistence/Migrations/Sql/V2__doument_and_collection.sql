@@ -40,5 +40,5 @@ CREATE TABLE public."file_document" (
 );
 
 CREATE UNIQUE INDEX unique_name_with_null_collection
-ON public."file_document" (file_name)
+ON public."file_document" (file_name, user_id)
 WHERE collection_id IS NULL;

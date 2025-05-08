@@ -2,7 +2,7 @@
   {
     "ClientId": "aitrainer-local",
     "Description": "Client for implicit flow",
-    "AllowedGrantTypes": ["authorization_code"],
+    "AllowedGrantTypes": ["authorization_code", "password"],
     "AllowAccessTokensViaBrowser": true,
     "RedirectUris": [
       "http://localhost:3000/oidc-signin",
@@ -24,10 +24,13 @@
     "AccessTokenLifetime": 3600
   },
   {
-    "ClientId": "authorization_code-mock-client",
-    "Description": "Client for authorization code flow",
-    "AllowedGrantTypes": ["authorization_code"],
+    "ClientId": "aitrainer-k6-local",
+    "Description": "Client for k6 tests",
+    "AllowedGrantTypes": ["password"],
+    "AllowAccessTokensViaBrowser": true,
+    "AllowedScopes": ["openid", "profile", "email"],
     "RequireClientSecret": false,
-    "AllowedScopes": ["aitrainer"]
+    "IdentityTokenLifetime": 3600,
+    "AccessTokenLifetime": 3600
   }
 ]
