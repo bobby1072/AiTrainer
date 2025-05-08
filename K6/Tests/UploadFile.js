@@ -5,22 +5,19 @@ import { check } from "k6";
 
 export const options = {
   vus: 1,
-  iterations: 10,
+  iterations: 30,
 };
 const url = `${webApiEndpoint}/Api/FileDocument/Upload`;
 const fileBin = open("./../Data/MockCompanyHandbook.pdf", "b");
 
 export default function () {
-  const testNum = __ITER;
+  const testNum = __ITER + 1;
   const accessToken = getAccessToken(
     `k6user${testNum}`,
     `k6password${testNum}`
   );
 
-  // Read the file from the local filesystem
-
   const formData = {
-    collectionId: null,
     fileDescription: "This is a test file.",
     file: http.file(fileBin, "testfile.pdf", "application/pdf"),
   };
