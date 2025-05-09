@@ -213,7 +213,7 @@ stages:
         steps:
           - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1 -filePath '.\src\AiTrainer.Core\src\Data\expressappsettings.json'
             displayName: "Add express app settings environment"
-                    
+
           - task: FileTransform@2
             displayName: "Transform express app settings"
             inputs:
@@ -240,6 +240,7 @@ stages:
 
       - job: push_web_image
         displayName: Push web image
+        condition: succeeded()
         steps:
           - checkout: self
             submodules: recursive
@@ -274,6 +275,7 @@ stages:
 
       - job: push_core_image
         displayName: Push core image
+        condition: succeeded()
         steps:
           - checkout: self
             submodules: recursive
