@@ -162,8 +162,12 @@ stages:
       - job: k6_load_tests
         displayName: K6 load tests
         steps:
+          - checkout: self
+            submodules: recursive
+
           - task: DockerCompose@1
             inputs:
+              projectName: aitrainer
               dockerComposeFile: 'docker-compose.yml'
               additionalDockerComposeFiles: |
                 docker-compose.coreapi.yml
