@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
+using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -15,7 +16,7 @@ public class CoreClientSimilaritySearchTests: CoreClientTestBase
 {
     public CoreClientSimilaritySearchTests()
     {
-        SetUpBasicHttpContext();
+        SetUpBasicHttpContext(true);
     }
 
     [Fact]
@@ -38,9 +39,10 @@ public class CoreClientSimilaritySearchTests: CoreClientTestBase
             .Create();
         var mockedApiResponse = new CoreResponse<CoreSimilaritySearchResponse> { Data = response };
 
+        var expecterdUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch";
         var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
-            mockedApiResponse,
-            $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch");
+            mockedApiResponse
+            );
         var service = new CoreClientSimilaritySearch(
             new NullLogger<CoreClientSimilaritySearch>(),
             new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
@@ -52,7 +54,10 @@ public class CoreClientSimilaritySearchTests: CoreClientTestBase
         var result = await service.TryInvokeAsync(input);
         
         //Assert
-        Assert.True(httpClient.WasExpectedUrlCalled());
+        httpClient.WasExpectedUrlCalled(expecterdUrl);
+        httpClient.WasExpectedHeaderCalled(ApiConstants.CorrelationIdHeader);
+        httpClient.WasExpectedHeaderCalled(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey);
+        httpClient.WasExpectedHttpMethodUsed(HttpMethod.Post);
         Assert.NotNull(result);
         for (int i = 0; i < mockedApiResponse.Data.Items.Count; i++)
         {

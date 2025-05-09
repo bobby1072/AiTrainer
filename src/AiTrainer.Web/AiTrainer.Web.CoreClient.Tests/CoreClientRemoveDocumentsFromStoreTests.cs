@@ -12,46 +12,49 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientCreateFaissStoreTests: CoreClientTestBase
+public class CoreClientRemoveDocumentsFromStoreTests: CoreClientTestBase
 {
-    public CoreClientCreateFaissStoreTests()
+    public CoreClientRemoveDocumentsFromStoreTests()
     {
         SetUpBasicHttpContext(true);
     }
 
     [Fact]
-    public async Task CoreClientCreateFaissStore_Should_Build_Request_Correctly()
+    public async Task CoreClientRemoveDocumentsFromStore_Should_Build_Request_Correctly()
     {
         //Arrange
-        var input = _fixture
-            .Build<CoreCreateFaissStoreInput>()
-            .With(x => x.Documents,  _fixture.CreateMany<CoreCreateFaissStoreInputDocument>().ToArray())
-            .Create();
-        var expectedUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/createstore";
+        var stringJson = JsonSerializer.Serialize(new {Text = Faker.Lorem.Paragraph()});
+        await using var inputMemStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
+        await using var responseMemStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
         
-        var stringJson = JsonSerializer.Serialize(input);
-        await using var memStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
-
+        var input = _fixture
+            .Build<CoreRemoveDocumentsFromStoreInput>()
+            .With(x => x.DocStore, await JsonDocument.ParseAsync(inputMemStream))
+            .With(x => x.FileInput, inputMemStream.ToArray())
+            .Create();
+        
         var response = _fixture
             .Build<CoreFaissStoreResponse>()
-            .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(memStream))
-            .With(x => x.IndexFile, memStream.ToArray())
+            .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(responseMemStream))
             .Create();
         var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
-        
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, mockedApiResponse);
-        var service = new CoreClientCreateFaissStore(
-            new NullLogger<CoreClientCreateFaissStore>(),
-            httpClient,
+
+        var expecterdUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments";
+        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
+            mockedApiResponse
+            );
+        var service = new CoreClientRemoveDocumentsFromStore(
+            new NullLogger<CoreClientRemoveDocumentsFromStore>(),
             new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
-            _mockHttpContextAccessor.Object
+            _mockHttpContextAccessor.Object,
+            httpClient
         );
-        
+
         //Act
         var result = await service.TryInvokeAsync(input);
         
         //Assert
-        httpClient.WasExpectedUrlCalled(expectedUrl);
+        httpClient.WasExpectedUrlCalled(expecterdUrl);
         httpClient.WasExpectedHeaderCalled(ApiConstants.CorrelationIdHeader);
         httpClient.WasExpectedHeaderCalled(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey);
         httpClient.WasExpectedHttpMethodUsed(HttpMethod.Post);

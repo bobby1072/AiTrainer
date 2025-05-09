@@ -193,13 +193,13 @@ stages:
 
 
           - task: k6-load-test@0
-            displayName: Save file collection file test
+            displayName: Save file collection test
             inputs:
               filename: 'K6/Tests/SaveFileCollection.js'
               failOnStandardError: true
 
           - task: k6-load-test@0
-            displayName: Save file collection file test
+            displayName: Sync file collection test
             inputs:
               filename: 'K6/Tests/SyncFileCollectionFaiss.js'
               failOnStandardError: true
@@ -221,14 +221,6 @@ stages:
               fileType: "json"
               xmlTransformationRules:
               jsonTargetFiles: "expressappsettings.json"
-
-          - task: FileTransform@2
-            displayName: "Transform package json"
-            inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core"
-              fileType: "json"
-              xmlTransformationRules:
-              jsonTargetFiles: "package.json"
 
           - task: FileTransform@2
             displayName: "Transform app settings"

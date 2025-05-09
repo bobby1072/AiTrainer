@@ -2,19 +2,17 @@
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
-using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
+using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.TestBase;
 using AutoFixture;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientChunkDocumentTests : CoreClientTestBase
+public class CoreClientFormattedChatQueryTests: CoreClientTestBase
 {
-    public CoreClientChunkDocumentTests()
+    public CoreClientFormattedChatQueryTests()
     {
         SetUpBasicHttpContext(true);
     }
@@ -23,15 +21,15 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
     public async Task CoreClientChunkDocument_Should_Build_Request_Correctly()
     {
         //Arrange
-        var mockInput = _fixture.Create<CoreDocumentToChunkInput>();
-        var expectedUri = "http://localhost:5000/api/chunkingrouter/chunkdocument";
-        var expectedResult = _fixture.Create<CoreResponse<CoreChunkedDocumentResponse>>();
+        var mockInput = _fixture.Create<FormattedChatQueryBuilder>();
+        var expectedUri = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/openairouter/formattedchatquery";
+        var expectedResult = _fixture.Create<CoreResponse<CoreFormattedChatQueryResponse>>();
 
         var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult);
-        var service = new CoreClientChunkDocument(
-            new NullLogger<CoreClientChunkDocument>(),
-            httpClient,
+        var service = new CoreClientFormattedChatQuery(
+            new NullLogger<CoreClientFormattedChatQuery>(),
             new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
+            httpClient,
             _mockHttpContextAccessor.Object
         );
         
@@ -43,11 +41,6 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
         httpClient.WasExpectedHeaderCalled(ApiConstants.CorrelationIdHeader);
         httpClient.WasExpectedHeaderCalled(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey);
         httpClient.WasExpectedHttpMethodUsed(HttpMethod.Post);
-        Assert.NotNull(result);
-        for (int i = 0; i < expectedResult.Data!.DocumentChunks.Count; i++)
-        {
-            var currentChunk = expectedResult.Data!.DocumentChunks.ElementAt(i);
-            Assert.Equal(expectedResult.Data!.DocumentChunks.ElementAt(i), currentChunk);
-        }
+        Assert.Equal(expectedResult.Data?.Content, result?.Content);
     }
 }
