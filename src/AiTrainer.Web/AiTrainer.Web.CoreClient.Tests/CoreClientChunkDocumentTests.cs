@@ -27,7 +27,7 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
         var expectedUri = "http://localhost:5000/api/chunkingrouter/chunkdocument";
         var expectedResult = _fixture.Create<CoreResponse<CoreChunkedDocumentResponse>>();
 
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult);
+        using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult);
         var service = new CoreClientChunkDocument(
             new NullLogger<CoreClientChunkDocument>(),
             httpClient,

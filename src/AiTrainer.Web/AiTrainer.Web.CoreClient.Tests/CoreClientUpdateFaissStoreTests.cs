@@ -38,7 +38,7 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
             .Create();
         var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
         var expectedUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore";
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
+        using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
             mockedApiResponse);
         var service = new CoreClientUpdateFaissStore(
             new NullLogger<CoreClientUpdateFaissStore>(),

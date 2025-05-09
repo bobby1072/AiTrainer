@@ -40,7 +40,7 @@ public class CoreClientRemoveDocumentsFromStoreTests: CoreClientTestBase
         var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
 
         var expecterdUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments";
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
+        using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
             mockedApiResponse
             );
         var service = new CoreClientRemoveDocumentsFromStore(

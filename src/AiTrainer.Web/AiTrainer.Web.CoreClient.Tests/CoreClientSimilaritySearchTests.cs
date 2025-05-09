@@ -40,7 +40,7 @@ public class CoreClientSimilaritySearchTests: CoreClientTestBase
         var mockedApiResponse = new CoreResponse<CoreSimilaritySearchResponse> { Data = response };
 
         var expecterdUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch";
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
+        using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
             mockedApiResponse
             );
         var service = new CoreClientSimilaritySearch(

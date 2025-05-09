@@ -25,7 +25,7 @@ public class CoreClientFormattedChatQueryTests: CoreClientTestBase
         var expectedUri = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/openairouter/formattedchatquery";
         var expectedResult = _fixture.Create<CoreResponse<CoreFormattedChatQueryResponse>>();
 
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult);
+        using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult);
         var service = new CoreClientFormattedChatQuery(
             new NullLogger<CoreClientFormattedChatQuery>(),
             new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),

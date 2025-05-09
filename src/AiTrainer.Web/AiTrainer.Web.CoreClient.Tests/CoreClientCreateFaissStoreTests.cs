@@ -39,7 +39,7 @@ public class CoreClientCreateFaissStoreTests: CoreClientTestBase
             .Create();
         var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
         
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, mockedApiResponse);
+        using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, mockedApiResponse);
         var service = new CoreClientCreateFaissStore(
             new NullLogger<CoreClientCreateFaissStore>(),
             httpClient,
