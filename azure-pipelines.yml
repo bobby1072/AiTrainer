@@ -18,81 +18,81 @@ pool:
   vmImage: "ubuntu-latest"
 
 stages:
-  # - stage: Build
-  #   jobs:
-  #     - job: build_backend
-  #       displayName: "Build web api"
-  #       steps:
-  #         - checkout: self
-  #           submodules: recursive
+  - stage: Build
+    jobs:
+      - job: build_backend
+        displayName: "Build web api"
+        steps:
+          - checkout: self
+            submodules: recursive
 
-  #         - task: UseDotNet@2
-  #           displayName: "Install .NET SDK"
-  #           inputs:
-  #             packageType: "sdk"
-  #             version: "9.0.x"
+          - task: UseDotNet@2
+            displayName: "Install .NET SDK"
+            inputs:
+              packageType: "sdk"
+              version: "9.0.x"
 
-  #         - task: DotNetCoreCLI@2
-  #           displayName: "Run .NET Unit Tests"
-  #           inputs:
-  #             command: "test"
-  #             projects: "src/AiTrainer.Web/AiTrainer.Web.sln"
-  #             arguments: "-c Release"
+          - task: DotNetCoreCLI@2
+            displayName: "Run .NET Unit Tests"
+            inputs:
+              command: "test"
+              projects: "src/AiTrainer.Web/AiTrainer.Web.sln"
+              arguments: "-c Release"
 
-  #         - task: Docker@2
-  #           displayName: build local docker image for testing
-  #           inputs:
-  #             command: build
-  #             Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Web/dockerfile"
-  #             buildContext: "$(Build.SourcesDirectory)"
+          - task: Docker@2
+            displayName: build local docker image for testing
+            inputs:
+              command: build
+              Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Web/dockerfile"
+              buildContext: "$(Build.SourcesDirectory)"
 
-  #     - job: build_core_api
-  #       displayName: "Build core api"
-  #       variables:
-  #         - name: version
-  #           value: $(Build.BuildNumber)
-  #       steps:
-  #         - task: NodeTool@0
-  #           inputs:
-  #             versionSpec: 22.x
+      - job: build_core_api
+        displayName: "Build core api"
+        variables:
+          - name: version
+            value: $(Build.BuildNumber)
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: 22.x
 
-  #         - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1 -filePath '.\src\AiTrainer.Core\src\Data\expressappsettings.json'
-  #           displayName: "Add express app settings environment"
+          - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1 -filePath '.\src\AiTrainer.Core\src\Data\expressappsettings.json'
+            displayName: "Add express app settings environment"
 
-  #         - task: Npm@1
-  #           displayName: "NPM install"
-  #           inputs:
-  #             command: "custom"
-  #             customCommand: "ci"
-  #             workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
+          - task: Npm@1
+            displayName: "NPM install"
+            inputs:
+              command: "custom"
+              customCommand: "ci"
+              workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
 
-  #         - task: Npm@1
-  #           displayName: "Check types"
-  #           inputs:
-  #             commands: "custom"
-  #             customCommand: "run check-types"
-  #             workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
+          - task: Npm@1
+            displayName: "Check types"
+            inputs:
+              commands: "custom"
+              customCommand: "run check-types"
+              workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
 
-  #         - task: Npm@1
-  #           displayName: "Test"
-  #           inputs:
-  #             command: "custom"
-  #             customCommand: "test --watchAll=false --coverage --ci"
-  #             workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
+          - task: Npm@1
+            displayName: "Test"
+            inputs:
+              command: "custom"
+              customCommand: "test --watchAll=false --coverage --ci"
+              workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
 
-  #         - task: Npm@1
-  #           displayName: "Build"
-  #           inputs:
-  #             command: "custom"
-  #             customCommand: "run build"
-  #             workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
+          - task: Npm@1
+            displayName: "Build"
+            inputs:
+              command: "custom"
+              customCommand: "run build"
+              workingDir: $(Build.SourcesDirectory)/src/AiTrainer.Core
 
-  #         - task: Docker@2
-  #           displayName: build local docker image for testing
-  #           inputs:
-  #             command: build
-  #             Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Core/dockerfile"
-  #             buildContext: "$(Build.SourcesDirectory)"
+          - task: Docker@2
+            displayName: build local docker image for testing
+            inputs:
+              command: build
+              Dockerfile: "$(Build.SourcesDirectory)/src/AiTrainer.Core/dockerfile"
+              buildContext: "$(Build.SourcesDirectory)"
 
       # - job: build_test_app
       #   displayName: "Build test client"
@@ -157,7 +157,8 @@ stages:
           #   artifact: chrome-ext
 
   - stage: Tests
-    # condition: and(succeeded(), eq(variables.isMain, true))
+    displayName: High level tests
+    condition: and(succeeded(), eq(variables.isMain, true))
     jobs:
       - job: k6_load_tests
         displayName: K6 load tests
