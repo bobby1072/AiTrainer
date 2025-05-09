@@ -9,3 +9,5 @@ k6 run Tests/UploadFile.js
 k6 run Tests/GetOneLayer.js
 
 k6 run Tests/SaveFileCollection.js
+
+k6 run Tests/SyncFileCollectionFaiss.js

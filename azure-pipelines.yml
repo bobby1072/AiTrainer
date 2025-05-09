@@ -175,6 +175,9 @@ stages:
                 docker-compose.coreapi.yml
                 K6/docker-compose.k6.yml
               action: 'Build services'
+              dockerComposeFileArgs: |
+                OPENAI_API_KEY=$(pipeline.OPENAI_API_KEY)
+                AiTrainerCore.ApiKey=$(pipeline.AiTrainerCore.ApiKey)
 
           - task: k6-load-test@0
             displayName: Upload file test
@@ -193,6 +196,12 @@ stages:
             displayName: Save file collection file test
             inputs:
               filename: 'K6/Tests/SaveFileCollection.js'
+              failOnStandardError: true
+
+          - task: k6-load-test@0
+            displayName: Save file collection file test
+            inputs:
+              filename: 'K6/Tests/SyncFileCollectionFaiss.js'
               failOnStandardError: true
 
 
