@@ -39,14 +39,6 @@ stages:
               projects: "src/AiTrainer.Web/AiTrainer.Web.sln"
               arguments: "-c Release"
 
-          - task: FileTransform@2
-            displayName: "Transform app settings"
-            inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Web/AiTrainer.Web.Api"
-              fileType: "json"
-              xmlTransformationRules:
-              jsonTargetFiles: "appsettings.json"
-
           - task: Docker@2
             displayName: build local docker image for testing
             inputs:
@@ -66,22 +58,6 @@ stages:
 
           - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1 -filePath '.\src\AiTrainer.Core\src\Data\expressappsettings.json'
             displayName: "Add express app settings environment"
-
-          - task: FileTransform@2
-            displayName: "Transform express app settings"
-            inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core/src/Data"
-              fileType: "json"
-              xmlTransformationRules:
-              jsonTargetFiles: "expressappsettings.json"
-
-          - task: FileTransform@2
-            displayName: "Transform package json"
-            inputs:
-              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core"
-              fileType: "json"
-              xmlTransformationRules:
-              jsonTargetFiles: "package.json"
 
           - task: Npm@1
             displayName: "NPM install"
@@ -180,9 +156,76 @@ stages:
           #   displayName: "Publish frontend build files"
           #   artifact: chrome-ext
 
+  - stage: Tests
+    displayName: High level tests
+    condition: and(succeeded(), eq(variables.isMain, true))
+    jobs:
+      - job: k6_load_tests
+        displayName: K6 load tests
+        steps:
+          - checkout: self
+            submodules: recursive
+
+          - task: DockerCompose@1
+            displayName: Set up docker env
+            inputs:
+              projectName: aitrainer
+              dockerComposeFile: 'docker-compose.yml'
+              additionalDockerComposeFiles: |
+                docker-compose.coreapi.yml
+                K6/docker-compose.k6.yml
+              action: 'Build services'
+
+          - task: k6-load-test@0
+            displayName: Upload file test
+            inputs:
+              filename: 'K6/Tests/UploadFile.js'
+              failOnStandardError: true
+
+          - task: k6-load-test@0
+            displayName: Get one layer test
+            inputs:
+              filename: 'K6/Tests/GetOneLayer.js'
+              failOnStandardError: true
+
+
+          - task: k6-load-test@0
+            displayName: Save file collection file test
+            inputs:
+              filename: 'K6/Tests/SaveFileCollection.js'
+              failOnStandardError: true
+
+
   - stage: Publish
     condition: and(succeeded(), eq(variables.isMain, true))
     jobs:
+      - job: transform_api_settings
+        displayName: Transform api settings
+        steps:
+          - task: FileTransform@2
+            displayName: "Transform express app settings"
+            inputs:
+              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core/src/Data"
+              fileType: "json"
+              xmlTransformationRules:
+              jsonTargetFiles: "expressappsettings.json"
+
+          - task: FileTransform@2
+            displayName: "Transform package json"
+            inputs:
+              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Core"
+              fileType: "json"
+              xmlTransformationRules:
+              jsonTargetFiles: "package.json"
+
+          - task: FileTransform@2
+            displayName: "Transform app settings"
+            inputs:
+              folderPath: "$(Build.SourcesDirectory)/src/AiTrainer.Web/AiTrainer.Web.Api"
+              fileType: "json"
+              xmlTransformationRules:
+              jsonTargetFiles: "appsettings.json"
+
       - job: push_web_image
         displayName: Push web image
         steps:
@@ -230,6 +273,8 @@ stages:
               containerRegistry: DockerHub
               username: $(pipeline.dockerHubUsername)
               password: $(pipeline.dockerHubPassword)
+
+
 
           - task: Docker@2
             displayName: Build Core Image
