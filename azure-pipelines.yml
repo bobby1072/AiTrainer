@@ -166,6 +166,7 @@ stages:
             submodules: recursive
 
           - task: DockerCompose@1
+            displayName: Set up docker env
             inputs:
               projectName: aitrainer
               dockerComposeFile: 'docker-compose.yml'
@@ -175,16 +176,23 @@ stages:
               action: 'Build services'
 
           - task: k6-load-test@0
+            displayName: Upload file test
             inputs:
               filename: 'K6/Tests/UploadFile.js'
+              failOnStandardError: true
 
           - task: k6-load-test@0
+            displayName: Get one layer test
             inputs:
               filename: 'K6/Tests/GetOneLayer.js'
+              failOnStandardError: true
+
 
           - task: k6-load-test@0
+            displayName: Save file collection file test
             inputs:
               filename: 'K6/Tests/SaveFileCollection.js'
+              failOnStandardError: true
 
 
   - stage: Publish
