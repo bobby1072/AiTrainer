@@ -58,6 +58,5 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
         Assert.NotNull(result);
         Assert.IsType<JsonDocument>(result.JsonDocStore);
         Assert.Equal(result.IndexFile, mockedApiResponse.Data.IndexFile);
-        
     }
 }

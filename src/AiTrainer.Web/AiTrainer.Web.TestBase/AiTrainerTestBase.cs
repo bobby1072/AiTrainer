@@ -7,7 +7,7 @@ namespace AiTrainer.Web.TestBase;
 
 public abstract class AiTrainerTestBase
 {
-    protected readonly Fixture _fixture = new();
+    protected static readonly Fixture _fixture = new();
     protected readonly Mock<HttpContext> _mockHttpContext = new();
     protected readonly Mock<HttpRequest> _mockHttpRequest = new();
     protected readonly Mock<HttpResponse> _mockHttpResponse = new();

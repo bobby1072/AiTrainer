@@ -24,7 +24,7 @@ public class CoreClientChunkDocumentTests : CoreClientTestBase
     {
         //Arrange
         var mockInput = _fixture.Create<CoreDocumentToChunkInput>();
-        var expectedUri = "http://localhost:5000/api/chunkingrouter/chunkdocument";
+        var expectedUri = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/chunkingrouter/chunkdocument";
         var expectedResult = _fixture.Create<CoreResponse<CoreChunkedDocumentResponse>>();
 
         using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, expectedResult);

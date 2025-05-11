@@ -20,11 +20,11 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
     private readonly ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse> _coreClient;
     private readonly ILogger<FileCollectionFaissRemoveDocumentsProcessingManager> _logger;
     private readonly IFileCollectionFaissRepository _fileCollectionFaissRepo;
-    private readonly IFileDocumentRepository _fileCollectionRepo;
+    private readonly IFileDocumentRepository _fileDocumentRepo;
     private readonly IHttpContextAccessor _httpContextAccessor;
     public FileCollectionFaissRemoveDocumentsProcessingManager(
             IFileCollectionFaissRepository fileCollectionFaissRepo,
-            IFileDocumentRepository fileCollectionRepo,
+            IFileDocumentRepository fileDocumentRepo,
             ILogger<FileCollectionFaissRemoveDocumentsProcessingManager> logger,
             ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse> coreClient,
             IHttpContextAccessor httpContextAccessor
@@ -34,7 +34,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
         _logger = logger;
         _coreClient = coreClient;
         _httpContextAccessor = httpContextAccessor;
-        _fileCollectionRepo = fileCollectionRepo;
+        _fileDocumentRepo = fileDocumentRepo;
     }
 
     public async Task<FileCollectionFaiss> RemoveDocumentsFromFaissStoreSafelyAsync(FileCollectionFaiss fileCollectionFaiss, IReadOnlyCollection<Guid> existingDocumentIds, CancellationToken cancellationToken = default)
@@ -223,7 +223,7 @@ internal class FileCollectionFaissRemoveDocumentsProcessingManager: IFileCollect
     {
         var existingFileDocuments = await EntityFrameworkUtils.TryDbOperation(
             () =>
-                _fileCollectionRepo.GetManyDocumentPartialsByCollectionIdAndUserId(
+                _fileDocumentRepo.GetManyDocumentPartialsByCollectionIdAndUserId(
                     currentUserId,
                     collectionId
                 ),
