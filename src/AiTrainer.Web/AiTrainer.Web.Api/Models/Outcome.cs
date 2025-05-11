@@ -6,7 +6,7 @@
         public string? ExceptionMessage { get; init; }
     }
 
-    public record Outcome<T> : Outcome
+    public sealed record Outcome<T> : Outcome
     {
         public T? Data { get; init; }
     }

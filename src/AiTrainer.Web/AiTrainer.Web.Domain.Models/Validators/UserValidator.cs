@@ -1,5 +1,4 @@
-﻿
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace AiTrainer.Web.Domain.Models.Validators
 {

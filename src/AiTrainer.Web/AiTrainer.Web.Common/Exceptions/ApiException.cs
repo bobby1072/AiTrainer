@@ -15,6 +15,7 @@ namespace AiTrainer.Web.Common.Exceptions
             : base(message)
         {
             StatusCode = statusCode;
+            LogLevel = logLevel;
         }
         public ApiException(
             LogLevel logLevel,
