@@ -12,42 +12,42 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientSimilaritySearchTests: CoreClientTestBase
+public class CoreClientRemoveDocumentsFromStoreTests: CoreClientTestBase
 {
-    public CoreClientSimilaritySearchTests()
+    public CoreClientRemoveDocumentsFromStoreTests()
     {
         SetUpBasicHttpContext(true);
     }
 
     [Fact]
-    public async Task CoreClientSimilaritySearch_Should_Build_Request_Correctly()
+    public async Task CoreClientRemoveDocumentsFromStore_Should_Build_Request_Correctly()
     {
         //Arrange
         var stringJson = JsonSerializer.Serialize(new {Text = Faker.Lorem.Paragraph()});
-        await using var memStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
-        
+        await using var inputMemStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
+        await using var responseMemStream = new MemoryStream(Encoding.UTF8.GetBytes(stringJson));
         
         var input = _fixture
-            .Build<CoreSimilaritySearchInput>()
-            .With(x => x.DocStore, await JsonDocument.ParseAsync(memStream))
-            .With(x => x.FileInput, memStream.ToArray())
+            .Build<CoreRemoveDocumentsFromStoreInput>()
+            .With(x => x.DocStore, await JsonDocument.ParseAsync(inputMemStream))
+            .With(x => x.FileInput, inputMemStream.ToArray())
             .Create();
         
         var response = _fixture
-            .Build<CoreSimilaritySearchResponse>()
-            .With(x => x.Items, _fixture.CreateMany<SimilaritySearchResponseItem>().ToArray())
+            .Build<CoreFaissStoreResponse>()
+            .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(responseMemStream))
             .Create();
-        var mockedApiResponse = new CoreResponse<CoreSimilaritySearchResponse> { Data = response };
+        var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
 
-        var expecterdUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/similaritysearch";
+        var expecterdUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/removedocuments";
         using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
             mockedApiResponse
             );
-        var service = new CoreClientSimilaritySearch(
-            new NullLogger<CoreClientSimilaritySearch>(),
+        var service = new CoreClientRemoveDocumentsFromStore(
+            new NullLogger<CoreClientRemoveDocumentsFromStore>(),
             new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
-            httpClient,
-            _mockHttpContextAccessor.Object
+            _mockHttpContextAccessor.Object,
+            httpClient
         );
 
         //Act
@@ -59,13 +59,7 @@ public class CoreClientSimilaritySearchTests: CoreClientTestBase
         httpClient.WasExpectedHeaderCalled(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey);
         httpClient.WasExpectedHttpMethodUsed(HttpMethod.Post);
         Assert.NotNull(result);
-        for (int i = 0; i < mockedApiResponse.Data.Items.Count; i++)
-        {
-            var expectedItem = mockedApiResponse.Data.Items.ElementAt(i);
-            var actualItem  = result.Items.ElementAt(i);
-            
-            Assert.Equal(expectedItem.Metadata, actualItem.Metadata);
-            Assert.Equal(expectedItem.PageContent, actualItem.PageContent);
-        }
+        Assert.IsType<JsonDocument>(result.JsonDocStore);
+        Assert.Equal(result.IndexFile, mockedApiResponse.Data.IndexFile);
     }
 }

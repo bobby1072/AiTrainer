@@ -18,10 +18,10 @@ namespace AiTrainer.Web.CoreClient.Tests
             DocumentChunkingType = 1
         };
 
-        protected TestHttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData, string expectedUrl) where T: class
+        protected TestHttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData) where T: class
         {
             var handler = new StaticJsonHandler<T>(responseData, statusCode, ApiConstants.DefaultCamelCaseSerializerOptions);
-            var httpClient = new TestHttpClient(handler, expectedUrl);
+            var httpClient = new TestHttpClient(handler);
             httpClient.Timeout = TimeSpan.FromSeconds(2);
             
             return httpClient;
