@@ -10,7 +10,7 @@ namespace AiTrainer.Web.Domain.Models.Validators
             try
             {
                 if (string.IsNullOrEmpty(input)) return false;
-                var address = new MailAddress(input);
+                _ = new MailAddress(input);
 
                 return true;
             }
