@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
+using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -15,7 +16,7 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
 {
     public CoreClientUpdateFaissStoreTests()
     {
-        SetUpBasicHttpContext();
+        SetUpBasicHttpContext(true);
     }
 
     [Fact]
@@ -36,10 +37,9 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
             .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(responseMemStream))
             .Create();
         var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
-        
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
-            mockedApiResponse,
-            $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore");
+        var expectedUrl = $"{_aiTrainerCoreConfiguration.BaseEndpoint}/api/faissrouter/updatestore";
+        using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK,
+            mockedApiResponse);
         var service = new CoreClientUpdateFaissStore(
             new NullLogger<CoreClientUpdateFaissStore>(),
             new TestOptions<AiTrainerCoreConfiguration>(_aiTrainerCoreConfiguration),
@@ -51,10 +51,12 @@ public class CoreClientUpdateFaissStoreTests: CoreClientTestBase
         var result = await service.TryInvokeAsync(input);
         
         //Assert
-        Assert.True(httpClient.WasExpectedUrlCalled());
+        httpClient.WasExpectedUrlCalled(expectedUrl);
+        httpClient.WasExpectedHeaderCalled(ApiConstants.CorrelationIdHeader);
+        httpClient.WasExpectedHeaderCalled(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey);
+        httpClient.WasExpectedHttpMethodUsed(HttpMethod.Post);
         Assert.NotNull(result);
         Assert.IsType<JsonDocument>(result.JsonDocStore);
         Assert.Equal(result.IndexFile, mockedApiResponse.Data.IndexFile);
-        
     }
 }
