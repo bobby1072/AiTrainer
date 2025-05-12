@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
+using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
@@ -15,7 +16,7 @@ public class CoreClientCreateFaissStoreTests: CoreClientTestBase
 {
     public CoreClientCreateFaissStoreTests()
     {
-        SetUpBasicHttpContext();
+        SetUpBasicHttpContext(true);
     }
 
     [Fact]
@@ -34,10 +35,11 @@ public class CoreClientCreateFaissStoreTests: CoreClientTestBase
         var response = _fixture
             .Build<CoreFaissStoreResponse>()
             .With(x => x.JsonDocStore, await JsonDocument.ParseAsync(memStream))
+            .With(x => x.IndexFile, memStream.ToArray())
             .Create();
         var mockedApiResponse = new CoreResponse<CoreFaissStoreResponse> { Data = response };
         
-        var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, mockedApiResponse, expectedUrl);
+        using var httpClient = CreateDefaultCoreClientHttpClient(HttpStatusCode.OK, mockedApiResponse);
         var service = new CoreClientCreateFaissStore(
             new NullLogger<CoreClientCreateFaissStore>(),
             httpClient,
@@ -49,7 +51,10 @@ public class CoreClientCreateFaissStoreTests: CoreClientTestBase
         var result = await service.TryInvokeAsync(input);
         
         //Assert
-        Assert.True(httpClient.WasExpectedUrlCalled());
+        httpClient.WasExpectedUrlCalled(expectedUrl);
+        httpClient.WasExpectedHeaderCalled(ApiConstants.CorrelationIdHeader);
+        httpClient.WasExpectedHeaderCalled(CoreClientConstants.ApiKeyHeader, _aiTrainerCoreConfiguration.ApiKey);
+        httpClient.WasExpectedHttpMethodUsed(HttpMethod.Post);
         Assert.NotNull(result);
         Assert.IsType<JsonDocument>(result.JsonDocStore);
         Assert.Equal(result.IndexFile, mockedApiResponse.Data.IndexFile);
