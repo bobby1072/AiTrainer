@@ -48,9 +48,6 @@ stages:
 
       - job: build_core_api
         displayName: "Build core api"
-        variables:
-          - name: version
-            value: $(Build.BuildNumber)
         steps:
           - task: NodeTool@0
             inputs:
@@ -210,6 +207,9 @@ stages:
     jobs:
       - job: transform_api_settings
         displayName: Transform api settings
+        variables:
+          - name: version
+            value: $(Build.BuildNumber)
         steps:
           - powershell: $(Build.SourcesDirectory)/build-scripts/create_express_app_settings_json.ps1 -filePath '.\src\AiTrainer.Core\src\Data\expressappsettings.json'
             displayName: "Add express app settings environment"
