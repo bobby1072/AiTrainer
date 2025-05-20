@@ -67,25 +67,26 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             }
         }
 
-        public async Task<DbDeleteResult<FileDocument>> Delete(
-            FileDocument document)
+        public override async Task<DbDeleteResult<FileDocument>> Delete(
+            IReadOnlyCollection<FileDocument> entObj)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
             try
             {
-                var documentEntity = document.ToEntity();
+                var documentEnts = entObj.FastArraySelect(RuntimeToEntity).ToArray();
 
-                if (document.CollectionId is Guid foundColId)
-                {
-                    await UpdateFileColLastUpdate(dbContext.FileCollections, [document.UserId], [foundColId]);
-                }
-                dbContext.FileDocuments.Remove(documentEntity);
+                await UpdateFileColLastUpdate(dbContext.FileCollections,
+                    documentEnts.FastArraySelect(x => x.UserId).ToArray(),
+                    documentEnts.FastArraySelectWhere(x => x.CollectionId is not null, x => (Guid)x.CollectionId!)
+                        .ToArray());
+
+                dbContext.FileDocuments.RemoveRange(documentEnts);
                 
                 await dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return new DbDeleteResult<FileDocument> { Data = [documentEntity.ToModel()] };
+                return new DbDeleteResult<FileDocument> { Data = documentEnts.FastArraySelect(x => x.ToModel()).ToArray() };
             }
             catch
             {
