@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
     internal class FileDocumentRepository
-        : BaseFileRepository<FileDocumentEntity, Guid, FileDocument>,
+        : BaseRepository<FileDocumentEntity, Guid, FileDocument>,
             IFileDocumentRepository
     {
         public FileDocumentRepository(

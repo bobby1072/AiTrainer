@@ -259,7 +259,10 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
             return set;
         }
-
+        protected static Task<int> UpdateFileColLastUpdate(IQueryable<FileCollectionEntity> set, IReadOnlyCollection<Guid> userIds, IReadOnlyCollection<Guid> collectionIds)
+        {
+            return set.Where(x => userIds.Contains(x.UserId) && collectionIds.Contains(x.Id)).ExecuteUpdateAsync(x => x.SetProperty(y => y.DateModified, DateTime.UtcNow));
+        }
         protected async Task<T> TimeAndLogDbOperation<T>(
             Func<Task<T>> func,
             string operationName,

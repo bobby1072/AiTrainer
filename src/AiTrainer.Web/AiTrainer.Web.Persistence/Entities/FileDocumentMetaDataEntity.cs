@@ -1,6 +1,5 @@
-using AiTrainer.Web.Domain.Models;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
+using AiTrainer.Web.Domain.Models;
 
 namespace AiTrainer.Web.Persistence.Entities;
 
@@ -36,7 +35,7 @@ public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData
             ModifiedDate = ModifiedDate,
             NumberOfPages = NumberOfPages,
             IsEncrypted = IsEncrypted,
-            ExtraData = ExtraData ?? []
+            ExtraData = ExtraData ?? [],
         };
     }
 }
