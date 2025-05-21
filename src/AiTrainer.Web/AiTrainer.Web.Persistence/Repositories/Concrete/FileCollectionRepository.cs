@@ -25,6 +25,42 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbSaveResult<FileCollection>> UpdateWithSharedMembers(FileCollection fileCollection,
+            IReadOnlyCollection<SharedFileCollectionMember> membersToUpdate,
+            IReadOnlyCollection<SharedFileCollectionMember> membersToCreate)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                dbContext.FileCollections.Update(fileCollection.ToEntity());
+                
+                if (membersToUpdate.Count > 0)
+                {
+                    dbContext.SharedFileCollectionMembers.UpdateRange(membersToUpdate.FastArraySelect(x => x.ToEntity()));
+                }
+
+                if (membersToCreate.Count > 0)
+                {
+                    await dbContext.SharedFileCollectionMembers.AddRangeAsync(membersToCreate.FastArraySelect(x => x.ToEntity()));
+                }
+                
+                await dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new DbSaveResult<FileCollection>
+                {
+                    Data = dbContext.FileCollections.Local.FastArraySelect(x => x.ToModel()).ToArray(),
+                    IsSuccessful = true
+                };
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
         public async Task<DbGetOneResult<FileCollection>> GetCollectionByUserIdAndCollectionId(Guid userId, Guid collectionId, params string[] relations)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
@@ -100,7 +136,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
 
-            var deleted = await TimeAndLogDbOperation(
+            _ = await TimeAndLogDbOperation(
                 () =>
                     dbContext
                         .FileCollections.Where(x => x.Id == collectionId && x.UserId == userId)

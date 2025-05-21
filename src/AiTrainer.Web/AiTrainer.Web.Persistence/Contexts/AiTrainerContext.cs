@@ -23,6 +23,11 @@ namespace AiTrainer.Web.Persistence.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<FileCollectionEntity>(ent =>
+            {
+                ent
+                    .HasMany<SharedFileCollectionMemberEntity>();
+            });
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
                 ent.ToTable("file_document_metadata");

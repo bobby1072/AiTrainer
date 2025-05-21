@@ -4,7 +4,6 @@ using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.File.Abstract;
-using AiTrainer.Web.Domain.Services.User.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
@@ -24,12 +23,13 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IValidator<FileCollection> _validator;
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IHttpContextAccessor? _httpContextAccessor;
-
+        private readonly IRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember> _sharedFileCollectionMemberRepository;
         public FileCollectionProcessingManager(
             IFileCollectionRepository repository,
             ILogger<FileCollectionProcessingManager> logger,
             IValidator<FileCollection> validator,
             IFileDocumentRepository fileDocumentRepository,
+            IRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember> sharedFileCollectionMemberRepository,
             IHttpContextAccessor? httpContextAccessor =  null
         )
         {
@@ -37,6 +37,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _httpContextAccessor = httpContextAccessor;
             _logger = logger;
             _validator = validator;
+            _fileDocumentRepository = fileDocumentRepository;
             _fileDocumentRepository = fileDocumentRepository;
         }
 

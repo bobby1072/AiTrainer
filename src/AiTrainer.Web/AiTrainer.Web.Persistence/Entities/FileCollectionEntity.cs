@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace AiTrainer.Web.Persistence.Entities
 {
     [Table("file_collection", Schema = DbConstants.PublicSchema)]
-    public record FileCollectionEntity : BaseEntity<Guid, FileCollection>
+    public sealed record FileCollectionEntity : BaseEntity<Guid, FileCollection>
     {
         public required Guid UserId { get; set; }
         public required string CollectionName { get; set; }
@@ -13,9 +13,10 @@ namespace AiTrainer.Web.Persistence.Entities
         public DateTime DateCreated { get; set; }
         public DateTime DateModified { get; set; }
         public Guid? ParentId { get; set; }
-        public bool AutoFaissSync { get; init; }
-        public virtual IReadOnlyCollection<FileDocumentEntity>? Documents { get; set; }
-        public virtual FileCollectionFaissEntity? FaissStore { get; set; }
+        public bool AutoFaissSync { get; set; }
+        public IReadOnlyCollection<FileDocumentEntity>? Documents { get; set; }
+        public FileCollectionFaissEntity? FaissStore { get; set; }
+        public IReadOnlyCollection<SharedFileCollectionMemberEntity>? SharedFileMembers { get; set; }
         public override FileCollection ToModel() =>
             new()
             {
@@ -28,7 +29,8 @@ namespace AiTrainer.Web.Persistence.Entities
                 ParentId = ParentId,
                 CollectionDescription = CollectionDescription,
                 FaissStore = FaissStore?.ToModel(),
-                Documents = Documents?.FastArraySelect(x => x.ToModel()).ToArray()
+                Documents = Documents?.FastArraySelect(x => x.ToModel()).ToArray(),
+                SharedFileMembers = SharedFileMembers?.FastArraySelect(x => x.ToModel()).ToArray(),
             };
     }
 }

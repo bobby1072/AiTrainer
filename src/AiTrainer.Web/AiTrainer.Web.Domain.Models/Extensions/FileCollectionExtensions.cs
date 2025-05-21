@@ -1,4 +1,5 @@
 ﻿using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using BT.Common.FastArray.Proto;
 
 namespace AiTrainer.Web.Domain.Models.Extensions
 {

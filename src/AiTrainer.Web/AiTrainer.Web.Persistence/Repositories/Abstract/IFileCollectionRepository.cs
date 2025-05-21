@@ -7,7 +7,6 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
     public interface IFileCollectionRepository
         : IRepository<FileCollectionEntity, Guid, FileCollection>
     {
-        Task<DbResult<bool>> IsCollectionFaissSynced(Guid? collectionId = null);
         Task<DbGetManyResult<FileCollection>> GetTopLevelCollectionsForUser(
             Guid userId,
             params string[] relationShips
@@ -18,8 +17,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             params string[] relationShips
         );
         Task<DbDeleteResult<Guid>> Delete(Guid collectionId, Guid userId);
-
-        Task<DbGetOneResult<FileCollection>> GetCollectionByUserIdAndCollectionId(Guid userId, Guid collectionId,
-            params string[] relations);
+        
+        Task<DbSaveResult<FileCollection>> UpdateWithSharedMembers(FileCollection fileCollection, IReadOnlyCollection<SharedFileCollectionMember> membersToUpdate, IReadOnlyCollection<SharedFileCollectionMember> membersToCreate);
     }
 }

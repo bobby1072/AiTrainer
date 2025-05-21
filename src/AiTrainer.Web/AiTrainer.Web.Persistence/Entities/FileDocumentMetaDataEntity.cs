@@ -4,7 +4,7 @@ using AiTrainer.Web.Domain.Models;
 namespace AiTrainer.Web.Persistence.Entities;
 
 [Table("file_document_metadata", Schema = DbConstants.PublicSchema)]
-public record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData>
+public sealed record FileDocumentMetaDataEntity : BaseEntity<long, FileDocumentMetaData>
 {
     public Guid DocumentId { get; init; }
     public string? Title { get; init; }

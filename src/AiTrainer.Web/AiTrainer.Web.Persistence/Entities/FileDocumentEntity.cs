@@ -5,7 +5,7 @@ using BT.Common.FastArray.Proto;
 namespace AiTrainer.Web.Persistence.Entities
 {
     [Table("file_document", Schema = DbConstants.PublicSchema)]
-    public record FileDocumentEntity : BaseEntity<Guid, FileDocument>
+    public sealed record FileDocumentEntity : BaseEntity<Guid, FileDocument>
     {
         public Guid? CollectionId { get; set; }
         public required DateTime DateCreated { get; set; }
