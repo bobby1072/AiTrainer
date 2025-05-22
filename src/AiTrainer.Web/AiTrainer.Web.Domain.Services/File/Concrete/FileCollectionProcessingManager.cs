@@ -74,12 +74,12 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             
             var sharedMembersToSave = CreateSharedFileCollectionMembers(sharedFileColInput, foundCollection.Data.SharedFileMembers ?? [], (Guid)currentUser.Id!);
 
-            if (sharedMembersToSave.Count == 0)
+            if (sharedMembersToSave.Length == 0)
             {
                 return [];
             }
 
-            if (sharedMembersToSave.Count + (foundCollection.Data.SharedFileMembers?.Count ?? 0) > 30)
+            if (sharedMembersToSave.Length + (foundCollection.Data.SharedFileMembers?.Count ?? 0) > 30)
             {
                 throw new ApiException("you cannot share more than 30 users on a file collection", HttpStatusCode.BadRequest); 
             }
@@ -338,7 +338,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         }
         
         
-        private static IReadOnlyCollection<SharedFileCollectionMember> CreateSharedFileCollectionMembers(
+        private static SharedFileCollectionMember[] CreateSharedFileCollectionMembers(
             SharedFileCollectionMemberSaveInput sharedFileColInput,
             IReadOnlyCollection<SharedFileCollectionMember> existingSharedMembers,
             Guid collectionOwnerUserId)

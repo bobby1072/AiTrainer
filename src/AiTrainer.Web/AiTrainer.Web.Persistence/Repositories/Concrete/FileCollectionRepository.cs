@@ -97,7 +97,13 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             var entities = await TimeAndLogDbOperation(
                 () =>
-                    setToQuery.Where(x => x.UserId == userId && x.ParentId == null).ToArrayAsync(),
+                    setToQuery
+                        .Include(x => x.SharedFileMembers)
+                        .Where(x =>
+                            (x.UserId == userId || x.SharedFileMembers!.Any(sfm => sfm.UserId == userId))
+                            && x.ParentId == null
+                        )
+                        .ToArrayAsync(),
                 nameof(GetTopLevelCollectionsForUser),
                 _entityType.Name
             );
@@ -120,7 +126,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 () =>
                     setToQuery
                         .Where(x =>
-                            x.UserId == userId && (x.ParentId == parentId || x.Id == parentId)
+                            (x.UserId == userId || x.SharedFileMembers!.Any(sfm => sfm.UserId == userId)) && (x.ParentId == parentId || x.Id == parentId)
                         )
                         .ToArrayAsync(),
                 nameof(GetTopLevelCollectionsForUser),
