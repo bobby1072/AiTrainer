@@ -17,7 +17,7 @@ namespace AiTrainer.Web.Domain.Models
         public FileCollectionFaiss? FaissStore { get; init; }
         public IReadOnlyCollection<FileDocument>? Documents { get; init; }
         
-        public IReadOnlyCollection<SharedFileCollectionMember>? SharedFileMembers { get; init; }
+        public IReadOnlyCollection<SharedFileCollectionMember>? SharedFileCollectionMembers { get; init; }
 
         public override bool Equals(FileCollection? other)
         {

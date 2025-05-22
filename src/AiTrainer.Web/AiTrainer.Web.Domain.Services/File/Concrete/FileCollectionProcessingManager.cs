@@ -56,7 +56,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
             
             var foundCollection = await EntityFrameworkUtils.TryDbOperation(
-                () => _repository.GetOne(sharedFileColInput.CollectionId, nameof(FileCollectionEntity.SharedFileMembers)), _logger
+                () => _repository.GetOne(sharedFileColInput.CollectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)), _logger
             );
 
             if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
@@ -72,14 +72,14 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 );
             }
             
-            var sharedMembersToSave = CreateSharedFileCollectionMembers(sharedFileColInput, foundCollection.Data.SharedFileMembers ?? [], (Guid)currentUser.Id!);
+            var sharedMembersToSave = CreateSharedFileCollectionMembers(sharedFileColInput, foundCollection.Data.SharedFileCollectionMembers ?? [], (Guid)currentUser.Id!);
 
             if (sharedMembersToSave.Length == 0)
             {
                 return [];
             }
 
-            if (sharedMembersToSave.Length + (foundCollection.Data.SharedFileMembers?.Count ?? 0) > 30)
+            if (sharedMembersToSave.Length + (foundCollection.Data.SharedFileCollectionMembers?.Count ?? 0) > 30)
             {
                 throw new ApiException("you cannot share more than 30 users on a file collection", HttpStatusCode.BadRequest); 
             }
@@ -220,7 +220,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             if (createdCollection.ParentId is Guid foundParentId)
             {
                 var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(
-                    () => _repository.GetOne(foundParentId, nameof(FileCollectionEntity.SharedFileMembers)),
+                    () => _repository.GetOne(foundParentId, nameof(FileCollectionEntity.SharedFileCollectionMembers)),
                     _logger
                 );
                 if (foundSingleParent?.Data?.UserId != currentUser.Id)
@@ -228,7 +228,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     throw new ApiException("Collection is not valid", HttpStatusCode.BadRequest);
                 }
                 
-                sharedMembers = foundSingleParent.Data.SharedFileMembers ?? [];
+                sharedMembers = foundSingleParent.Data.SharedFileCollectionMembers ?? [];
             }
 
             _logger.LogInformation(

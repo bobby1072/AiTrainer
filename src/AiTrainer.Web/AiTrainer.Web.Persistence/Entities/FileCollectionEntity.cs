@@ -16,7 +16,7 @@ namespace AiTrainer.Web.Persistence.Entities
         public bool AutoFaissSync { get; set; }
         public IReadOnlyCollection<FileDocumentEntity>? Documents { get; set; }
         public FileCollectionFaissEntity? FaissStore { get; set; }
-        public IReadOnlyCollection<SharedFileCollectionMemberEntity>? SharedFileMembers { get; set; }
+        public IReadOnlyCollection<SharedFileCollectionMemberEntity>? SharedFileCollectionMembers { get; set; }
         public override FileCollection ToModel() =>
             new()
             {
@@ -30,7 +30,7 @@ namespace AiTrainer.Web.Persistence.Entities
                 CollectionDescription = CollectionDescription,
                 FaissStore = FaissStore?.ToModel(),
                 Documents = Documents?.FastArraySelect(x => x.ToModel()).ToArray(),
-                SharedFileMembers = SharedFileMembers?.FastArraySelect(x => x.ToModel()).ToArray(),
+                SharedFileCollectionMembers = SharedFileCollectionMembers?.FastArraySelect(x => x.ToModel()).ToArray(),
             };
     }
 }
