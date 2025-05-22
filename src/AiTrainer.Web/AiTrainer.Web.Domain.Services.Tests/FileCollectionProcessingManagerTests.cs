@@ -21,6 +21,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<ILogger<FileCollectionProcessingManager>> _mockLogger = new();
         private readonly Mock<IValidator<FileCollection>> _mockValidator = new();
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
+        private readonly Mock<IRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember>> _sharedFileCollectionMemberRepository= new();
+        private readonly Mock<IValidator<IEnumerable<SharedFileCollectionMember>>> _sharedFileCollectionMemberValidator = new();
         private readonly FileCollectionProcessingManager _fileCollectionManager;
         public FileCollectionProcessingManagerTests()
         {
@@ -29,6 +31,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockLogger.Object,
                 _mockValidator.Object,
                 _mockFileDocumentRepository.Object,
+                _sharedFileCollectionMemberRepository.Object,
+                _sharedFileCollectionMemberValidator.Object,
                 _mockHttpContextAccessor.Object
             );
         }

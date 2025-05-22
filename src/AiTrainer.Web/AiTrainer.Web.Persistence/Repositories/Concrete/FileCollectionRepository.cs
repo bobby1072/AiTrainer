@@ -25,24 +25,27 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
-        public async Task<DbSaveResult<FileCollection>> UpdateWithSharedMembers(FileCollection fileCollection,
-            IReadOnlyCollection<SharedFileCollectionMember> membersToUpdate,
-            IReadOnlyCollection<SharedFileCollectionMember> membersToCreate)
+        public async Task<DbSaveResult<FileCollection>> CreateWithSharedMembers(FileCollection entObj,
+            IReadOnlyCollection<SharedFileCollectionMember> sharedMembers)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
             try
             {
-                dbContext.FileCollections.Update(fileCollection.ToEntity());
-                
-                if (membersToUpdate.Count > 0)
-                {
-                    dbContext.SharedFileCollectionMembers.UpdateRange(membersToUpdate.FastArraySelect(x => x.ToEntity()));
-                }
+                await dbContext.FileCollections.AddAsync(entObj.ToEntity());
 
-                if (membersToCreate.Count > 0)
+                await dbContext.SaveChangesAsync();
+                var createdFileCol = dbContext.FileCollections.Local.FirstOrDefault();
+                
+                if (sharedMembers.Count > 0)
                 {
-                    await dbContext.SharedFileCollectionMembers.AddRangeAsync(membersToCreate.FastArraySelect(x => x.ToEntity()));
+                    await dbContext.SharedFileCollectionMembers.AddRangeAsync(
+                        sharedMembers.FastArraySelect(x =>
+                        {
+                            var ent = x.ToEntity();
+                            ent.CollectionId = createdFileCol!.Id;
+                            return ent;
+                        }));
                 }
                 
                 await dbContext.SaveChangesAsync();

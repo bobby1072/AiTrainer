@@ -194,7 +194,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     currentUser.Id,
                     correlationId
                 );
-                var foundOne = await EntityFrameworkUtils.TryDbOperation(() => _repository.GetOne((Guid)createdCollection.Id!), _logger);
+                var foundOne = await EntityFrameworkUtils
+                    .TryDbOperation(
+                        () => _repository.GetOne((Guid)createdCollection.Id!),
+                    _logger);
                 if (foundOne?.Data is null)
                 {
                     throw new ApiException(
@@ -211,18 +214,21 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 }
                 createdCollection.DateCreated = foundOne.Data.DateCreated.ToUniversalTime();
                 createdCollection.DateModified = DateTime.UtcNow.ToUniversalTime();
+                
             }
-
+            IReadOnlyCollection<SharedFileCollectionMember> sharedMembers = [];
             if (createdCollection.ParentId is Guid foundParentId)
             {
                 var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(
-                    () => _repository.GetOne(foundParentId),
+                    () => _repository.GetOne(foundParentId, nameof(FileCollectionEntity.SharedFileMembers)),
                     _logger
                 );
                 if (foundSingleParent?.Data?.UserId != currentUser.Id)
                 {
                     throw new ApiException("Collection is not valid", HttpStatusCode.BadRequest);
                 }
+                
+                sharedMembers = foundSingleParent.Data.SharedFileMembers ?? [];
             }
 
             _logger.LogInformation(
@@ -235,7 +241,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 () =>
                     hasId
                         ? _repository.Update([createdCollection])
-                        : _repository.Create([createdCollection]),
+                        : createdCollection.ParentId is not null ? _repository.CreateWithSharedMembers(createdCollection, sharedMembers) : _repository.Create([createdCollection]),
                 _logger
             );
 
