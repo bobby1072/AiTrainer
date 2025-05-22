@@ -23,7 +23,7 @@ namespace AiTrainer.Web.Api.Controllers
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FileCollection
-            >(service => service.GetFileCollectionWithContents(input.Id, currentUser), nameof(IFileCollectionProcessingManager.GetFileCollectionWithContents));
+            >(service => service.GetFileCollectionWithContentsAsync(input.Id, currentUser), nameof(IFileCollectionProcessingManager.GetFileCollectionWithContentsAsync));
 
             await using var memoryStream = new MemoryStream();
             using (
@@ -56,7 +56,7 @@ namespace AiTrainer.Web.Api.Controllers
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FileCollection
-            >(service => service.SaveFileCollection(fileCollection, currentUser), nameof(IFileCollectionProcessingManager.SaveFileCollection));
+            >(service => service.SaveFileCollectionAsync(fileCollection, currentUser), nameof(IFileCollectionProcessingManager.SaveFileCollectionAsync));
 
             return new Outcome<FileCollection> { Data = result };
         }
@@ -71,7 +71,7 @@ namespace AiTrainer.Web.Api.Controllers
             var result = await _actionExecutor.ExecuteAsync<
                 IFileCollectionProcessingManager,
                 FlatFileDocumentPartialCollectionView
-            >(service => service.GetOneLayerFileDocPartialsAndCollections(currentUser, input.Id), nameof(IFileCollectionProcessingManager.GetOneLayerFileDocPartialsAndCollections));
+            >(service => service.GetOneLayerFileDocPartialsAndCollectionsAsync(currentUser, input.Id), nameof(IFileCollectionProcessingManager.GetOneLayerFileDocPartialsAndCollectionsAsync));
 
             return new Outcome<FlatFileDocumentPartialCollectionView> { Data = result };
         }
@@ -82,7 +82,7 @@ namespace AiTrainer.Web.Api.Controllers
             var currentUser = await GetCurrentUser();
             
             var result = await _actionExecutor.ExecuteAsync<IFileCollectionProcessingManager, Guid>(
-                service => service.DeleteFileCollection(input.Id, currentUser), nameof(IFileCollectionProcessingManager.DeleteFileCollection)
+                service => service.DeleteFileCollectionAsync(input.Id, currentUser), nameof(IFileCollectionProcessingManager.DeleteFileCollectionAsync)
             );
 
             return new Outcome<Guid> { Data = result };

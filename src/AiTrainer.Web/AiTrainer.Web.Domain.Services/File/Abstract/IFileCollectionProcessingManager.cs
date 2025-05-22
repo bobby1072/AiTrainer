@@ -7,11 +7,14 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
     public interface IFileCollectionProcessingManager : IDomainProcessingManager
     {
-        Task<FileCollection> SaveFileCollection(FileCollectionSaveInput fileCollectionInput, Domain.Models.User currentUser);
-        Task<Guid> DeleteFileCollection(Guid collectionId, Domain.Models.User currentUser);
-        Task<FlatFileDocumentPartialCollectionView> GetOneLayerFileDocPartialsAndCollections(
+        Task<FileCollection> SaveFileCollectionAsync(FileCollectionSaveInput fileCollectionInput, Domain.Models.User currentUser);
+        Task<Guid> DeleteFileCollectionAsync(Guid collectionId, Domain.Models.User currentUser);
+        Task<FlatFileDocumentPartialCollectionView> GetOneLayerFileDocPartialsAndCollectionsAsync(
             Domain.Models.User currentUser, Guid? collectionId = null
         );
-        Task<FileCollection> GetFileCollectionWithContents(Guid fileCollectionId, Domain.Models.User currentUser);
+        Task<FileCollection> GetFileCollectionWithContentsAsync(Guid fileCollectionId, Domain.Models.User currentUser);
+
+        Task<IReadOnlyCollection<SharedFileCollectionMember>> ShareFileCollectionAsync(
+            SharedFileCollectionMemberSaveInput sharedFileColInput, Domain.Models.User currentUser);
     }
 }

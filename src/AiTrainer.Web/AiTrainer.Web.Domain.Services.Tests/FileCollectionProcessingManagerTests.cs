@@ -82,7 +82,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 )
                 .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
             //Act
-            var result = await _fileCollectionManager.SaveFileCollection(fileCollectionInput, currentUser);
+            var result = await _fileCollectionManager.SaveFileCollectionAsync(fileCollectionInput, currentUser);
 
             //Assert
             Assert.NotNull(result);
@@ -170,7 +170,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new DbGetOneResult<FileCollection>(originalFileCollection));
 
             //Act
-            var result = await _fileCollectionManager.SaveFileCollection(newFileCollectionInput, currentUser);
+            var result = await _fileCollectionManager.SaveFileCollectionAsync(newFileCollectionInput, currentUser);
 
             //Assert
             Assert.NotNull(result);
@@ -254,7 +254,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new DbGetOneResult<FileCollection>(originalFileCollection));
 
             //Act
-            var act = () => _fileCollectionManager.SaveFileCollection(newFileCollectionInput, currentUser);
+            var act = () => _fileCollectionManager.SaveFileCollectionAsync(newFileCollectionInput, currentUser);
 
             //Assert
             var thrownException = await Assert.ThrowsAsync<ApiException>(act);
@@ -317,7 +317,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new DbGetManyResult<FileDocumentPartial>([foundSingleFileDocument]));
 
             //Act
-            await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollections(currentUser);
+            await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollectionsAsync(currentUser);
 
             //Assert
             _mockRepository.Verify(
@@ -376,7 +376,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new DbGetManyResult<FileDocumentPartial>([foundSingleFileDocument]));
 
             //Act
-            await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollections(
+            await _fileCollectionManager.GetOneLayerFileDocPartialsAndCollectionsAsync(
                 currentUser, foundSingleFileCollection.Id
             );
 
