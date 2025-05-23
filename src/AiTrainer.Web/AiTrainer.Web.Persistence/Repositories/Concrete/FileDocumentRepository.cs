@@ -184,7 +184,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             );
 
             return new DbGetManyResult<FileDocumentPartial>(
-                entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray()
+                entities?.FastArraySelect(SelectDataToPartial).ToArray()
             );
         }
 
@@ -209,6 +209,41 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             return new DbGetManyResult<FileDocument>(
                 entities.FastArraySelect(x => x.ToModel()).ToArray()
+            );
+        }
+
+        public async Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionId(
+            Guid collectionId,
+            params string[] relationShips
+        )
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+
+            var setToQuery = AddRelationsToSet(dbContext.FileDocuments, relationShips);
+
+            var entities = await TimeAndLogDbOperation(
+                () =>
+                    setToQuery
+                        .Select(x => new
+                        {
+                            x.Id,
+                            x.CollectionId,
+                            x.DateCreated,
+                            x.FileName,
+                            x.FileType,
+                            x.FaissSynced,
+                            x.FileDescription,
+                            x.UserId,
+                            x.MetaData,
+                        })
+                        .Where(x => x.CollectionId == collectionId)
+                        .ToArrayAsync(),
+                nameof(GetManyDocumentPartialsByCollectionIdAndUserId),
+                _entityType.Name
+            );
+
+            return new DbGetManyResult<FileDocumentPartial>(
+                entities?.FastArraySelect(SelectDataToPartial).ToArray()
             );
         }
         public async Task<
@@ -245,7 +280,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             );
 
             return new DbGetManyResult<FileDocumentPartial>(
-                entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray()
+                entities?.FastArraySelect(SelectDataToPartial).ToArray()
             );
         }
 

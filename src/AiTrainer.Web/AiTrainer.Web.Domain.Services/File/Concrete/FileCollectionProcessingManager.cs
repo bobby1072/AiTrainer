@@ -12,7 +12,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Models.Views;
+using AiTrainer.Web.Persistence.Models;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -121,7 +123,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCollection = await EntityFrameworkUtils.TryDbOperation(
-                () => _repository.GetOne(fileCollectionId, nameof(FileCollectionEntity.Documents)), _logger
+                () => _repository.GetOne(fileCollectionId, nameof(FileCollectionEntity.Documents), nameof(FileCollectionEntity.SharedFileCollectionMembers)), _logger
             );
 
             if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
@@ -129,7 +131,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 throw new ApiException("Could not find file collection with that id");
             }
 
-            if (foundCollection.Data.UserId != currentUser.Id)
+            if (foundCollection.Data.UserId != currentUser.Id
+                || foundCollection.Data.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, fileCollectionId, SharedFileCollectionMemberPermission.DownloadDocuments) == false)
             {
                 throw new ApiException(
                     "You do not have permission to access this file collection",
@@ -228,7 +231,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     throw new ApiException("Collection is not valid", HttpStatusCode.BadRequest);
                 }
                 
-                sharedMembers = foundSingleParent.Data.SharedFileCollectionMembers ?? [];
+                sharedMembers = foundSingleParent.Data.SharedFileCollectionMembers?.FastArraySelect(x =>
+                {
+                    x.Id = null;
+                    return x;
+                }).ToArray() ?? [];
             }
 
             _logger.LogInformation(
@@ -300,35 +307,48 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(GetOneLayerFileDocPartialsAndCollectionsAsync),
                 correlationId
             );
-            var collectionsJob = EntityFrameworkUtils.TryDbOperation(
+            var collections = await EntityFrameworkUtils.TryDbOperation(
                 () =>
                     collectionId is null
-                        ? _repository.GetTopLevelCollectionsForUser((Guid)currentUser.Id!)
+                        ? _repository.GetTopLevelCollectionsForUser((Guid)currentUser.Id!, nameof(FileCollectionEntity.SharedFileCollectionMembers))
                         : _repository.GetManyCollectionsForUserIncludingSelf(
                             (Guid)collectionId!,
-                            (Guid)currentUser.Id!
+                            (Guid)currentUser.Id!,
+                            nameof(FileCollectionEntity.SharedFileCollectionMembers)
                         ),
                 _logger
             );
-            var partialDocumentsJob = EntityFrameworkUtils.TryDbOperation(
-                () =>
-                    collectionId is null
-                        ? _fileDocumentRepository.GetTopLevelDocumentPartialsForUser(
+            DbGetManyResult<FileDocumentPartial>? partialDocuments;
+            
+            var foundSharedMembers = collections?.Data
+                .FastArrayFirstOrDefault(x => x.Id == collectionId)?.SharedFileCollectionMembers;
+            if (collectionId is not null && foundSharedMembers?.CanAny((Guid)currentUser.Id!, (Guid)collectionId,
+                    SharedFileCollectionMemberPermission.ViewDocuments) == true)
+            {
+                partialDocuments = await EntityFrameworkUtils.TryDbOperation(
+                    () =>
+                        _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
                             (Guid)currentUser.Id!,
-                            nameof(FileDocumentEntity.MetaData)
-                        )
-                        : _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
-                            (Guid)currentUser.Id!,
-                            (Guid)collectionId!,
+                            collectionId,
                             nameof(FileDocumentEntity.MetaData)
                         ),
-                _logger
-            );
+                    _logger
+                );
+            }
+            else
+            {
+                partialDocuments = await EntityFrameworkUtils.TryDbOperation(
+                    () =>
+                            _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
+                                (Guid)currentUser.Id!,
+                                collectionId,
+                                nameof(FileDocumentEntity.MetaData)
+                            ),
+                    _logger
+                );
+            }
 
-            await Task.WhenAll(collectionsJob, partialDocumentsJob);
-            var collections = (await collectionsJob)?.Data ?? [];
-            var partialDocuments = (await partialDocumentsJob)?.Data ?? [];
-
+            
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
                 nameof(GetOneLayerFileDocPartialsAndCollectionsAsync),
@@ -337,9 +357,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             return new FlatFileDocumentPartialCollectionView
             {
-                Self = collections.FastArrayFirstOrDefault(x => x.Id == collectionId),
-                FileCollections = collections.FastArrayWhere(x => x.Id != collectionId).ToArray(),
-                FileDocuments = partialDocuments,
+                Self = collections?.Data.FastArrayFirstOrDefault(x => x.Id == collectionId),
+                FileCollections = collections?.Data.FastArrayWhere(x => x.Id != collectionId).ToArray() ?? [],
+                FileDocuments = partialDocuments?.Data ?? [],
             };
         }
         
