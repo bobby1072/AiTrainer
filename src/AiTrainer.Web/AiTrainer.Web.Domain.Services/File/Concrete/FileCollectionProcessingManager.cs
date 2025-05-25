@@ -132,7 +132,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             }
 
             if (foundCollection.Data.UserId != currentUser.Id
-                || foundCollection.Data.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, fileCollectionId, SharedFileCollectionMemberPermission.DownloadDocuments) == false)
+                || foundCollection.Data.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, fileCollectionId, SharedFileCollectionMemberPermission.DownloadDocuments) != true)
             {
                 throw new ApiException(
                     "You do not have permission to access this file collection",
