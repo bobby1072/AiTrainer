@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AiTrainer.Web.Api.Controllers;
 
 [RequireUserLogin]
-public class FaissController : BaseController
+public sealed class FaissController : BaseController
 {
 
     public FaissController(

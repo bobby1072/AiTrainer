@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AiTrainer.Web.Api.Controllers
 {
     [AllowAnonymous]
-    public class HealthController : BaseController
+    public sealed class HealthController : BaseController
     {
         public HealthController(
             IHttpDomainServiceActionExecutor actionExecutor

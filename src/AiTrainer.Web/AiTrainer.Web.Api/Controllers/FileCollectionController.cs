@@ -11,11 +11,26 @@ using Microsoft.AspNetCore.Mvc;
 namespace AiTrainer.Web.Api.Controllers
 {
     [RequireUserLogin]
-    public class FileCollectionController : BaseController
+    public sealed class FileCollectionController : BaseController
     {
         public FileCollectionController(IHttpDomainServiceActionExecutor actionExecutor)
             : base(actionExecutor) { }
 
+        [HttpPost("ShareWithMembers")]
+        public async Task<ActionResult<Outcome<IReadOnlyCollection<SharedFileCollectionMember>>>> Share(
+            [FromBody] SharedFileCollectionMemberSaveInput fileCollectionMemberSaveInput)
+        {
+            var currentUser = await GetCurrentUser();
+            var result =
+                await _actionExecutor
+                    .ExecuteAsync<IFileCollectionProcessingManager, IReadOnlyCollection<SharedFileCollectionMember>>(
+                        serv => serv.ShareFileCollectionAsync(fileCollectionMemberSaveInput, currentUser));
+
+            return new Outcome<IReadOnlyCollection<SharedFileCollectionMember>>
+            {
+                Data = result
+            };
+        }
         [HttpPost("Download")]
         public async Task<IActionResult> Download([FromBody] RequiredGuidIdInput input)
         {

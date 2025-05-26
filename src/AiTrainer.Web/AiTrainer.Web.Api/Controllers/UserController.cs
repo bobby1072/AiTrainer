@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AiTrainer.Web.Api.Controllers;
 
 [RequireUserLogin]
-public class UserController : BaseController
+public sealed class UserController : BaseController
 {
     public UserController(IHttpDomainServiceActionExecutor actionExecutor)
         : base(actionExecutor) { }
