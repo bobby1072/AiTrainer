@@ -6,12 +6,13 @@ namespace AiTrainer.Web.Domain.Models.Extensions;
 public static class ClientSettingsConfigurationExtensions
 {
     public static ClientConfigurationResponse ToClientConfigurationResponse(
-        this ClientSettingsConfiguration clientConfiguration)
+        this ClientSettingsConfiguration clientConfiguration
+    )
     {
         return new ClientConfigurationResponse
         {
             Scope = clientConfiguration.Scope,
-            AuthorityHost = clientConfiguration.AuthorityHost,
+            AuthorityHost = clientConfiguration.InternalAuthorityHost,
             AuthorityClientId = clientConfiguration.AuthorityClientId,
         };
     }
