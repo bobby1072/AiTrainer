@@ -8,6 +8,7 @@ public sealed record SharedFileCollectionMemberEntity : BaseEntity<Guid, SharedF
 {
     public required Guid UserId { get; set; }
     public required Guid CollectionId { get; set; }
+    public Guid? ParentSharedMemberId { get; set; }
     public bool CanViewDocuments { get; set; }
     public bool CanDownloadDocuments { get; set; }
     public bool CanCreateDocuments { get; set; }
@@ -21,6 +22,7 @@ public sealed record SharedFileCollectionMemberEntity : BaseEntity<Guid, SharedF
             Id = Id,
             UserId = UserId,
             CollectionId = CollectionId,
+            ParentSharedMemberId = ParentSharedMemberId,
             CanViewDocuments = CanViewDocuments,
             CanDownloadDocuments = CanDownloadDocuments,
             CanCreateDocuments = CanCreateDocuments,

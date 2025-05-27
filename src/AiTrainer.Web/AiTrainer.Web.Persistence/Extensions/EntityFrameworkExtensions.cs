@@ -136,6 +136,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             {
                 UserId = fileCollectionMember.UserId,
                 CollectionId = fileCollectionMember.CollectionId,
+                ParentSharedMemberId = fileCollectionMember.ParentSharedMemberId,
                 CanCreateDocuments = fileCollectionMember.CanCreateDocuments,
                 CanDownloadDocuments = fileCollectionMember.CanDownloadDocuments,
                 CanRemoveDocuments = fileCollectionMember.CanRemoveDocuments,

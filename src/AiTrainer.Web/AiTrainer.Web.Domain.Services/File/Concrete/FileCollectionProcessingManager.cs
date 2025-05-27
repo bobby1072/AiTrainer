@@ -233,13 +233,14 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 
                 sharedMembers = foundSingleParent.Data.SharedFileCollectionMembers?.FastArraySelect(x =>
                 {
+                    x.ParentSharedMemberId = x.Id;
                     x.Id = null;
                     return x;
                 }).ToArray() ?? [];
             }
 
             _logger.LogInformation(
-                "{ActionName} attempting to {SaveMode} collection: {CreatedCollection}",
+                "{ActionName} attempting to {SaveMode} collection: {@CreatedCollection}",
                 nameof(SaveFileCollectionAsync),
                 hasId ? "update" : "create",
                 createdCollection

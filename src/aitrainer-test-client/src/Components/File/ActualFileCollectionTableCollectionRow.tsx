@@ -127,7 +127,11 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
           </Tooltip>
         </TableCell>
         <TableCell align="right" />
-        <TableCell align="right" />
+        <TableCell align="right">
+          <IconButton color="inherit" size="small">
+            <IosShareIcon />
+          </IconButton>
+        </TableCell>
         <TableCell align="right">
           <IconButton
             color="inherit"

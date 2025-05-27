@@ -4,6 +4,7 @@ public class SharedFileCollectionMember : PersistableDomainModel<SharedFileColle
 {
     public required Guid UserId { get; set; }
     public required Guid CollectionId { get; set; }
+    public Guid? ParentSharedMemberId { get; set; }
     public bool CanViewDocuments { get; set; }
     public bool CanDownloadDocuments { get; set; }
     public bool CanCreateDocuments { get; set; }
@@ -25,7 +26,8 @@ public class SharedFileCollectionMember : PersistableDomainModel<SharedFileColle
             && obj.CanViewDocuments == CanViewDocuments
             && obj.CanDownloadDocuments == CanDownloadDocuments
             && obj.CanRemoveDocuments == CanRemoveDocuments
-            && obj.CanCreateDocuments == CanCreateDocuments;
+            && obj.CanCreateDocuments == CanCreateDocuments
+            && obj.ParentSharedMemberId == ParentSharedMemberId;
     }
 
 
