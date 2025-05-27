@@ -42,9 +42,15 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             {
                 return await GetObject<T>(key);
             }
+            catch (KeyNotFoundException e)
+            {
+                _logger.LogInformation(e, "Couldn't find object in cache");
+
+                return null;
+            }
             catch (Exception e)
             {
-                _logger.LogError(e, "Exception occurred getting object from cache");
+                _logger.LogError(e, "Exception occured during caching");
 
                 return null;
             }
@@ -99,7 +105,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         {
             var foundValue =
                 await _distributedCache.GetStringAsync(key)
-                ?? throw new InvalidOperationException("Cannot find object with that key");
+                ?? throw new KeyNotFoundException("Cannot find object with that key");
             if (typeof(T) == _typeofString)
             {
                 return foundValue as T ?? throw new InvalidDataException("Cannot parse object");

@@ -12,7 +12,8 @@ public sealed record SharedFileCollectionMemberEntity : BaseEntity<Guid, SharedF
     public bool CanDownloadDocuments { get; set; }
     public bool CanCreateDocuments { get; set; }
     public bool CanRemoveDocuments { get; set; }
-
+    [ForeignKey(nameof(CollectionId))]
+    public FileCollectionEntity? FileCollection { get; init; }
     public override SharedFileCollectionMember ToModel()
     {
         return new SharedFileCollectionMember

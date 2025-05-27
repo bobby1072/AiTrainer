@@ -23,10 +23,12 @@ namespace AiTrainer.Web.Persistence.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FileCollectionEntity>(ent =>
+            modelBuilder.Entity<SharedFileCollectionMemberEntity>(ent =>
             {
                 ent
-                    .HasMany<SharedFileCollectionMemberEntity>();
+                    .HasOne<FileCollectionEntity>(x => x.FileCollection)
+                    .WithMany(x => x.SharedFileCollectionMembers)
+                    .HasForeignKey(x => x.CollectionId);
             });
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
@@ -70,6 +72,25 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .WithMany(c => c.Documents)
                     .HasForeignKey(e => e.CollectionId)
                     .HasConstraintName("fk_file_document_collection_id");
+                
+                entity.Property(e => e.DateCreated)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+            });
+
+            modelBuilder.Entity<UserEntity>(ent =>
+            {
+                ent.Property(e => e.DateCreated)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+                ent.Property(e => e.DateModified)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+            });
+
+            modelBuilder.Entity<FileCollectionFaissEntity>(ent =>
+            {
+                ent.Property(e => e.DateCreated)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+                ent.Property(e => e.DateModified)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
             });
         }
 

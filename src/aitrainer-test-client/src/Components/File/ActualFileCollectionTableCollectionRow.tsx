@@ -14,6 +14,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
+// import { useShareFileCollectionWithMembersMutation } from "../../Hooks/useShareFileCollectionWithMembersMutation";
+import IosShareIcon from "@mui/icons-material/IosShare";
+
 const fileCol = require("./fileCol.png");
 
 export const ActualFileCollectionTableCollectionRow: React.FC<{
@@ -25,21 +28,34 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
   closeContextMenu: () => void;
   singleLevel: boolean;
 }> = ({ fileCollection, closeContextMenu, handleRightClick, singleLevel }) => {
-  const { mutate, isLoading, data, error } = useDeleteFileCollectionMutation();
+  const {
+    mutate: deleteFileMutation,
+    isLoading: deleteFileIsLoading,
+    data: deleteFileData,
+    error: deleteFileError,
+  } = useDeleteFileCollectionMutation();
+
+  // const {
+  //   data: shareFileData,
+  //   error: shareFileError,
+  //   isLoading: shareFileIsLoading,
+  //   mutate: shareFileMutation,
+  // } = useShareFileCollectionWithMembersMutation();
+
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   useEffect(() => {
-    if (data) {
+    if (deleteFileData) {
       enqueueSnackbar(`Collection successfully deleted`, {
         variant: "success",
       });
     }
-  }, [data, enqueueSnackbar]);
+  }, [deleteFileData, enqueueSnackbar]);
   useEffect(() => {
-    if (error) {
+    if (deleteFileError) {
       enqueueSnackbar("Failed to delete collection", { variant: "error" });
     }
-  }, [error, enqueueSnackbar]);
+  }, [deleteFileError, enqueueSnackbar]);
 
   const dateCreated = new Date(fileCollection.dateCreated);
   const dateModified = new Date(fileCollection.dateModified);
@@ -116,9 +132,9 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
           <IconButton
             color="inherit"
             size="small"
-            disabled={isLoading}
+            disabled={deleteFileIsLoading}
             onClick={() => {
-              mutate({ id: fileCollection.id! });
+              deleteFileMutation({ id: fileCollection.id! });
             }}
           >
             <DeleteIcon />
