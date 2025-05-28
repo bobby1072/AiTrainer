@@ -78,13 +78,17 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         CancellationToken cancellationToken = default
     )
     {
-        await _faissSyncBackgroundJobQueue.EnqueueAsync(new FileCollectionFaissSyncBackgroundJob
-        {
-            CurrentUser = currentUser,
-            CollectionId = collectionId,
-            RetryOverride = retryOverride,
-        }, cancellationToken);
+        await _faissSyncBackgroundJobQueue.EnqueueAsync(
+            new FileCollectionFaissSyncBackgroundJob
+            {
+                CurrentUser = currentUser,
+                CollectionId = collectionId,
+                RetryOverride = retryOverride,
+            },
+            cancellationToken
+        );
     }
+
     public async Task SyncUserFileCollectionFaissStore(
         Domain.Models.User currentUser,
         Guid? collectionId = null,

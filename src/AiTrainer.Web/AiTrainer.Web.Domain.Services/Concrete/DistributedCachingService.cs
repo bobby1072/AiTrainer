@@ -1,7 +1,7 @@
+using System.Text.Json;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
@@ -50,7 +50,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Exception occured during caching");
+                _logger.LogError(e, "Exception occurred during caching");
 
                 return null;
             }
@@ -82,20 +82,17 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         {
             if (typeof(T) == _typeofString)
             {
-                await _distributedCache.SetStringAsync(
-                    key,
-                    (value as string)!,
-                    options
-                );
+                _logger.LogDebug("Attempting to cache {StringValue}", value);
+
+                await _distributedCache.SetStringAsync(key, (value as string)!, options);
             }
             else
             {
                 var serializedValue = JsonSerializer.Serialize(value);
-                await _distributedCache.SetStringAsync(
-                    key,
-                    serializedValue,
-                    options
-                );
+
+                _logger.LogDebug("Attempting to cache {@SerialisedCacheObj}", serializedValue);
+
+                await _distributedCache.SetStringAsync(key, serializedValue, options);
             }
             return key;
         }

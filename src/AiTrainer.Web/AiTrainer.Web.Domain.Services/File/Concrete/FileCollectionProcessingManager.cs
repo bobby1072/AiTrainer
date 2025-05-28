@@ -1,20 +1,20 @@
+using System.Net;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Extensions;
+using AiTrainer.Web.Domain.Models.Partials;
+using AiTrainer.Web.Domain.Models.Views;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Persistence.Entities;
+using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
 using BT.Common.FastArray.Proto;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Net;
-using AiTrainer.Web.Domain.Models.Partials;
-using AiTrainer.Web.Domain.Models.Views;
-using AiTrainer.Web.Persistence.Models;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
@@ -25,16 +25,27 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IValidator<FileCollection> _validator;
         private readonly IFileDocumentRepository _fileDocumentRepository;
         private readonly IHttpContextAccessor? _httpContextAccessor;
-        private readonly IRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember> _sharedFileCollectionMemberRepository;
-        private readonly IValidator<IEnumerable<SharedFileCollectionMember>> _sharedFileCollectionMemberValidator;
+        private readonly IRepository<
+            SharedFileCollectionMemberEntity,
+            Guid,
+            SharedFileCollectionMember
+        > _sharedFileCollectionMemberRepository;
+        private readonly IValidator<
+            IEnumerable<SharedFileCollectionMember>
+        > _sharedFileCollectionMemberValidator;
+
         public FileCollectionProcessingManager(
             IFileCollectionRepository repository,
             ILogger<FileCollectionProcessingManager> logger,
             IValidator<FileCollection> validator,
             IFileDocumentRepository fileDocumentRepository,
-            IRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember> sharedFileCollectionMemberRepository,
+            IRepository<
+                SharedFileCollectionMemberEntity,
+                Guid,
+                SharedFileCollectionMember
+            > sharedFileCollectionMemberRepository,
             IValidator<IEnumerable<SharedFileCollectionMember>> sharedFileCollectionMemberValidator,
-            IHttpContextAccessor? httpContextAccessor =  null
+            IHttpContextAccessor? httpContextAccessor = null
         )
         {
             _repository = repository;
@@ -47,7 +58,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
         }
 
-        public async Task<IReadOnlyCollection<SharedFileCollectionMember>> ShareFileCollectionAsync(SharedFileCollectionMemberSaveInput sharedFileColInput, Domain.Models.User currentUser)
+        public async Task<IReadOnlyCollection<SharedFileCollectionMember>> ShareFileCollectionAsync(
+            SharedFileCollectionMemberSaveInput sharedFileColInput,
+            Domain.Models.User currentUser
+        )
         {
             var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
@@ -56,9 +70,14 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(ShareFileCollectionAsync),
                 correlationId
             );
-            
+
             var foundCollection = await EntityFrameworkUtils.TryDbOperation(
-                () => _repository.GetOne(sharedFileColInput.CollectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)), _logger
+                () =>
+                    _repository.GetOne(
+                        sharedFileColInput.CollectionId,
+                        nameof(FileCollectionEntity.SharedFileCollectionMembers)
+                    ),
+                _logger
             );
 
             if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
@@ -73,46 +92,76 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     HttpStatusCode.Unauthorized
                 );
             }
-            
-            var sharedMembersToSave = CreateSharedFileCollectionMembers(sharedFileColInput, foundCollection.Data.SharedFileCollectionMembers ?? [], (Guid)currentUser.Id!);
+
+            var sharedMembersToSave = CreateSharedFileCollectionMembers(
+                sharedFileColInput,
+                foundCollection.Data.SharedFileCollectionMembers ?? [],
+                (Guid)currentUser.Id!
+            );
 
             if (sharedMembersToSave.Length == 0)
             {
+                _logger.LogInformation(
+                    "No members to share for correlationId: {CorrelationId}",
+                    correlationId
+                );
                 return [];
             }
 
-            if (sharedMembersToSave.Length + (foundCollection.Data.SharedFileCollectionMembers?.Count ?? 0) > 30)
-            {
-                throw new ApiException("you cannot share more than 30 users on a file collection", HttpStatusCode.BadRequest); 
-            }
-
-            if (!(await _sharedFileCollectionMemberValidator.ValidateAsync(sharedMembersToSave)).IsValid)
-            {
-                throw new ApiException("You submitted invalid shared members", HttpStatusCode.BadRequest);
-            }
-                
-            var newlySavedMembers =
-                await EntityFrameworkUtils.TryDbOperation(
-                    () => _sharedFileCollectionMemberRepository.Create(sharedMembersToSave), _logger);
-            
-            if (newlySavedMembers?.IsSuccessful != true)
+            if (
+                sharedMembersToSave.Length
+                    + (foundCollection.Data.SharedFileCollectionMembers?.Count ?? 0)
+                > 30
+            )
             {
                 throw new ApiException(
-                    "Failed to share file collection with new members"
+                    "you cannot share more than 30 users on a file collection",
+                    HttpStatusCode.BadRequest
                 );
             }
+
+            if (
+                !(
+                    await _sharedFileCollectionMemberValidator.ValidateAsync(sharedMembersToSave)
+                ).IsValid
+            )
+            {
+                throw new ApiException(
+                    "You submitted invalid shared members",
+                    HttpStatusCode.BadRequest
+                );
+            }
+
+            var newlySavedMembers = await EntityFrameworkUtils.TryDbOperation(
+                () => _sharedFileCollectionMemberRepository.Create(sharedMembersToSave),
+                _logger
+            );
+
+            if (newlySavedMembers?.IsSuccessful != true)
+            {
+                throw new ApiException("Failed to share file collection with new members");
+            }
+
+            _logger.LogInformation(
+                "Successfully shared document to {MemberCount} members with collectionId: {CollectionId} and correlationId: {CorrelationId}",
+                newlySavedMembers.Data.Count,
+                sharedFileColInput.CollectionId,
+                correlationId
+            );
+
             _logger.LogInformation(
                 "Exiting {Action} successfully for correlationId {CorrelationId}",
                 nameof(ShareFileCollectionAsync),
                 correlationId
             );
-            
-            
+
             return newlySavedMembers.Data;
         }
 
-
-        public async Task<FileCollection> GetFileCollectionWithContentsAsync(Guid fileCollectionId, Domain.Models.User currentUser)
+        public async Task<FileCollection> GetFileCollectionWithContentsAsync(
+            Guid fileCollectionId,
+            Domain.Models.User currentUser
+        )
         {
             var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
@@ -123,7 +172,13 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
 
             var foundCollection = await EntityFrameworkUtils.TryDbOperation(
-                () => _repository.GetOne(fileCollectionId, nameof(FileCollectionEntity.Documents), nameof(FileCollectionEntity.SharedFileCollectionMembers)), _logger
+                () =>
+                    _repository.GetOne(
+                        fileCollectionId,
+                        nameof(FileCollectionEntity.Documents),
+                        nameof(FileCollectionEntity.SharedFileCollectionMembers)
+                    ),
+                _logger
             );
 
             if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
@@ -131,8 +186,14 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 throw new ApiException("Could not find file collection with that id");
             }
 
-            if (foundCollection.Data.UserId != currentUser.Id
-                || foundCollection.Data.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, fileCollectionId, SharedFileCollectionMemberPermission.DownloadDocuments) != true)
+            if (
+                foundCollection.Data.UserId != currentUser.Id
+                || foundCollection.Data.SharedFileCollectionMembers?.CanAny(
+                    (Guid)currentUser.Id!,
+                    fileCollectionId,
+                    SharedFileCollectionMemberPermission.DownloadDocuments
+                ) != true
+            )
             {
                 throw new ApiException(
                     "You do not have permission to access this file collection",
@@ -186,7 +247,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (!isValid.IsValid)
             {
-                throw new ApiException($"{nameof(FileCollection)} is not valid", HttpStatusCode.BadRequest);
+                throw new ApiException(
+                    $"{nameof(FileCollection)} is not valid",
+                    HttpStatusCode.BadRequest
+                );
             }
 
             if (hasId)
@@ -197,10 +261,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     currentUser.Id,
                     correlationId
                 );
-                var foundOne = await EntityFrameworkUtils
-                    .TryDbOperation(
-                        () => _repository.GetOne((Guid)createdCollection.Id!),
-                    _logger);
+                var foundOne = await EntityFrameworkUtils.TryDbOperation(
+                    () => _repository.GetOne((Guid)createdCollection.Id!),
+                    _logger
+                );
                 if (foundOne?.Data is null)
                 {
                     throw new ApiException(
@@ -209,34 +273,38 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     );
                 }
 
-                if (
-                    !createdCollection.ValidateAgainstOriginal(foundOne.Data)
-                )
+                if (!createdCollection.ValidateAgainstOriginal(foundOne.Data))
                 {
                     throw new ApiException("Cannot edit those fields", HttpStatusCode.BadRequest);
                 }
                 createdCollection.DateCreated = foundOne.Data.DateCreated.ToUniversalTime();
                 createdCollection.DateModified = DateTime.UtcNow.ToUniversalTime();
-                
             }
             IReadOnlyCollection<SharedFileCollectionMember> sharedMembers = [];
             if (createdCollection.ParentId is Guid foundParentId)
             {
                 var foundSingleParent = await EntityFrameworkUtils.TryDbOperation(
-                    () => _repository.GetOne(foundParentId, nameof(FileCollectionEntity.SharedFileCollectionMembers)),
+                    () =>
+                        _repository.GetOne(
+                            foundParentId,
+                            nameof(FileCollectionEntity.SharedFileCollectionMembers)
+                        ),
                     _logger
                 );
                 if (foundSingleParent?.Data?.UserId != currentUser.Id)
                 {
                     throw new ApiException("Collection is not valid", HttpStatusCode.BadRequest);
                 }
-                
-                sharedMembers = foundSingleParent.Data.SharedFileCollectionMembers?.FastArraySelect(x =>
-                {
-                    x.ParentSharedMemberId = x.Id;
-                    x.Id = null;
-                    return x;
-                }).ToArray() ?? [];
+
+                sharedMembers =
+                    foundSingleParent
+                        .Data.SharedFileCollectionMembers?.FastArraySelect(x =>
+                        {
+                            x.ParentSharedMemberId = x.Id;
+                            x.Id = null;
+                            return x;
+                        })
+                        .ToArray() ?? [];
             }
 
             _logger.LogInformation(
@@ -247,9 +315,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
             var newlySavedCollection = await EntityFrameworkUtils.TryDbOperation(
                 () =>
-                    hasId
-                        ? _repository.Update([createdCollection])
-                        : createdCollection.ParentId is not null ? _repository.CreateWithSharedMembers(createdCollection, sharedMembers) : _repository.Create([createdCollection]),
+                    hasId ? _repository.Update([createdCollection])
+                    : createdCollection.ParentId is not null
+                        ? _repository.CreateWithSharedMembers(createdCollection, sharedMembers)
+                    : _repository.Create([createdCollection]),
                 _logger
             );
 
@@ -267,7 +336,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             return newlySavedCollection.Data.First();
         }
 
-        public async Task<Guid> DeleteFileCollectionAsync(Guid collectionId, Domain.Models.User currentUser)
+        public async Task<Guid> DeleteFileCollectionAsync(
+            Guid collectionId,
+            Domain.Models.User currentUser
+        )
         {
             var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
@@ -284,9 +356,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (deletedId?.IsSuccessful != true)
             {
-                throw new ApiException(
-                    "Could not delete document"
-                );
+                throw new ApiException("Could not delete document");
             }
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
@@ -311,7 +381,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             var collections = await EntityFrameworkUtils.TryDbOperation(
                 () =>
                     collectionId is null
-                        ? _repository.GetTopLevelCollectionsForUser((Guid)currentUser.Id!, nameof(FileCollectionEntity.SharedFileCollectionMembers))
+                        ? _repository.GetTopLevelCollectionsForUser(
+                            (Guid)currentUser.Id!,
+                            nameof(FileCollectionEntity.SharedFileCollectionMembers)
+                        )
                         : _repository.GetManyCollectionsForUserIncludingSelf(
                             (Guid)collectionId!,
                             (Guid)currentUser.Id!,
@@ -320,11 +393,18 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 _logger
             );
             DbGetManyResult<FileDocumentPartial>? partialDocuments;
-            
-            var foundSharedMembers = collections?.Data
-                .FastArrayFirstOrDefault(x => x.Id == collectionId)?.SharedFileCollectionMembers;
-            if (collectionId is not null && foundSharedMembers?.CanAny((Guid)currentUser.Id!, (Guid)collectionId,
-                    SharedFileCollectionMemberPermission.ViewDocuments) == true)
+
+            var foundSharedMembers = collections
+                ?.Data.FastArrayFirstOrDefault(x => x.Id == collectionId)
+                ?.SharedFileCollectionMembers;
+            if (
+                collectionId is not null
+                && foundSharedMembers?.CanAny(
+                    (Guid)currentUser.Id!,
+                    (Guid)collectionId,
+                    SharedFileCollectionMemberPermission.ViewDocuments
+                ) == true
+            )
             {
                 partialDocuments = await EntityFrameworkUtils.TryDbOperation(
                     () =>
@@ -340,16 +420,15 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             {
                 partialDocuments = await EntityFrameworkUtils.TryDbOperation(
                     () =>
-                            _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
-                                (Guid)currentUser.Id!,
-                                collectionId,
-                                nameof(FileDocumentEntity.MetaData)
-                            ),
+                        _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
+                            (Guid)currentUser.Id!,
+                            collectionId,
+                            nameof(FileDocumentEntity.MetaData)
+                        ),
                     _logger
                 );
             }
 
-            
             _logger.LogInformation(
                 "Exiting {Action} for correlationId {CorrelationId}",
                 nameof(GetOneLayerFileDocPartialsAndCollectionsAsync),
@@ -359,22 +438,26 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             return new FlatFileDocumentPartialCollectionView
             {
                 Self = collections?.Data.FastArrayFirstOrDefault(x => x.Id == collectionId),
-                FileCollections = collections?.Data.FastArrayWhere(x => x.Id != collectionId).ToArray() ?? [],
+                FileCollections =
+                    collections?.Data.FastArrayWhere(x => x.Id != collectionId).ToArray() ?? [],
                 FileDocuments = partialDocuments?.Data ?? [],
             };
         }
-        
-        
+
         private static SharedFileCollectionMember[] CreateSharedFileCollectionMembers(
             SharedFileCollectionMemberSaveInput sharedFileColInput,
             IReadOnlyCollection<SharedFileCollectionMember> existingSharedMembers,
-            Guid collectionOwnerUserId)
+            Guid collectionOwnerUserId
+        )
         {
             var existingMemberIds = existingSharedMembers.FastArraySelect(x => x.UserId);
             return sharedFileColInput
-                .MembersToShareTo
-                .FastArrayWhere(x => x.UserId != collectionOwnerUserId && !existingMemberIds.Contains(x.UserId))
-                .FastArraySelect(x => x.ToSharedFileCollectionMember(sharedFileColInput.CollectionId))
+                .MembersToShareTo.FastArrayWhere(x =>
+                    x.UserId != collectionOwnerUserId && !existingMemberIds.Contains(x.UserId)
+                )
+                .FastArraySelect(x =>
+                    x.ToSharedFileCollectionMember(sharedFileColInput.CollectionId)
+                )
                 .ToArray();
         }
     }

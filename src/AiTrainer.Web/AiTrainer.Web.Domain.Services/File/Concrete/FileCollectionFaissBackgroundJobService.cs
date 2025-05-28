@@ -21,15 +21,17 @@ internal class FileCollectionFaissBackgroundJobService : BackgroundService
         _jobQueue = jobQueue;
         _serviceScopeFactory = serviceScopeFactory;
     }
+
     public override void Dispose()
     {
         _jobQueue.Dispose();
         base.Dispose();
     }
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogDebug(
-            "{BackgroundServiceName} is starting",
+        _logger.LogInformation(
+            "{BackgroundServiceName} is starting...",
             nameof(FileCollectionFaissBackgroundJobService)
         );
 
@@ -47,7 +49,7 @@ internal class FileCollectionFaissBackgroundJobService : BackgroundService
             try
             {
                 await using var scope = _serviceScopeFactory.CreateAsyncScope();
-        
+
                 await job.ExecuteFaissJobAsync(scope.ServiceProvider, stoppingToken);
             }
             catch (Exception ex)
