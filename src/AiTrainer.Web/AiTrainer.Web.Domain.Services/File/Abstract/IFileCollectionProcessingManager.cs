@@ -16,5 +16,10 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
 
         Task<IReadOnlyCollection<SharedFileCollectionMember>> ShareFileCollectionAsync(
             SharedFileCollectionMemberSaveInput sharedFileColInput, Domain.Models.User currentUser);
+
+        Task<Guid> UnshareFileCollectionAsync(
+            RequiredGuidIdInput sharedFileMemberColId,
+            Domain.Models.User currentUser
+        );
     }
 }

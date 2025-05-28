@@ -17,7 +17,7 @@ using AiTrainer.Web.Persistence.Entities;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
-    internal class FileDocumentProcessingManager : IFileDocumentProcessingManager
+    internal sealed class FileDocumentProcessingManager : IFileDocumentProcessingManager
     {
         private readonly ILogger<FileDocumentProcessingManager> _logger;
         private readonly IFileDocumentRepository _fileDocumentRepository;

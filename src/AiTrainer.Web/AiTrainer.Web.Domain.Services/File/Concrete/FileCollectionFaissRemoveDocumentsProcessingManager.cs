@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
-internal class FileCollectionFaissRemoveDocumentsProcessingManager
+internal sealed class FileCollectionFaissRemoveDocumentsProcessingManager
     : IFileCollectionFaissRemoveDocumentsProcessingManager
 {
     private readonly ICoreClient<

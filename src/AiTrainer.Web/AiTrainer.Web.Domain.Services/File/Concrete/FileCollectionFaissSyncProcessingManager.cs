@@ -22,7 +22,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
-internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSyncProcessingManager
+internal sealed class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSyncProcessingManager
 {
     private readonly ICoreClient<
         CoreDocumentToChunkInput,

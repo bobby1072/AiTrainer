@@ -53,11 +53,12 @@ internal class SharedFileCollectionMemberRepository: BaseRepository<SharedFileCo
         {
             var documentEnts = entObj.FastArraySelect(RuntimeToEntity).ToArray();
 
+            dbContext.SharedFileCollectionMembers.UpdateRange(documentEnts);
+            
             await UpdateFileColLastUpdate(dbContext.FileCollections,
                 documentEnts.FastArraySelect(x => x.CollectionId)
                     .ToArray());
             
-            dbContext.SharedFileCollectionMembers.UpdateRange(documentEnts);
             
             await dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -74,6 +75,27 @@ internal class SharedFileCollectionMemberRepository: BaseRepository<SharedFileCo
             throw;
         }
     }
+
+    public override async Task<DbDeleteResult<Guid>> Delete(IReadOnlyCollection<Guid> entIds)
+    {
+        await using var dbContext = await _contextFactory.CreateDbContextAsync();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        try
+        {
+            await dbContext.SharedFileCollectionMembers.Where(x => entIds.Contains(x.Id!)).ExecuteDeleteAsync();   
+            
+            await dbContext.SaveChangesAsync();
+            
+            await transaction.CommitAsync(); 
+            
+            return new DbDeleteResult<Guid>(entIds);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
     public override async Task<DbDeleteResult<SharedFileCollectionMember>> Delete(IReadOnlyCollection<SharedFileCollectionMember> entObj)
     {
         await using var dbContext = await _contextFactory.CreateDbContextAsync();
@@ -81,12 +103,13 @@ internal class SharedFileCollectionMemberRepository: BaseRepository<SharedFileCo
         try
         {
             var documentEnts = entObj.FastArraySelect(RuntimeToEntity).ToArray();
-
+            
+            dbContext.SharedFileCollectionMembers.RemoveRange(documentEnts);
+            
             await UpdateFileColLastUpdate(dbContext.FileCollections,
                 documentEnts.FastArraySelect(x => x.CollectionId)
                     .ToArray());
             
-            dbContext.SharedFileCollectionMembers.RemoveRange(documentEnts);
             
             await dbContext.SaveChangesAsync();
             await transaction.CommitAsync();

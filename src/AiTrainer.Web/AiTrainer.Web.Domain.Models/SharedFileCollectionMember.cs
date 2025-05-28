@@ -9,7 +9,8 @@ public class SharedFileCollectionMember : PersistableDomainModel<SharedFileColle
     public bool CanDownloadDocuments { get; set; }
     public bool CanCreateDocuments { get; set; }
     public bool CanRemoveDocuments { get; set; }
-
+    
+    public FileCollection? FileCollection { get; init; }
     public bool Can(Guid userId, Guid collectionId, SharedFileCollectionMemberPermission sharedFileCollectionMemberPermission)
     {
         return UserId == userId && CollectionId == collectionId && Can(sharedFileCollectionMemberPermission);

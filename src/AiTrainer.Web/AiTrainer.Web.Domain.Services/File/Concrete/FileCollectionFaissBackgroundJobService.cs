@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
-internal class FileCollectionFaissBackgroundJobService : BackgroundService
+internal sealed class FileCollectionFaissBackgroundJobService : BackgroundService
 {
     private readonly ILogger<FileCollectionFaissBackgroundJobService> _logger;
     private readonly IFileCollectionFaissSyncBackgroundJobQueue _jobQueue;

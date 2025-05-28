@@ -27,6 +27,7 @@ public sealed record SharedFileCollectionMemberEntity : BaseEntity<Guid, SharedF
             CanDownloadDocuments = CanDownloadDocuments,
             CanCreateDocuments = CanCreateDocuments,
             CanRemoveDocuments = CanRemoveDocuments,
+            FileCollection = FileCollection?.ToModel(),
         };
     }
 }

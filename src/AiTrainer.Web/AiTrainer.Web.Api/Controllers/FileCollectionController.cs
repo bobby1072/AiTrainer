@@ -16,6 +16,21 @@ namespace AiTrainer.Web.Api.Controllers
         public FileCollectionController(IHttpDomainServiceActionExecutor actionExecutor)
             : base(actionExecutor) { }
 
+        [HttpPost("UnshareWithMember")]
+        public async Task<ActionResult<Outcome<Guid>>> Share(
+            [FromBody] RequiredGuidIdInput fileCollectionMemberSaveInput)
+        {
+            var currentUser = await GetCurrentUser();
+            var result =
+                await _actionExecutor
+                    .ExecuteAsync<IFileCollectionProcessingManager, Guid>(
+                        serv => serv.UnshareFileCollectionAsync(fileCollectionMemberSaveInput, currentUser));
+
+            return new Outcome<Guid>
+            {
+                Data = result
+            };
+        }
         [HttpPost("ShareWithMembers")]
         public async Task<ActionResult<Outcome<IReadOnlyCollection<SharedFileCollectionMember>>>> Share(
             [FromBody] SharedFileCollectionMemberSaveInput fileCollectionMemberSaveInput)

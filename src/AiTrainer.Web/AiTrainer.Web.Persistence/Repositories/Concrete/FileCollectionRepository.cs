@@ -128,6 +128,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             var entities = await TimeAndLogDbOperation(
                 () =>
                     setToQuery
+                        .Include(x => x.SharedFileCollectionMembers)
                         .Where(x =>
                             (x.UserId == userId || x.SharedFileCollectionMembers!.Any(sfm => sfm.UserId == userId)) && (x.ParentId == parentId || x.Id == parentId)
                         )

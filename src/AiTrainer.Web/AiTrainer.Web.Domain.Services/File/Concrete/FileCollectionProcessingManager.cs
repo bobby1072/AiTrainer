@@ -18,7 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
-    internal class FileCollectionProcessingManager : IFileCollectionProcessingManager
+    internal sealed class FileCollectionProcessingManager : IFileCollectionProcessingManager
     {
         private readonly IFileCollectionRepository _repository;
         private readonly ILogger<FileCollectionProcessingManager> _logger;
@@ -58,6 +58,63 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
         }
 
+        public async Task<Guid> UnshareFileCollectionAsync(
+            RequiredGuidIdInput sharedFileMemberColId,
+            Domain.Models.User currentUser
+        )
+        {
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(UnshareFileCollectionAsync),
+                correlationId
+            );
+
+            var foundSharedMember = await EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    _sharedFileCollectionMemberRepository.GetOne(
+                        sharedFileMemberColId,
+                        nameof(SharedFileCollectionMemberEntity.FileCollection)
+                    ),
+                _logger
+            );
+
+            if (foundSharedMember?.IsSuccessful is false || foundSharedMember?.Data is null)
+            {
+                throw new ApiException("Could not find file collection with that id");
+            }
+
+            if (foundSharedMember.Data.FileCollection?.UserId != currentUser.Id)
+            {
+                throw new ApiException(
+                    "You do not have permission to share this file collection",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            if (foundSharedMember.Data.ParentSharedMemberId is not null)
+            {
+                throw new ApiException("Cannot delete this member as it is not top level", HttpStatusCode.BadRequest);
+            }
+            
+            var deletedId = await EntityFrameworkUtils.TryDbOperation(
+                () => _sharedFileCollectionMemberRepository.Delete([(Guid)foundSharedMember.Data.Id!]),
+                _logger
+            );
+
+            if (deletedId?.IsSuccessful != true)
+            {
+                throw new ApiException("Could not delete document");
+            }
+            _logger.LogInformation(
+                "Exiting {Action} successfully for correlationId {CorrelationId}",
+                nameof(UnshareFileCollectionAsync),
+                correlationId
+            );
+
+            return deletedId.Data.First();
+        }
         public async Task<IReadOnlyCollection<SharedFileCollectionMember>> ShareFileCollectionAsync(
             SharedFileCollectionMemberSaveInput sharedFileColInput,
             Domain.Models.User currentUser
@@ -382,13 +439,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 () =>
                     collectionId is null
                         ? _repository.GetTopLevelCollectionsForUser(
-                            (Guid)currentUser.Id!,
-                            nameof(FileCollectionEntity.SharedFileCollectionMembers)
+                            (Guid)currentUser.Id!
                         )
                         : _repository.GetManyCollectionsForUserIncludingSelf(
                             (Guid)collectionId!,
-                            (Guid)currentUser.Id!,
-                            nameof(FileCollectionEntity.SharedFileCollectionMembers)
+                            (Guid)currentUser.Id!
                         ),
                 _logger
             );
@@ -406,11 +461,13 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 ) == true
             )
             {
+                _logger.LogInformation("Shared member with correlationId: {CorrelationId} is accessing documents from collection with Id: {CollectionId}",
+                    correlationId,
+                    collectionId);
                 partialDocuments = await EntityFrameworkUtils.TryDbOperation(
                     () =>
-                        _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
-                            (Guid)currentUser.Id!,
-                            collectionId,
+                        _fileDocumentRepository.GetManyDocumentPartialsByCollectionId(
+                            (Guid)collectionId,
                             nameof(FileDocumentEntity.MetaData)
                         ),
                     _logger
@@ -418,6 +475,9 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             }
             else
             {
+                _logger.LogInformation("User with correlationId: {CorrelationId} is accessing their own documents from collection with Id: {CollectionId}",
+                    correlationId,
+                    collectionId);
                 partialDocuments = await EntityFrameworkUtils.TryDbOperation(
                     () =>
                         _fileDocumentRepository.GetManyDocumentPartialsByCollectionIdAndUserId(
