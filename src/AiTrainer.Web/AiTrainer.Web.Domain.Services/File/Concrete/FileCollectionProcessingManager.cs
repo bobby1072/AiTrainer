@@ -503,6 +503,11 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             Domain.Models.User currentUser
         )
         {
+            if (sharedFileColInput.Count == 0)
+            {
+                return [];
+            }
+            
             var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
 

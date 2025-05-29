@@ -40,6 +40,7 @@ public class SharedFileCollectionMember : PersistableDomainModel<SharedFileColle
             SharedFileCollectionMemberPermission.DownloadDocuments => CanDownloadDocuments,
             SharedFileCollectionMemberPermission.CreateDocuments => CanCreateDocuments,
             SharedFileCollectionMemberPermission.RemoveDocuments => CanRemoveDocuments,
+            _ => throw new ArgumentOutOfRangeException(nameof(sharedFileCollectionMemberPermission), sharedFileCollectionMemberPermission, null)
         };
     }
 }
