@@ -5,12 +5,6 @@ namespace AiTrainer.Web.Domain.Models.Extensions;
 
 public static class SharedFileCollectionMemberExtensions
 {
-    public static IReadOnlyCollection<SharedFileCollectionMember> ToSharedFileCollectionMember(this SharedFileCollectionMemberSaveInput sharedFileCollectionMember)
-    {
-        return sharedFileCollectionMember.MembersToShareTo.FastArraySelect(x => x.ToSharedFileCollectionMember(sharedFileCollectionMember.CollectionId)).ToArray();
-    }
-
-
     public static bool CanAny(this IEnumerable<SharedFileCollectionMember> sharedFileCollectionMembers, Guid userId, Guid collectionId, SharedFileCollectionMemberPermission sharedFileCollectionMemberPermission)
     {
         return sharedFileCollectionMembers.Any(x => x.Can(userId, collectionId, sharedFileCollectionMemberPermission));
@@ -22,7 +16,7 @@ public static class SharedFileCollectionMemberExtensions
     }
 
     public static SharedFileCollectionMember ToSharedFileCollectionMember(
-        this SharedFileCollectionSingleMemberSaveInput sharedFileCollectionSingleMemberSaveInput,
+        this SharedFileCollectionSingleMemberUserIdSaveInput sharedFileCollectionSingleMemberSaveInput,
         Guid collectionId)
     {
         return new SharedFileCollectionMember

@@ -44,7 +44,28 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
             return new DbResult<int>(true, count);
         }
+        public virtual async Task<DbGetManyResult<TModel>> GetMany<T>(
+            IReadOnlyCollection<T> value,
+            string propertyName,
+            params string[] relations
+        )
+        {
+            ThrowIfPropertyDoesNotExist<T>(propertyName);
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>(), relations);
+            var foundOne = await TimeAndLogDbOperation(
+                () =>
+                    foundOneQuerySet
+                        .Where(x => value.Contains(EF.Property<T>(x, propertyName)))
+                        .ToArrayAsync(),
+                nameof(GetMany),
+                _entityType.Name
+            );
 
+            return new DbGetManyResult<TModel>(
+                foundOne?.FastArraySelect(x => x.ToModel()).ToArray()
+            );
+        }
         public virtual async Task<DbGetManyResult<TModel>> GetMany<T>(
             T value,
             string propertyName,

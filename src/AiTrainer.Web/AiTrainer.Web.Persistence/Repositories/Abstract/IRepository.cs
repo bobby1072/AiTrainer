@@ -13,6 +13,11 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             string propertyName,
             params string[] relations
         );
+        Task<DbGetManyResult<TModel>> GetMany<T>(
+            IReadOnlyCollection<T> value,
+            string propertyName,
+            params string[] relations
+        );
         Task<DbGetManyResult<TModel>> GetMany(TEntId entityId, params string[] relations);
         Task<DbGetManyResult<TModel>> GetMany(params TEntId[] entityIds);
         Task<DbGetOneResult<TModel>> GetOne(TEntId entityId, params string[] relations);

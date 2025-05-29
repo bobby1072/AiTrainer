@@ -33,6 +33,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IValidator<
             IEnumerable<SharedFileCollectionMember>
         > _sharedFileCollectionMemberValidator;
+        private readonly IRepository<UserEntity, Guid, Domain.Models.User> _userRepo;
 
         public FileCollectionProcessingManager(
             IFileCollectionRepository repository,
@@ -45,6 +46,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 SharedFileCollectionMember
             > sharedFileCollectionMemberRepository,
             IValidator<IEnumerable<SharedFileCollectionMember>> sharedFileCollectionMemberValidator,
+            IRepository<UserEntity, Guid, Domain.Models.User> userRepo,
             IHttpContextAccessor? httpContextAccessor = null
         )
         {
@@ -55,6 +57,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
             _sharedFileCollectionMemberRepository = sharedFileCollectionMemberRepository;
             _sharedFileCollectionMemberValidator = sharedFileCollectionMemberValidator;
+            _userRepo = userRepo;
             _fileDocumentRepository = fileDocumentRepository;
         }
 
@@ -115,105 +118,96 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             return deletedId.Data.First();
         }
+
         public async Task<IReadOnlyCollection<SharedFileCollectionMember>> ShareFileCollectionAsync(
             SharedFileCollectionMemberSaveInput sharedFileColInput,
             Domain.Models.User currentUser
         )
         {
             var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
-
+            
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
                 nameof(ShareFileCollectionAsync),
                 correlationId
             );
 
-            var foundCollection = await EntityFrameworkUtils.TryDbOperation(
-                () =>
-                    _repository.GetOne(
-                        sharedFileColInput.CollectionId,
-                        nameof(FileCollectionEntity.SharedFileCollectionMembers)
-                    ),
-                _logger
-            );
-
-            if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
+            
+            
+            var emailInputs = sharedFileColInput
+                .MembersToShareTo
+                .FastArrayWhere(x => x is SharedFileCollectionSingleMemberEmailSaveInput)
+                .FastArraySelect(x => (SharedFileCollectionSingleMemberEmailSaveInput)x)
+                .ToArray();
+            
+            if (emailInputs.Length == 0)
             {
-                throw new ApiException("Could not find file collection with that id");
-            }
-
-            if (foundCollection.Data.UserId != currentUser.Id)
-            {
-                throw new ApiException(
-                    "You do not have permission to share this file collection",
-                    HttpStatusCode.Unauthorized
+                var result  = await ShareFileCollectionAsync(
+                    sharedFileColInput.CollectionId,
+                    sharedFileColInput
+                        .MembersToShareTo
+                        .FastArrayWhere(x => x is SharedFileCollectionSingleMemberUserIdSaveInput)
+                        .FastArraySelect(x => (SharedFileCollectionSingleMemberUserIdSaveInput)x)
+                        .ToArray(),
+                    currentUser
                 );
-            }
-
-            var sharedMembersToSave = CreateSharedFileCollectionMembers(
-                sharedFileColInput,
-                foundCollection.Data.SharedFileCollectionMembers ?? [],
-                (Guid)currentUser.Id!
-            );
-
-            if (sharedMembersToSave.Length == 0)
-            {
                 _logger.LogInformation(
-                    "No members to share for correlationId: {CorrelationId}",
+                    "Exiting {Action} successfully for correlationId {CorrelationId}",
+                    nameof(ShareFileCollectionAsync),
                     correlationId
                 );
-                return [];
+                return result; 
             }
-
-            if (
-                sharedMembersToSave.Length
-                    + (foundCollection.Data.SharedFileCollectionMembers?.Count ?? 0)
-                > 30
-            )
+            
+            _logger.LogInformation("Attempting to retrieve users by email prior to sharing members for correlationId: {CorrelationId}",
+                correlationId);
+            
+            var foundUsers = await 
+                EntityFrameworkUtils
+                    .TryDbOperation(() => 
+                        _userRepo.GetMany(emailInputs
+                            .FastArraySelect(x => x.Email).ToArray(), nameof(UserEntity.Email)), _logger);
+            
+            
+            if (foundUsers?.IsSuccessful is false || foundUsers?.Data is null)
             {
-                throw new ApiException(
-                    "you cannot share more than 30 users on a file collection",
-                    HttpStatusCode.BadRequest
-                );
+                throw new ApiException("Failed to retrieve file collection with that id");
             }
-
-            if (
-                !(
-                    await _sharedFileCollectionMemberValidator.ValidateAsync(sharedMembersToSave)
-                ).IsValid
-            )
+            var finalResult = await ShareFileCollectionAsync(sharedFileColInput with { MembersToShareTo = sharedFileColInput.MembersToShareTo.FastArraySelect(x =>
             {
-                throw new ApiException(
-                    "You submitted invalid shared members",
-                    HttpStatusCode.BadRequest
-                );
-            }
-
-            var newlySavedMembers = await EntityFrameworkUtils.TryDbOperation(
-                () => _sharedFileCollectionMemberRepository.Create(sharedMembersToSave),
-                _logger
-            );
-
-            if (newlySavedMembers?.IsSuccessful != true)
-            {
-                throw new ApiException("Failed to share file collection with new members");
-            }
-
-            _logger.LogInformation(
-                "Successfully shared document to {MemberCount} members with collectionId: {CollectionId} and correlationId: {CorrelationId}",
-                newlySavedMembers.Data.Count,
-                sharedFileColInput.CollectionId,
-                correlationId
-            );
-
+                if (x is SharedFileCollectionSingleMemberEmailSaveInput foundEmailInput)
+                {
+                    return new SharedFileCollectionSingleMemberUserIdSaveInput
+                    {
+                        UserId = (Guid)foundUsers.Data.Single(y => y.Email == foundEmailInput.Email).Id!,
+                        CanCreateDocuments = x.CanCreateDocuments,
+                        CanDownloadDocuments = x.CanDownloadDocuments,
+                        CanRemoveDocuments = x.CanRemoveDocuments,
+                        CanViewDocuments = x.CanViewDocuments
+                    };
+                }
+                else
+                {
+                    return new SharedFileCollectionSingleMemberUserIdSaveInput
+                    {
+                        UserId = ((SharedFileCollectionSingleMemberUserIdSaveInput)x).UserId,
+                        CanCreateDocuments = x.CanCreateDocuments,
+                        CanDownloadDocuments = x.CanDownloadDocuments,
+                        CanRemoveDocuments = x.CanRemoveDocuments,
+                        CanViewDocuments = x.CanViewDocuments
+                    };
+                }
+            }).ToArray() }, currentUser);
+            
             _logger.LogInformation(
                 "Exiting {Action} successfully for correlationId {CorrelationId}",
                 nameof(ShareFileCollectionAsync),
                 correlationId
             );
 
-            return newlySavedMembers.Data;
+            return finalResult;
         }
+
 
         public async Task<FileCollection> GetFileCollectionWithContentsAsync(
             Guid fileCollectionId,
@@ -503,20 +497,109 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 FileDocuments = partialDocuments?.Data ?? [],
             };
         }
+        private async Task<IReadOnlyCollection<SharedFileCollectionMember>> ShareFileCollectionAsync(
+            Guid collectionId,
+            IReadOnlyCollection<SharedFileCollectionSingleMemberUserIdSaveInput> sharedFileColInput,
+            Domain.Models.User currentUser
+        )
+        {
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
+
+            var foundCollection = await EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    _repository.GetOne(
+                        collectionId,
+                        nameof(FileCollectionEntity.SharedFileCollectionMembers)
+                    ),
+                _logger
+            );
+
+            if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
+            {
+                throw new ApiException("Failed to retrieve file collection with that id");
+            }
+
+            if (foundCollection.Data.UserId != currentUser.Id)
+            {
+                throw new ApiException(
+                    "You do not have permission to share this file collection",
+                    HttpStatusCode.Unauthorized
+                );
+            }
+
+            var sharedMembersToSave = CreateSharedFileCollectionMembers(
+                collectionId,
+                sharedFileColInput,
+                foundCollection.Data.SharedFileCollectionMembers ?? [],
+                (Guid)currentUser.Id!
+            );
+
+            if (sharedMembersToSave.Length == 0)
+            {
+                _logger.LogInformation(
+                    "No members to share for correlationId: {CorrelationId}",
+                    correlationId
+                );
+                return [];
+            }
+
+            if (
+                sharedMembersToSave.Length
+                    + (foundCollection.Data.SharedFileCollectionMembers?.Count ?? 0)
+                > 30
+            )
+            {
+                throw new ApiException(
+                    "you cannot share more than 30 users on a file collection",
+                    HttpStatusCode.BadRequest
+                );
+            }
+
+            if (
+                !(
+                    await _sharedFileCollectionMemberValidator.ValidateAsync(sharedMembersToSave)
+                ).IsValid
+            )
+            {
+                throw new ApiException(
+                    "You submitted invalid shared members",
+                    HttpStatusCode.BadRequest
+                );
+            }
+
+            var newlySavedMembers = await EntityFrameworkUtils.TryDbOperation(
+                () => _sharedFileCollectionMemberRepository.Create(sharedMembersToSave),
+                _logger
+            );
+
+            if (newlySavedMembers?.IsSuccessful != true)
+            {
+                throw new ApiException("Failed to share file collection with new members");
+            }
+
+            _logger.LogInformation(
+                "Successfully shared document to {MemberCount} members with collectionId: {CollectionId} and correlationId: {CorrelationId}",
+                newlySavedMembers.Data.Count,
+                collectionId,
+                correlationId
+            );
+            return newlySavedMembers.Data;
+        }
         private static SharedFileCollectionMember[] CreateSharedFileCollectionMembers(
-            SharedFileCollectionMemberSaveInput sharedFileColInput,
+            Guid collectionId,
+            IReadOnlyCollection<SharedFileCollectionSingleMemberUserIdSaveInput> membersInput,
             IReadOnlyCollection<SharedFileCollectionMember> existingSharedMembers,
             Guid collectionOwnerUserId
         )
         {
             var existingMemberIds = existingSharedMembers.FastArraySelect(x => x.UserId);
-            return sharedFileColInput
-                .MembersToShareTo.FastArrayWhere(x =>
+            return membersInput
+                .FastArrayWhere(x =>
                     x.UserId != collectionOwnerUserId && !existingMemberIds.Contains(x.UserId)
                 )
                 .FastArraySelect(x =>
-                    x.ToSharedFileCollectionMember(sharedFileColInput.CollectionId)
+                    x.ToSharedFileCollectionMember(collectionId)
                 )
                 .ToArray();
         }

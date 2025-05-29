@@ -27,7 +27,7 @@ builder
     .AddResponseCompression()
     .AddRequestTimeouts(opts =>
     {
-        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(300) };
+        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(360) };
     })
     .AddLogging()
     .AddEndpointsApiExplorer()
