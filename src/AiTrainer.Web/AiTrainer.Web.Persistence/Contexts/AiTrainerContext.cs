@@ -26,7 +26,7 @@ namespace AiTrainer.Web.Persistence.Contexts
             modelBuilder.Entity<SharedFileCollectionMemberEntity>(ent =>
             {
                 ent
-                    .HasOne<FileCollectionEntity>(x => x.FileCollection)
+                    .HasOne<FileCollectionEntity>()
                     .WithMany(x => x.SharedFileCollectionMembers)
                     .HasForeignKey(x => x.CollectionId);
             });

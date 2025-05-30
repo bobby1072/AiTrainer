@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDeleteFileCollectionMutation } from "../../Hooks/useDeleteFileCollectionMutation";
 import { FileCollection } from "../../Models/FileCollection";
 import {
@@ -14,8 +14,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
-// import { useShareFileCollectionWithMembersMutation } from "../../Hooks/useShareFileCollectionWithMembersMutation";
 import IosShareIcon from "@mui/icons-material/IosShare";
+import { ShareFileCollectionModal } from "./ShareFileCollectionModal";
 
 const fileCol = require("./fileCol.png");
 
@@ -34,13 +34,8 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
     data: deleteFileData,
     error: deleteFileError,
   } = useDeleteFileCollectionMutation();
-
-  // const {
-  //   data: shareFileData,
-  //   error: shareFileError,
-  //   isLoading: shareFileIsLoading,
-  //   mutate: shareFileMutation,
-  // } = useShareFileCollectionWithMembersMutation();
+  const [shareFileCollectionModalOpen, setShareFileCollectionModalOpen] =
+    useState<boolean>(false);
 
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
@@ -128,7 +123,11 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
         </TableCell>
         <TableCell align="right" />
         <TableCell align="right">
-          <IconButton color="inherit" size="small">
+          <IconButton
+            color="inherit"
+            size="small"
+            onClick={() => setShareFileCollectionModalOpen(true)}
+          >
             <IosShareIcon />
           </IconButton>
         </TableCell>
@@ -145,6 +144,12 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
           </IconButton>
         </TableCell>
       </TableRow>
+      {shareFileCollectionModalOpen && (
+        <ShareFileCollectionModal
+          closeModal={() => setShareFileCollectionModalOpen(false)}
+          collectionId={fileCollection.id!}
+        />
+      )}
     </>
   );
 };

@@ -76,10 +76,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             var foundSharedMember = await EntityFrameworkUtils.TryDbOperation(
                 () =>
-                    _sharedFileCollectionMemberRepository.GetOne(
-                        sharedFileMemberColId,
-                        nameof(SharedFileCollectionMemberEntity.FileCollection)
-                    ),
+                    _sharedFileCollectionMemberRepository.GetOne(sharedFileMemberColId.Id),
                 _logger
             );
 
@@ -87,8 +84,17 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             {
                 throw new ApiException("Could not find file collection with that id");
             }
+            
+            
+            var foundfileCollection = await EntityFrameworkUtils.TryDbOperation(
+                () =>
+                    _repository.GetOne(
+                        foundSharedMember.Data.CollectionId
+                    ),
+                _logger
+            );
 
-            if (foundSharedMember.Data.FileCollection?.UserId != currentUser.Id)
+            if (foundfileCollection?.Data?.UserId != currentUser.Id)
             {
                 throw new ApiException(
                     "You do not have permission to share this file collection",
@@ -165,7 +171,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             var foundUsers = await 
                 EntityFrameworkUtils
                     .TryDbOperation(() => 
-                        _userRepo.GetMany(emailInputs
+                        _userRepo.GetMany<string>(emailInputs
                             .FastArraySelect(x => x.Email).ToArray(), nameof(UserEntity.Email)), _logger);
             
             
@@ -173,31 +179,33 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             {
                 throw new ApiException("Failed to retrieve file collection with that id");
             }
-            var finalResult = await ShareFileCollectionAsync(sharedFileColInput with { MembersToShareTo = sharedFileColInput.MembersToShareTo.FastArraySelect(x =>
-            {
-                if (x is SharedFileCollectionSingleMemberEmailSaveInput foundEmailInput)
-                {
-                    return new SharedFileCollectionSingleMemberUserIdSaveInput
+            var finalResult = await ShareFileCollectionAsync(
+                sharedFileColInput.CollectionId,
+                sharedFileColInput.MembersToShareTo.FastArraySelect(x =>
                     {
-                        UserId = (Guid)foundUsers.Data.Single(y => y.Email == foundEmailInput.Email).Id!,
-                        CanCreateDocuments = x.CanCreateDocuments,
-                        CanDownloadDocuments = x.CanDownloadDocuments,
-                        CanRemoveDocuments = x.CanRemoveDocuments,
-                        CanViewDocuments = x.CanViewDocuments
-                    };
-                }
-                else
-                {
-                    return new SharedFileCollectionSingleMemberUserIdSaveInput
-                    {
-                        UserId = ((SharedFileCollectionSingleMemberUserIdSaveInput)x).UserId,
-                        CanCreateDocuments = x.CanCreateDocuments,
-                        CanDownloadDocuments = x.CanDownloadDocuments,
-                        CanRemoveDocuments = x.CanRemoveDocuments,
-                        CanViewDocuments = x.CanViewDocuments
-                    };
-                }
-            }).ToArray() }, currentUser);
+                        if (x is SharedFileCollectionSingleMemberEmailSaveInput foundEmailInput)
+                        {
+                            return new SharedFileCollectionSingleMemberUserIdSaveInput
+                            {
+                                UserId = (Guid)foundUsers.Data.Single(y => y.Email == foundEmailInput.Email).Id!,
+                                CanCreateDocuments = x.CanCreateDocuments,
+                                CanDownloadDocuments = x.CanDownloadDocuments,
+                                CanRemoveDocuments = x.CanRemoveDocuments,
+                                CanViewDocuments = x.CanViewDocuments
+                            };
+                        }
+                        else
+                        {
+                            return new SharedFileCollectionSingleMemberUserIdSaveInput
+                            {
+                                UserId = ((SharedFileCollectionSingleMemberUserIdSaveInput)x).UserId,
+                                CanCreateDocuments = x.CanCreateDocuments,
+                                CanDownloadDocuments = x.CanDownloadDocuments,
+                                CanRemoveDocuments = x.CanRemoveDocuments,
+                                CanViewDocuments = x.CanViewDocuments
+                            };
+                        }
+                    }).ToArray(), currentUser);
             
             _logger.LogInformation(
                 "Exiting {Action} successfully for correlationId {CorrelationId}",
