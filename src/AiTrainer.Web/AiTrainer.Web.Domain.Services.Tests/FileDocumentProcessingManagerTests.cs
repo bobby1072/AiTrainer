@@ -4,6 +4,7 @@ using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.File.Models;
+using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Models;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.TestBase;
@@ -69,11 +70,20 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var collectionId = Guid.NewGuid();
-
+            
             var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
+            
+            var parentCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            
             var fileDocumentId = Guid.NewGuid();
                 
             var docToDelete = _fixture
@@ -88,6 +98,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 x.GetOne((Guid)docToDelete.Id!)
             ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToDelete));
 
+            _mockFileCollectionRepository
+                .Setup(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
+            
+            
             _mockFileDocumentRepository.Setup(x =>
                 x.Delete(It.Is<IReadOnlyCollection<FileDocument>>(x => x.FirstOrDefault() == docToDelete))
             ).ReturnsAsync(new DbDeleteResult<FileDocument>(new List<FileDocument>{docToDelete}));
@@ -100,6 +116,10 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 x.GetOne((Guid)docToDelete.Id!),
                 Times.Once
             );
+            _mockFileCollectionRepository
+                .Verify(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
+            
             _mockFileDocumentRepository.Verify(x =>
                 x.Delete(It.Is<IReadOnlyCollection<FileDocument>>(x => x.FirstOrDefault() == docToDelete)),
                 Times.Once

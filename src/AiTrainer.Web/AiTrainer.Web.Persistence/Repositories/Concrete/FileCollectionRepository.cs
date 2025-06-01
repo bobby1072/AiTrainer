@@ -31,15 +31,15 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             
-            const string getCollectionWithChildrenSql = @"
-                WITH RECURSIVE RecursiveCollections AS (
-                    SELECT * FROM public.""file_collection"" WHERE ""id"" = {0}
-                    UNION ALL
-                    SELECT fc.* FROM public.""file_collection"" fc
-                    INNER JOIN RecursiveCollections rc ON fc.""parent_id"" = rc.""id""
-                )
-                SELECT * FROM RecursiveCollections
-            ";
+            const string getCollectionWithChildrenSql = """
+                                                            WITH RECURSIVE RecursiveCollections AS (
+                                                                SELECT * FROM public."file_collection" WHERE "id" = {0}
+                                                                UNION ALL
+                                                                SELECT fc.* FROM public."file_collection" fc
+                                                                INNER JOIN RecursiveCollections rc ON fc."parent_id" = rc."id"
+                                                            )
+                                                            SELECT * FROM RecursiveCollections
+                                                        """;
 
 
             var baseQuery = dbContext.FileCollections
