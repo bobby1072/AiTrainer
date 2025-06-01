@@ -135,7 +135,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (createdFile?.IsSuccessful != true)
             {
-                throw new ApiException("Invalid file document", HttpStatusCode.BadRequest);
+                throw new ApiException("Failed to save file document");
             }
 
             if (foundParentCollection is { AutoFaissSync: true } ||
@@ -154,7 +154,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFileDocument),
                 correlationId
             );
-            return createdFile.Data.First().ToPartial();
+            return createdFile.Data.FirstOrDefault()?.ToPartial() ?? throw new ApiException("Failed to save file document");
         }
         public async Task<Guid> DeleteFileDocument(Guid documentId, Domain.Models.User currentUser)
         {

@@ -646,7 +646,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                         default
                     )
                 )
-                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+                .ReturnsAsync(new ValidationResult());
             _mockRepository
                 .Setup(x =>
                     x.CreateWithSharedMembers(
@@ -655,7 +655,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                         ),
                         It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(
                             y => y.Count == 1 &&
-                                 y.First().UserId == sharedMemberId
+                                 y.Single().UserId == sharedMemberId
                             )
                     )
                 )
@@ -680,9 +680,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockValidator.Verify(
                 x =>
                     x.ValidateAsync(
-                        It.Is<FileCollection>(x =>
-                            x.Id == fileCollectionInput.Id
-                            && x.CollectionName == fileCollectionInput.CollectionName
+                        It.Is<FileCollection>(y =>
+                            y.Id == fileCollectionInput.Id
+                            && y.CollectionName == fileCollectionInput.CollectionName
                         ),
                         default
                     ),
@@ -700,7 +700,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                         ),
                         It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(
                             y => y.Count == 1 &&
-                                 y.First().UserId == sharedMemberId
+                                 y.Single().UserId == sharedMemberId
                         )
                     ), Times.Once
                 );
@@ -901,8 +901,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockRepository
                 .Setup(x =>
                     x.Update(
-                        It.Is<IReadOnlyCollection<FileCollection>>(x =>
-                            x.First().CollectionName == newFileCollectionInput.CollectionName
+                        It.Is<IReadOnlyCollection<FileCollection>>(y =>
+                            y.Single().CollectionName == newFileCollectionInput.CollectionName
                         )
                     )
                 )
@@ -936,8 +936,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockRepository.Verify(
                 x =>
                     x.Update(
-                        It.Is<IReadOnlyCollection<FileCollection>>(x =>
-                            x.First().CollectionName == newFileCollectionInput.CollectionName
+                        It.Is<IReadOnlyCollection<FileCollection>>(y =>
+                            y.Single().CollectionName == newFileCollectionInput.CollectionName
                         )
                     ),
                 Times.Once
@@ -985,8 +985,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockRepository
                 .Setup(x =>
                     x.Update(
-                        It.Is<IReadOnlyCollection<FileCollection>>(x =>
-                            x.First().CollectionName == newFileCollectionInput.CollectionName
+                        It.Is<IReadOnlyCollection<FileCollection>>(y =>
+                            y.Single().CollectionName == newFileCollectionInput.CollectionName
                         )
                     )
                 )
