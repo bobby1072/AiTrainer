@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete;
 
-internal class GlobalFileCollectionConfigRepository: BaseRepository<GlobalFileCollectionConfigEntity, long, GlobalFileCollectionConfig>
+internal sealed class GlobalFileCollectionConfigRepository: BaseRepository<GlobalFileCollectionConfigEntity, long, GlobalFileCollectionConfig>
 {
     public GlobalFileCollectionConfigRepository(ILogger<GlobalFileCollectionConfigRepository> logger,
         IDbContextFactory<AiTrainerContext> contextFactory): base(contextFactory, logger)

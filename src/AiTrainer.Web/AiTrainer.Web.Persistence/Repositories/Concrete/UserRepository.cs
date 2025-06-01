@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
-    internal class UserRepository : BaseRepository<UserEntity, Guid, User>
+    internal sealed class UserRepository : BaseRepository<UserEntity, Guid, User>
     {
         public UserRepository(IDbContextFactory<AiTrainerContext> dbContextFactory, ILogger<UserRepository> logger) : base(dbContextFactory, logger) { }
 

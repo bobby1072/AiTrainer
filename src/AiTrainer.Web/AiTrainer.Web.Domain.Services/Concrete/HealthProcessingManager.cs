@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.Domain.Services.Concrete;
 
-internal class HealthProcessingManager : IHealthProcessingManager
+internal sealed class HealthProcessingManager : IHealthProcessingManager
 {
     private readonly ICoreClient<CoreClientHealthResponse> _coreClient;
     private readonly ApplicationSettingsConfiguration _aiTrainerCoreConfiguration;

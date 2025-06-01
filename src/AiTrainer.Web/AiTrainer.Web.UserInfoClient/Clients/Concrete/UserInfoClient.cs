@@ -13,7 +13,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace AiTrainer.Web.UserInfoClient.Clients.Concrete
 {
-    internal class UserInfoClient : IUserInfoClient
+    internal sealed class UserInfoClient : IUserInfoClient
     {
         private readonly ILogger<UserInfoClient> _logger;
         private readonly string _userInfoEndpoint;
