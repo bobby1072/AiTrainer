@@ -20,7 +20,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.ChatGpt.Concrete;
 
-internal class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
+internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingManager
 {
     private readonly ILogger<ChatGptQueryProcessingManager> _logger;
     private readonly ICoreClient<

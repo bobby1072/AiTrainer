@@ -57,6 +57,25 @@
     ]
   },
   {
+    "SubjectId": "6c8201ff-166a-49a5-a67b-60f8b95219e1",
+    "Username": "testuser",
+    "Password": "testuser",
+    "Claims": [
+      {
+        "Type": "name",
+        "Value": "Test User"
+      },
+      {
+        "Type": "email",
+        "Value": "testuser@example.com"
+      },
+      {
+        "Type": "email_verified",
+        "Value": "True"
+      }
+    ]
+  },
+  {
     "SubjectId": "b06501cb-984f-4a1d-a8ab-3ad8e77c7e72",
     "Username": "k6user1",
     "Password": "k6password1",

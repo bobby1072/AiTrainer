@@ -451,16 +451,18 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
             DbGetManyResult<FileDocumentPartial>? partialDocuments;
 
-            var foundSharedMembers = collections
-                ?.Data.FastArrayFirstOrDefault(x => x.Id == collectionId)
+            var selfCollection = collections
+                ?.Data.FastArrayFirstOrDefault(x => x.Id == collectionId);
+            
+            var foundSharedMembers = selfCollection
                 ?.SharedFileCollectionMembers;
             if (
                 collectionId is not null
-                && foundSharedMembers?.CanAny(
+                && (foundSharedMembers?.CanAny(
                     (Guid)currentUser.Id!,
                     (Guid)collectionId,
                     SharedFileCollectionMemberPermission.ViewDocuments
-                ) == true
+                ) == true || currentUser.Id == selfCollection?.UserId)
             )
             {
                 _logger.LogInformation("Shared member with correlationId: {CorrelationId} is accessing documents from collection with Id: {CollectionId}",
@@ -475,7 +477,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     _logger
                 );
             }
-            else
+            else if(collectionId is null)
             {
                 _logger.LogInformation("User with correlationId: {CorrelationId} is accessing their own documents from collection with Id: {CollectionId}",
                     correlationId,
@@ -489,6 +491,10 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                         ),
                     _logger
                 );
+            }
+            else
+            {
+                throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
             }
 
             _logger.LogInformation(

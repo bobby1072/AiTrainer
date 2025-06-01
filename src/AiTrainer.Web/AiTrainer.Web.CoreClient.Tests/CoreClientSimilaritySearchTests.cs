@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientSimilaritySearchTests: CoreClientTestBase
+public sealed class CoreClientSimilaritySearchTests: CoreClientTestBase
 {
     public CoreClientSimilaritySearchTests()
     {

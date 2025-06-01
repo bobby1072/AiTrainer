@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
-    internal class UserProcessingManager : IUserProcessingManager
+    internal sealed class UserProcessingManager : IUserProcessingManager
     {
         private readonly IRepository<UserEntity, Guid, Models.User> _repo;
         private readonly IUserInfoClient _userInfoClient;

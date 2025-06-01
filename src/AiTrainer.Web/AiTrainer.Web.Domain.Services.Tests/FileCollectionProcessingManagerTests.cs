@@ -1027,7 +1027,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
         public async Task SaveFileCollectionAsync_With_Parent_Should_Throw_If_User_Not_Authorized()
         {
             //Arrange
-            FileCollection? fileCollectionToSave = null;
             var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
@@ -1320,7 +1319,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var foundSingleFileDocument = _fixture
                 .Build<FileDocumentPartial>()
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
-                .With(x => x.CollectionId, Guid.NewGuid())
+                .With(x => x.CollectionId, foundSingleFileCollection.Id)
                 .With(x => x.UserId, currentUser.Id)
                 .Create();
             
@@ -1329,7 +1328,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             _mockRepository
                 .Setup(x =>
                     x.GetManyCollectionsForUserIncludingSelf(
-                        (Guid)foundSingleFileDocument.CollectionId!,
+                        (Guid)foundSingleFileCollection.Id!,
                         (Guid)currentUser.Id!
                     )
                 )
@@ -1361,8 +1360,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
 
             _mockFileDocumentRepository.Verify(
                 x =>
-                    x.GetManyDocumentPartialsByCollectionIdAndUserId(
-                        (Guid)currentUser.Id!,
+                    x.GetManyDocumentPartialsByCollectionId(
                         (Guid)foundSingleFileCollection.Id!,
                         nameof(FileDocumentEntity.MetaData)
                     ),

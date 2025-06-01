@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete;
 
-internal class SharedFileCollectionMemberRepository: BaseRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember>
+internal sealed class SharedFileCollectionMemberRepository: BaseRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember>
 {
     public SharedFileCollectionMemberRepository(
         IDbContextFactory<AiTrainerContext> dbContextFactory,

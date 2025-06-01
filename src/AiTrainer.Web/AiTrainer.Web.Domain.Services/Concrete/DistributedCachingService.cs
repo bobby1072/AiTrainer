@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
-    internal class DistributedCachingService : ICachingService
+    internal sealed class DistributedCachingService : ICachingService
     {
         private static readonly Type _typeofString = typeof(string);
         private readonly IDistributedCache _distributedCache;

@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Persistence.Repositories.Concrete;
 
-internal class FileDocumentMetaDataRepository: BaseRepository<FileDocumentMetaDataEntity, long, FileDocumentMetaData>
+internal sealed class FileDocumentMetaDataRepository: BaseRepository<FileDocumentMetaDataEntity, long, FileDocumentMetaData>
 {
     public FileDocumentMetaDataRepository(
         IDbContextFactory<AiTrainerContext> dbContextFactory,

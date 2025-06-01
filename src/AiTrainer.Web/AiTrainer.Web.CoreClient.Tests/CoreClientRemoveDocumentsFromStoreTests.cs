@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientRemoveDocumentsFromStoreTests: CoreClientTestBase
+public sealed class CoreClientRemoveDocumentsFromStoreTests: CoreClientTestBase
 {
     public CoreClientRemoveDocumentsFromStoreTests()
     {

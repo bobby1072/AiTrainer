@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientFormattedChatQueryTests: CoreClientTestBase
+public sealed class CoreClientFormattedChatQueryTests: CoreClientTestBase
 {
     public CoreClientFormattedChatQueryTests()
     {

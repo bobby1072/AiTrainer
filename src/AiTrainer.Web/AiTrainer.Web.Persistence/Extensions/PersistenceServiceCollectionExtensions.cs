@@ -24,7 +24,7 @@ namespace AiTrainer.Web.Persistence.Extensions
             bool isDevelopment = false
         )
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var connectionString = configuration.GetConnectionString("PostgresConnection");
             var migrationConfigSection = configuration.GetSection(DbMigrationsConfiguration.Key);
             if (!migrationConfigSection.Exists())
             {

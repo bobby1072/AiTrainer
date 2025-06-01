@@ -1,23 +1,20 @@
 using AiTrainer.Web.Api.Auth;
 using AiTrainer.Web.Api.Middlewares;
-using AiTrainer.Web.Api.SignalR.Extensions;
 using AiTrainer.Web.Common.Configuration;
-using AiTrainer.Web.CoreClient.Extensions;
-using AiTrainer.Web.Domain.Models.Extensions;
-using AiTrainer.Web.Domain.Services.Extensions;
-using AiTrainer.Web.Persistence.Extensions;
-using AiTrainer.Web.UserInfoClient;
 using Microsoft.AspNetCore.Http.Timeouts;
 using System.Text.Json;
+using AiTrainer.Web.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
+
 var appSettings = builder.Configuration.GetSection(ApplicationSettingsConfiguration.Key);
 
 if (!appSettings.Exists())
 {
     throw new Exception("ApplicationSettingsConfiguration not found in configuration");
 }
+
 builder.Services.Configure<ApplicationSettingsConfiguration>(appSettings);
 
 builder
@@ -39,13 +36,7 @@ builder
 
 builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environment);
 
-builder
-    .Services.AddCoreClient(builder.Configuration)
-    .AddSqlPersistence(builder.Configuration, builder.Environment.IsDevelopment())
-    .AddUserInfoClient(builder.Configuration)
-    .AddAiTrainerSignalR()
-    .AddDomainModelServices()
-    .AddDomainServices(builder.Configuration);
+builder.Services.AddAiTrainerServices(builder.Configuration, builder.Environment);
 
 builder.Services.AddCors(p =>
     p.AddPolicy(
