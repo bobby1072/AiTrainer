@@ -127,10 +127,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 }
                 foundParentCollection = foundParent.Data;
             }
-            else if (newFileDoc.UserId != (Guid)currentUser.Id!)
-            {
-                throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
-            }
 
             var createdFile = await EntityFrameworkUtils.TryDbOperation(
                 async () => newFileDoc.FileType == FileTypeEnum.Pdf ? await _fileDocumentRepository.Create(newFileDoc, await FileDocumentMetaDataHelper.GetFromFormFile(fileDocumentSaveFormInput.FileToCreate, (Guid)newFileDoc.Id!)) : await _fileDocumentRepository.Create([newFileDoc]),
