@@ -255,7 +255,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             )
             {
                 throw new ApiException(
-                    "You do not have permission to access this file collection",
+                    ExceptionConstants.Unauthorized,
                     HttpStatusCode.Unauthorized
                 );
             }
@@ -352,7 +352,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 );
                 if (foundSingleParent?.Data?.UserId != currentUser.Id)
                 {
-                    throw new ApiException("Collection is not valid", HttpStatusCode.BadRequest);
+                    throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
                 }
 
                 sharedMembers =
@@ -422,7 +422,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(DeleteFileCollectionAsync),
                 correlationId
             );
-            return deletedId.Data.First();
+            return deletedId.Data.FirstOrDefault();
         }
 
         public async Task<FlatFileDocumentPartialCollectionView> GetOneLayerFileDocPartialsAndCollectionsAsync(

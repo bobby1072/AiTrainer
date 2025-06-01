@@ -38,10 +38,311 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockHttpContextAccessor.Object
             );
         }
-        
 
+        
         [Fact]
-        public async Task SaveFileCollection_With_No_Parent_Id_And_No_Shared_Members_Should_Correctly_Build_And_Save_Collection_From_Input()
+        public async Task GetFileCollectionWithContentsAsync_Should_Return_File_Collection_With_Contents_For_Authorized_User()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            var mockFileBytes = await TestFileUtils.CreateFileBytes();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.Documents, _fixture
+                    .Build<FileDocument>()
+                    .With(x => x.UserId, currentUser.Id)
+                    .With(x => x.FileData, mockFileBytes)
+                    .With(x => x.FileType, FileTypeEnum.Text)
+                    .With(x => x.CollectionId, collectionId)
+                    .CreateMany()
+                    .ToArray()
+                )
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+
+            _mockRepository.Setup(x => x.GetOne(
+                    (Guid)collection.Id!,
+                    nameof(FileCollectionEntity.Documents),
+                    nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(collection));
+            
+            //Act
+            var result = await _fileCollectionManager
+                .GetFileCollectionWithContentsAsync(collectionId, currentUser);
+            
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(collection, result);
+
+
+            _mockRepository.Verify(x => x.GetOne(
+                (Guid)collection.Id!,
+                nameof(FileCollectionEntity.Documents),
+                nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
+        }
+        [Fact]
+        public async Task GetFileCollectionWithContentsAsync_Should_Throw_For_Unauthorized_User()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            var mockFileBytes = await TestFileUtils.CreateFileBytes();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.Documents, _fixture
+                    .Build<FileDocument>()
+                    .With(x => x.UserId, Guid.NewGuid())
+                    .With(x => x.FileData, mockFileBytes)
+                    .With(x => x.FileType, FileTypeEnum.Text)
+                    .With(x => x.CollectionId, collectionId)
+                    .CreateMany()
+                    .ToArray()
+                )
+                .With(x => x.UserId, Guid.NewGuid())
+                .Create();
+
+            _mockRepository.Setup(x => x.GetOne(
+                    (Guid)collection.Id!,
+                    nameof(FileCollectionEntity.Documents),
+                    nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(collection));
+            
+            //Act
+            var act = () => _fileCollectionManager
+                .GetFileCollectionWithContentsAsync(collectionId, currentUser);
+            
+            //Assert
+            var ex = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal(ExceptionConstants.Unauthorized, ex.Message);
+
+
+            _mockRepository.Verify(x => x.GetOne(
+                (Guid)collection.Id!,
+                nameof(FileCollectionEntity.Documents),
+                nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
+        }
+        [Fact]
+        public async Task GetFileCollectionWithContentsAsync_Should_Return_File_Collection_With_Contents_For_Shared_Member_With_Permissions()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            var mockFileBytes = await TestFileUtils.CreateFileBytes();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [
+                    _fixture
+                        .Build<SharedFileCollectionMember>()
+                        .With(x => x.CollectionId, collectionId)
+                        .With(x => x.UserId, currentUser.Id)
+                        .With(x => x.CanDownloadDocuments, true)
+                        .Create()
+                ])
+                .With(x => x.Documents, _fixture
+                    .Build<FileDocument>()
+                    .With(x => x.UserId, Guid.NewGuid())
+                    .With(x => x.FileData, mockFileBytes)
+                    .With(x => x.FileType, FileTypeEnum.Text)
+                    .With(x => x.CollectionId, collectionId)
+                    .CreateMany()
+                    .ToArray()
+                )
+                .With(x => x.UserId, Guid.NewGuid())
+                .Create();
+
+            _mockRepository.Setup(x => x.GetOne(
+                    (Guid)collection.Id!,
+                    nameof(FileCollectionEntity.Documents),
+                    nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(collection));
+            
+            //Act
+            var result = await _fileCollectionManager
+                .GetFileCollectionWithContentsAsync(collectionId, currentUser);
+            
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(collection, result);
+
+
+            _mockRepository.Verify(x => x.GetOne(
+                (Guid)collection.Id!,
+                nameof(FileCollectionEntity.Documents),
+                nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
+        }
+        [Fact]
+        public async Task GetFileCollectionWithContentsAsync_Should_Throw_For_Shared_Member_With_No_Permissions()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            var mockFileBytes = await TestFileUtils.CreateFileBytes();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [
+                    _fixture
+                        .Build<SharedFileCollectionMember>()
+                        .With(x => x.CollectionId, collectionId)
+                        .With(x => x.UserId, currentUser.Id)
+                        .With(x => x.CanDownloadDocuments, false)
+                        .Create()
+                ])
+                .With(x => x.Documents, _fixture
+                    .Build<FileDocument>()
+                    .With(x => x.UserId, Guid.NewGuid())
+                    .With(x => x.FileData, mockFileBytes)
+                    .With(x => x.FileType, FileTypeEnum.Text)
+                    .With(x => x.CollectionId, collectionId)
+                    .CreateMany()
+                    .ToArray()
+                )
+                .With(x => x.UserId, Guid.NewGuid())
+                .Create();
+
+            _mockRepository.Setup(x => x.GetOne(
+                    (Guid)collection.Id!,
+                    nameof(FileCollectionEntity.Documents),
+                    nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(collection));
+            
+            //Act
+            var act = () => _fileCollectionManager
+                .GetFileCollectionWithContentsAsync(collectionId, currentUser);
+            
+            //Assert
+            var ex = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal(ExceptionConstants.Unauthorized, ex.Message);
+
+            _mockRepository.Verify(x => x.GetOne(
+                (Guid)collection.Id!,
+                nameof(FileCollectionEntity.Documents),
+                nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
+        }
+        [Fact]
+        public async Task SaveFileCollectionAsync_With_Parent_Id_And_Shared_Members_On_Parent_Should_Correctly_Build_And_Save_Collection_From_Input()
+        {
+            //Arrange
+            FileCollection? fileCollectionToSave = null;
+            var parentCollectionId = Guid.NewGuid();
+            var sharedMemberId = Guid.NewGuid();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            var parentCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, parentCollectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.ParentId, (Guid?)null)
+                .With(x => x.SharedFileCollectionMembers, [
+                    _fixture
+                        .Build<SharedFileCollectionMember>()
+                        .With(x => x.CollectionId, parentCollectionId)
+                        .With(x => x.UserId, sharedMemberId)
+                        .Create()
+                ])
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            var fileCollectionInput = _fixture
+                .Build<FileCollectionSaveInput>()
+                .With(x => x.Id, (Guid?)null)
+                .With(x => x.ParentId, parentCollection.Id)
+                .Create();
+
+            _mockValidator
+                .Setup(x =>
+                    x.ValidateAsync(
+                        It.Is<FileCollection>(x =>
+                            x.Id == fileCollectionInput.Id
+                            && x.CollectionName == fileCollectionInput.CollectionName
+                        ),
+                        default
+                    )
+                )
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+            _mockRepository
+                .Setup(x =>
+                    x.CreateWithSharedMembers(
+                        It.Is<FileCollection>(y =>
+                            y.CollectionName == fileCollectionInput.CollectionName
+                        ),
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(
+                            y => y.Count == 1 &&
+                                 y.First().UserId == sharedMemberId
+                            )
+                    )
+                )
+                .Callback((FileCollection x, IReadOnlyCollection<SharedFileCollectionMember> _) =>
+                    fileCollectionToSave = x
+                )
+                .ReturnsAsync(() => new DbSaveResult<FileCollection>(fileCollectionToSave is not null ? [fileCollectionToSave]: []));
+            _mockRepository
+                .Setup(x =>
+                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!), nameof(FileCollectionEntity.SharedFileCollectionMembers))
+                )
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
+            //Act
+            var result = await _fileCollectionManager.SaveFileCollectionAsync(fileCollectionInput, currentUser);
+
+            //Assert
+            Assert.NotNull(result);
+            Assert.Equal(fileCollectionInput.CollectionName, result.CollectionName);
+            Assert.Equal(fileCollectionInput.ParentId, result.ParentId);
+            Assert.Equal((Guid)currentUser.Id!, result.UserId);
+
+            _mockValidator.Verify(
+                x =>
+                    x.ValidateAsync(
+                        It.Is<FileCollection>(x =>
+                            x.Id == fileCollectionInput.Id
+                            && x.CollectionName == fileCollectionInput.CollectionName
+                        ),
+                        default
+                    ),
+                Times.Once
+            );
+            _mockRepository
+                .Verify(x =>
+                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!), nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once
+                );
+            _mockRepository
+                .Verify(x =>
+                    x.CreateWithSharedMembers(
+                        It.Is<FileCollection>(y =>
+                            y.CollectionName == fileCollectionInput.CollectionName
+                        ),
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(
+                            y => y.Count == 1 &&
+                                 y.First().UserId == sharedMemberId
+                        )
+                    ), Times.Once
+                );
+        }
+        [Fact]
+        public async Task SaveFileCollectionAsync_With_Parent_Id_And_No_Shared_Members_Should_Correctly_Build_And_Save_Collection_From_Input()
         {
             //Arrange
             FileCollection? fileCollectionToSave = null;
@@ -125,9 +426,76 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     ), Times.Once
                 );
         }
-
         [Fact]
-        public async Task SaveFileCollection_Should_Correctly_Build_And_Update_File()
+        public async Task SaveFileCollectionAsync_With_Parent_Should_Throw_If_User_Not_Authorized()
+        {
+            //Arrange
+            FileCollection? fileCollectionToSave = null;
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            var parentCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.ParentId, (Guid?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, Guid.NewGuid())
+                .Create();
+            var fileCollectionInput = _fixture
+                .Build<FileCollectionSaveInput>()
+                .With(x => x.Id, (Guid?)null)
+                .With(x => x.ParentId, parentCollection.Id)
+                .Create();
+
+            _mockValidator
+                .Setup(x =>
+                    x.ValidateAsync(
+                        It.Is<FileCollection>(x =>
+                            x.Id == fileCollectionInput.Id
+                            && x.CollectionName == fileCollectionInput.CollectionName
+                        ),
+                        default
+                    )
+                )
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+            _mockRepository
+                .Setup(x =>
+                    x.GetOne(It.Is<Guid>(y => y == (Guid)fileCollectionInput.ParentId!), nameof(FileCollectionEntity.SharedFileCollectionMembers))
+                )
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
+            //Act
+            var act = () => _fileCollectionManager.SaveFileCollectionAsync(fileCollectionInput, currentUser);
+
+            //Assert
+            var ex = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal(ExceptionConstants.Unauthorized, ex.Message);
+
+            _mockValidator.Verify(
+                x =>
+                    x.ValidateAsync(
+                        It.Is<FileCollection>(x =>
+                            x.Id == fileCollectionInput.Id
+                            && x.CollectionName == fileCollectionInput.CollectionName
+                        ),
+                        default
+                    ),
+                Times.Once
+            );
+            _mockRepository
+                .Verify(x =>
+                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!), nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once
+                );
+            _mockRepository
+                .Verify(x =>
+                    x.CreateWithSharedMembers(
+                        It.IsAny<FileCollection>(),
+                        It.IsAny<IReadOnlyCollection<SharedFileCollectionMember>>()
+                    ), Times.Never
+                );
+        }
+        [Fact]
+        public async Task SaveFileCollectionAsync_Should_Correctly_Build_And_Update_File()
         {
             //Arrange
             IReadOnlyCollection<FileCollection>? fileCollectionToSave = null;
@@ -214,7 +582,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         }
 
         [Fact]
-        public async Task SaveFileCollection_Should_Throw_When_New_Model_Changes_LockedProperty()
+        public async Task SaveFileCollectionAsync_Should_Throw_When_New_Model_Changes_LockedProperty()
         {
             //Arrange
             IReadOnlyCollection<FileCollection>?  fileCollectionToSave = null;

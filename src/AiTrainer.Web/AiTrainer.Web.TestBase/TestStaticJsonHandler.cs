@@ -4,14 +4,14 @@ using System.Text.Json;
 
 namespace AiTrainer.Web.TestBase.Helpers;
 
-public class StaticJsonHandler<T> : HttpMessageHandler
+public class TestStaticJsonHandler<T> : HttpMessageHandler
     where T : class
 {
     private readonly T _json;
     private readonly HttpStatusCode _statusCode;
     private readonly JsonSerializerOptions? _jsonSerializerOptions;
 
-    public StaticJsonHandler(
+    public TestStaticJsonHandler(
         T data,
         HttpStatusCode statusCode,
         JsonSerializerOptions? jsonSerializerOptions = null
