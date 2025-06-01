@@ -137,14 +137,14 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             }
         }
 
-        public async Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId)
+        public async Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
 
             var entity = await TimeAndLogDbOperation(
                 () =>
                     dbContext
-                        .FileDocuments.Where(x => x.Id == documentId && x.UserId == userId)
+                        .FileDocuments.Where(x => x.Id == documentId)
                         .FirstOrDefaultAsync(),
                 nameof(GetOne),
                 _entityType.Name

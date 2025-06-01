@@ -36,7 +36,6 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockHttpContextAccessor.Object
             );
         }
-
         [Fact]
         public async Task UploadFile_Should_Throw_If_No_Entities_Returned_From_Save()
         {
@@ -553,6 +552,231 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     x.EnqueueAsync(It.IsAny<FileCollectionFaissSyncBackgroundJob>(), It.IsAny<CancellationToken>()),
                 Times.Never
             );
+        }
+
+        [Fact]
+        public async Task GetFileDocumentForDownload_Should_Successfully_Get_File_For_Authorized_User()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+            
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            
+            var parentCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            
+            var fileDocumentId = Guid.NewGuid();
+                
+            var docToGet = _fixture
+                .Build<FileDocument>()
+                .With(x => x.Id, fileDocumentId)
+                .With(x => x.UserId, (Guid)currentUser.Id!)
+                .With(x => x.CollectionId, collectionId)
+                .Create();
+            
+
+            _mockFileDocumentRepository.Setup(x =>
+                x.GetOne((Guid)docToGet.Id!)
+            ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToGet));
+
+            _mockFileCollectionRepository
+                .Setup(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
+            
+            //Act
+            var result = await _fileDocumentProcessingManager.GetFileDocumentForDownload(fileDocumentId, currentUser);
+            
+            //Assert
+            Assert.Equal(docToGet, result);
+            
+            _mockFileDocumentRepository.Verify(x =>
+                x.GetOne((Guid)docToGet.Id!), Times.Once
+            );
+
+            _mockFileCollectionRepository
+                .Verify(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
+        }
+        [Fact]
+        public async Task GetFileDocumentForDownload_Should_Successfully_Get_File_For_Shared_Member_With_Permissions()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+            
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            
+            var parentCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.SharedFileCollectionMembers, [
+                    _fixture
+                        .Build<SharedFileCollectionMember>()
+                        .With(x => x.CollectionId, collectionId)
+                        .With(x => x.UserId, currentUser.Id)
+                        .With(x => x.CanDownloadDocuments, true)
+                        .Create()
+                ])
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.UserId, Guid.NewGuid())
+                .Create();
+            
+            var fileDocumentId = Guid.NewGuid();
+                
+            var docToGet = _fixture
+                .Build<FileDocument>()
+                .With(x => x.Id, fileDocumentId)
+                .With(x => x.UserId, Guid.NewGuid())
+                .With(x => x.CollectionId, collectionId)
+                .Create();
+            
+
+            _mockFileDocumentRepository.Setup(x =>
+                x.GetOne((Guid)docToGet.Id!)
+            ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToGet));
+
+            _mockFileCollectionRepository
+                .Setup(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
+            
+            //Act
+            var result = await _fileDocumentProcessingManager.GetFileDocumentForDownload(fileDocumentId, currentUser);
+            
+            //Assert
+            Assert.Equal(docToGet, result);
+            
+            _mockFileDocumentRepository.Verify(x =>
+                x.GetOne((Guid)docToGet.Id!), Times.Once
+            );
+
+            _mockFileCollectionRepository
+                .Verify(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
+        }
+        [Fact]
+        public async Task GetFileDocumentForDownload_Should_Throw_For_Shared_Member_With_No_Permissions()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+            
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            
+            var parentCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.SharedFileCollectionMembers, [
+                    _fixture
+                        .Build<SharedFileCollectionMember>()
+                        .With(x => x.CollectionId, collectionId)
+                        .With(x => x.UserId, currentUser.Id)
+                        .With(x => x.CanDownloadDocuments, false)
+                        .Create()
+                ])
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.UserId, Guid.NewGuid())
+                .Create();
+            
+            var fileDocumentId = Guid.NewGuid();
+                
+            var docToGet = _fixture
+                .Build<FileDocument>()
+                .With(x => x.Id, fileDocumentId)
+                .With(x => x.UserId, Guid.NewGuid())
+                .With(x => x.CollectionId, collectionId)
+                .Create();
+            
+
+            _mockFileDocumentRepository.Setup(x =>
+                x.GetOne((Guid)docToGet.Id!)
+            ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToGet));
+
+            _mockFileCollectionRepository
+                .Setup(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
+            
+            //Act
+            var act = () => _fileDocumentProcessingManager.GetFileDocumentForDownload(fileDocumentId, currentUser);
+            
+            //Assert
+            var ex = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal(ExceptionConstants.Unauthorized, ex.Message);
+            
+            _mockFileDocumentRepository.Verify(x =>
+                x.GetOne((Guid)docToGet.Id!), Times.Once
+            );
+
+            _mockFileCollectionRepository
+                .Verify(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
+        }
+        [Fact]
+        public async Task GetFileDocumentForDownload_Should_Throw_For_Unauthorized_Users()
+        {
+            //Arrange
+            var collectionId = Guid.NewGuid();
+            
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .Create();
+            
+            var parentCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.UserId, Guid.NewGuid())
+                .Create();
+            
+            var fileDocumentId = Guid.NewGuid();
+                
+            var docToGet = _fixture
+                .Build<FileDocument>()
+                .With(x => x.Id, fileDocumentId)
+                .With(x => x.UserId, Guid.NewGuid())
+                .With(x => x.CollectionId, collectionId)
+                .Create();
+            
+
+            _mockFileDocumentRepository.Setup(x =>
+                x.GetOne((Guid)docToGet.Id!)
+            ).ReturnsAsync(new DbGetOneResult<FileDocument>(docToGet));
+
+            _mockFileCollectionRepository
+                .Setup(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
+            
+            //Act
+            var act = () => _fileDocumentProcessingManager.GetFileDocumentForDownload(fileDocumentId, currentUser);
+            
+            //Assert
+            var ex = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal(ExceptionConstants.Unauthorized, ex.Message);
+            
+            _mockFileDocumentRepository.Verify(x =>
+                x.GetOne((Guid)docToGet.Id!), Times.Once
+            );
+
+            _mockFileCollectionRepository
+                .Verify(x => x
+                    .GetOne(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once);
         }
     }
 }

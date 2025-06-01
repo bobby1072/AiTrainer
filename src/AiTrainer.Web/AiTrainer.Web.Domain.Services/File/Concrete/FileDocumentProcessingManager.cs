@@ -53,7 +53,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
             var foundDocument = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.GetOne(documentId, (Guid)currentUser.Id!),
+                () => _fileDocumentRepository.GetOne(documentId),
                 _logger
             );
             if (foundDocument?.Data is null)
