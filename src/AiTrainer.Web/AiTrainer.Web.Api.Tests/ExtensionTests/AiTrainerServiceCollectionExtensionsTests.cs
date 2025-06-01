@@ -1,6 +1,5 @@
 ﻿using AiTrainer.Web.Api.Extensions;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
-using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
@@ -76,19 +75,18 @@ public sealed class AiTrainerServiceCollectionExtensionsTests
         ["AiTrainerCore:TotalAttempts"] = "2",
         ["AiTrainerCore:DelayBetweenAttemptsInSeconds"] = "5"
     };
-    private readonly IConfiguration _config;
     private readonly Mock<IWebHostEnvironment> _mockWebHost = new();
     private readonly IServiceCollection _serviceCollectionWithAiTrainerServicesAdded;
     
     public AiTrainerServiceCollectionExtensionsTests()
     {
-        _config = new ConfigurationBuilder()
+        var config = new ConfigurationBuilder()
             .AddInMemoryCollection(_inMemorySettings)
             .Build();
         _mockWebHost.Setup(x => x.EnvironmentName).Returns("Development");
         
         _serviceCollectionWithAiTrainerServicesAdded = new ServiceCollection()
-            .AddAiTrainerServices(_config, _mockWebHost.Object);
+            .AddAiTrainerServices(config, _mockWebHost.Object);
     }
     
     
