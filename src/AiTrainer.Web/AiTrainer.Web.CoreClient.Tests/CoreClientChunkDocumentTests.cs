@@ -12,7 +12,7 @@ using Moq;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientChunkDocumentTests : CoreClientTestBase
+public sealed class CoreClientChunkDocumentTests : CoreClientTestBase
 {
     public CoreClientChunkDocumentTests()
     {

@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 
-public class CoreClientCreateFaissStoreTests: CoreClientTestBase
+public sealed class CoreClientCreateFaissStoreTests: CoreClientTestBase
 {
     public CoreClientCreateFaissStoreTests()
     {
