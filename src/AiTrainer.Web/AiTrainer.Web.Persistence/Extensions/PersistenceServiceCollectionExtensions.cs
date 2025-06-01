@@ -70,7 +70,9 @@ namespace AiTrainer.Web.Persistence.Extensions
                     {
                         if (isDevelopment)
                         {
-                            options.EnableSensitiveDataLogging();
+                            options
+                                .EnableDetailedErrors()
+                                .EnableSensitiveDataLogging();
                         }
                         options
                             .UseSnakeCaseNamingConvention()

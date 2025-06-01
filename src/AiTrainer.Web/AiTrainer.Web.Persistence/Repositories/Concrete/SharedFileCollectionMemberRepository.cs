@@ -26,10 +26,16 @@ internal class SharedFileCollectionMemberRepository: BaseRepository<SharedFileCo
         {
             var documentEnts = entObj.FastArraySelect(RuntimeToEntity).ToArray();
 
-            await Task.WhenAll(UpdateFileColLastUpdate(dbContext.FileCollections,
-                documentEnts.FastArraySelect(x => x.CollectionId)
-                    .ToArray()), dbContext.SharedFileCollectionMembers.AddRangeAsync(documentEnts));
+            foreach (var mem in entObj)
+            {
+                await dbContext.SharedFileCollectionMembers.AddAsync(mem.ToEntity());
+                
+                await dbContext.SaveChangesAsync();
+            }
             
+            await UpdateFileColLastUpdate(dbContext.FileCollections,
+                documentEnts.FastArraySelect(x => x.CollectionId)
+                    .ToArray());
             await dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
 
