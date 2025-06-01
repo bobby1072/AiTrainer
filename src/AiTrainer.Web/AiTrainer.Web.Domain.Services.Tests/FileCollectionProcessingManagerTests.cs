@@ -10,6 +10,7 @@ using AiTrainer.Web.TestBase;
 using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -39,7 +40,370 @@ namespace AiTrainer.Web.Domain.Services.Tests
             );
         }
 
-        
+        [Fact]
+        public async Task ShareFileCollectionAsync_Should_Successfully_Share_File_Collection_By_Email_For_Authoized_User()
+        {
+            //Arrange
+            IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
+            var collectionId = Guid.NewGuid();
+            var existingUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            var singleShareInput = _fixture
+                .Build<SharedFileCollectionSingleMemberEmailSaveInput>()
+                .With(x => x.Email, existingUser.Email)
+                .Create();
+            var sharedInput = _fixture
+                .Build<SharedFileCollectionMemberSaveInput>()
+                .With(x => x.CollectionId, collectionId)
+                .With(x => x.MembersToShareTo,
+                [
+                    singleShareInput
+                ])
+                .Create();
+            _mockUserRepo
+                .Setup(x =>
+                    x.GetMany<string>(new List<string>{existingUser.Email}, nameof(UserEntity.Email))
+                )
+                .ReturnsAsync(new DbGetManyResult<Models.User>([existingUser]));
+            _mockRepository
+                .Setup(x =>
+                    x.GetCollectionWithChildren(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers))
+                )
+                .ReturnsAsync(new DbGetManyResult<FileCollection>([collection]));
+            _sharedFileCollectionMemberValidator
+                .Setup(x => x
+                    .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>())
+                )
+                .ReturnsAsync(new ValidationResult());
+            _sharedFileCollectionMemberRepository
+                .Setup(x =>
+                    x.Create(
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
+                            y.Single().CanCreateDocuments == singleShareInput.CanCreateDocuments &&
+                            y.Single().CanDownloadDocuments == singleShareInput.CanDownloadDocuments &&
+                            y.Single().CanRemoveDocuments == singleShareInput.CanRemoveDocuments &&
+                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments)
+                    )
+                )
+                .Callback((IReadOnlyCollection<SharedFileCollectionMember> x) => callbackShareMems = x)
+                .ReturnsAsync(() => new DbSaveResult<SharedFileCollectionMember>(callbackShareMems));
+            
+            //Act
+            var result = await _fileCollectionManager
+                .ShareFileCollectionAsync(sharedInput, currentUser);
+
+            //Assert
+            Assert.Equal(callbackShareMems, result);
+
+            _mockUserRepo
+                .Verify(x =>
+                    x.GetMany<string>(new List<string> { existingUser.Email }, nameof(UserEntity.Email)),
+                    Times.Once
+                );
+            _mockRepository
+                .Verify(x =>
+                    x.GetCollectionWithChildren(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)),
+                    Times.Once
+                );
+            _sharedFileCollectionMemberValidator
+                .Verify(x => x
+                    .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>()),
+                    Times.Once
+                );
+            _sharedFileCollectionMemberRepository
+                .Verify(x =>
+                    x.Create(
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
+                            y.Single().CanCreateDocuments == singleShareInput.CanCreateDocuments &&
+                            y.Single().CanDownloadDocuments == singleShareInput.CanDownloadDocuments &&
+                            y.Single().CanRemoveDocuments == singleShareInput.CanRemoveDocuments &&
+                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments)
+                    ),
+                    Times.Once
+                );
+        }
+        [Fact]
+        public async Task ShareFileCollectionAsync_Should_Throw_If_Email_Is_Not_Existing_User()
+        {
+            //Arrange
+            IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
+            var collectionId = Guid.NewGuid();
+            var existingUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            var singleShareInput = _fixture
+                .Build<SharedFileCollectionSingleMemberEmailSaveInput>()
+                .With(x => x.Email, existingUser.Email)
+                .Create();
+            var sharedInput = _fixture
+                .Build<SharedFileCollectionMemberSaveInput>()
+                .With(x => x.CollectionId, collectionId)
+                .With(x => x.MembersToShareTo,
+                [
+                    singleShareInput
+                ])
+                .Create();
+            _mockUserRepo
+                .Setup(x =>
+                    x.GetMany<string>(new List<string>{existingUser.Email}, nameof(UserEntity.Email))
+                )
+                .ReturnsAsync(new DbGetManyResult<Models.User>([]));
+            
+            //Act
+            var act = () => _fileCollectionManager
+                .ShareFileCollectionAsync(sharedInput, currentUser);
+
+            //Assert
+            await Assert.ThrowsAsync<ApiException>(act);
+
+            _mockUserRepo
+                .Verify(x =>
+                    x.GetMany<string>(new List<string> { existingUser.Email }, nameof(UserEntity.Email)),
+                    Times.Once
+                );
+            _mockRepository
+                .Verify(x =>
+                    x.GetCollectionWithChildren(It.IsAny<Guid>(), nameof(FileCollectionEntity.SharedFileCollectionMembers)),
+                    Times.Never
+                );
+            _sharedFileCollectionMemberValidator
+                .Verify(x => x
+                    .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>()),
+                    Times.Never
+                );
+            _sharedFileCollectionMemberRepository
+                .Verify(x =>
+                    x.Create(
+                        It.IsAny<IReadOnlyCollection<SharedFileCollectionMember>>()
+                    ),
+                    Times.Never
+                );
+        }
+        [Fact]
+        public async Task ShareFileCollectionAsync_Should_Successfully_Share_File_Collection_By_UserId_For_Authoized_User()
+        {
+            //Arrange
+            IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
+            var collectionId = Guid.NewGuid();
+            var existingUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            var singleShareInput = _fixture
+                .Build<SharedFileCollectionSingleMemberUserIdSaveInput>()
+                .With(x => x.UserId, existingUser.Id)
+                .Create();
+            var sharedInput = _fixture
+                .Build<SharedFileCollectionMemberSaveInput>()
+                .With(x => x.CollectionId, collectionId)
+                .With(x => x.MembersToShareTo,
+                [
+                    singleShareInput
+                ])
+                .Create();
+            _mockRepository
+                .Setup(x =>
+                    x.GetCollectionWithChildren(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers))
+                )
+                .ReturnsAsync(new DbGetManyResult<FileCollection>([collection]));
+            _sharedFileCollectionMemberValidator
+                .Setup(x => x
+                    .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>())
+                )
+                .ReturnsAsync(new ValidationResult());
+            _sharedFileCollectionMemberRepository
+                .Setup(x =>
+                    x.Create(
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
+                            y.Single().CanCreateDocuments == singleShareInput.CanCreateDocuments &&
+                            y.Single().CanDownloadDocuments == singleShareInput.CanDownloadDocuments &&
+                            y.Single().CanRemoveDocuments == singleShareInput.CanRemoveDocuments &&
+                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments)
+                    )
+                )
+                .Callback((IReadOnlyCollection<SharedFileCollectionMember> x) => callbackShareMems = x)
+                .ReturnsAsync(() => new DbSaveResult<SharedFileCollectionMember>(callbackShareMems));
+            
+            //Act
+            var result = await _fileCollectionManager
+                .ShareFileCollectionAsync(sharedInput, currentUser);
+
+            //Assert
+            Assert.Equal(callbackShareMems, result);
+
+            _mockUserRepo
+                .Verify(x =>
+                    x.GetMany<string>(It.IsAny<IReadOnlyCollection<string>>(), nameof(UserEntity.Email)),
+                    Times.Never
+                );
+            _mockRepository
+                .Verify(x =>
+                    x.GetCollectionWithChildren(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)),
+                    Times.Once
+                );
+            _sharedFileCollectionMemberValidator
+                .Verify(x => x
+                    .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>()),
+                    Times.Once
+                );
+            _sharedFileCollectionMemberRepository
+                .Verify(x =>
+                    x.Create(
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
+                            y.Single().CanCreateDocuments == singleShareInput.CanCreateDocuments &&
+                            y.Single().CanDownloadDocuments == singleShareInput.CanDownloadDocuments &&
+                            y.Single().CanRemoveDocuments == singleShareInput.CanRemoveDocuments &&
+                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments)
+                    ),
+                    Times.Once
+                );
+        }
+        [Fact]
+        public async Task ShareFileCollectionAsync_Should_Successfully_Share_File_Collection_With_Children_By_UserId_For_Authoized_User()
+        {
+            //Arrange
+            IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
+            var collectionId = Guid.NewGuid();
+            var existingUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, collectionId)
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            var childCollection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, currentUser.Id)
+                .With(x => x.ParentId, collectionId)
+                .Create();
+            var singleShareInput = _fixture
+                .Build<SharedFileCollectionSingleMemberUserIdSaveInput>()
+                .With(x => x.UserId, existingUser.Id)
+                .Create();
+            var sharedInput = _fixture
+                .Build<SharedFileCollectionMemberSaveInput>()
+                .With(x => x.CollectionId, collectionId)
+                .With(x => x.MembersToShareTo,
+                [
+                    singleShareInput
+                ])
+                .Create();
+            _mockRepository
+                .Setup(x =>
+                    x.GetCollectionWithChildren(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers))
+                )
+                .ReturnsAsync(new DbGetManyResult<FileCollection>([collection, childCollection]));
+            _sharedFileCollectionMemberValidator
+                .Setup(x => x
+                    .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>())
+                )
+                .ReturnsAsync(new ValidationResult());
+            _sharedFileCollectionMemberRepository
+                .Setup(x =>
+                    x.Create(
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
+                            y.Count == 2 &&
+                            y.All(z => z.CollectionId == collectionId || z.CollectionId == childCollection.Id) &&
+                            y.All(z => z.CanCreateDocuments == singleShareInput.CanCreateDocuments) &&
+                            y.All(z => z.CanDownloadDocuments == singleShareInput.CanDownloadDocuments) &&
+                            y.All(z => z.CanRemoveDocuments == singleShareInput.CanRemoveDocuments) &&
+                            y.All(z => z.CanViewDocuments == singleShareInput.CanViewDocuments))
+                    )
+                )
+                .Callback((IReadOnlyCollection<SharedFileCollectionMember> x) => callbackShareMems = x)
+                .ReturnsAsync(() => new DbSaveResult<SharedFileCollectionMember>(callbackShareMems));
+            
+            //Act
+            var result = await _fileCollectionManager
+                .ShareFileCollectionAsync(sharedInput, currentUser);
+
+            //Assert
+            Assert.Equal(callbackShareMems, result);
+
+            _mockUserRepo
+                .Verify(x =>
+                    x.GetMany<string>(It.IsAny<IReadOnlyCollection<string>>(), nameof(UserEntity.Email)),
+                    Times.Never
+                );
+            _mockRepository
+                .Verify(x =>
+                    x.GetCollectionWithChildren(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)),
+                    Times.Once
+                );
+            _sharedFileCollectionMemberValidator
+                .Verify(x => x
+                    .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>()),
+                    Times.Once
+                );
+            _sharedFileCollectionMemberRepository
+                .Verify(x =>
+                        x.Create(
+                            It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
+                                y.Count == 2 &&
+                                y.All(z => z.CollectionId == collectionId || z.CollectionId == childCollection.Id) &&
+                                y.All(z => z.CanCreateDocuments == singleShareInput.CanCreateDocuments) &&
+                                y.All(z => z.CanDownloadDocuments == singleShareInput.CanDownloadDocuments) &&
+                                y.All(z => z.CanRemoveDocuments == singleShareInput.CanRemoveDocuments) &&
+                                y.All(z => z.CanViewDocuments == singleShareInput.CanViewDocuments))
+                    ),
+                    Times.Once
+                );
+        }
         [Fact]
         public async Task GetFileCollectionWithContentsAsync_Should_Return_File_Collection_With_Contents_For_Authorized_User()
         {
