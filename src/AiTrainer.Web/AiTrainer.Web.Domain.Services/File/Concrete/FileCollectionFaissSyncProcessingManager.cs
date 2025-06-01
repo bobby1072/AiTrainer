@@ -8,6 +8,7 @@ using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.File.Abstract;
+using AiTrainer.Web.Domain.Services.File.Models;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Concrete;
@@ -21,7 +22,7 @@ using Microsoft.Extensions.Options;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
-internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSyncProcessingManager
+internal sealed class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSyncProcessingManager
 {
     private readonly ICoreClient<
         CoreDocumentToChunkInput,
@@ -41,6 +42,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
     private readonly FaissSyncRetrySettingsConfiguration _retrySettings;
     private readonly IFileCollectionFaissRemoveDocumentsProcessingManager _fileCollectionFaissRemoveDocumentsProcessingManager;
     private readonly IHttpContextAccessor? _httpContextAccessor;
+    private IFileCollectionFaissSyncBackgroundJobQueue _faissSyncBackgroundJobQueue;
     private int SyncAttemptCount { get; set; }
 
     public FileCollectionFaissSyncProcessingManager(
@@ -52,6 +54,7 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         IFileCollectionFaissRepository fileCollectionFaissRepository,
         IOptions<FaissSyncRetrySettingsConfiguration> retrySettings,
         IFileCollectionFaissRemoveDocumentsProcessingManager fileCollectionFaissRemoveDocumentsProcessingManager,
+        IFileCollectionFaissSyncBackgroundJobQueue faissSyncBackgroundJobQueue,
         IHttpContextAccessor? httpContextAccessor = null
     )
     {
@@ -64,7 +67,26 @@ internal class FileCollectionFaissSyncProcessingManager : IFileCollectionFaissSy
         _fileCollectionFaissRepository = fileCollectionFaissRepository;
         _fileCollectionFaissRemoveDocumentsProcessingManager =
             fileCollectionFaissRemoveDocumentsProcessingManager;
+        _faissSyncBackgroundJobQueue = faissSyncBackgroundJobQueue;
         _httpContextAccessor = httpContextAccessor;
+    }
+
+    public async Task TriggerSyncUserFileCollectionFaissStore(
+        Domain.Models.User currentUser,
+        Guid? collectionId = null,
+        bool? retryOverride = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        await _faissSyncBackgroundJobQueue.EnqueueAsync(
+            new FileCollectionFaissSyncBackgroundJob
+            {
+                CurrentUser = currentUser,
+                CollectionId = collectionId,
+                RetryOverride = retryOverride,
+            },
+            cancellationToken
+        );
     }
 
     public async Task SyncUserFileCollectionFaissStore(

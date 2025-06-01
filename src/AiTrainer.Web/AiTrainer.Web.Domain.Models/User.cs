@@ -12,7 +12,6 @@ namespace AiTrainer.Web.Domain.Models
         public required DateTime DateCreated { get; set; }
         public required DateTime DateModified { get; set; }
         public GlobalFileCollectionConfig? GlobalFileCollectionConfig { get; init; }
-        
         public override bool Equals(User? other)
         {
             return other is User user

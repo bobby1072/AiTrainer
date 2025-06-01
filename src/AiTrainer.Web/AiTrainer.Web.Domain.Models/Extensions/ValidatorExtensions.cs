@@ -1,13 +1,9 @@
-using BT.Common.FastArray.Proto;
-using FluentValidation.Results;
+﻿using AiTrainer.Web.Domain.Models.Validators;
+using FluentValidation;
 
-namespace AiTrainer.Web.Domain.Models.Extensions
+namespace AiTrainer.Web.Domain.Models.Extensions;
+
+public static class ValidatorExtensions
 {
-    public static class ValidatorExtensions
-    {
-        public static string ToErrorString(this IEnumerable<ValidationFailure> errorResults)
-        {
-            return string.Join(". ", errorResults.FastArraySelect(x => x.ErrorMessage));
-        }
-    }
+    public static IValidator<IEnumerable<T>> CreateEnumerableValidator<T>(this IValidator<T> itemValidator) => new EnumerableValidator<T>(itemValidator);
 }

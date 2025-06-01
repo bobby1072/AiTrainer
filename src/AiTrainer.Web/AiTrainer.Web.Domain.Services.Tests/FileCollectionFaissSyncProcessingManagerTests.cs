@@ -21,7 +21,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests;
 
-public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
+public sealed class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
 {
     private readonly Mock<ICoreClient<
         CoreDocumentToChunkInput,
@@ -58,7 +58,8 @@ public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
             _mockFileDocumentRepository.Object,
             _mockFileCollectionFaissRepository.Object,
             new TestOptions<FaissSyncRetrySettingsConfiguration>(_retrySettings),
-            Mock.Of<IFileCollectionFaissRemoveDocumentsProcessingManager>());
+            Mock.Of<IFileCollectionFaissRemoveDocumentsProcessingManager>(),
+            Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>());
     }
     [Fact]
     public async Task SyncUserFileCollectionFaissStore_Should_Retry_The_Correct_Amount_Based_On_Configuration()

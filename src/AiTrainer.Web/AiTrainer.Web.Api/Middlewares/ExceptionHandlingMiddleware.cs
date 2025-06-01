@@ -1,16 +1,17 @@
-﻿using AiTrainer.Web.Common;
+﻿using System.Net.Mime;
+using AiTrainer.Web.Api.Models;
+using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using BT.Common.OperationTimer.Common;
 using BT.Common.OperationTimer.Proto;
-using System.Net.Mime;
-using AiTrainer.Web.Api.Models;
 
 namespace AiTrainer.Web.Api.Middlewares
 {
     internal class ExceptionHandlingMiddleware : BaseMiddleware
     {
         private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+
         public ExceptionHandlingMiddleware(
             RequestDelegate requestDelegate,
             ILogger<ExceptionHandlingMiddleware> logger
@@ -19,12 +20,17 @@ namespace AiTrainer.Web.Api.Middlewares
         {
             _logger = logger;
         }
+
         public override async Task InvokeAsync(HttpContext context)
         {
             var time = await OperationTimerUtils.TimeAsync(() => TryToInvokeFuncAsync(context));
             var correlationId = context.GetCorrelationId();
 
-            _logger.LogInformation("Request with correlationId {CorrelationId} took {TimeTaken}ms to complete", correlationId, time.Milliseconds);
+            _logger.LogInformation(
+                "Request with correlationId {CorrelationId} took {TimeTaken}ms to complete",
+                correlationId,
+                time.Milliseconds
+            );
         }
 
         private async Task TryToInvokeFuncAsync(HttpContext context)
@@ -91,7 +97,11 @@ namespace AiTrainer.Web.Api.Middlewares
             }
         }
 
-        private async Task RespondWithException(HttpContext context, ApiException apiException, Guid? correlationId = null)
+        private static async Task RespondWithException(
+            HttpContext context,
+            ApiException apiException,
+            Guid? correlationId = null
+        )
         {
             context.Response.Clear();
             context.Response.ContentType = MediaTypeNames.Application.Json;

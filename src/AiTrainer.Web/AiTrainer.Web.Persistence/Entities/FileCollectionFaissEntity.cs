@@ -5,7 +5,7 @@ using AiTrainer.Web.Domain.Models;
 namespace AiTrainer.Web.Persistence.Entities
 {
     [Table("file_collection_faiss", Schema = DbConstants.PublicSchema)]
-    public record FileCollectionFaissEntity : BaseEntity<long, FileCollectionFaiss>
+    public sealed record FileCollectionFaissEntity : BaseEntity<long, FileCollectionFaiss>
     {
         public Guid? CollectionId { get; set; }
         public required byte[] FaissIndex { get; set; }

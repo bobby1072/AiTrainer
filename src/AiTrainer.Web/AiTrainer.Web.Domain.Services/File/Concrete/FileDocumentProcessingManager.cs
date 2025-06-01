@@ -13,10 +13,11 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using AiTrainer.Web.Domain.Services.File.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Persistence.Entities;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
 {
-    internal class FileDocumentProcessingManager : IFileDocumentProcessingManager
+    internal sealed class FileDocumentProcessingManager : IFileDocumentProcessingManager
     {
         private readonly ILogger<FileDocumentProcessingManager> _logger;
         private readonly IFileDocumentRepository _fileDocumentRepository;
@@ -52,11 +53,29 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 correlationId
             );
             var foundDocument = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.GetOne(documentId, (Guid)currentUser.Id!),
+                () => _fileDocumentRepository.GetOne(documentId),
                 _logger
             );
+            if (foundDocument?.Data is null)
+            {
+                throw new ApiException("Failed to retrieve file document");
+            }
+            IReadOnlyCollection<SharedFileCollectionMember> sharedFileCollectionMembers = [];
 
-            if (foundDocument?.Data?.UserId != (Guid)currentUser.Id!)
+            if (foundDocument.Data.CollectionId is Guid foundCollectionId)
+            {
+                var foundCollection = await EntityFrameworkUtils.TryDbOperation(
+                    () => _fileCollectionRepository.GetOne(foundCollectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers)),
+                    _logger
+                );
+                if (foundCollection?.Data is null)
+                {
+                    throw new ApiException("Failed to retrieve parent collection");
+                }
+                sharedFileCollectionMembers = foundCollection?.Data?.SharedFileCollectionMembers ?? [];
+            }
+            if (foundDocument.Data?.UserId != (Guid)currentUser.Id! && !(foundDocument.Data?.CollectionId is not null && sharedFileCollectionMembers.CanAny(
+                    (Guid)currentUser.Id!, (Guid)foundDocument.Data.CollectionId!, SharedFileCollectionMemberPermission.DownloadDocuments)))
             {
                 throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
             }
@@ -97,11 +116,12 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             if (newFileDoc.CollectionId is not null)
             {
                 var foundParent = await EntityFrameworkUtils.TryDbOperation(
-                    () => _fileCollectionRepository.GetOne((Guid)newFileDoc.CollectionId!),
+                    () => _fileCollectionRepository.GetOne((Guid)newFileDoc.CollectionId!, nameof(FileCollectionEntity.SharedFileCollectionMembers)),
                     _logger
                 );
-
-                if (foundParent?.Data?.UserId != currentUser.Id)
+                
+                if (foundParent?.Data?.UserId != currentUser.Id && 
+                    foundParent?.Data?.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, (Guid)newFileDoc.CollectionId!, SharedFileCollectionMemberPermission.CreateDocuments) != true)
                 {
                     throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
                 }
@@ -115,7 +135,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (createdFile?.IsSuccessful != true)
             {
-                throw new ApiException("Invalid file document", HttpStatusCode.BadRequest);
+                throw new ApiException("Failed to save file document");
             }
 
             if (foundParentCollection is { AutoFaissSync: true } ||
@@ -134,7 +154,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 nameof(UploadFileDocument),
                 correlationId
             );
-            return createdFile.Data.First().ToPartial();
+            return createdFile.Data.FirstOrDefault()?.ToPartial() ?? throw new ApiException("Failed to save file document");
         }
         public async Task<Guid> DeleteFileDocument(Guid documentId, Domain.Models.User currentUser)
         {
@@ -152,19 +172,36 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     _logger
                 );
 
-            if (documentToDelete?.Data?.UserId != (Guid)currentUser.Id!)
+            if (documentToDelete?.Data is null)
+            {
+                throw new ApiException("Failed to retrieve document");
+            }
+
+            if (documentToDelete.Data.CollectionId is not null)
+            {
+                var foundParent = await EntityFrameworkUtils.TryDbOperation(
+                    () => _fileCollectionRepository.GetOne((Guid)documentToDelete.Data.CollectionId!, nameof(FileCollectionEntity.SharedFileCollectionMembers)),
+                    _logger
+                );
+                
+                if (foundParent?.Data?.UserId != currentUser.Id && 
+                    foundParent?.Data?.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, (Guid)documentToDelete.Data.CollectionId!, SharedFileCollectionMemberPermission.RemoveDocuments) != true)
+                {
+                    throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
+                }
+            }
+            else if (documentToDelete.Data.UserId != (Guid)currentUser.Id!)
             {
                 throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
             }
-
             
             
             var deletedJobResult = await EntityFrameworkUtils.TryDbOperation(
-                () => _fileDocumentRepository.Delete(documentToDelete.Data),
+                () => _fileDocumentRepository.Delete([documentToDelete.Data]),
                 _logger
             );
 
-            if (deletedJobResult?.Data is null || deletedJobResult.Data.Count > 1)
+            if (deletedJobResult?.Data is null || deletedJobResult.Data.Count < 1)
             {
                 throw new ApiException(
                     "Could not delete document"

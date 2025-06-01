@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace AiTrainer.Web.Api.Controllers
 {
     [RequireUserLogin]
-    public class FileDocumentController : BaseController
+    public sealed class FileDocumentController : BaseController
     {
         private readonly ILogger<FileDocumentController> _logger;
 

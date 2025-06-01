@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDeleteFileCollectionMutation } from "../../Hooks/useDeleteFileCollectionMutation";
 import { FileCollection } from "../../Models/FileCollection";
 import {
@@ -14,6 +14,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { prettyDateWithTime } from "../../Utils/DateTime";
 import { useSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
+import IosShareIcon from "@mui/icons-material/IosShare";
+import { ShareFileCollectionModal } from "./ShareFileCollectionModal";
+
 const fileCol = require("./fileCol.png");
 
 export const ActualFileCollectionTableCollectionRow: React.FC<{
@@ -25,21 +28,29 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
   closeContextMenu: () => void;
   singleLevel: boolean;
 }> = ({ fileCollection, closeContextMenu, handleRightClick, singleLevel }) => {
-  const { mutate, isLoading, data, error } = useDeleteFileCollectionMutation();
+  const {
+    mutate: deleteFileMutation,
+    isLoading: deleteFileIsLoading,
+    data: deleteFileData,
+    error: deleteFileError,
+  } = useDeleteFileCollectionMutation();
+  const [shareFileCollectionModalOpen, setShareFileCollectionModalOpen] =
+    useState<boolean>(false);
+
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   useEffect(() => {
-    if (data) {
+    if (deleteFileData) {
       enqueueSnackbar(`Collection successfully deleted`, {
         variant: "success",
       });
     }
-  }, [data, enqueueSnackbar]);
+  }, [deleteFileData, enqueueSnackbar]);
   useEffect(() => {
-    if (error) {
+    if (deleteFileError) {
       enqueueSnackbar("Failed to delete collection", { variant: "error" });
     }
-  }, [error, enqueueSnackbar]);
+  }, [deleteFileError, enqueueSnackbar]);
 
   const dateCreated = new Date(fileCollection.dateCreated);
   const dateModified = new Date(fileCollection.dateModified);
@@ -111,20 +122,34 @@ export const ActualFileCollectionTableCollectionRow: React.FC<{
           </Tooltip>
         </TableCell>
         <TableCell align="right" />
-        <TableCell align="right" />
         <TableCell align="right">
           <IconButton
             color="inherit"
             size="small"
-            disabled={isLoading}
+            onClick={() => setShareFileCollectionModalOpen(true)}
+          >
+            <IosShareIcon />
+          </IconButton>
+        </TableCell>
+        <TableCell align="right">
+          <IconButton
+            color="inherit"
+            size="small"
+            disabled={deleteFileIsLoading}
             onClick={() => {
-              mutate({ id: fileCollection.id! });
+              deleteFileMutation({ id: fileCollection.id! });
             }}
           >
             <DeleteIcon />
           </IconButton>
         </TableCell>
       </TableRow>
+      {shareFileCollectionModalOpen && (
+        <ShareFileCollectionModal
+          closeModal={() => setShareFileCollectionModalOpen(false)}
+          collectionId={fileCollection.id!}
+        />
+      )}
     </>
   );
 };

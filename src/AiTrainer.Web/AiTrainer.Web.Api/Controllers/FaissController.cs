@@ -5,23 +5,19 @@ using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
-using AiTrainer.Web.Domain.Services.File.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AiTrainer.Web.Api.Controllers;
 
 [RequireUserLogin]
-public class FaissController : BaseController
+public sealed class FaissController : BaseController
 {
-    private readonly IFileCollectionFaissSyncBackgroundJobQueue _faissSyncBackgroundJobQueue;
 
     public FaissController(
-        IHttpDomainServiceActionExecutor actionExecutor,
-        IFileCollectionFaissSyncBackgroundJobQueue faissSyncBackgroundJobQueue
+        IHttpDomainServiceActionExecutor actionExecutor
     )
         : base(actionExecutor)
     {
-        _faissSyncBackgroundJobQueue = faissSyncBackgroundJobQueue;
     }
 
     [HttpPost("Chat/Query")]
@@ -65,14 +61,10 @@ public class FaissController : BaseController
     {
         var currentUser = await GetCurrentUser();
 
-        await _faissSyncBackgroundJobQueue.EnqueueAsync(
-            new FileCollectionFaissSyncBackgroundJob
-            {
-                CollectionId = input.CollectionId,
-                CurrentUser = currentUser,
-                RetryOverride = false,
-            },
-            ct
+        await _actionExecutor.ExecuteAsync<IFileCollectionFaissSyncProcessingManager>(
+            serv =>
+                serv.TriggerSyncUserFileCollectionFaissStore(currentUser, input.CollectionId, false, ct),
+            nameof(IFileCollectionFaissSyncProcessingManager.TriggerSyncUserFileCollectionFaissStore)
         );
 
         return new Outcome();

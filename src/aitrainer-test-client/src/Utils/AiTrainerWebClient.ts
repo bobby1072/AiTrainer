@@ -12,6 +12,8 @@ import { FileCollection } from "../Models/FileCollection";
 import { FileDocumentPartial } from "../Models/FileDocument";
 import { ChatFormattedQueryInput } from "../Models/ChatFormattedQueryInput";
 import { SingleDocumentChunk } from "../Models/SingleDocumentChunk";
+import { SharedFileCollectionMemberSaveInput } from "../Models/SharedFileCollectionMemberSaveInput";
+import { SharedFileCollectionMember } from "../Models/SharedFileCollectionMember";
 
 export default abstract class AiTrainerWebClient {
   private static readonly _baseUrl =
@@ -73,6 +75,29 @@ export default abstract class AiTrainerWebClient {
         AiTrainerWebClient.HandleThen(x);
         return x.data.isSuccess;
       });
+
+    if (!response) {
+      throw new Error(ErrorMessages.ErrorHasOccurred);
+    }
+
+    return response;
+  }
+  public static async ShareFileCollection(
+    sharedMembers: SharedFileCollectionMemberSaveInput,
+    accessToken: string
+  ): Promise<SharedFileCollectionMember[]> {
+    const response = await AiTrainerWebClient._httpClient
+      .post<AiTrainerWebOutcome<SharedFileCollectionMember[]>>(
+        "Api/FileCollection/ShareWithMembers",
+        sharedMembers,
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
+      )
+      .catch(AiTrainerWebClient.HandleError)
+      .then(AiTrainerWebClient.HandleThen);
 
     if (!response) {
       throw new Error(ErrorMessages.ErrorHasOccurred);

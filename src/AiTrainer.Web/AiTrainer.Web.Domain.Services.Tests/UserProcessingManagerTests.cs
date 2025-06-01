@@ -14,7 +14,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests
 {
-    public class UserProcessingManagerTests : AiTrainerTestBase
+    public sealed class UserProcessingManagerTests : AiTrainerTestBase
     {
         private readonly Mock<IRepository<UserEntity, Guid, Models.User>> _repo = new();
         private readonly Mock<IUserInfoClient> _userInfoClient = new();

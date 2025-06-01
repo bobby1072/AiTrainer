@@ -1,7 +1,7 @@
+using System.Text.Json;
 using AiTrainer.Web.Domain.Services.Abstract;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace AiTrainer.Web.Domain.Services.Concrete
 {
@@ -42,6 +42,12 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             {
                 return await GetObject<T>(key);
             }
+            catch (KeyNotFoundException e)
+            {
+                _logger.LogInformation(e, "Couldn't find object in cache");
+
+                return null;
+            }
             catch (Exception e)
             {
                 _logger.LogError(e, "Exception occurred getting object from cache");
@@ -76,20 +82,18 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         {
             if (typeof(T) == _typeofString)
             {
-                await _distributedCache.SetStringAsync(
-                    key,
-                    (value as string)!,
-                    options
-                );
+                _logger.LogDebug("Attempting to cache {StringValue}", value);
+
+                await _distributedCache.SetStringAsync(key, (value as string)!, options);
             }
             else
             {
+
+                _logger.LogDebug("Attempting to cache {@ObjToCache}", value);
+
                 var serializedValue = JsonSerializer.Serialize(value);
-                await _distributedCache.SetStringAsync(
-                    key,
-                    serializedValue,
-                    options
-                );
+                
+                await _distributedCache.SetStringAsync(key, serializedValue, options);
             }
             return key;
         }
@@ -99,7 +103,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
         {
             var foundValue =
                 await _distributedCache.GetStringAsync(key)
-                ?? throw new InvalidOperationException("Cannot find object with that key");
+                ?? throw new KeyNotFoundException("Cannot find object with that key");
             if (typeof(T) == _typeofString)
             {
                 return foundValue as T ?? throw new InvalidDataException("Cannot parse object");

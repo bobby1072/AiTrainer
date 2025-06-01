@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
     internal class FileDocumentRepository
-        : BaseFileRepository<FileDocumentEntity, Guid, FileDocument>,
+        : BaseRepository<FileDocumentEntity, Guid, FileDocument>,
             IFileDocumentRepository
     {
         public FileDocumentRepository(
@@ -67,25 +67,26 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             }
         }
 
-        public async Task<DbDeleteResult<FileDocument>> Delete(
-            FileDocument document)
+        public override async Task<DbDeleteResult<FileDocument>> Delete(
+            IReadOnlyCollection<FileDocument> entObj)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
             await using var transaction = await dbContext.Database.BeginTransactionAsync();
             try
             {
-                var documentEntity = document.ToEntity();
+                var documentEnts = entObj.FastArraySelect(RuntimeToEntity).ToArray();
 
-                if (document.CollectionId is Guid foundColId)
-                {
-                    await UpdateFileColLastUpdate(dbContext.FileCollections, [document.UserId], [foundColId]);
-                }
-                dbContext.FileDocuments.Remove(documentEntity);
+                await UpdateFileColLastUpdate(dbContext.FileCollections,
+                    documentEnts.FastArraySelect(x => x.UserId).ToArray(),
+                    documentEnts.FastArraySelectWhere(x => x.CollectionId is not null, x => (Guid)x.CollectionId!)
+                        .ToArray());
+
+                dbContext.FileDocuments.RemoveRange(documentEnts);
                 
                 await dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return new DbDeleteResult<FileDocument> { Data = [documentEntity.ToModel()] };
+                return new DbDeleteResult<FileDocument> { Data = documentEnts.FastArraySelect(x => x.ToModel()).ToArray() };
             }
             catch
             {
@@ -135,23 +136,6 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 throw;
             }
         }
-
-        public async Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId, Guid userId)
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
-            var entity = await TimeAndLogDbOperation(
-                () =>
-                    dbContext
-                        .FileDocuments.Where(x => x.Id == documentId && x.UserId == userId)
-                        .FirstOrDefaultAsync(),
-                nameof(GetOne),
-                _entityType.Name
-            );
-
-            return new DbGetOneResult<FileDocument>(entity?.ToModel());
-        }
-
         public async Task<DbGetManyResult<FileDocumentPartial>> GetTopLevelDocumentPartialsForUser(
             Guid userId,
             params string[] relationShips
@@ -183,7 +167,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             );
 
             return new DbGetManyResult<FileDocumentPartial>(
-                entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray()
+                entities?.FastArraySelect(SelectDataToPartial).ToArray()
             );
         }
 
@@ -208,6 +192,41 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             return new DbGetManyResult<FileDocument>(
                 entities.FastArraySelect(x => x.ToModel()).ToArray()
+            );
+        }
+
+        public async Task<DbGetManyResult<FileDocumentPartial>> GetManyDocumentPartialsByCollectionId(
+            Guid collectionId,
+            params string[] relationShips
+        )
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+
+            var setToQuery = AddRelationsToSet(dbContext.FileDocuments, relationShips);
+
+            var entities = await TimeAndLogDbOperation(
+                () =>
+                    setToQuery
+                        .Select(x => new
+                        {
+                            x.Id,
+                            x.CollectionId,
+                            x.DateCreated,
+                            x.FileName,
+                            x.FileType,
+                            x.FaissSynced,
+                            x.FileDescription,
+                            x.UserId,
+                            x.MetaData,
+                        })
+                        .Where(x => x.CollectionId == collectionId)
+                        .ToArrayAsync(),
+                nameof(GetManyDocumentPartialsByCollectionIdAndUserId),
+                _entityType.Name
+            );
+
+            return new DbGetManyResult<FileDocumentPartial>(
+                entities?.FastArraySelect(SelectDataToPartial).ToArray()
             );
         }
         public async Task<
@@ -244,7 +263,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             );
 
             return new DbGetManyResult<FileDocumentPartial>(
-                entities?.FastArraySelect(x => SelectDataToPartial(x)).ToArray()
+                entities?.FastArraySelect(SelectDataToPartial).ToArray()
             );
         }
 

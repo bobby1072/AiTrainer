@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 namespace AiTrainer.Web.Persistence.Repositories.Concrete
 {
     internal class FileCollectionRepository
-        : BaseFileRepository<FileCollectionEntity, Guid, FileCollection>,
+        : BaseRepository<FileCollectionEntity, Guid, FileCollection>,
             IFileCollectionRepository
     {
         public FileCollectionRepository(
@@ -25,6 +25,76 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbGetManyResult<FileCollection>> GetCollectionWithChildren(
+            Guid collectionId,
+            params string[] relationships)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            
+            const string getCollectionWithChildrenSql = """
+                                                            WITH RECURSIVE RecursiveCollections AS (
+                                                                SELECT * FROM public."file_collection" WHERE "id" = {0}
+                                                                UNION ALL
+                                                                SELECT fc.* FROM public."file_collection" fc
+                                                                INNER JOIN RecursiveCollections rc ON fc."parent_id" = rc."id"
+                                                            )
+                                                            SELECT * FROM RecursiveCollections
+                                                        """;
+
+
+            var baseQuery = dbContext.FileCollections
+                .FromSqlRaw(getCollectionWithChildrenSql, collectionId)
+                .AsNoTracking();
+
+            var setToQuery = AddRelationsToSet(baseQuery, relationships);
+
+            var result = await TimeAndLogDbOperation(
+                () => setToQuery.ToArrayAsync(),
+                nameof(GetCollectionWithChildren),
+                _entityType.Name
+            );
+
+            return new DbGetManyResult<FileCollection>(result.FastArraySelect(x => x.ToModel()).ToArray());
+        }
+        public async Task<DbSaveResult<FileCollection>> CreateWithSharedMembers(FileCollection entObj,
+            IReadOnlyCollection<SharedFileCollectionMember> sharedMembers)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            await using var transaction = await dbContext.Database.BeginTransactionAsync();
+            try
+            {
+                await dbContext.FileCollections.AddAsync(entObj.ToEntity());
+
+                await dbContext.SaveChangesAsync();
+                var createdFileCol = dbContext.FileCollections.Local.FirstOrDefault();
+                
+                if (sharedMembers.Count > 0)
+                {
+                    await dbContext.SharedFileCollectionMembers.AddRangeAsync(
+                        sharedMembers.FastArraySelect(x =>
+                        {
+                            var ent = x.ToEntity();
+                            ent.CollectionId = createdFileCol!.Id;
+                            return ent;
+                        }));
+                }
+                
+                await dbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new DbSaveResult<FileCollection>
+                {
+                    Data = dbContext.FileCollections.Local.FastArraySelect(x => x.ToModel()).ToArray(),
+                    IsSuccessful = true
+                };
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
         public async Task<DbGetOneResult<FileCollection>> GetCollectionByUserIdAndCollectionId(Guid userId, Guid collectionId, params string[] relations)
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
@@ -61,7 +131,13 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
 
             var entities = await TimeAndLogDbOperation(
                 () =>
-                    setToQuery.Where(x => x.UserId == userId && x.ParentId == null).ToArrayAsync(),
+                    setToQuery
+                        .Include(x => x.SharedFileCollectionMembers)
+                        .Where(x =>
+                            (x.UserId == userId || x.SharedFileCollectionMembers!.Any(sfm => sfm.UserId == userId))
+                            && x.ParentId == null
+                        )
+                        .ToArrayAsync(),
                 nameof(GetTopLevelCollectionsForUser),
                 _entityType.Name
             );
@@ -83,8 +159,9 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             var entities = await TimeAndLogDbOperation(
                 () =>
                     setToQuery
+                        .Include(x => x.SharedFileCollectionMembers)
                         .Where(x =>
-                            x.UserId == userId && (x.ParentId == parentId || x.Id == parentId)
+                            (x.UserId == userId || x.SharedFileCollectionMembers!.Any(sfm => sfm.UserId == userId)) && (x.ParentId == parentId || x.Id == parentId)
                         )
                         .ToArrayAsync(),
                 nameof(GetTopLevelCollectionsForUser),
@@ -100,7 +177,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
         {
             await using var dbContext = await _contextFactory.CreateDbContextAsync();
 
-            var deleted = await TimeAndLogDbOperation(
+            _ = await TimeAndLogDbOperation(
                 () =>
                     dbContext
                         .FileCollections.Where(x => x.Id == collectionId && x.UserId == userId)

@@ -2,7 +2,6 @@
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.TestBase;
-using AiTrainer.Web.TestBase.Helpers;
 
 namespace AiTrainer.Web.CoreClient.Tests
 {
@@ -20,7 +19,7 @@ namespace AiTrainer.Web.CoreClient.Tests
 
         protected TestHttpClient CreateDefaultCoreClientHttpClient<T>(HttpStatusCode statusCode, T responseData) where T: class
         {
-            var handler = new StaticJsonHandler<T>(responseData, statusCode, ApiConstants.DefaultCamelCaseSerializerOptions);
+            var handler = new TestStaticJsonHandler<T>(responseData, statusCode, ApiConstants.DefaultCamelCaseSerializerOptions);
             var httpClient = new TestHttpClient(handler);
             httpClient.Timeout = TimeSpan.FromSeconds(2);
             

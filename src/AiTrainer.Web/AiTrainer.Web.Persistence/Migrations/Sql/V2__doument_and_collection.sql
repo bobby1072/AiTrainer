@@ -3,12 +3,11 @@ CREATE TABLE public."file_collection" (
     user_id UUID NOT NULL REFERENCES public."user"(id) ON DELETE CASCADE ON UPDATE CASCADE,
     collection_name TEXT NOT NULL,
     collection_description TEXT,
-    parent_id UUID, 
-    date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
-    date_modified TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
-    FOREIGN KEY (parent_id) REFERENCES public."file_collection"(id) 
+    parent_id UUID REFERENCES public."file_collection"(id) 
         ON DELETE CASCADE     
-        ON UPDATE CASCADE,    
+        ON UPDATE CASCADE, 
+    date_created TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),
+    date_modified TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT now(),    
     CONSTRAINT unique_name_with_parent UNIQUE (parent_id, collection_name)
 );
 

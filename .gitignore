@@ -18,7 +18,7 @@ filestore/
 wwwroot/
 *.sln.DotSettings.user
 src/AiTrainer.Core/models/
-
+*.drawio.bkp
 .idea/
 /.pnp
 .pnp.js

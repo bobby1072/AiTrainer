@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 namespace AiTrainer.Web.Api.Controllers
 {
     [AllowAnonymous]
-    public class ClientConfigurationController : BaseController
+    public sealed class ClientConfigurationController : BaseController
     {
         private readonly ClientSettingsConfiguration _clientSettingsConfiguration;
 

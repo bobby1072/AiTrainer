@@ -70,7 +70,9 @@ namespace AiTrainer.Web.Persistence.Extensions
                     {
                         if (isDevelopment)
                         {
-                            options.EnableSensitiveDataLogging();
+                            options
+                                .EnableDetailedErrors()
+                                .EnableSensitiveDataLogging();
                         }
                         options
                             .UseSnakeCaseNamingConvention()
@@ -101,7 +103,8 @@ namespace AiTrainer.Web.Persistence.Extensions
                 .AddScoped<IFileCollectionFaissRepository, FileCollectionFaissRepository>()
                 .AddScoped<IRepository<FileDocumentMetaDataEntity, long, FileDocumentMetaData>,
                     FileDocumentMetaDataRepository>()
-                .AddScoped<IRepository<GlobalFileCollectionConfigEntity, long, GlobalFileCollectionConfig>, GlobalFileCollectionConfigRepository>();
+                .AddScoped<IRepository<GlobalFileCollectionConfigEntity, long, GlobalFileCollectionConfig>, GlobalFileCollectionConfigRepository>()
+                .AddScoped<IRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember>,SharedFileCollectionMemberRepository>();
 
             return services;
         }

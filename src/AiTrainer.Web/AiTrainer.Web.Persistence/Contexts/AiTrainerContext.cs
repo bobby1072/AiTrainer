@@ -19,9 +19,17 @@ namespace AiTrainer.Web.Persistence.Contexts
         public virtual DbSet<FileCollectionFaissEntity> FileCollectionFaiss { get; set; }
         public virtual DbSet<FileDocumentMetaDataEntity> FileDocumentMetaData { get; set; }
         public virtual DbSet<GlobalFileCollectionConfigEntity> GlobalFileCollectionConfigs { get; set; }
+        public virtual DbSet<SharedFileCollectionMemberEntity> SharedFileCollectionMembers { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            modelBuilder.Entity<SharedFileCollectionMemberEntity>(ent =>
+            {
+                ent
+                    .HasOne<FileCollectionEntity>()
+                    .WithMany(x => x.SharedFileCollectionMembers)
+                    .HasForeignKey(x => x.CollectionId);
+            });
             modelBuilder.Entity<FileDocumentMetaDataEntity>(ent =>
             {
                 ent.ToTable("file_document_metadata");
@@ -43,14 +51,13 @@ namespace AiTrainer.Web.Persistence.Contexts
                 ent.HasOne<UserEntity>()
                     .WithOne(x => x.GlobalFileCollectionConfig)
                     .HasForeignKey<GlobalFileCollectionConfigEntity>(x => x.UserId);
-                    
             });
             modelBuilder.Entity<FileCollectionFaissEntity>(ent =>
             {
                 ent.HasOne<FileCollectionEntity>()
                     .WithOne(x => x.FaissStore)
                     .HasForeignKey<FileCollectionFaissEntity>(x => x.CollectionId);
-                
+
                 ent.Property(x => x.DateCreated)
                     .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
                 ent.Property(x => x.DateModified)
@@ -65,10 +72,31 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .WithMany(c => c.Documents)
                     .HasForeignKey(e => e.CollectionId)
                     .HasConstraintName("fk_file_document_collection_id");
+                
+                entity.Property(e => e.DateCreated)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+            });
+
+            modelBuilder.Entity<UserEntity>(ent =>
+            {
+                ent.Property(e => e.DateCreated)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+                ent.Property(e => e.DateModified)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+            });
+
+            modelBuilder.Entity<FileCollectionFaissEntity>(ent =>
+            {
+                ent.Property(e => e.DateCreated)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+                ent.Property(e => e.DateModified)
+                    .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
             });
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default
+        )
         {
             await UpdateDatesOnNewlyAddedOrModifiedAsync();
             return await base.SaveChangesAsync(cancellationToken);
@@ -111,7 +139,11 @@ namespace AiTrainer.Web.Persistence.Contexts
                 {
                     if (entry.State == EntityState.Added)
                     {
-                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                        UpdateEntityDatesToToday<
+                            FileCollectionFaissEntity,
+                            long,
+                            FileCollectionFaiss
+                        >(
                             foundFaissCollection,
                             [
                                 nameof(FileCollectionEntity.DateCreated),
@@ -122,11 +154,13 @@ namespace AiTrainer.Web.Persistence.Contexts
                     }
                     else if (entry.State == EntityState.Modified)
                     {
-                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                        UpdateEntityDatesToToday<
+                            FileCollectionFaissEntity,
+                            long,
+                            FileCollectionFaiss
+                        >(
                             foundFaissCollection,
-                            [
-                                nameof(FileCollectionEntity.DateModified),
-                            ],
+                            [nameof(FileCollectionEntity.DateModified)],
                             currentTime
                         );
                     }
@@ -189,6 +223,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                 }
             }
         }
+
         private void UpdateDatesOnNewlyAddedOrModified()
         {
             var currentTime = DateTime.UtcNow;
@@ -205,7 +240,11 @@ namespace AiTrainer.Web.Persistence.Contexts
                 {
                     if (entry.State == EntityState.Added)
                     {
-                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                        UpdateEntityDatesToToday<
+                            FileCollectionFaissEntity,
+                            long,
+                            FileCollectionFaiss
+                        >(
                             foundFaissCollection,
                             [
                                 nameof(FileCollectionEntity.DateCreated),
@@ -216,11 +255,13 @@ namespace AiTrainer.Web.Persistence.Contexts
                     }
                     else if (entry.State == EntityState.Modified)
                     {
-                        UpdateEntityDatesToToday<FileCollectionFaissEntity, long, FileCollectionFaiss>(
+                        UpdateEntityDatesToToday<
+                            FileCollectionFaissEntity,
+                            long,
+                            FileCollectionFaiss
+                        >(
                             foundFaissCollection,
-                            [
-                                nameof(FileCollectionEntity.DateModified),
-                            ],
+                            [nameof(FileCollectionEntity.DateModified)],
                             currentTime
                         );
                     }
@@ -283,6 +324,7 @@ namespace AiTrainer.Web.Persistence.Contexts
                 }
             }
         }
+
         private static void UpdateEntityDatesToToday<TEnt, TId, TRuntime>(
             TEnt ent,
             IReadOnlyCollection<string> propertyNames,

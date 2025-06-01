@@ -16,7 +16,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests;
 
-public class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
+public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
 {
     private readonly Mock<ICoreClient<
         FormattedChatQueryBuilder,

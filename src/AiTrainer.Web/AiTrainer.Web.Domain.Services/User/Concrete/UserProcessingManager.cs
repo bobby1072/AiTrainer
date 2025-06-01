@@ -141,9 +141,8 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
         public Task<Models.User?> TryGetUserFromCache(string accessToken)
         {
             _logger.LogInformation(
-                "Attempting to retrieve a user for correlation id {CorrelationId} and access token {AccessToken}",
-                _httpContextAccessor?.HttpContext?.GetCorrelationId(),
-                accessToken
+                "Attempting to retrieve a user for correlation id {CorrelationId}",
+                _httpContextAccessor?.HttpContext?.GetCorrelationId()
             );
 
             return _cachingService.TryGetObject<Models.User>(GetCacheKey(accessToken));

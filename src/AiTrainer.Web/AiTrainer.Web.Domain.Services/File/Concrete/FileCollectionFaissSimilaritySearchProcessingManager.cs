@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete;
 
-internal class FileCollectionFaissSimilaritySearchProcessingManager : IFileCollectionFaissSimilaritySearchProcessingManager
+internal sealed class FileCollectionFaissSimilaritySearchProcessingManager : IFileCollectionFaissSimilaritySearchProcessingManager
 {
     private readonly ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse> _similaritySearchClient;
     private readonly ILogger<FileCollectionFaissSimilaritySearchProcessingManager> _logger;

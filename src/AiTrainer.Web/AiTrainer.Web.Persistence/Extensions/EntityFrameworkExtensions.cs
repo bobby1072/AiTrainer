@@ -6,7 +6,8 @@ namespace AiTrainer.Web.Persistence.Extensions
     internal static class EntityFrameworkExtensions
     {
         public static GlobalFileCollectionConfigEntity ToEntity(
-            this GlobalFileCollectionConfig globalFileCollectionConfig)
+            this GlobalFileCollectionConfig globalFileCollectionConfig
+        )
         {
             var entity = new GlobalFileCollectionConfigEntity
             {
@@ -21,6 +22,7 @@ namespace AiTrainer.Web.Persistence.Extensions
 
             return entity;
         }
+
         public static FileDocumentMetaDataEntity ToEntity(this FileDocumentMetaData formInput)
         {
             var entity = new FileDocumentMetaDataEntity
@@ -121,6 +123,29 @@ namespace AiTrainer.Web.Persistence.Extensions
             if (fileCollectionFaiss.Id is not null)
             {
                 entity.Id = (long)fileCollectionFaiss.Id!;
+            }
+
+            return entity;
+        }
+
+        public static SharedFileCollectionMemberEntity ToEntity(
+            this SharedFileCollectionMember fileCollectionMember
+        )
+        {
+            var entity = new SharedFileCollectionMemberEntity
+            {
+                UserId = fileCollectionMember.UserId,
+                CollectionId = fileCollectionMember.CollectionId,
+                ParentSharedMemberId = fileCollectionMember.ParentSharedMemberId,
+                CanCreateDocuments = fileCollectionMember.CanCreateDocuments,
+                CanDownloadDocuments = fileCollectionMember.CanDownloadDocuments,
+                CanRemoveDocuments = fileCollectionMember.CanRemoveDocuments,
+                CanViewDocuments = fileCollectionMember.CanViewDocuments,
+            };
+
+            if (fileCollectionMember.Id is not null)
+            {
+                entity.Id = (Guid)fileCollectionMember.Id!;
             }
 
             return entity;
