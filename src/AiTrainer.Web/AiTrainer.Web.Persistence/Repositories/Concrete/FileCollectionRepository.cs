@@ -25,6 +25,37 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbGetManyResult<FileCollection>> GetCollectionWithChildren(
+            Guid collectionId,
+            params string[] relationships)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            
+            const string getCollectionWithChildrenSql = @"
+                WITH RECURSIVE RecursiveCollections AS (
+                    SELECT * FROM public.""file_collection"" WHERE ""id"" = {0}
+                    UNION ALL
+                    SELECT fc.* FROM public.""file_collection"" fc
+                    INNER JOIN RecursiveCollections rc ON fc.""parent_id"" = rc.""id""
+                )
+                SELECT * FROM RecursiveCollections
+            ";
+
+
+            var baseQuery = dbContext.FileCollections
+                .FromSqlRaw(getCollectionWithChildrenSql, collectionId)
+                .AsNoTracking();
+
+            var setToQuery = AddRelationsToSet(baseQuery, relationships);
+
+            var result = await TimeAndLogDbOperation(
+                () => setToQuery.ToArrayAsync(),
+                nameof(GetCollectionWithChildren),
+                _entityType.Name
+            );
+
+            return new DbGetManyResult<FileCollection>(result.FastArraySelect(x => x.ToModel()).ToArray());
+        }
         public async Task<DbSaveResult<FileCollection>> CreateWithSharedMembers(FileCollection entObj,
             IReadOnlyCollection<SharedFileCollectionMember> sharedMembers)
         {

@@ -15,12 +15,15 @@ public static class SharedFileCollectionMemberExtensions
         return sharedFileCollectionMembers.All(x => x.Can(userId, collectionId, sharedFileCollectionMemberPermission));
     }
 
-    public static SharedFileCollectionMember ToSharedFileCollectionMember(
+    public static SharedFileCollectionMember ToNewSharedFileCollectionMember(
         this SharedFileCollectionSingleMemberUserIdSaveInput sharedFileCollectionSingleMemberSaveInput,
-        Guid collectionId)
+        Guid collectionId,
+        Guid? parentMemberId = null)
     {
         return new SharedFileCollectionMember
         {
+            Id = Guid.NewGuid(),
+            ParentSharedMemberId = parentMemberId,
             UserId = sharedFileCollectionSingleMemberSaveInput.UserId,
             CollectionId = collectionId,
             CanViewDocuments = sharedFileCollectionSingleMemberSaveInput.CanViewDocuments,

@@ -74,7 +74,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                 }
                 sharedFileCollectionMembers = foundCollection?.Data?.SharedFileCollectionMembers ?? [];
             }
-            if (foundDocument.Data?.UserId != (Guid)currentUser.Id! || !(foundDocument.Data.CollectionId is not null && sharedFileCollectionMembers.CanAny(
+            if (foundDocument.Data?.UserId != (Guid)currentUser.Id! && !(foundDocument.Data?.CollectionId is not null && sharedFileCollectionMembers.CanAny(
                     (Guid)currentUser.Id!, (Guid)foundDocument.Data.CollectionId!, SharedFileCollectionMemberPermission.DownloadDocuments)))
             {
                 throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
@@ -120,8 +120,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     _logger
                 );
                 
-                if (foundParent?.Data?.UserId != currentUser.Id || 
-                    foundParent.Data?.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, (Guid)newFileDoc.CollectionId!, SharedFileCollectionMemberPermission.CreateDocuments) != true)
+                if (foundParent?.Data?.UserId != currentUser.Id && 
+                    foundParent?.Data?.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, (Guid)newFileDoc.CollectionId!, SharedFileCollectionMemberPermission.CreateDocuments) != true)
                 {
                     throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
                 }
@@ -188,7 +188,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                     _logger
                 );
                 
-                if (foundParent?.Data?.UserId != currentUser.Id || 
+                if (foundParent?.Data?.UserId != currentUser.Id && 
                     foundParent?.Data?.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, (Guid)documentToDelete.Data.CollectionId!, SharedFileCollectionMemberPermission.RemoveDocuments) != true)
                 {
                     throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);

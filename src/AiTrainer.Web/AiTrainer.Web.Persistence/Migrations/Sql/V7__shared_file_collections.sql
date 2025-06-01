@@ -10,5 +10,6 @@ CREATE TABLE public."shared_file_collection_member"(
     can_view_documents BOOLEAN NOT NULL DEFAULT FALSE,    
     can_download_documents BOOLEAN NOT NULL DEFAULT FALSE,    
     can_create_documents BOOLEAN NOT NULL DEFAULT FALSE,
-    can_remove_documents BOOLEAN NOT NULL DEFAULT FALSE
+    can_remove_documents BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE(user_id, collection_id)
 );

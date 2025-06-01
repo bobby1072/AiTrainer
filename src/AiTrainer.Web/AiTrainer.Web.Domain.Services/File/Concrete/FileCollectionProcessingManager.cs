@@ -247,7 +247,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             if (
                 foundCollection.Data.UserId != currentUser.Id
-                || foundCollection.Data.SharedFileCollectionMembers?.CanAny(
+                && foundCollection.Data.SharedFileCollectionMembers?.CanAny(
                     (Guid)currentUser.Id!,
                     fileCollectionId,
                     SharedFileCollectionMemberPermission.DownloadDocuments
@@ -521,19 +521,19 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             var foundCollection = await EntityFrameworkUtils.TryDbOperation(
                 () =>
-                    _repository.GetOne(
+                    _repository.GetCollectionWithChildren(
                         collectionId,
                         nameof(FileCollectionEntity.SharedFileCollectionMembers)
                     ),
                 _logger
             );
-
-            if (foundCollection?.IsSuccessful is false || foundCollection?.Data is null)
+            if (foundCollection?.IsSuccessful != true || foundCollection.Data.Count == 0)
             {
                 throw new ApiException("Failed to retrieve file collection with that id");
             }
+            var mainCollection = foundCollection.Data.FastArrayFirstOrDefault(x => x.Id == collectionId) ?? throw new ApiException("Failed to retrieve file collection with that id");
 
-            if (foundCollection.Data.UserId != currentUser.Id)
+            if (mainCollection.UserId != currentUser.Id)
             {
                 throw new ApiException(
                     "You do not have permission to share this file collection",
@@ -543,9 +543,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             var sharedMembersToSave = CreateSharedFileCollectionMembers(
                 collectionId,
-                sharedFileColInput,
-                foundCollection.Data.SharedFileCollectionMembers ?? [],
-                (Guid)currentUser.Id!
+                foundCollection.Data,
+                sharedFileColInput
             );
 
             if (sharedMembersToSave.Length == 0)
@@ -558,8 +557,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             }
 
             if (
-                sharedMembersToSave.Length
-                    + (foundCollection.Data.SharedFileCollectionMembers?.Count ?? 0)
+                sharedMembersToSave.FastArrayWhere(x => x.ParentSharedMemberId == null).Count()
+                    + (mainCollection.SharedFileCollectionMembers?.Count ?? 0)
                 > 30
             )
             {
@@ -599,22 +598,73 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             );
             return newlySavedMembers.Data;
         }
+
         private static SharedFileCollectionMember[] CreateSharedFileCollectionMembers(
-            Guid collectionId,
-            IReadOnlyCollection<SharedFileCollectionSingleMemberUserIdSaveInput> membersInput,
-            IReadOnlyCollection<SharedFileCollectionMember> existingSharedMembers,
-            Guid collectionOwnerUserId
+            Guid mainFileCollectionId,
+            IReadOnlyCollection<FileCollection> fileCollectionWithChildrenAndMembers,
+            IReadOnlyCollection<SharedFileCollectionSingleMemberUserIdSaveInput> newMembersInput
         )
         {
-            var existingMemberIds = existingSharedMembers.FastArraySelect(x => x.UserId);
-            return membersInput
+            var collectionOwnerIds = fileCollectionWithChildrenAndMembers.FastArraySelect(x => x.UserId).ToArray();
+            
+            var existingTopLevelMemberIds = fileCollectionWithChildrenAndMembers
+                .SelectMany(x => x.SharedFileCollectionMembers ?? [])
+                .FastArrayWhere(x => x.ParentSharedMemberId is null)
+                .FastArraySelect(x => x.UserId)
+                .ToArray();
+            
+            var actualTopLevelMembersToCreate = newMembersInput
                 .FastArrayWhere(x =>
-                    x.UserId != collectionOwnerUserId && !existingMemberIds.Contains(x.UserId)
-                )
-                .FastArraySelect(x =>
-                    x.ToSharedFileCollectionMember(collectionId)
+                    !collectionOwnerIds.Contains(x.UserId) && !existingTopLevelMemberIds.Contains(x.UserId)
                 )
                 .ToArray();
+            var firstMembers = actualTopLevelMembersToCreate
+                .FastArraySelect(x => x.ToNewSharedFileCollectionMember(mainFileCollectionId)).ToArray();
+            
+            var newMembersList = new List<SharedFileCollectionMember>();
+            newMembersList.AddRange(firstMembers);
+            foreach (var fileCol in OrderFileCollectionsHierarchically(fileCollectionWithChildrenAndMembers, mainFileCollectionId))
+            {
+                if (fileCol.Id == mainFileCollectionId)
+                {
+                    continue;
+                }
+                else
+                {
+                    newMembersList
+                        .AddRange(actualTopLevelMembersToCreate
+                            .FastArraySelect(x => x.ToNewSharedFileCollectionMember(
+                                (Guid)fileCol.Id!,
+                                newMembersList.FastArrayFirstOrDefault(y => y.CollectionId == fileCol.ParentId)!.Id
+                            )).ToArray());
+                }
+            }
+            
+            
+            return newMembersList.ToArray();
+        }
+        private static List<FileCollection> OrderFileCollectionsHierarchically(
+            IEnumerable<FileCollection> collections,
+            Guid topLevelCollectionId)
+        {
+            var lookup = collections.ToLookup(fc => fc.ParentId);
+            var map = collections.ToDictionary(fc => fc.Id!.Value);
+            var result = new List<FileCollection>();
+
+            if (!map.TryGetValue(topLevelCollectionId, out var root))
+                throw new ArgumentException("Top-level collection ID not found in the provided list.");
+
+            void AddWithChildren(FileCollection parent)
+            {
+                result.Add(parent);
+                foreach (var child in lookup[parent.Id])
+                {
+                    AddWithChildren(child);
+                }
+            }
+
+            AddWithChildren(root);
+            return result;
         }
     }
 }
