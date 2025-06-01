@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.Json;
 
-namespace AiTrainer.Web.TestBase.Helpers;
+namespace AiTrainer.Web.TestBase;
 
 public class TestStaticJsonHandler<T> : HttpMessageHandler
     where T : class

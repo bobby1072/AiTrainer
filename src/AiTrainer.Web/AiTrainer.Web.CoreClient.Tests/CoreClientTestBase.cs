@@ -2,7 +2,6 @@
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.TestBase;
-using AiTrainer.Web.TestBase.Helpers;
 
 namespace AiTrainer.Web.CoreClient.Tests
 {
