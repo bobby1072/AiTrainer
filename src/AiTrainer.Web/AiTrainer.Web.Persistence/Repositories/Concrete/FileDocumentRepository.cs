@@ -136,23 +136,6 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
                 throw;
             }
         }
-
-        public async Task<DbGetOneResult<FileDocument>> GetOne(Guid documentId)
-        {
-            await using var dbContext = await _contextFactory.CreateDbContextAsync();
-
-            var entity = await TimeAndLogDbOperation(
-                () =>
-                    dbContext
-                        .FileDocuments.Where(x => x.Id == documentId)
-                        .FirstOrDefaultAsync(),
-                nameof(GetOne),
-                _entityType.Name
-            );
-
-            return new DbGetOneResult<FileDocument>(entity?.ToModel());
-        }
-
         public async Task<DbGetManyResult<FileDocumentPartial>> GetTopLevelDocumentPartialsForUser(
             Guid userId,
             params string[] relationShips

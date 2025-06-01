@@ -18,7 +18,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests;
 
-public class FileCollectionFaissSimilaritySearchProcessingManagerTests: AiTrainerTestBase
+public sealed class FileCollectionFaissSimilaritySearchProcessingManagerTests: AiTrainerTestBase
 {
     private readonly Mock<ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse>> _mockSimSearchClient = new();
     private readonly Mock<ILogger<FileCollectionFaissSimilaritySearchProcessingManager>> _mockLogger = new();

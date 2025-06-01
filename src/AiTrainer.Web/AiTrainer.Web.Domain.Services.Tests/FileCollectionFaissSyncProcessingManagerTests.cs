@@ -21,7 +21,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests;
 
-public class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
+public sealed class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTestBase
 {
     private readonly Mock<ICoreClient<
         CoreDocumentToChunkInput,

@@ -15,7 +15,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests
 {
-    public class FileCollectionProcessingManagerTests : AiTrainerTestBase
+    public sealed class FileCollectionProcessingManagerTests : AiTrainerTestBase
     {
         private readonly Mock<IFileCollectionRepository> _mockRepository = new();
         private readonly Mock<ILogger<FileCollectionProcessingManager>> _mockLogger = new();
@@ -41,10 +41,10 @@ namespace AiTrainer.Web.Domain.Services.Tests
         
 
         [Fact]
-        public async Task SaveFileCollection_Should_Correctly_Build_And_Save_Collection_From_Input()
+        public async Task SaveFileCollection_With_No_Parent_Id_And_No_Shared_Members_Should_Correctly_Build_And_Save_Collection_From_Input()
         {
             //Arrange
-            IReadOnlyCollection<FileCollection>? fileCollectionToSave = null;
+            FileCollection? fileCollectionToSave = null;
             var currentUser = _fixture
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
@@ -53,6 +53,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<FileCollection>()
                 .With(x => x.FaissStore, (FileCollectionFaiss?)null)
                 .With(x => x.ParentId, (Guid?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
                 .With(x => x.UserId, currentUser.Id)
                 .Create();
             var fileCollectionInput = _fixture
@@ -74,17 +75,20 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
             _mockRepository
                 .Setup(x =>
-                    x.Create(
-                        It.Is<IReadOnlyCollection<FileCollection>>(x =>
-                            x.First().CollectionName == fileCollectionInput.CollectionName
-                        )
+                    x.CreateWithSharedMembers(
+                        It.Is<FileCollection>(y =>
+                            y.CollectionName == fileCollectionInput.CollectionName
+                        ),
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y => y.Count == 0)
                     )
                 )
-                .Callback((IReadOnlyCollection<FileCollection> x) => fileCollectionToSave = x)
-                .ReturnsAsync(() => new DbSaveResult<FileCollection>(fileCollectionToSave));
+                .Callback((FileCollection x, IReadOnlyCollection<SharedFileCollectionMember> _) =>
+                    fileCollectionToSave = x
+                )
+                .ReturnsAsync(() => new DbSaveResult<FileCollection>(fileCollectionToSave is not null ? [fileCollectionToSave]: []));
             _mockRepository
                 .Setup(x =>
-                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!))
+                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!), nameof(FileCollectionEntity.SharedFileCollectionMembers))
                 )
                 .ReturnsAsync(new DbGetOneResult<FileCollection>(parentCollection));
             //Act
@@ -109,14 +113,15 @@ namespace AiTrainer.Web.Domain.Services.Tests
             );
             _mockRepository
                 .Verify(x =>
-                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!)), Times.Once
+                    x.GetOne(It.Is<Guid>(x => x == (Guid)fileCollectionInput.ParentId!), nameof(FileCollectionEntity.SharedFileCollectionMembers)), Times.Once
                 );
             _mockRepository
                 .Verify(x =>
-                    x.Create(
-                        It.Is<IReadOnlyCollection<FileCollection>>(x =>
-                            x.First().CollectionName == fileCollectionInput.CollectionName
-                        )
+                    x.CreateWithSharedMembers(
+                        It.Is<FileCollection>(y =>
+                            y.CollectionName == fileCollectionInput.CollectionName
+                        ),
+                        It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y => y.Count == 0)
                     ), Times.Once
                 );
         }
@@ -297,26 +302,18 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
-            var foundSingleFileCollection = _fixture
-                .Build<FileCollection>()
-                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
-                .With(x => x.DateCreated, RandomUtils.DateInThePast())
-                .With(x => x.DateModified, RandomUtils.DateInThePast())
-                .With(x => x.UserId, currentUser.Id)
-                .With(x => x.Id, Guid.NewGuid())
-                .With(x => x.ParentId, (Guid?)null)
-                .Create();
 
             var foundSingleFileDocument = _fixture
                 .Build<FileDocumentPartial>()
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.CollectionId, (Guid?)null)
+                .With(x => x.UserId, currentUser.Id)
                 .Create();
             
 
             _mockRepository
                 .Setup(x => x.GetTopLevelCollectionsForUser((Guid)currentUser.Id!))
-                .ReturnsAsync(new DbGetManyResult<FileCollection>([foundSingleFileCollection]));
+                .ReturnsAsync(new DbGetManyResult<FileCollection>([]));
 
             _mockFileDocumentRepository
                 .Setup(x => x.GetTopLevelDocumentPartialsForUser((Guid)currentUser.Id!))
@@ -332,7 +329,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             );
 
             _mockFileDocumentRepository.Verify(
-                x => x.GetTopLevelDocumentPartialsForUser((Guid)currentUser.Id!, nameof(FileDocumentEntity.MetaData)),
+                x => x.GetManyDocumentPartialsByCollectionIdAndUserId((Guid)currentUser.Id!, null,nameof(FileDocumentEntity.MetaData)),
                 Times.Once
             );
         }
@@ -359,6 +356,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Build<FileDocumentPartial>()
                 .With(x => x.DateCreated, RandomUtils.DateInThePast())
                 .With(x => x.CollectionId, Guid.NewGuid())
+                .With(x => x.UserId, currentUser.Id)
                 .Create();
             
 

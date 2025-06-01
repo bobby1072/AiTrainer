@@ -17,7 +17,7 @@ using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests
 {
-    public class FileDocumentProcessingManagerTests : AiTrainerTestBase
+    public sealed class FileDocumentProcessingManagerTests : AiTrainerTestBase
     {
         private readonly Mock<ILogger<FileDocumentProcessingManager>> _mockLogger = new();
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();

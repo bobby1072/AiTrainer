@@ -50,7 +50,7 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Exception occurred during caching");
+                _logger.LogError(e, "Exception occurred getting object from cache");
 
                 return null;
             }
@@ -88,10 +88,11 @@ namespace AiTrainer.Web.Domain.Services.Concrete
             }
             else
             {
+
+                _logger.LogDebug("Attempting to cache {@ObjToCache}", value);
+
                 var serializedValue = JsonSerializer.Serialize(value);
-
-                _logger.LogDebug("Attempting to cache {@SerialisedCacheObj}", serializedValue);
-
+                
                 await _distributedCache.SetStringAsync(key, serializedValue, options);
             }
             return key;
