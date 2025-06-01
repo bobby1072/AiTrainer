@@ -22,7 +22,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<ILogger<FileCollectionProcessingManager>> _mockLogger = new();
         private readonly Mock<IValidator<FileCollection>> _mockValidator = new();
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
-        private readonly Mock<IRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember>> _sharedFileCollectionMemberRepository= new();
+        private readonly Mock<IRepository<SharedFileCollectionMemberEntity, Guid, SharedFileCollectionMember>> _mockSharedFileCollectionMemberRepository= new();
         private readonly Mock<IValidator<IEnumerable<SharedFileCollectionMember>>> _sharedFileCollectionMemberValidator = new();
         private readonly Mock<IRepository<UserEntity, Guid, Domain.Models.User>> _mockUserRepo = new();
         private readonly FileCollectionProcessingManager _fileCollectionManager;
@@ -33,7 +33,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockLogger.Object,
                 _mockValidator.Object,
                 _mockFileDocumentRepository.Object,
-                _sharedFileCollectionMemberRepository.Object,
+                _mockSharedFileCollectionMemberRepository.Object,
                 _sharedFileCollectionMemberValidator.Object,
                 _mockUserRepo.Object,
                 _mockHttpContextAccessor.Object
@@ -41,7 +41,240 @@ namespace AiTrainer.Web.Domain.Services.Tests
         }
 
         [Fact]
-        public async Task ShareFileCollectionAsync_Should_Successfully_Share_File_Collection_By_Email_For_Authoized_User()
+        public async Task UnshareFileCollectionAsync_Should_Successfully_Unshare_File_Collection_For_Authorized_User()
+        {
+            //Arrange
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            
+            var foundSharedMember = _fixture
+                .Build<SharedFileCollectionMember>()
+                .With(x => x.UserId, Guid.NewGuid())
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.CollectionId, collection.Id)
+                .With(x => x.ParentSharedMemberId, (Guid?)null)
+                .Create();
+
+            _mockSharedFileCollectionMemberRepository
+                .Setup(x => x.GetOne((Guid)foundSharedMember.Id!))
+                .ReturnsAsync(new DbGetOneResult<SharedFileCollectionMember>(foundSharedMember));
+
+            _mockRepository
+                .Setup(x => x.GetOne((Guid)collection.Id!))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(collection));
+
+            _mockSharedFileCollectionMemberRepository
+                .Setup(x =>
+                    x.Delete(It.Is<IReadOnlyCollection<Guid>>(y => y.Single() == foundSharedMember.Id))
+                )
+                .ReturnsAsync(new DbDeleteResult<Guid>([(Guid)foundSharedMember.Id!]));
+
+            //Act
+            var result = await _fileCollectionManager.UnshareFileCollectionAsync(new RequiredGuidIdInput
+            {
+                Id = (Guid)foundSharedMember.Id!
+            }, currentUser);
+            
+            //Assert
+            Assert.Equal(foundSharedMember.Id, result);
+
+            _mockSharedFileCollectionMemberRepository
+                .Verify(x => x.GetOne((Guid)foundSharedMember.Id!), Times.Once);
+
+            _mockRepository
+                .Verify(x => x.GetOne((Guid)collection.Id!), Times.Once);
+
+            _mockSharedFileCollectionMemberRepository
+                .Verify(x =>
+                    x.Delete(It.Is<IReadOnlyCollection<Guid>>(y => y.Single() == foundSharedMember.Id)),
+                    Times.Once
+                );
+        }
+        [Fact]
+        public async Task UnshareFileCollectionAsync_Should_Throw_If_User_Unauthorized()
+        {
+            //Arrange
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, Guid.NewGuid())
+                .Create();
+            
+            var foundSharedMember = _fixture
+                .Build<SharedFileCollectionMember>()
+                .With(x => x.UserId, Guid.NewGuid())
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.CollectionId, collection.Id)
+                .With(x => x.ParentSharedMemberId, (Guid?)null)
+                .Create();
+
+            _mockSharedFileCollectionMemberRepository
+                .Setup(x => x.GetOne((Guid)foundSharedMember.Id!))
+                .ReturnsAsync(new DbGetOneResult<SharedFileCollectionMember>(foundSharedMember));
+
+            _mockRepository
+                .Setup(x => x.GetOne((Guid)collection.Id!))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(collection));
+
+            _mockSharedFileCollectionMemberRepository
+                .Setup(x =>
+                    x.Delete(It.Is<IReadOnlyCollection<Guid>>(y => y.Single() == foundSharedMember.Id))
+                )
+                .ReturnsAsync(new DbDeleteResult<Guid>([(Guid)foundSharedMember.Id!]));
+
+            //Act
+            var act = () => _fileCollectionManager.UnshareFileCollectionAsync(new RequiredGuidIdInput
+            {
+                Id = (Guid)foundSharedMember.Id!
+            }, currentUser);
+            
+            //Assert
+            var ex = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal(ExceptionConstants.Unauthorized, ex.Message);
+
+            _mockSharedFileCollectionMemberRepository
+                .Verify(x => x.GetOne((Guid)foundSharedMember.Id!), Times.Once);
+
+            _mockRepository
+                .Verify(x => x.GetOne((Guid)collection.Id!), Times.Once);
+
+            _mockSharedFileCollectionMemberRepository
+                .Verify(x =>
+                        x.Delete(It.IsAny<IReadOnlyCollection<Guid>>()),
+                    Times.Never
+                );
+        }
+        [Fact]
+        public async Task UnshareFileCollectionAsync_Should_Throw_If_Member_Is_Not_Shared()
+        {
+            //Arrange
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            
+            var foundSharedMember = _fixture
+                .Build<SharedFileCollectionMember>()
+                .With(x => x.UserId, Guid.NewGuid())
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.CollectionId, collection.Id)
+                .With(x => x.ParentSharedMemberId, (Guid?)null)
+                .Create();
+
+            _mockSharedFileCollectionMemberRepository
+                .Setup(x => x.GetOne((Guid)foundSharedMember.Id!))
+                .ReturnsAsync(new DbGetOneResult<SharedFileCollectionMember>());
+
+            //Act
+            var act = () => _fileCollectionManager.UnshareFileCollectionAsync(new RequiredGuidIdInput
+            {
+                Id = (Guid)foundSharedMember.Id!
+            }, currentUser);
+            
+            //Assert
+            var ex = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal("Could not find file collection with that id", ex.Message);
+            
+            _mockSharedFileCollectionMemberRepository
+                .Verify(x => x.GetOne((Guid)foundSharedMember.Id!), Times.Once);
+
+            _mockRepository
+                .Verify(x => x.GetOne(It.IsAny<Guid>()), Times.Never);
+
+            _mockSharedFileCollectionMemberRepository
+                .Verify(x =>
+                    x.Delete(It.IsAny<IReadOnlyCollection<Guid>>()),
+                    Times.Never
+                );
+        }
+        [Fact]
+        public async Task UnshareFileCollectionAsync_Should_Throw_If_Failed_To_Delete_For_Authorized_User()
+        {
+            //Arrange
+            var currentUser = _fixture
+                .Build<Models.User>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.Email, Faker.Internet.Email())
+                .Create();
+            var collection = _fixture
+                .Build<FileCollection>()
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.FaissStore, (FileCollectionFaiss?)null)
+                .With(x => x.SharedFileCollectionMembers, [])
+                .With(x => x.UserId, currentUser.Id)
+                .Create();
+            
+            var foundSharedMember = _fixture
+                .Build<SharedFileCollectionMember>()
+                .With(x => x.UserId, Guid.NewGuid())
+                .With(x => x.Id, Guid.NewGuid())
+                .With(x => x.CollectionId, collection.Id)
+                .With(x => x.ParentSharedMemberId, (Guid?)null)
+                .Create();
+
+            _mockSharedFileCollectionMemberRepository
+                .Setup(x => x.GetOne((Guid)foundSharedMember.Id!))
+                .ReturnsAsync(new DbGetOneResult<SharedFileCollectionMember>(foundSharedMember));
+
+            _mockRepository
+                .Setup(x => x.GetOne((Guid)collection.Id!))
+                .ReturnsAsync(new DbGetOneResult<FileCollection>(collection));
+
+            _mockSharedFileCollectionMemberRepository
+                .Setup(x =>
+                    x.Delete(It.Is<IReadOnlyCollection<Guid>>(y => y.Single() == foundSharedMember.Id))
+                )
+                .ThrowsAsync(new Exception());
+
+            //Act
+            var act = () => _fileCollectionManager.UnshareFileCollectionAsync(new RequiredGuidIdInput
+            {
+                Id = (Guid)foundSharedMember.Id!
+            }, currentUser);
+            
+            //Assert
+            var ex = await Assert.ThrowsAsync<ApiException>(act);
+            Assert.Equal("Could not delete document", ex.Message);
+
+            _mockSharedFileCollectionMemberRepository
+                .Verify(x => x.GetOne((Guid)foundSharedMember.Id!), Times.Once);
+
+            _mockRepository
+                .Verify(x => x.GetOne((Guid)collection.Id!), Times.Once);
+
+            _mockSharedFileCollectionMemberRepository
+                .Verify(x =>
+                    x.Delete(It.Is<IReadOnlyCollection<Guid>>(y => y.Single() == foundSharedMember.Id)),
+                    Times.Once
+                );
+        }
+        [Fact]
+        public async Task ShareFileCollectionAsync_Should_Successfully_Share_File_Collection_By_Email_For_Authorized_User()
         {
             //Arrange
             IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
@@ -90,7 +323,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>())
                 )
                 .ReturnsAsync(new ValidationResult());
-            _sharedFileCollectionMemberRepository
+            _mockSharedFileCollectionMemberRepository
                 .Setup(x =>
                     x.Create(
                         It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
@@ -125,7 +358,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>()),
                     Times.Once
                 );
-            _sharedFileCollectionMemberRepository
+            _mockSharedFileCollectionMemberRepository
                 .Verify(x =>
                     x.Create(
                         It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
@@ -200,7 +433,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>()),
                     Times.Never
                 );
-            _sharedFileCollectionMemberRepository
+            _mockSharedFileCollectionMemberRepository
                 .Verify(x =>
                     x.Create(
                         It.IsAny<IReadOnlyCollection<SharedFileCollectionMember>>()
@@ -253,7 +486,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>())
                 )
                 .ReturnsAsync(new ValidationResult());
-            _sharedFileCollectionMemberRepository
+            _mockSharedFileCollectionMemberRepository
                 .Setup(x =>
                     x.Create(
                         It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
@@ -288,7 +521,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>()),
                     Times.Once
                 );
-            _sharedFileCollectionMemberRepository
+            _mockSharedFileCollectionMemberRepository
                 .Verify(x =>
                     x.Create(
                         It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
@@ -353,7 +586,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>())
                 )
                 .ReturnsAsync(new ValidationResult());
-            _sharedFileCollectionMemberRepository
+            _mockSharedFileCollectionMemberRepository
                 .Setup(x =>
                     x.Create(
                         It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>
@@ -390,7 +623,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                     .ValidateAsync(It.IsAny<IEnumerable<SharedFileCollectionMember>>(), It.IsAny<CancellationToken>()),
                     Times.Once
                 );
-            _sharedFileCollectionMemberRepository
+            _mockSharedFileCollectionMemberRepository
                 .Verify(x =>
                         x.Create(
                             It.Is<IReadOnlyCollection<SharedFileCollectionMember>>(y =>

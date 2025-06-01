@@ -84,20 +84,20 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             {
                 throw new ApiException("Could not find file collection with that id");
             }
-            
-            
-            var foundfileCollection = await EntityFrameworkUtils.TryDbOperation(
+            var foundFileCollection = await EntityFrameworkUtils.TryDbOperation(
                 () =>
                     _repository.GetOne(
                         foundSharedMember.Data.CollectionId
                     ),
                 _logger
             );
+            
+            
 
-            if (foundfileCollection?.Data?.UserId != currentUser.Id)
+            if (foundFileCollection?.Data?.UserId != currentUser.Id)
             {
                 throw new ApiException(
-                    "You do not have permission to share this file collection",
+                    ExceptionConstants.Unauthorized,
                     HttpStatusCode.Unauthorized
                 );
             }
