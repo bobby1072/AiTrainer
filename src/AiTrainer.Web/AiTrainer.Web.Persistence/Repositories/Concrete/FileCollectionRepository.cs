@@ -25,6 +25,23 @@ namespace AiTrainer.Web.Persistence.Repositories.Concrete
             return runtimeObj.ToEntity();
         }
 
+        public async Task<DbGetOneResult<FileCollection>> GetOneByCollectionIdAndUserIdAsync(Guid userId,
+            Guid? collectionId, params string[] relationships)
+        {
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+
+            var setToQuery = AddRelationsToSet(dbContext.FileCollections, relationships);
+            
+            var foundOne = await TimeAndLogDbOperation(
+                () => setToQuery
+                    .Where(x => x.UserId == userId && x.Id == collectionId)
+                    .FirstOrDefaultAsync(),
+                nameof(GetOneByCollectionIdAndUserIdAsync),
+                _entityType.Name
+            );
+
+            return new DbGetOneResult<FileCollection>(foundOne?.ToModel());
+        }
         public async Task<DbGetManyResult<FileCollection>> GetCollectionWithChildren(
             Guid collectionId,
             params string[] relationships)

@@ -330,7 +330,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                             y.Single().CanCreateDocuments == singleShareInput.CanCreateDocuments &&
                             y.Single().CanDownloadDocuments == singleShareInput.CanDownloadDocuments &&
                             y.Single().CanRemoveDocuments == singleShareInput.CanRemoveDocuments &&
-                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments)
+                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments &&
+                            y.Single().CanSimilaritySearch == singleShareInput.CanSimilaritySearch)
                     )
                 )
                 .Callback((IReadOnlyCollection<SharedFileCollectionMember> x) => callbackShareMems = x)
@@ -365,7 +366,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                             y.Single().CanCreateDocuments == singleShareInput.CanCreateDocuments &&
                             y.Single().CanDownloadDocuments == singleShareInput.CanDownloadDocuments &&
                             y.Single().CanRemoveDocuments == singleShareInput.CanRemoveDocuments &&
-                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments)
+                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments &&
+                            y.Single().CanSimilaritySearch == singleShareInput.CanSimilaritySearch)
                     ),
                     Times.Once
                 );
@@ -493,7 +495,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                             y.Single().CanCreateDocuments == singleShareInput.CanCreateDocuments &&
                             y.Single().CanDownloadDocuments == singleShareInput.CanDownloadDocuments &&
                             y.Single().CanRemoveDocuments == singleShareInput.CanRemoveDocuments &&
-                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments)
+                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments &&
+                            y.Single().CanSimilaritySearch == singleShareInput.CanSimilaritySearch)
                     )
                 )
                 .Callback((IReadOnlyCollection<SharedFileCollectionMember> x) => callbackShareMems = x)
@@ -528,7 +531,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
                             y.Single().CanCreateDocuments == singleShareInput.CanCreateDocuments &&
                             y.Single().CanDownloadDocuments == singleShareInput.CanDownloadDocuments &&
                             y.Single().CanRemoveDocuments == singleShareInput.CanRemoveDocuments &&
-                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments)
+                            y.Single().CanViewDocuments == singleShareInput.CanViewDocuments &&
+                            y.Single().CanSimilaritySearch == singleShareInput.CanSimilaritySearch)
+
                     ),
                     Times.Once
                 );
@@ -595,7 +600,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
                             y.All(z => z.CanCreateDocuments == singleShareInput.CanCreateDocuments) &&
                             y.All(z => z.CanDownloadDocuments == singleShareInput.CanDownloadDocuments) &&
                             y.All(z => z.CanRemoveDocuments == singleShareInput.CanRemoveDocuments) &&
-                            y.All(z => z.CanViewDocuments == singleShareInput.CanViewDocuments))
+                            y.All(z => z.CanViewDocuments == singleShareInput.CanViewDocuments) &&
+                            y.All(z => z.CanSimilaritySearch == singleShareInput.CanSimilaritySearch)
+                        )
                     )
                 )
                 .Callback((IReadOnlyCollection<SharedFileCollectionMember> x) => callbackShareMems = x)
@@ -632,7 +639,9 @@ namespace AiTrainer.Web.Domain.Services.Tests
                                 y.All(z => z.CanCreateDocuments == singleShareInput.CanCreateDocuments) &&
                                 y.All(z => z.CanDownloadDocuments == singleShareInput.CanDownloadDocuments) &&
                                 y.All(z => z.CanRemoveDocuments == singleShareInput.CanRemoveDocuments) &&
-                                y.All(z => z.CanViewDocuments == singleShareInput.CanViewDocuments))
+                                y.All(z => z.CanViewDocuments == singleShareInput.CanViewDocuments) &&
+                                y.All(z => z.CanSimilaritySearch == singleShareInput.CanSimilaritySearch)
+                            )
                     ),
                     Times.Once
                 );
