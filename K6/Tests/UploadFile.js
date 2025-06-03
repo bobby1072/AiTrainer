@@ -1,4 +1,4 @@
-import { webApiEndpoint } from "../Helpers/Details.js";
+import { ThresholdsSettings, webApiEndpoint } from "../Helpers/Details.js";
 import getAccessToken from "../Helpers/GetAccessToken.js";
 import http from "k6/http";
 import { check } from "k6";
@@ -6,6 +6,7 @@ import { check } from "k6";
 export const options = {
   vus: 2,
   iterations: 500,
+  thresholds: ThresholdsSettings,
 };
 const url = `${webApiEndpoint}/Api/FileDocument/Upload`;
 const fileBin = open("./../Data/MockCompanyHandbook.pdf", "b");
