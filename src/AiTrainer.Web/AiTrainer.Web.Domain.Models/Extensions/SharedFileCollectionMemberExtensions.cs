@@ -30,6 +30,7 @@ public static class SharedFileCollectionMemberExtensions
             CanCreateDocuments = sharedFileCollectionSingleMemberSaveInput.CanCreateDocuments,
             CanDownloadDocuments = sharedFileCollectionSingleMemberSaveInput.CanDownloadDocuments,
             CanRemoveDocuments = sharedFileCollectionSingleMemberSaveInput.CanRemoveDocuments,
+            CanSimilaritySearch = sharedFileCollectionSingleMemberSaveInput.CanSimilaritySearch
         };
     }
 }

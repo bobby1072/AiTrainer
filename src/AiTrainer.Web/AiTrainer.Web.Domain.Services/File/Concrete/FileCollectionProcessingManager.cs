@@ -191,7 +191,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                                 CanCreateDocuments = x.CanCreateDocuments,
                                 CanDownloadDocuments = x.CanDownloadDocuments,
                                 CanRemoveDocuments = x.CanRemoveDocuments,
-                                CanViewDocuments = x.CanViewDocuments
+                                CanViewDocuments = x.CanViewDocuments,
+                                CanSimilaritySearch = x.CanSimilaritySearch
                             };
                         }
                         else
@@ -202,7 +203,8 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
                                 CanCreateDocuments = x.CanCreateDocuments,
                                 CanDownloadDocuments = x.CanDownloadDocuments,
                                 CanRemoveDocuments = x.CanRemoveDocuments,
-                                CanViewDocuments = x.CanViewDocuments
+                                CanViewDocuments = x.CanViewDocuments,
+                                CanSimilaritySearch = x.CanSimilaritySearch
                             };
                         }
                     }).ToArray(), currentUser);

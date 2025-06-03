@@ -6,6 +6,7 @@ using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
@@ -21,21 +22,24 @@ internal sealed class FileCollectionFaissSimilaritySearchProcessingManager : IFi
 {
     private readonly ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse> _similaritySearchClient;
     private readonly ILogger<FileCollectionFaissSimilaritySearchProcessingManager> _logger;
-    private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly IValidator<SimilaritySearchInput> _inputValidator;
+    private readonly IFileCollectionRepository _fileCollectionRepository;
+    private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly IHttpContextAccessor? _httpContextAccessor;
     public FileCollectionFaissSimilaritySearchProcessingManager(
         ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse> similaritySearchClient,
         ILogger<FileCollectionFaissSimilaritySearchProcessingManager> logger,
-        IFileCollectionFaissRepository fileCollectionFaissRepository,
         IValidator<SimilaritySearchInput> inputValidator,
+        IFileCollectionFaissRepository fileCollectionFaissRepository,
+        IFileCollectionRepository fileCollectionRepository,
         IHttpContextAccessor? httpContextAccessor = null
     )
     {
         _similaritySearchClient = similaritySearchClient;
-        _logger = logger;
-        _fileCollectionFaissRepository = fileCollectionFaissRepository;
+        _logger = logger; 
         _inputValidator = inputValidator;
+        _fileCollectionFaissRepository = fileCollectionFaissRepository;
+        _fileCollectionRepository = fileCollectionRepository;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -48,26 +52,14 @@ internal sealed class FileCollectionFaissSimilaritySearchProcessingManager : IFi
             nameof(SimilaritySearch),
             correlationId
         );
-        var validationResult = await _inputValidator.ValidateAsync(input);
+        var validationResult = await _inputValidator.ValidateAsync(input, token);
         if (!validationResult.IsValid)
         {
             throw new ApiException("Invalid input for similarity search");
         }
-
-        var existingFaissStore = await EntityFrameworkUtils.TryDbOperation(
-            () =>
-                _fileCollectionFaissRepository.ByUserAndCollectionId(
-                    (Guid)currentUser.Id!,
-                    input.CollectionId
-                ),
-            _logger
-        );
-        if (existingFaissStore?.Data?.UserId != (Guid)currentUser.Id!)
-        {
-            throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
-        }
-
-
+        
+        var existingFaissStore = await GetFaissStore(input, currentUser);
+        
         _logger.LogInformation("Attempting to ask question of {Question} for collectionId {CollectionId} and correlationId {CorrelationId}",
             input.Question,
             input.CollectionId,
@@ -76,8 +68,8 @@ internal sealed class FileCollectionFaissSimilaritySearchProcessingManager : IFi
         var result = await _similaritySearchClient.TryInvokeAsync(new CoreSimilaritySearchInput
         {
             Question = input.Question,
-            FileInput = existingFaissStore.Data.FaissIndex,
-            DocStore = existingFaissStore.Data.FaissJson,
+            FileInput = existingFaissStore.FaissIndex,
+            DocStore = existingFaissStore.FaissJson,
             DocumentsToReturn = input.DocumentsToReturn,
         }, token) ?? throw new ApiException();
 
@@ -88,7 +80,6 @@ internal sealed class FileCollectionFaissSimilaritySearchProcessingManager : IFi
         );
 
         return existingFaissStore
-            .Data
             .SingleDocuments
             .Value
             .FastArrayWhere(x => 
@@ -97,5 +88,35 @@ internal sealed class FileCollectionFaissSimilaritySearchProcessingManager : IFi
                     )
                 )
             .ToArray();
+    }
+
+    private async Task<FileCollectionFaiss> GetFaissStore(SimilaritySearchInput input, Domain.Models.User currentUser)
+    {
+        if (input.CollectionId is Guid foundCollectionId)
+        {
+            var foundFileCollection = (await EntityFrameworkUtils.TryDbOperation(
+                () => _fileCollectionRepository.GetOne(foundCollectionId, 
+                    nameof(FileCollectionEntity.FaissStore), 
+                    nameof(FileCollectionEntity.SharedFileCollectionMembers)),
+                _logger))?.Data;
+            if (foundFileCollection?.UserId != (Guid)currentUser.Id! && 
+                foundFileCollection?.SharedFileCollectionMembers?.CanAny((Guid)currentUser.Id!, foundCollectionId, SharedFileCollectionMemberPermission.SimilaritySearch) != true)
+            {
+                throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
+            }
+            return foundFileCollection.FaissStore ?? throw new ApiException("Failed to fetch Faiss store");
+        }
+        else
+        {
+            var foundFileFaissStore = await EntityFrameworkUtils
+                .TryDbOperation(() => _fileCollectionFaissRepository.ByUserAndCollectionId(
+                    (Guid)currentUser.Id!, null), _logger);
+            if (foundFileFaissStore?.Data?.UserId != (Guid)currentUser.Id!)
+            {
+                throw new ApiException(ExceptionConstants.Unauthorized, HttpStatusCode.Unauthorized);
+            }
+            
+            return foundFileFaissStore.Data ?? throw new ApiException("Failed to fetch Faiss store");
+        }
     }
 }

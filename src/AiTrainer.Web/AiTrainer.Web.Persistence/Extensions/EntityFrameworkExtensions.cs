@@ -141,6 +141,7 @@ namespace AiTrainer.Web.Persistence.Extensions
                 CanDownloadDocuments = fileCollectionMember.CanDownloadDocuments,
                 CanRemoveDocuments = fileCollectionMember.CanRemoveDocuments,
                 CanViewDocuments = fileCollectionMember.CanViewDocuments,
+                CanSimilaritySearch = fileCollectionMember.CanSimilaritySearch,
             };
 
             if (fileCollectionMember.Id is not null)

@@ -12,4 +12,6 @@ public abstract record SharedFileCollectionSingleMemberSaveInput
     public bool CanCreateDocuments { get; init; }
     [JsonPropertyName("canRemoveDocuments")]
     public bool CanRemoveDocuments { get; init; }
+    [JsonPropertyName("canSimilaritySearch")]
+    public bool CanSimilaritySearch { get; init; }
 }

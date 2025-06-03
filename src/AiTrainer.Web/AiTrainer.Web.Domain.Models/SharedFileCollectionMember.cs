@@ -9,6 +9,7 @@ public class SharedFileCollectionMember : PersistableDomainModel<SharedFileColle
     public bool CanDownloadDocuments { get; set; }
     public bool CanCreateDocuments { get; set; }
     public bool CanRemoveDocuments { get; set; }
+    public bool CanSimilaritySearch { get; set; }
     
     public bool Can(Guid userId, Guid collectionId, SharedFileCollectionMemberPermission sharedFileCollectionMemberPermission)
     {
@@ -27,6 +28,7 @@ public class SharedFileCollectionMember : PersistableDomainModel<SharedFileColle
             && obj.CanDownloadDocuments == CanDownloadDocuments
             && obj.CanRemoveDocuments == CanRemoveDocuments
             && obj.CanCreateDocuments == CanCreateDocuments
+            && obj.CanSimilaritySearch == CanSimilaritySearch
             && obj.ParentSharedMemberId == ParentSharedMemberId;
     }
 
@@ -39,6 +41,7 @@ public class SharedFileCollectionMember : PersistableDomainModel<SharedFileColle
             SharedFileCollectionMemberPermission.DownloadDocuments => CanDownloadDocuments,
             SharedFileCollectionMemberPermission.CreateDocuments => CanCreateDocuments,
             SharedFileCollectionMemberPermission.RemoveDocuments => CanRemoveDocuments,
+            SharedFileCollectionMemberPermission.SimilaritySearch => CanSimilaritySearch,
             _ => throw new ArgumentOutOfRangeException(nameof(sharedFileCollectionMemberPermission), sharedFileCollectionMemberPermission, null)
         };
     }

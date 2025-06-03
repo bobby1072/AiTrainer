@@ -13,6 +13,7 @@ public sealed record SharedFileCollectionMemberEntity : BaseEntity<Guid, SharedF
     public bool CanDownloadDocuments { get; set; }
     public bool CanCreateDocuments { get; set; }
     public bool CanRemoveDocuments { get; set; }
+    public bool CanSimilaritySearch { get; set; }
     public override SharedFileCollectionMember ToModel()
     {
         return new SharedFileCollectionMember
@@ -24,7 +25,8 @@ public sealed record SharedFileCollectionMemberEntity : BaseEntity<Guid, SharedF
             CanViewDocuments = CanViewDocuments,
             CanDownloadDocuments = CanDownloadDocuments,
             CanCreateDocuments = CanCreateDocuments,
-            CanRemoveDocuments = CanRemoveDocuments
+            CanRemoveDocuments = CanRemoveDocuments,
+            CanSimilaritySearch = CanSimilaritySearch,
         };
     }
 }
