@@ -39,7 +39,7 @@
     "multer": "2.0.1",
     "pickleparser": "0.2.1",
     "semantic-chunking": "^2.4.3",
-    "zod": "3.25.49"
+    "zod": "3.25.50"
   },
   "keywords": [],
   "author": "",
