@@ -170,7 +170,7 @@ stages:
               dockerComposeFile: 'docker-compose.yml'
               additionalDockerComposeFiles: |
                 docker-compose.coreapi.yml
-                K6/docker-compose.k6.yml
+                K6/docker-compose.k6.pipeline.yml
               action: 'Build services'
               dockerComposeFileArgs: |
                 OPENAI_API_KEY=$(pipeline.OPENAI_API_KEY)
@@ -183,17 +183,18 @@ stages:
               failOnStandardError: true
 
           - task: k6-load-test@0
+            displayName: Save file collection file test
+            inputs:
+              filename: 'K6/Tests/SaveFileCollection.js'
+              failOnStandardError: true
+              
+          - task: k6-load-test@0
             displayName: Get one layer test
             inputs:
               filename: 'K6/Tests/GetOneLayer.js'
               failOnStandardError: true
 
 
-          - task: k6-load-test@0
-            displayName: Save file collection file test
-            inputs:
-              filename: 'K6/Tests/SaveFileCollection.js'
-              failOnStandardError: true
 
           - task: k6-load-test@0
             displayName: Save file collection file test

@@ -1,17 +1,18 @@
-import { webApiEndpoint } from "../Helpers/Details.js";
+import { ThresholdsSettings, webApiEndpoint } from "../Helpers/Details.js";
 import getAccessToken from "../Helpers/GetAccessToken.js";
 import http from "k6/http";
 import { check } from "k6";
 
 export const options = {
-  vus: 1,
-  iterations: 30,
+  vus: 2,
+  iterations: 500,
+  thresholds: ThresholdsSettings,
 };
 const url = `${webApiEndpoint}/Api/FileDocument/Upload`;
 const fileBin = open("./../Data/MockCompanyHandbook.pdf", "b");
 
-export default function () {
-  const testNum = __ITER + 1;
+export default function UploadFile() {
+  const testNum = __ITER;
   const accessToken = getAccessToken(
     `k6user${testNum}`,
     `k6password${testNum}`

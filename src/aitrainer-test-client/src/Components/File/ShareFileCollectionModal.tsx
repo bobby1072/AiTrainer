@@ -22,6 +22,7 @@ const sharedFileCollectionSingleMemberSaveInputSchema = z.object({
   canDownloadDocuments: z.boolean(),
   canCreateDocuments: z.boolean(),
   canRemoveDocuments: z.boolean(),
+  canSimilaritySearch: z.boolean(),
 });
 
 export type SharedFileCollectionSingleMemberSaveInput = z.infer<
@@ -35,6 +36,7 @@ const mapDefaultValues =
       canDownloadDocuments: false,
       canCreateDocuments: false,
       canRemoveDocuments: false,
+      canSimilaritySearch: false,
     };
   };
 
@@ -60,6 +62,7 @@ export const ShareFileCollectionModal: React.FC<{
     canCreateDocuments,
     canDownloadDocuments,
     canRemoveDocuments,
+    canSimilaritySearch,
   } = watch();
   useEffect(() => {
     if (error) {
@@ -154,6 +157,18 @@ export const ShareFileCollectionModal: React.FC<{
                     {...register("canCreateDocuments")}
                     checked={canCreateDocuments}
                     defaultChecked={canCreateDocuments}
+                  />
+                }
+              />
+            </Grid2>
+            <Grid2>
+              <FormControlLabel
+                label="Can similarity search"
+                control={
+                  <Switch
+                    {...register("canSimilaritySearch")}
+                    checked={canSimilaritySearch}
+                    defaultChecked={canSimilaritySearch}
                   />
                 }
               />
