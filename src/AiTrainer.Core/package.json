@@ -36,7 +36,7 @@
     "express": "5.1.0",
     "faiss-node": "0.5.1",
     "memfs": "4.17.2",
-    "multer": "2.0.0",
+    "multer": "2.0.1",
     "pickleparser": "0.2.1",
     "semantic-chunking": "^2.4.3",
     "zod": "3.25.49"
