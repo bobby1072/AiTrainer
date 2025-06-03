@@ -111,7 +111,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
     private async Task<FormattedChatQueryBuilder> AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(
         AnalyseChunkInReferenceToQuestionQueryInput input, Guid userId, Guid? collectionId)
     {
-        var fileCollectionFaiss = await GetFaissForFileCollection(userId, collectionId);
+        var fileCollectionFaiss = await GetFileCollectionFaiss(userId, collectionId);
         
         var foundSingleChunk =
             fileCollectionFaiss.SingleDocuments.Value.FastArrayFirstOrDefault(y =>
@@ -176,7 +176,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
     }
 
 
-    private async Task<FileCollectionFaiss> GetFaissForFileCollection(Guid userId, Guid? collectionId)
+    private async Task<FileCollectionFaiss> GetFileCollectionFaiss(Guid userId, Guid? collectionId)
     {
         var foundFileCollection = await EntityFrameworkUtils.TryDbOperation(
             () =>
