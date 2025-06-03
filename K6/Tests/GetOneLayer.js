@@ -4,13 +4,13 @@ import http from "k6/http";
 import { check } from "k6";
 
 export const options = {
-  vus: 1,
-  iterations: 30,
+  vus: 2,
+  iterations: 500,
 };
 const url = `${webApiEndpoint}/Api/FileCollection/GetOneLayer`;
 
-export default function () {
-  const testNum = __ITER + 1;
+export default function GetOneLayer() {
+  const testNum = __ITER;
   const accessToken = getAccessToken(
     `k6user${testNum}`,
     `k6password${testNum}`
