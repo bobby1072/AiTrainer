@@ -8,9 +8,13 @@ export const defaultOidcDetails = {
   client_id: "aitrainer-k6-local",
 };
 
-export const tokenEndpoint = "https://localhost:44363/connect/token";
+export const tokenEndpoint = __ENV.K6IdentityServerTokenEndpoint
+  ? __ENV.K6IdentityServerTokenEndpoint
+  : "https://localhost:44363/connect/token";
 
-export const webApiEndpoint = "http://localhost:5222";
+export const webApiEndpoint = __ENV.K6WebApiEndpoint
+  ? __ENV.K6WebApiEndpoint
+  : "http://localhost:5222";
 
 export const ThresholdsSettings = {
   http_req_failed: [{ threshold: "rate<0.2", abortOnFail: true }],

@@ -18,6 +18,55 @@ pool:
   vmImage: "ubuntu-latest"
 
 stages:
+  - stage: Tests
+    displayName: High level tests
+    # condition: and(succeeded(), eq(variables.isMain, true))
+    jobs:
+      - job: k6_load_tests
+        displayName: K6 load tests
+        steps:
+          - checkout: self
+            submodules: recursive
+
+          - task: DockerCompose@1
+            displayName: Set up docker env
+            inputs:
+              projectName: aitrainer
+              dockerComposeFile: 'docker-compose.yml'
+              additionalDockerComposeFiles: |
+                docker-compose.coreapi.yml
+                K6/docker-compose.k6.pipeline.yml
+              action: 'Build services'
+              dockerComposeFileArgs: |
+                OPENAI_API_KEY=$(pipeline.OPENAI_API_KEY)
+                AiTrainerCore.ApiKey=$(pipeline.AiTrainerCore.ApiKey)
+
+          - task: k6-load-test@0
+            displayName: Upload file test
+            inputs:
+              filename: 'K6/Tests/UploadFile.js'
+              failOnStandardError: true
+
+          - task: k6-load-test@0
+            displayName: Save file collection file test
+            inputs:
+              filename: 'K6/Tests/SaveFileCollection.js'
+              failOnStandardError: true
+              
+          - task: k6-load-test@0
+            displayName: Get one layer test
+            inputs:
+              filename: 'K6/Tests/GetOneLayer.js'
+              failOnStandardError: true
+
+
+
+          - task: k6-load-test@0
+            displayName: Save file collection file test
+            inputs:
+              filename: 'K6/Tests/SyncFileCollectionFaiss.js'
+              failOnStandardError: true
+
   - stage: Build
     jobs:
       - job: build_backend
@@ -152,56 +201,6 @@ stages:
           #   condition: eq(variables.isMain, true)
           #   displayName: "Publish frontend build files"
           #   artifact: chrome-ext
-
-  - stage: Tests
-    displayName: High level tests
-    condition: and(succeeded(), eq(variables.isMain, true))
-    jobs:
-      - job: k6_load_tests
-        displayName: K6 load tests
-        steps:
-          - checkout: self
-            submodules: recursive
-
-          - task: DockerCompose@1
-            displayName: Set up docker env
-            inputs:
-              projectName: aitrainer
-              dockerComposeFile: 'docker-compose.yml'
-              additionalDockerComposeFiles: |
-                docker-compose.coreapi.yml
-                K6/docker-compose.k6.pipeline.yml
-              action: 'Build services'
-              dockerComposeFileArgs: |
-                OPENAI_API_KEY=$(pipeline.OPENAI_API_KEY)
-                AiTrainerCore.ApiKey=$(pipeline.AiTrainerCore.ApiKey)
-
-          - task: k6-load-test@0
-            displayName: Upload file test
-            inputs:
-              filename: 'K6/Tests/UploadFile.js'
-              failOnStandardError: true
-
-          - task: k6-load-test@0
-            displayName: Save file collection file test
-            inputs:
-              filename: 'K6/Tests/SaveFileCollection.js'
-              failOnStandardError: true
-              
-          - task: k6-load-test@0
-            displayName: Get one layer test
-            inputs:
-              filename: 'K6/Tests/GetOneLayer.js'
-              failOnStandardError: true
-
-
-
-          - task: k6-load-test@0
-            displayName: Save file collection file test
-            inputs:
-              filename: 'K6/Tests/SyncFileCollectionFaiss.js'
-              failOnStandardError: true
-
 
   - stage: Publish
     condition: and(succeeded(), eq(variables.isMain, true))
