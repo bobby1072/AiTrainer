@@ -24,6 +24,11 @@ stages:
     jobs:
       - job: k6_load_tests
         displayName: K6 load tests
+        variables:
+          - name: K6IdentityServerTokenEndpoint
+            value: http://oidc:80/connect/token
+          - name: K6WebApiEndpoint
+            value: http://webapi:80
         steps:
           - checkout: self
             submodules: recursive
