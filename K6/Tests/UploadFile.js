@@ -5,7 +5,7 @@ import { check } from "k6";
 
 export const options = {
   vus: 1,
-  iterations: 100,
+  iterations: 500,
   thresholds: ThresholdsSettings,
 };
 const url = `${webApiEndpoint}/Api/FileDocument/Upload`;
