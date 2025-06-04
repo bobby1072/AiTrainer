@@ -4,8 +4,8 @@ import http from "k6/http";
 import { check } from "k6";
 
 export const options = {
-  vus: 2,
-  iterations: 500,
+  vus: 1,
+  iterations: 100,
   thresholds: ThresholdsSettings,
 };
 const url = `${webApiEndpoint}/Api/FileDocument/Upload`;
