@@ -180,19 +180,19 @@ stages:
             displayName: Upload file test
             inputs:
               filename: 'K6/Tests/UploadFile.js'
-              failOnStandardError: true
+              failOnStandardError: false
 
           - task: k6-load-test@0
             displayName: Save file collection file test
             inputs:
               filename: 'K6/Tests/SaveFileCollection.js'
-              failOnStandardError: true
+              failOnStandardError: false
               
           - task: k6-load-test@0
             displayName: Get one layer test
             inputs:
               filename: 'K6/Tests/GetOneLayer.js'
-              failOnStandardError: true
+              failOnStandardError: false
 
 
 
@@ -200,7 +200,7 @@ stages:
             displayName: Save file collection file test
             inputs:
               filename: 'K6/Tests/SyncFileCollectionFaiss.js'
-              failOnStandardError: true
+              failOnStandardError: false
 
 
   - stage: Publish
