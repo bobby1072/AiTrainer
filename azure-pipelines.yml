@@ -25,9 +25,9 @@ stages:
       - job: k6_load_tests
         displayName: K6 load tests
         variables:
-          - name: K6IdentityServerTokenEndpoint
+          - name: IDENTITYSERVERTOKENENDPOINT
             value: http://oidc:80/connect/token
-          - name: K6WebApiEndpoint
+          - name: WEBAPIENDPOINT
             value: http://webapi:80
         steps:
           - checkout: self
