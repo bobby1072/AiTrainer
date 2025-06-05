@@ -41,7 +41,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var mockForm = TestFileUtils.CreateFormFile();
@@ -69,7 +69,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var mockForm = TestFileUtils.CreateFormFile();
@@ -104,7 +104,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var parentCollection = _fixture
@@ -160,7 +160,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var parentCollection = _fixture
@@ -213,7 +213,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var parentCollection = _fixture
@@ -259,7 +259,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var parentCollection = _fixture
@@ -309,7 +309,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var collectionId = Guid.NewGuid();
             
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
@@ -378,7 +378,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var collectionId = Guid.NewGuid();
             
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
@@ -449,7 +449,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var collectionId = Guid.NewGuid();
             
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
@@ -513,7 +513,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var collectionId = Guid.NewGuid();
 
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
@@ -561,7 +561,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var collectionId = Guid.NewGuid();
             
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
@@ -613,7 +613,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var collectionId = Guid.NewGuid();
             
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
@@ -672,7 +672,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var collectionId = Guid.NewGuid();
             
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
@@ -732,7 +732,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var collectionId = Guid.NewGuid();
             
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             

@@ -45,7 +45,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
@@ -105,7 +105,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
@@ -166,7 +166,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
@@ -217,7 +217,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
@@ -280,12 +280,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
             IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
             var collectionId = Guid.NewGuid();
             var existingUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
@@ -312,7 +312,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Setup(x =>
                     x.GetMany<string>(new List<string>{existingUser.Email}, nameof(UserEntity.Email))
                 )
-                .ReturnsAsync(new DbGetManyResult<Models.User>([existingUser]));
+                .ReturnsAsync(new DbGetManyResult<Domain.Models.User>([existingUser]));
             _mockRepository
                 .Setup(x =>
                     x.GetCollectionWithChildren(collectionId, nameof(FileCollectionEntity.SharedFileCollectionMembers))
@@ -379,12 +379,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
             IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
             var collectionId = Guid.NewGuid();
             var existingUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
@@ -411,7 +411,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 .Setup(x =>
                     x.GetMany<string>(new List<string>{existingUser.Email}, nameof(UserEntity.Email))
                 )
-                .ReturnsAsync(new DbGetManyResult<Models.User>([]));
+                .ReturnsAsync(new DbGetManyResult<Domain.Models.User>([]));
             
             //Act
             var act = () => _fileCollectionManager
@@ -450,12 +450,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
             IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
             var collectionId = Guid.NewGuid();
             var existingUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
@@ -545,12 +545,12 @@ namespace AiTrainer.Web.Domain.Services.Tests
             IReadOnlyCollection<SharedFileCollectionMember> callbackShareMems = [];
             var collectionId = Guid.NewGuid();
             var existingUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .With(x => x.Email, Faker.Internet.Email())
                 .Create();
@@ -652,7 +652,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var mockFileBytes = await TestFileUtils.CreateFileBytes();
@@ -699,7 +699,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var mockFileBytes = await TestFileUtils.CreateFileBytes();
@@ -746,7 +746,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var mockFileBytes = await TestFileUtils.CreateFileBytes();
@@ -800,7 +800,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             var collectionId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var mockFileBytes = await TestFileUtils.CreateFileBytes();
@@ -855,7 +855,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             var parentCollectionId = Guid.NewGuid();
             var sharedMemberId = Guid.NewGuid();
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var parentCollection = _fixture
@@ -953,7 +953,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             FileCollection? fileCollectionToSave = null;
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var parentCollection = _fixture
@@ -1037,7 +1037,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var parentCollection = _fixture
@@ -1105,7 +1105,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             IReadOnlyCollection<FileCollection>? fileCollectionToSave = null;
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             
@@ -1192,7 +1192,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
             //Arrange
             IReadOnlyCollection<FileCollection>?  fileCollectionToSave = null;
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var originalFileCollection = _fixture
@@ -1272,7 +1272,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
 
@@ -1312,7 +1312,7 @@ namespace AiTrainer.Web.Domain.Services.Tests
         {
             //Arrange
             var currentUser = _fixture
-                .Build<Models.User>()
+                .Build<Domain.Models.User>()
                 .With(x => x.Id, Guid.NewGuid())
                 .Create();
             var foundSingleFileCollection = _fixture

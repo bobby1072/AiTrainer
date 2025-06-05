@@ -20,11 +20,11 @@ internal sealed class HealthProcessingManager : IHealthProcessingManager
         _aiTrainerCoreConfiguration = aiTrainerCoreConfiguration.Value;
     }
 
-    public async Task<Models.AiTrainerHealth> GetHealth()
+    public async Task<Domain.Models.AiTrainerHealth> GetHealth()
     {
         var coreHealth = await _coreClient.TryInvokeAsync();
 
-        return new Models.AiTrainerHealth
+        return new Domain.Models.AiTrainerHealth
         {
             Name = _aiTrainerCoreConfiguration.Name,
             ReleaseVersion = _aiTrainerCoreConfiguration.ReleaseVersion,

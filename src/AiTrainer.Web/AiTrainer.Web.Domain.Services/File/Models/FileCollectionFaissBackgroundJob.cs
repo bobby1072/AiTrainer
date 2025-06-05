@@ -1,10 +1,10 @@
 
 namespace AiTrainer.Web.Domain.Services.File.Models;
 
-public abstract class FileCollectionFaissBackgroundJob
+internal abstract class FileCollectionFaissBackgroundJob
 {
     public Guid? CollectionId { get; init; }
     public required Domain.Models.User CurrentUser { get; init; }
 
-    internal abstract Task ExecuteFaissJobAsync(IServiceProvider sp, CancellationToken ct = default);
+    public abstract Task ExecuteFaissJobAsync(IServiceProvider sp, CancellationToken ct = default);
 }

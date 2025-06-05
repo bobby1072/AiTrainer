@@ -3,10 +3,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AiTrainer.Web.Domain.Services.File.Models;
 
-public class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob
+internal sealed class FileCollectionFaissSyncBackgroundJob: FileCollectionFaissBackgroundJob
 {
     public bool? RetryOverride { get; init; }
-    internal override Task ExecuteFaissJobAsync(IServiceProvider sp, CancellationToken ct = default)
+    public override Task ExecuteFaissJobAsync(IServiceProvider sp, CancellationToken ct = default)
     {
         var syncManager = sp.GetRequiredService<IFileCollectionFaissSyncProcessingManager>();
         
