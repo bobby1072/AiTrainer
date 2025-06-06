@@ -3,6 +3,7 @@ using AiTrainer.Web.Domain.Services.Models;
 using AiTrainer.Web.TestBase;
 using BT.Common.OperationTimer.Common;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests;
@@ -81,8 +82,7 @@ public sealed class BatchedAsyncOperationExecutorTests: AiTrainerTestBase
         });
 
         var options = GetOptions(handler, batchSize: 1, delayMs: 50); // delay between each batch
-        var loggerMock = new Mock<ILogger<BatchedAsyncOperationExecutor<int>>>();
-        var executor = new BatchedAsyncOperationExecutor<int>(loggerMock.Object, options);
+        var executor = new BatchedAsyncOperationExecutor<int>(new NullLogger<BatchedAsyncOperationExecutor<int>>(), options);
 
         // Act
         await executor.DoWorkAsync(1, 2);
