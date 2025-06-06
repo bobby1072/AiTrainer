@@ -36,7 +36,8 @@ internal sealed class BatchedAsyncOperationExecutor<TInputItem>
             _batchSize,
             _options.CorrelationId
         );
-        
+        var batchesExecuted = 0;
+
         while (_queue.Count > 0)
         {
             var singleBatch = new List<TInputItem>();
@@ -56,10 +57,12 @@ internal sealed class BatchedAsyncOperationExecutor<TInputItem>
                 timeTaken,
                 _options.CorrelationId
             );
-            if(_options.BatchExecutionInterval > TimeSpan.Zero)
+            if(batchesExecuted > 0 && _options.BatchExecutionInterval > TimeSpan.Zero)
             {
                 await Task.Delay(_options.BatchExecutionInterval);
             }
+
+            batchesExecuted++;
         }
     }
 
