@@ -256,7 +256,7 @@ internal sealed class FileCollectionFaissSyncProcessingManager : IFileCollection
         Guid? correlationId,
         CancellationToken cancelToken)
     {
-                var existingFaissStoreJob = EntityFrameworkUtils.TryDbOperation(
+        var existingFaissStoreJob = EntityFrameworkUtils.TryDbOperation(
             () =>
                 _fileCollectionFaissRepository.ByUserAndCollectionId(
                     (Guid)currentUser.Id!,
