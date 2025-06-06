@@ -16,20 +16,20 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 {
     internal sealed class UserProcessingManager : IUserProcessingManager
     {
-        private readonly IRepository<UserEntity, Guid, Models.User> _repo;
+        private readonly IRepository<UserEntity, Guid, Domain.Models.User> _repo;
         private readonly IUserInfoClient _userInfoClient;
         private readonly ILogger<UserProcessingManager> _logger;
-        private readonly IValidator<Models.User> _userValidator;
+        private readonly IValidator<Domain.Models.User> _userValidator;
         private readonly ICachingService _cachingService;
         private readonly IHttpContextAccessor? _httpContextAccessor;
         private const string _cacheKey = "cacheUser-";
 
         public UserProcessingManager(
             IHttpContextAccessor? httpContextAccessor,
-            IRepository<UserEntity, Guid, Models.User> repo,
+            IRepository<UserEntity, Guid, Domain.Models.User> repo,
             IUserInfoClient userInfoClient,
             ILogger<UserProcessingManager> logger,
-            IValidator<Models.User> userValidator,
+            IValidator<Domain.Models.User> userValidator,
             ICachingService cachingService
         )
         {
@@ -41,7 +41,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             _cachingService = cachingService;
         }
 
-        public async Task<Models.User> SaveAndCacheUser(string accessToken)
+        public async Task<Domain.Models.User> SaveAndCacheUser(string accessToken)
         {
             var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
 
@@ -138,27 +138,27 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             return userToReturn;
         }
 
-        public Task<Models.User?> TryGetUserFromCache(string accessToken)
+        public Task<Domain.Models.User?> TryGetUserFromCache(string accessToken)
         {
             _logger.LogInformation(
                 "Attempting to retrieve a user for correlation id {CorrelationId}",
                 _httpContextAccessor?.HttpContext?.GetCorrelationId()
             );
 
-            return _cachingService.TryGetObject<Models.User>(GetCacheKey(accessToken));
+            return _cachingService.TryGetObject<Domain.Models.User>(GetCacheKey(accessToken));
         }
 
-        private (Models.User User, UserSaveEnum SaveType) GetSaveUserDto(
+        private (Domain.Models.User User, UserSaveEnum SaveType) GetSaveUserDto(
             UserInfoResponse userInfo,
-            DbGetOneResult<Models.User>? foundUserFromDb
+            DbGetOneResult<Domain.Models.User>? foundUserFromDb
         )
         {
-            (Models.User User, UserSaveEnum SaveType) userDto;
+            (Domain.Models.User User, UserSaveEnum SaveType) userDto;
 
             if (foundUserFromDb?.Data is not null)
             {
                 userDto = (
-                    new Models.User
+                    new Domain.Models.User
                     {
                         Id = foundUserFromDb.Data.Id,
                         Email = userInfo.Email,
@@ -172,7 +172,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
             else
             {
                 userDto = (
-                    new Models.User
+                    new Domain.Models.User
                     {
                         Email = userInfo.Email,
                         Name = userInfo.Name,
@@ -189,7 +189,7 @@ namespace AiTrainer.Web.Domain.Services.User.Concrete
 
         private async Task<(
             UserInfoResponse UserInfo,
-            DbGetOneResult<Models.User>? UserFromDb
+            DbGetOneResult<Domain.Models.User>? UserFromDb
         )> GetUserInfoAndDbUser(string accessToken)
         {
             var userInfo =

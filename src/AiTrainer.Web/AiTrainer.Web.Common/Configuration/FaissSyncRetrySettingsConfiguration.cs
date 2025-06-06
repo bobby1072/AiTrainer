@@ -10,4 +10,5 @@ public sealed class FaissSyncRetrySettingsConfiguration : BaseConfiguration, IPo
     public int? DelayBetweenAttemptsInSeconds { get; init; }
     public bool? UseJitter => false;
     public bool UseRetry { get; init; }
+    public required FaissSyncBatchSettingsConfiguration BatchSettings { get; init; }
 }

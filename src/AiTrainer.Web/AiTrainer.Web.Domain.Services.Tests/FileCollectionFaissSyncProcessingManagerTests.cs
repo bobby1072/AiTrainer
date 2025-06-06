@@ -17,6 +17,7 @@ using AiTrainer.Web.TestBase.Utils;
 using AutoFixture;
 using BT.Common.OperationTimer.Common;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests;
@@ -44,7 +45,8 @@ public sealed class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTest
         UseRetry = true,
         TotalAttempts = _syncRetryAmount,
         TimeoutInSeconds = 15,
-        DelayBetweenAttemptsInSeconds = 0
+        DelayBetweenAttemptsInSeconds = 0,
+        BatchSettings = new FaissSyncBatchSettingsConfiguration()
     };
     private readonly FileCollectionFaissSyncProcessingManager _faissSyncProcessingManager;
 
@@ -59,7 +61,8 @@ public sealed class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTest
             _mockFileCollectionFaissRepository.Object,
             new TestOptions<FaissSyncRetrySettingsConfiguration>(_retrySettings),
             Mock.Of<IFileCollectionFaissRemoveDocumentsProcessingManager>(),
-            Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>());
+            Mock.Of<IFileCollectionFaissSyncBackgroundJobQueue>(),
+            new NullLoggerFactory());
     }
     [Fact]
     public async Task SyncUserFileCollectionFaissStore_Should_Retry_The_Correct_Amount_Based_On_Configuration()
@@ -67,7 +70,7 @@ public sealed class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTest
         //Arrange
         var collectionId = Guid.NewGuid();
         var currentUser = _fixture
-            .Build<Models.User>()
+            .Build<Domain.Models.User>()
             .With(x => x.Id, Guid.NewGuid())
             .Create();
 
@@ -92,7 +95,7 @@ public sealed class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTest
         //Arrange
         var collectionId = Guid.NewGuid();
         var currentUser = _fixture
-            .Build<Models.User>()
+            .Build<Domain.Models.User>()
             .With(x => x.Id, Guid.NewGuid())
             .Create();
         
@@ -115,7 +118,7 @@ public sealed class FileCollectionFaissSyncProcessingManagerTests: AiTrainerTest
         //Arrange
         var collectionId = Guid.NewGuid();
         var currentUser = _fixture
-            .Build<Models.User>()
+            .Build<Domain.Models.User>()
             .With(x => x.Id, Guid.NewGuid())
             .Create();
         var fileDocInput = _fixture

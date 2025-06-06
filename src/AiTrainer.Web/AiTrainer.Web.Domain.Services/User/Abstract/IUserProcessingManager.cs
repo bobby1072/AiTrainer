@@ -4,7 +4,7 @@ namespace AiTrainer.Web.Domain.Services.User.Abstract
 {
     public interface IUserProcessingManager : IDomainProcessingManager
     {
-        Task<Models.User> SaveAndCacheUser(string accessToken);
-        Task<Models.User?> TryGetUserFromCache(string accessToken);
+        Task<Domain.Models.User> SaveAndCacheUser(string accessToken);
+        Task<Domain.Models.User?> TryGetUserFromCache(string accessToken);
     }
 }

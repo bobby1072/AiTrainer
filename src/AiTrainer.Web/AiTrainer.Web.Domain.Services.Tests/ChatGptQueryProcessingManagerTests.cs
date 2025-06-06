@@ -52,7 +52,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         //Arrange
         var collectionId = Guid.NewGuid();
         var currentUser = _fixture
-            .Build<Models.User>()
+            .Build<Domain.Models.User>()
             .With(u => u.Id, Guid.NewGuid())
             .Create();
         
