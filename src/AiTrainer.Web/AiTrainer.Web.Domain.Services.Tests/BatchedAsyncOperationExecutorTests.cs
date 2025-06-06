@@ -1,12 +1,13 @@
 ﻿using AiTrainer.Web.Domain.Services.Concrete;
 using AiTrainer.Web.Domain.Services.Models;
+using AiTrainer.Web.TestBase;
 using BT.Common.OperationTimer.Common;
 using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace AiTrainer.Web.Domain.Services.Tests;
 
-public class BatchedAsyncOperationExecutorTests
+public sealed class BatchedAsyncOperationExecutorTests: AiTrainerTestBase
 {
     [Fact]
     public async Task Should_Process_Items_In_Batches()
