@@ -45,7 +45,10 @@ internal sealed class BatchedAsyncOperationExecutor<TInputItem>
             {
                 singleBatch.Add(item);
             }
-            
+            if (singleBatch.Count == 0)
+            {
+                return;
+            }
             var timeTaken = await OperationTimerUtils.TimeAsync(() => ExecuteBatch(singleBatch));
             
             _logger.LogDebug("Single batch of {NumberOfOperations} operations took {TimeTaken}ms to execute for correlationId: {CorrelationId}",
@@ -53,8 +56,10 @@ internal sealed class BatchedAsyncOperationExecutor<TInputItem>
                 timeTaken,
                 _options.CorrelationId
             );
-            
-            await Task.Delay(_options.BatchExecutionInterval);
+            if(_options.BatchExecutionInterval > TimeSpan.Zero)
+            {
+                await Task.Delay(_options.BatchExecutionInterval);
+            }
         }
     }
 
