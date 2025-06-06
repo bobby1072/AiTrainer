@@ -235,7 +235,7 @@ internal sealed class FileCollectionFaissSyncProcessingManager : IFileCollection
         CancellationToken cancelToken
     )
     {
-        var opts = new BatchedAsyncOperationOptions<FileDocument>
+        var opts = new BatchedAsyncOperationExecutorOptions<FileDocument>
         {
             BatchSize = _retrySettings.BatchSettings.BatchSize,
             BatchExecutionInterval = TimeSpan.FromSeconds(_retrySettings.BatchSettings.BatchExecutionIntervalInSeconds),

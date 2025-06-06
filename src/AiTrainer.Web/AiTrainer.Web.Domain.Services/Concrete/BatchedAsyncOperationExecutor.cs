@@ -7,13 +7,13 @@ namespace AiTrainer.Web.Domain.Services.Concrete;
 internal sealed class BatchedAsyncOperationExecutor<TInputItem>
 {
     private readonly ILogger<BatchedAsyncOperationExecutor<TInputItem>> _logger;
-    private readonly BatchedAsyncOperationOptions<TInputItem> _options;
+    private readonly BatchedAsyncOperationExecutorOptions<TInputItem> _options;
     private readonly Queue<TInputItem> _queue = new();
     
     private int _batchSize => _options.BatchSize > 0 ? _options.BatchSize : 1;
     public BatchedAsyncOperationExecutor(
         ILogger<BatchedAsyncOperationExecutor<TInputItem>> logger,
-        BatchedAsyncOperationOptions<TInputItem> options
+        BatchedAsyncOperationExecutorOptions<TInputItem> options
     )
     {
         _logger = logger;
