@@ -1,6 +1,6 @@
 ﻿namespace AiTrainer.Web.Domain.Services.Models;
 
-internal sealed class BatchedAsyncOperationOptions<TInputItem>
+internal sealed class BatchedAsyncOperationExecutorOptions<TInputItem>
 {
     public required TimeSpan BatchExecutionInterval { get; init; }
     public required int BatchSize { get; init; }

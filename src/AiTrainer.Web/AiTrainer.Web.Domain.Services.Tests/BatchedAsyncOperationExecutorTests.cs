@@ -93,13 +93,13 @@ public sealed class BatchedAsyncOperationExecutorTests: AiTrainerTestBase
         Assert.True(delay >= TimeSpan.FromMilliseconds(40)); // slight tolerance
     }
     
-    private static BatchedAsyncOperationOptions<int> GetOptions(
+    private static BatchedAsyncOperationExecutorOptions<int> GetOptions(
         Func<IReadOnlyCollection<int>, CancellationToken, Task> handler,
         int batchSize = 2,
         int delayMs = 10,
         bool rethrow = false)
     {
-        return new BatchedAsyncOperationOptions<int>
+        return new BatchedAsyncOperationExecutorOptions<int>
         {
             BatchExecutionInterval = TimeSpan.FromMilliseconds(delayMs),
             BatchSize = batchSize,

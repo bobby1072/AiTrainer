@@ -7,11 +7,13 @@ namespace AiTrainer.Web.Domain.Services.Concrete;
 internal sealed class BatchedAsyncOperationExecutor<TInputItem>
 {
     private readonly ILogger<BatchedAsyncOperationExecutor<TInputItem>> _logger;
-    private readonly BatchedAsyncOperationOptions<TInputItem> _options;
+    private readonly BatchedAsyncOperationExecutorOptions<TInputItem> _options;
     private readonly Queue<TInputItem> _queue = new();
+    
+    private int _batchSize => _options.BatchSize > 0 ? _options.BatchSize : 1;
     public BatchedAsyncOperationExecutor(
-        ILogger<BatchedAsyncOperationExecutor<TInputItem>> logger, 
-        BatchedAsyncOperationOptions<TInputItem> options
+        ILogger<BatchedAsyncOperationExecutor<TInputItem>> logger,
+        BatchedAsyncOperationExecutorOptions<TInputItem> options
     )
     {
         _logger = logger;
@@ -31,7 +33,7 @@ internal sealed class BatchedAsyncOperationExecutor<TInputItem>
     {
         _logger.LogDebug("Attempting to execute {NumberOfOperations} in batches of {BatchSize} for correlationId: {CorrelationId}",
             _queue.Count, 
-            _options.BatchSize,
+            _batchSize,
             _options.CorrelationId
         );
         
@@ -39,11 +41,14 @@ internal sealed class BatchedAsyncOperationExecutor<TInputItem>
         {
             var singleBatch = new List<TInputItem>();
             
-            while (singleBatch.Count < _options.BatchSize && _queue.TryDequeue(out var item))
+            while (singleBatch.Count < _batchSize && _queue.TryDequeue(out var item))
             {
                 singleBatch.Add(item);
             }
-            
+            if (singleBatch.Count == 0)
+            {
+                return;
+            }
             var timeTaken = await OperationTimerUtils.TimeAsync(() => ExecuteBatch(singleBatch));
             
             _logger.LogDebug("Single batch of {NumberOfOperations} operations took {TimeTaken}ms to execute for correlationId: {CorrelationId}",
@@ -51,8 +56,10 @@ internal sealed class BatchedAsyncOperationExecutor<TInputItem>
                 timeTaken,
                 _options.CorrelationId
             );
-            
-            await Task.Delay(_options.BatchExecutionInterval);
+            if(_options.BatchExecutionInterval > TimeSpan.Zero)
+            {
+                await Task.Delay(_options.BatchExecutionInterval);
+            }
         }
     }
 
@@ -65,7 +72,7 @@ internal sealed class BatchedAsyncOperationExecutor<TInputItem>
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Exception occured while executing batched operations for correlationId: {CorrelationId}",
+                "Exception occurred while executing batched operations for correlationId: {CorrelationId}",
                 _options.CorrelationId
             );
 
