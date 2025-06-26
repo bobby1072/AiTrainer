@@ -1,0 +1,6 @@
+{
+  "ignorePaths": [
+    "src/aitrainer-test-client/package.json",
+    "src/aitrainer-test-client/package-lock.json"
+  ]
+}
