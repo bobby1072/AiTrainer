@@ -1,7 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
-using System.Text;
-using System.Text.Json;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Common.Extensions;
@@ -10,7 +8,6 @@ using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.Http.Extensions;
-using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -52,9 +49,8 @@ internal class CoreClientUpdateFaissStore
                 MediaTypeNames.Application.Octet
             );
             
-            var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
 
-            var result = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
+            var result = await _aiTrainerCoreConfiguration.BaseEndpoint
                 .AppendPathSegment("api")
                 .AppendPathSegment("faissrouter")
                 .AppendPathSegment("updatestore")
@@ -72,7 +68,7 @@ internal class CoreClientUpdateFaissStore
                     );
                 })
                 .PostJsonAsync<CoreResponse<CoreFaissStoreResponse>>(_httpClient,
-                    ApiConstants.DefaultCamelCaseSerializerOptions, ct), cancellation);
+                    ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
             
 
             return result?.Data;

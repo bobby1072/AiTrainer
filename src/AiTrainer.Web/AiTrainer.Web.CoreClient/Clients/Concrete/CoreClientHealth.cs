@@ -5,7 +5,6 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Response;
 using BT.Common.Http.Extensions;
-using BT.Common.Polly.Extensions;
 using BT.Common.Polly.Models.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -48,15 +47,14 @@ internal class CoreClientHealth : ICoreClient<CoreClientHealthResponse>
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
-            var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
             
-            var response = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
+            var response = await _aiTrainerCoreConfiguration.BaseEndpoint
                 .AppendPathSegment("api")
                 .AppendPathSegment("healthrouter")
                 .WithCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
                 .WithCorrelationIdHeader(correlationId?.ToString())
                 .PostJsonAsync<CoreResponse<CoreClientHealthResponse>>(_httpClient,
-                    ApiConstants.DefaultCamelCaseSerializerOptions, ct), cancellation);
+                    ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
 
             return response?.Data;
         }
