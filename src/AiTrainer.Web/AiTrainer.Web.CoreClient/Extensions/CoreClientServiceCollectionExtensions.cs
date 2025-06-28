@@ -5,6 +5,7 @@ using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
+using BT.Common.Http.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -19,59 +20,47 @@ namespace AiTrainer.Web.CoreClient.Extensions
         )
         {
             var aiTrainerCoreSection = configuration.GetSection(AiTrainerCoreConfiguration.Key);
+            
 
             if (!aiTrainerCoreSection.Exists())
             {
                 throw new InvalidDataException(ExceptionConstants.MissingEnvVars);
             }
+            var aiTrainerCoreConfig = aiTrainerCoreSection
+                .Get<AiTrainerCoreConfiguration>() ?? throw new InvalidDataException(ExceptionConstants.MissingEnvVars);
 
             serviceCollection.Configure<AiTrainerCoreConfiguration>(aiTrainerCoreSection);
 
-            serviceCollection.AddHttpClient<
+            serviceCollection.AddHttpClientWithResilience<
                 ICoreClient<CoreUpdateFaissStoreInput, CoreFaissStoreResponse>,
                 CoreClientUpdateFaissStore
-            >(ConfigureClientTimeout);
-            serviceCollection.AddHttpClient<
+            >(aiTrainerCoreConfig);
+            serviceCollection.AddHttpClientWithResilience<
                 ICoreClient<CoreSimilaritySearchInput, CoreSimilaritySearchResponse>,
                 CoreClientSimilaritySearch
-            >(ConfigureClientTimeout);
-            serviceCollection.AddHttpClient<
+            >(aiTrainerCoreConfig);
+            serviceCollection.AddHttpClientWithResilience<
                 ICoreClient<CoreClientHealthResponse>,
                 CoreClientHealth
-            >(ConfigureClientTimeout);
-            serviceCollection.AddHttpClient<
+            >(aiTrainerCoreConfig);
+            serviceCollection.AddHttpClientWithResilience<
                 ICoreClient<FormattedChatQueryBuilder, CoreFormattedChatQueryResponse>,
                 CoreClientFormattedChatQuery
-            >(ConfigureClientTimeout);
-            serviceCollection.AddHttpClient<
+            >(aiTrainerCoreConfig);
+            serviceCollection.AddHttpClientWithResilience<
                 ICoreClient<CoreCreateFaissStoreInput, CoreFaissStoreResponse>,
                 CoreClientCreateFaissStore
-            >(ConfigureClientTimeout);
-            serviceCollection.AddHttpClient<
+            >(aiTrainerCoreConfig);
+            serviceCollection.AddHttpClientWithResilience<
                 ICoreClient<CoreDocumentToChunkInput, CoreChunkedDocumentResponse>,
                 CoreClientChunkDocument
-            >(ConfigureClientTimeout);
-            serviceCollection.AddHttpClient<
+            >(aiTrainerCoreConfig);
+            serviceCollection.AddHttpClientWithResilience<
                 ICoreClient<CoreRemoveDocumentsFromStoreInput, CoreFaissStoreResponse>,
                 CoreClientRemoveDocumentsFromStore
-            >(ConfigureClientTimeout);
+            >(aiTrainerCoreConfig);
 
             return serviceCollection;
-        }
-
-        private static void ConfigureClientTimeout(
-            IServiceProvider serviceProvider,
-            HttpClient httpClient
-        )
-        {
-            var coreClientOptsSingleton = serviceProvider.GetRequiredService<
-                IOptions<AiTrainerCoreConfiguration>
-            >();
-            
-            if (coreClientOptsSingleton.Value.TimeoutInSeconds is int timeout)
-            {
-                httpClient.Timeout = TimeSpan.FromSeconds(timeout + 1);
-            }
         }
     }
 }

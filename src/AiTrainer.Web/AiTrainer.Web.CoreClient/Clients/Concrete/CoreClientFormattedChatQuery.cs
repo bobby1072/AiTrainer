@@ -6,7 +6,6 @@ using AiTrainer.Web.CoreClient.Extensions;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
 using BT.Common.Http.Extensions;
-using BT.Common.Polly.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -43,9 +42,8 @@ internal class CoreClientFormattedChatQuery
         {
             var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
 
-            var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
             
-            var response = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
+            var response = await _aiTrainerCoreConfiguration.BaseEndpoint
                 .AppendPathSegment("api")
                 .AppendPathSegment("openairouter")
                 .AppendPathSegment("formattedchatquery")
@@ -53,7 +51,7 @@ internal class CoreClientFormattedChatQuery
                 .WithCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
                 .WithApplicationJson(request.ToCoreInput(), ApiConstants.DefaultCamelCaseSerializerOptions)
                 .PostJsonAsync<CoreResponse<CoreFormattedChatQueryResponse>>(_httpClient,
-                    ApiConstants.DefaultCamelCaseSerializerOptions, ct), cancellationToken);
+                    ApiConstants.DefaultCamelCaseSerializerOptions, cancellationToken);
 
             return response?.Data;
         }

@@ -1,7 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
-using System.Text;
-using System.Text.Json;
 using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.Common.Extensions;
@@ -54,7 +52,7 @@ public class CoreClientSimilaritySearch
 
             var pipeline = _aiTrainerCoreConfiguration.ToPipeline();
             
-            var response = await pipeline.ExecuteAsync(async ct => await _aiTrainerCoreConfiguration.BaseEndpoint
+            var response = await _aiTrainerCoreConfiguration.BaseEndpoint
                 .AppendPathSegment("api")
                 .AppendPathSegment("faissrouter")
                 .AppendPathSegment("similaritysearch")
@@ -72,7 +70,7 @@ public class CoreClientSimilaritySearch
                     );
                 })
                 .PostJsonAsync<CoreResponse<CoreSimilaritySearchResponse>>(_httpClient,
-                    ApiConstants.DefaultCamelCaseSerializerOptions, ct), cancellation);
+                    ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
             
 
             return response?.Data;
