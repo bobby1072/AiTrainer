@@ -217,7 +217,7 @@ src/
 
 ## License
 
-This project is licensed under the ISC License.
+This project is licensed under a custom non-commercial license. Commercial use is prohibited without explicit written permission from the copyright holder. See the [LICENSE](LICENSE) file for full terms.
 
 ---
 
