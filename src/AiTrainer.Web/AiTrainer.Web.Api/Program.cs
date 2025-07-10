@@ -4,71 +4,86 @@ using AiTrainer.Web.Common.Configuration;
 using Microsoft.AspNetCore.Http.Timeouts;
 using System.Text.Json;
 using AiTrainer.Web.Api.Extensions;
+using BT.Common.Helpers;
 
-var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
+var localLogger = LoggingHelper.CreateLogger();
 
-var appSettings = builder.Configuration.GetSection(ApplicationSettingsConfiguration.Key);
-
-if (!appSettings.Exists())
+try
 {
-    throw new Exception("ApplicationSettingsConfiguration not found in configuration");
-}
 
-builder.Services.Configure<ApplicationSettingsConfiguration>(appSettings);
+    var builder = WebApplication.CreateBuilder(args);
+    builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
-builder
-    .Services.AddDistributedMemoryCache()
-    .AddHttpClient()
-    .AddHttpContextAccessor()
-    .AddResponseCompression()
-    .AddRequestTimeouts(opts =>
+    var appSettings = builder.Configuration.GetSection(ApplicationSettingsConfiguration.Key);
+
+    if (!appSettings.Exists())
     {
-        opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(360) };
-    })
-    .AddLogging()
-    .AddEndpointsApiExplorer()
-    .AddSwaggerGen()
-    .AddControllers()
-    .AddJsonOptions(options =>
-        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        throw new Exception("ApplicationSettingsConfiguration not found in configuration");
+    }
+
+    builder.Services.Configure<ApplicationSettingsConfiguration>(appSettings);
+
+    builder
+        .Services.AddDistributedMemoryCache()
+        .AddHttpClient()
+        .AddHttpContextAccessor()
+        .AddResponseCompression()
+        .AddRequestTimeouts(opts =>
+        {
+            opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(360) };
+        })
+        .AddLogging()
+        .AddEndpointsApiExplorer()
+        .AddSwaggerGen()
+        .AddControllers()
+        .AddJsonOptions(options =>
+            options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        );
+
+    builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environment);
+
+    builder.Services.AddAiTrainerServices(builder.Configuration, builder.Environment);
+
+    builder.Services.AddCors(p =>
+        p.AddPolicy(
+            "corsapp",
+            x =>
+            {
+                x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+
+                x.WithOrigins("http://localhost:3000").AllowCredentials();
+            }
+        )
     );
 
-builder.Services.AddAuthorizationServices(builder.Configuration, builder.Environment);
+    var app = builder.Build();
 
-builder.Services.AddAiTrainerServices(builder.Configuration, builder.Environment);
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        app.UseCors("corsapp");
+    }
+    else
+    {
+        app.UseHttpsRedirection();
+    }
 
-builder.Services.AddCors(p =>
-    p.AddPolicy(
-        "corsapp",
-        x =>
-        {
-            x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-
-            x.WithOrigins("http://localhost:3000").AllowCredentials();
-        }
-    )
-);
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseCors("corsapp");
-}
-else
-{
-    app.UseHttpsRedirection();
-}
-
-app.UseRouting();
-app.UseResponseCompression();
-app.UseAuthorization();
-app.UseAuthentication();
-app.UseAiTrainerDefaultMiddlewares();
+    app.UseRouting();
+    app.UseResponseCompression();
+    app.UseAuthorization();
+    app.UseAuthentication();
+    app.UseAiTrainerDefaultMiddlewares();
 // app.MapAiTrainerSignalRHubs();
-app.MapControllers();
+    app.MapControllers();
 
-await app.RunAsync();
+    await app.RunAsync();
+}
+catch (Exception ex)
+{
+    localLogger.LogCritical(ex, "Unhandled exception occured during application startup");
+}
+finally
+{
+    localLogger.LogInformation("Application is exiting at {DateTime}", DateTime.UtcNow);
+}
