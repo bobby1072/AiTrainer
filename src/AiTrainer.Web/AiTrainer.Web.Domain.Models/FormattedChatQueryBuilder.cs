@@ -31,7 +31,7 @@ public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBui
     /// This query format can be used to analyse a section of text in reference to a question about said text.
     /// </summary>
     public static FormattedChatQueryBuilder BuildAnalyseChunkInReferenceToQuestionQueryFormat(string textChunk, string question) => new(
-        DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion,
+        DefinedQueryFormatsEnum.AnalyseDocumentChunkInReferenceToQuestion,
         "You need to analyse questions in reference to this section of text: {textChunk}",
         question,
         new Dictionary<string, string>

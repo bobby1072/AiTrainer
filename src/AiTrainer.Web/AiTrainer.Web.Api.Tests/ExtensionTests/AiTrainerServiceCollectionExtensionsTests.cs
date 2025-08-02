@@ -202,7 +202,7 @@ public sealed class AiTrainerServiceCollectionExtensionsTests
             d.Lifetime == ServiceLifetime.Singleton);
 
         Assert.Contains(_serviceCollectionWithAiTrainerServicesAdded, d =>
-            d.ServiceType == typeof(IValidator<AnalyseChunkInReferenceToQuestionQueryInput>) &&
+            d.ServiceType == typeof(IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>) &&
             d.ImplementationType == typeof(AnalyseChunkInReferenceToQuestionQueryValidator) &&
             d.Lifetime == ServiceLifetime.Singleton);
 

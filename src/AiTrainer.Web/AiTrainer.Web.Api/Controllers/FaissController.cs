@@ -29,8 +29,8 @@ public sealed class FaissController : BaseController
         var currentUser = await GetCurrentUser();
 
         var result = await _actionExecutor.ExecuteAsync<IChatGptQueryProcessingManager, string>(
-            serv => serv.ChatGptFaissQuery(input, currentUser, ct),
-            nameof(IChatGptQueryProcessingManager.ChatGptFaissQuery)
+            serv => serv.ChatGptQuery(input, currentUser, ct),
+            nameof(IChatGptQueryProcessingManager.ChatGptQuery)
         );
 
         return new Outcome<string> { Data = result };
