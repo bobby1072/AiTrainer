@@ -25,7 +25,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
     private readonly Mock<IFileCollectionFaissRepository> _mockFileCollectionFaissRepository = new();
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
     private readonly Mock<IValidator<ChatGptFormattedQueryInput>> _mockChatGptFormattedQueryValidator = new();
-    private readonly Mock<IValidator<AnalyseChunkInReferenceToQuestionQueryInput>> _analyseChunkInReferenceToQuestionValidator = new();
+    private readonly Mock<IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>> _analyseChunkInReferenceToQuestionValidator = new();
 
     private readonly ChatGptQueryProcessingManager _service;
 
@@ -34,7 +34,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         SetUpBasicHttpContext();
         
         _mockServiceProvider
-            .Setup(x => x.GetService(typeof(IValidator<AnalyseChunkInReferenceToQuestionQueryInput>)))
+            .Setup(x => x.GetService(typeof(IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>)))
             .Returns(_analyseChunkInReferenceToQuestionValidator.Object);
         
         _service = new ChatGptQueryProcessingManager(
@@ -69,7 +69,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             DateModified = DateTime.UtcNow,
         };
         var singleChunkToUse = existingFaissStore.SingleDocuments.Value.FirstOrDefault();
-        var innerChatQueryStartingInput = new AnalyseChunkInReferenceToQuestionQueryInput
+        var innerChatQueryStartingInput = new AnalyseDocumentChunkInReferenceToQuestionQueryInput
         {
             Question = "What's my salary",
             ChunkId = (Guid)singleChunkToUse?.Id!
@@ -87,7 +87,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         _analyseChunkInReferenceToQuestionValidator
             .Setup(x => 
                 x.ValidateAsync(
-                    It.Is<AnalyseChunkInReferenceToQuestionQueryInput>(y => 
+                    It.Is<AnalyseDocumentChunkInReferenceToQuestionQueryInput>(y => 
                         y.Question == innerChatQueryStartingInput.Question && y.ChunkId == innerChatQueryStartingInput.ChunkId),
                     It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
@@ -105,7 +105,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             .ReturnsAsync(new CoreFormattedChatQueryResponse {Content = "45000 every second"});
 
         //Act
-        var result = await _service.ChatGptFaissQuery(chatQueryInput, currentUser);
+        var result = await _service.ChatGptQuery(chatQueryInput, currentUser);
         
         //Assert
         Assert.NotNull(result);
@@ -116,7 +116,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         _analyseChunkInReferenceToQuestionValidator
             .Verify(x =>
                 x.ValidateAsync(
-                    It.Is<AnalyseChunkInReferenceToQuestionQueryInput>(y =>
+                    It.Is<AnalyseDocumentChunkInReferenceToQuestionQueryInput>(y =>
                         y.Question == innerChatQueryStartingInput.Question &&
                         y.ChunkId == innerChatQueryStartingInput.ChunkId),
                     It.IsAny<CancellationToken>()), Times.Once);

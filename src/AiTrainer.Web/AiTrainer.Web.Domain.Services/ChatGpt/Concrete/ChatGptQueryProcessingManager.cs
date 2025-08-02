@@ -52,17 +52,17 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<string> ChatGptFaissQuery(
+    public async Task<string> ChatGptQuery(
         ChatGptFormattedQueryInput input,
         Domain.Models.User user,
         CancellationToken cancellationToken = default
     )
     {
-        var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+        var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
         _logger.LogInformation(
             "Entering {Action} for correlationId {CorrelationId}",
-            nameof(ChatGptFaissQuery),
+            nameof(ChatGptQuery),
             correlationId
         );
         var validationResult = await _chatGptFormattedQueryValidator.ValidateAsync(
@@ -87,8 +87,8 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
         );
         var queryResult = queryEnum switch
         {
-            DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion =>
-                await Query<AnalyseChunkInReferenceToQuestionQueryInput>(
+            DefinedQueryFormatsEnum.AnalyseDocumentChunkInReferenceToQuestion =>
+                await Query<AnalyseDocumentChunkInReferenceToQuestionQueryInput>(
                     input,
                     x => AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(x, (Guid)user.Id!, input.CollectionId),
                     cancellationToken
@@ -101,7 +101,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
 
         _logger.LogInformation(
             "Exiting {Action} for correlationId {CorrelationId}",
-            nameof(ChatGptFaissQuery),
+            nameof(ChatGptQuery),
             correlationId
         );
 
@@ -109,7 +109,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
     }
 
     private async Task<FormattedChatQueryBuilder> AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(
-        AnalyseChunkInReferenceToQuestionQueryInput input, Guid userId, Guid? collectionId)
+        AnalyseDocumentChunkInReferenceToQuestionQueryInput input, Guid userId, Guid? collectionId)
     {
         var fileCollectionFaiss = await GetFileCollectionFaiss(userId, collectionId);
         

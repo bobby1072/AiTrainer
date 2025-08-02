@@ -24,7 +24,7 @@ namespace AiTrainer.Web.Domain.Models.Extensions
                 .AddSingleton<IValidator<FileCollection>, FileCollectionValidator>()
                 .AddSingleton<IValidator<FileDocument>, FileDocumentValidator>()
                 .AddSingleton<IValidator<ChatGptFormattedQueryInput>, ChatGptFormattedQueryInputValidator>()
-                .AddSingleton<IValidator<AnalyseChunkInReferenceToQuestionQueryInput>, AnalyseChunkInReferenceToQuestionQueryValidator>()
+                .AddSingleton<IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>, AnalyseChunkInReferenceToQuestionQueryValidator>()
                 .AddSingleton<IValidator<SharedFileCollectionMember>, SharedFileCollectionMemberValidator>()
                 .AddSingleton<IValidator<IEnumerable<SharedFileCollectionMember>>>(sp => 
                     sp.GetRequiredService<IValidator<SharedFileCollectionMember>>()
