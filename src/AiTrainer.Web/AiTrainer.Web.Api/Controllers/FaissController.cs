@@ -22,7 +22,7 @@ public sealed class FaissController : BaseController
 
     [HttpPost("Chat/Query")]
     public async Task<ActionResult<Outcome<string>>> ChatQuery(
-        [FromBody] ChatGptFormattedQueryInput input,
+        [FromBody] ChatGptFormattedQueryInput<AnalyseDocumentChunkInReferenceToQuestionQueryInput> input,
         CancellationToken ct = default
     )
     {

@@ -2,5 +2,6 @@
 
 public enum DefinedQueryFormatsEnum
 {
-    AnalyseDocumentChunkInReferenceToQuestion = 1
+    AnalyseDocumentChunkInReferenceToQuestion = 1,
+    EditFileDocument = 2
 }

@@ -3,10 +3,10 @@ using Microsoft.Extensions.Logging;
 
 namespace AiTrainer.Web.Common.Exceptions
 {
-    public class ApiException : AiTrainerException
+    public sealed class ApiException : AiTrainerException
     {
-        public HttpStatusCode StatusCode { get; init; }
-        public LogLevel LogLevel { get; init; }
+        public HttpStatusCode StatusCode { get; }
+        public LogLevel LogLevel { get; }
 
         public ApiException(
             string message = ExceptionConstants.InternalServerError,

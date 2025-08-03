@@ -2,7 +2,7 @@
 
 namespace AiTrainer.Web.Domain.Models.Validators;
 
-internal sealed class EnumerableValidator<T> : AbstractValidator<IEnumerable<T>>
+internal sealed class EnumerableValidator<T> : BaseValidator<IEnumerable<T>>
 {
     public EnumerableValidator(IValidator<T> itemValidator)
     {

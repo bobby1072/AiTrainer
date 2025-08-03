@@ -8,4 +8,6 @@ public sealed record AnalyseDocumentChunkInReferenceToQuestionQueryInput : ChatQ
     public required string Question { get; init; }
     [JsonPropertyName("chunkId")]
     public required Guid ChunkId { get; init; }
+    [JsonPropertyName("collectionId")]
+    public Guid? CollectionId { get; init; }
 }

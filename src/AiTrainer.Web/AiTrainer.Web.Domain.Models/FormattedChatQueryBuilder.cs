@@ -39,4 +39,18 @@ public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBui
             { "textChunk", textChunk },
         }
     );
+
+    /// <summary>
+    /// This query format can be used to edit file documents.
+    /// </summary>
+    public static FormattedChatQueryBuilder BuildEditFileDocumentQueryFormat(string changeRequest,
+        string documentText) => new(
+        DefinedQueryFormatsEnum.EditFileDocument,
+        "You need to edit text according to different instructions given to you. This is the text to edit: {textToEdit}",
+        changeRequest,
+        new Dictionary<string, string>
+        {
+            { "textToEdit", documentText },
+        }
+    );
 }

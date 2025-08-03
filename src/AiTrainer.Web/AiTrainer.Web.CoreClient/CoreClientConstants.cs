@@ -1,6 +1,6 @@
 namespace AiTrainer.Web.CoreClient
 {
-    internal static class CoreClientConstants
+    internal struct CoreClientConstants
     {
         public const string ApiKeyHeader = "api-key";
     }
