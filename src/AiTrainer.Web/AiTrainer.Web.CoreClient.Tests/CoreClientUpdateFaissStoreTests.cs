@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using System.Text;
 using System.Text.Json;
-using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.TestBase;
 using AutoFixture;
+using BT.Common.Api.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AiTrainer.Web.CoreClient.Tests;

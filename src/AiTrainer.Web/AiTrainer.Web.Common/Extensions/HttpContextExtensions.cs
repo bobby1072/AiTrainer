@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using System.Net;
+using CommonApiConstants = BT.Common.Api.Helpers.ApiConstants;
 
 namespace AiTrainer.Web.Common.Extensions
 {
@@ -11,11 +12,11 @@ namespace AiTrainer.Web.Common.Extensions
         {
             try
             {
-                var correlationId = context.Request.Headers[ApiConstants.CorrelationIdHeader];
+                var correlationId = context.Request.Headers[CommonApiConstants.CorrelationIdHeader];
 
                 if (string.IsNullOrEmpty(correlationId))
                 {
-                    correlationId = context.Response.Headers[ApiConstants.CorrelationIdHeader];
+                    correlationId = context.Response.Headers[CommonApiConstants.CorrelationIdHeader];
                 }
 
                 return !string.IsNullOrEmpty(correlationId.ToString())

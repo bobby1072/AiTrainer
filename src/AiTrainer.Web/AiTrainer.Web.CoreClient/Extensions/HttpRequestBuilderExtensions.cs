@@ -1,6 +1,6 @@
-﻿using AiTrainer.Web.Common;
-using BT.Common.Http.Extensions;
+﻿using BT.Common.Http.Extensions;
 using BT.Common.Http.Models;
+using CommonApiConstants = BT.Common.Api.Helpers.ApiConstants;
 
 namespace AiTrainer.Web.CoreClient.Extensions;
 
@@ -17,7 +17,7 @@ internal static class HttpRequestBuilderExtensions
     {
         if (!string.IsNullOrEmpty(correlationId))
         {
-            requestBuilder.WithHeader(ApiConstants.CorrelationIdHeader, correlationId);
+            requestBuilder.WithHeader(CommonApiConstants.CorrelationIdHeader, correlationId);
         }
         
         

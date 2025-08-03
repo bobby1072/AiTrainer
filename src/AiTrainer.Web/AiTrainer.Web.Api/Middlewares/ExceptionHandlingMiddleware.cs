@@ -1,10 +1,11 @@
 ﻿using System.Net.Mime;
 using AiTrainer.Web.Api.Models;
-using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using BT.Common.OperationTimer.Common;
 using BT.Common.OperationTimer.Proto;
+using CommonApiConstants = BT.Common.Api.Helpers.ApiConstants;
+
 
 namespace AiTrainer.Web.Api.Middlewares
 {
@@ -106,14 +107,14 @@ namespace AiTrainer.Web.Api.Middlewares
             if (correlationId is not null)
             {
                 context.Response.Headers.TryAdd(
-                    ApiConstants.CorrelationIdHeader,
+                    CommonApiConstants.CorrelationIdHeader,
                     correlationId.ToString()
                 );
             }
             else
             {
                 context.Response.Headers.TryAdd(
-                    ApiConstants.CorrelationIdHeader,
+                    CommonApiConstants.CorrelationIdHeader,
                     Guid.NewGuid().ToString()
                 );
             }
