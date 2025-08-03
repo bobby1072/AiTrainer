@@ -24,7 +24,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
     >> _mockChatFormattedQueryClient = new();
     private readonly Mock<IFileCollectionFaissRepository> _mockFileCollectionFaissRepository = new();
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
-    private readonly Mock<IValidator<ChatGptFormattedQueryInput>> _mockChatGptFormattedQueryValidator = new();
+    private readonly Mock<IValidator<BaseChatGptFormattedQueryInput>> _mockChatGptFormattedQueryValidator = new();
     private readonly Mock<IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>> _analyseChunkInReferenceToQuestionValidator = new();
 
     private readonly ChatGptQueryProcessingManager _service;
@@ -37,10 +37,13 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             .Setup(x => x.GetService(typeof(IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>)))
             .Returns(_analyseChunkInReferenceToQuestionValidator.Object);
         
+        _mockServiceProvider
+            .Setup(x => x.GetService(typeof(IFileCollectionFaissRepository)))
+            .Returns(_mockFileCollectionFaissRepository.Object);
+        
         _service = new ChatGptQueryProcessingManager(
             _mockChatFormattedQueryClient.Object,
             _mockChatGptFormattedQueryValidator.Object,
-            _mockFileCollectionFaissRepository.Object,
             new NullLogger<ChatGptQueryProcessingManager>(),
             _mockServiceProvider.Object,
             _mockHttpContextAccessor.Object
@@ -72,12 +75,12 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         var innerChatQueryStartingInput = new AnalyseDocumentChunkInReferenceToQuestionQueryInput
         {
             Question = "What's my salary",
-            ChunkId = (Guid)singleChunkToUse?.Id!
-        };
-        var chatQueryInput = new ChatGptFormattedQueryInput
-        {
+            ChunkId = (Guid)singleChunkToUse?.Id!,
             CollectionId = collectionId,
-            InputJson = JsonDocument.Parse(JsonSerializer.Serialize(innerChatQueryStartingInput)),
+        };
+        var chatQueryInput = new ChatGptFormattedQueryInput<AnalyseDocumentChunkInReferenceToQuestionQueryInput>
+        {
+            QueryInput = innerChatQueryStartingInput,
             DefinedQueryFormatsEnum = 1
         };
 

@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using System.Net;
 using AiTrainer.Web.Domain.Services.File.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
-using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
@@ -26,7 +25,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileCollectionRepository _fileCollectionRepository;
         private readonly IFileCollectionFaissSyncBackgroundJobQueue _faissSyncBackgroundJobQueue;
         private readonly IHttpContextAccessor? _httpContextAccessor;
-        private readonly IChatGptQueryProcessingManager _chatGptQueryProcessingManager;
 
         public FileDocumentProcessingManager(
             ILogger<FileDocumentProcessingManager> logger,
@@ -34,7 +32,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             IValidator<FileDocument> validator,
             IFileCollectionRepository fileCollectionRepository,
             IFileCollectionFaissSyncBackgroundJobQueue faissSyncBackgroundJobQueue,
-            IChatGptQueryProcessingManager chatGptQueryProcessingManager,
             IHttpContextAccessor? httpContextAccessor = null
         )
         {
@@ -44,7 +41,6 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _validator = validator;
             _fileCollectionRepository = fileCollectionRepository;
             _faissSyncBackgroundJobQueue = faissSyncBackgroundJobQueue;
-            _chatGptQueryProcessingManager = chatGptQueryProcessingManager;
         }
 
         public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Domain.Models.User currentUser)

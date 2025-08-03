@@ -9,12 +9,6 @@ public abstract record BaseChatGptFormattedQueryInput
     public required int DefinedQueryFormatsEnum { get; init; }
 }
 
-public sealed record ChatGptFormattedQueryInput: BaseChatGptFormattedQueryInput
-{
-    [JsonPropertyName("inputJson")] public required JsonDocument InputJson { get; init; }
-}
-
-
 public sealed record ChatGptFormattedQueryInput<TInputType>: BaseChatGptFormattedQueryInput where TInputType : ChatQueryInput
 {
     [JsonPropertyName("queryInput")] public TInputType QueryInput { get; init; }

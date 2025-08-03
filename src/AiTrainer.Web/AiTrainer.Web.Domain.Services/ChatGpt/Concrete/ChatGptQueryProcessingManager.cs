@@ -70,7 +70,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
         if (!validationResult.IsValid)
         {
             throw new ApiException(
-                $"{nameof(ChatGptFormattedQueryInput)} is not valid",
+                "Query is not valid",
                 HttpStatusCode.BadRequest
             );
         }
@@ -83,7 +83,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
             queryEnum.GetDisplayName(),
             correlationId
         );
-        var queryResult = input.QueryInput switch
+        var queryResult = queryEnum switch
         {
             DefinedQueryFormatsEnum.AnalyseDocumentChunkInReferenceToQuestion =>
                 await Query(
