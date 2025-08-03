@@ -5,6 +5,7 @@ using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Models.Partials;
 using AiTrainer.Web.Domain.Services.Abstract;
+using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,15 +14,27 @@ namespace AiTrainer.Web.Api.Controllers
     [RequireUserLogin]
     public sealed class FileDocumentController : BaseController
     {
-        private readonly ILogger<FileDocumentController> _logger;
-
         public FileDocumentController(
-            IHttpDomainServiceActionExecutor actionExecutor,
-            ILogger<FileDocumentController> logger
+            IHttpDomainServiceActionExecutor actionExecutor
         )
             : base(actionExecutor)
         {
-            _logger = logger;
+        }
+
+        [HttpPost("Query/DocumentContentChangeRequest")]
+        public async Task<ActionResult<Outcome<string>>> DocumentChangeRequest([FromBody] ChatGptFormattedQueryInput<EditFileDocumentQueryInput> input,
+            CancellationToken ct = default)
+        {
+            var currentUser = await GetCurrentUser();
+            
+            var result = await _actionExecutor
+                .ExecuteAsync<IChatGptQueryProcessingManager, string>(x => x.ChatGptQuery(input, currentUser, ct), 
+                    nameof(IChatGptQueryProcessingManager.ChatGptQuery));
+
+            return new Outcome<string>
+            {
+                Data = result
+            };
         }
 
         [HttpPost("Download")]

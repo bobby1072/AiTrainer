@@ -20,17 +20,17 @@ public sealed class FaissController : BaseController
     {
     }
 
-    [HttpPost("Chat/Query")]
+    [HttpPost("Query/AnalyseDocumentChunkWithQuestion")]
     public async Task<ActionResult<Outcome<string>>> ChatQuery(
-        [FromBody] ChatGptFormattedQueryInput input,
+        [FromBody] ChatGptFormattedQueryInput<AnalyseDocumentChunkInReferenceToQuestionQueryInput> input,
         CancellationToken ct = default
     )
     {
         var currentUser = await GetCurrentUser();
 
         var result = await _actionExecutor.ExecuteAsync<IChatGptQueryProcessingManager, string>(
-            serv => serv.ChatGptFaissQuery(input, currentUser, ct),
-            nameof(IChatGptQueryProcessingManager.ChatGptFaissQuery)
+            serv => serv.ChatGptQuery(input, currentUser, ct),
+            nameof(IChatGptQueryProcessingManager.ChatGptQuery)
         );
 
         return new Outcome<string> { Data = result };

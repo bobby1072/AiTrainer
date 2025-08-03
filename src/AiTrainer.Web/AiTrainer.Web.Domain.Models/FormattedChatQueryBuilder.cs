@@ -31,12 +31,26 @@ public sealed class FormattedChatQueryBuilder: DomainModel<FormattedChatQueryBui
     /// This query format can be used to analyse a section of text in reference to a question about said text.
     /// </summary>
     public static FormattedChatQueryBuilder BuildAnalyseChunkInReferenceToQuestionQueryFormat(string textChunk, string question) => new(
-        DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion,
+        DefinedQueryFormatsEnum.AnalyseDocumentChunkInReferenceToQuestion,
         "You need to analyse questions in reference to this section of text: {textChunk}",
         question,
         new Dictionary<string, string>
         {
             { "textChunk", textChunk },
+        }
+    );
+
+    /// <summary>
+    /// This query format can be used to edit file documents.
+    /// </summary>
+    public static FormattedChatQueryBuilder BuildEditFileDocumentQueryFormat(string changeRequest,
+        string documentText) => new(
+        DefinedQueryFormatsEnum.EditFileDocument,
+        "You need to edit text according to different instructions given to you. This is the text to edit: {textToEdit}",
+        changeRequest,
+        new Dictionary<string, string>
+        {
+            { "textToEdit", documentText },
         }
     );
 }

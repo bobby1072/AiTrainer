@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace AiTrainer.Web.Domain.Models.Validators;
 
-internal sealed class ChatGptFormattedQueryInputValidator : BaseValidator<ChatGptFormattedQueryInput>
+internal sealed class BaseChatGptFormattedQueryInputValidator : BaseValidator<BaseChatGptFormattedQueryInput>
 {
     private static readonly Type DefinedQueryFormatsEnumType = typeof(DefinedQueryFormatsEnum);
 
-    public ChatGptFormattedQueryInputValidator()
+    public BaseChatGptFormattedQueryInputValidator()
     {
         RuleFor(x => x.DefinedQueryFormatsEnum)
             .Must(x => Enum.IsDefined(DefinedQueryFormatsEnumType, x))

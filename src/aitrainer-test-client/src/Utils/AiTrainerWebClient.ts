@@ -275,11 +275,15 @@ export default abstract class AiTrainerWebClient {
     accessToken: string
   ): Promise<string> {
     const response = await AiTrainerWebClient._httpClient
-      .post<AiTrainerWebOutcome<string>>("Api/Faiss/Chat/Query", query, {
-        headers: {
-          Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
-        },
-      })
+      .post<AiTrainerWebOutcome<string>>(
+        "Api/Faiss/Query/AnalyseDocumentChunkWithQuestion",
+        query,
+        {
+          headers: {
+            Authorization: AiTrainerWebClient.FormatAccessToken(accessToken),
+          },
+        }
+      )
       .catch(AiTrainerWebClient.HandleError)
       .then(AiTrainerWebClient.HandleThen);
 

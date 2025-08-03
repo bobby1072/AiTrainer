@@ -5,8 +5,9 @@ namespace AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 
 public interface IChatGptQueryProcessingManager: IDomainProcessingManager
 {
-    Task<string> ChatGptFaissQuery(
-        ChatGptFormattedQueryInput input,
+    Task<string> ChatGptQuery<TQueryInput>(
+        ChatGptFormattedQueryInput<TQueryInput> input,
         Domain.Models.User user,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default)
+            where TQueryInput : ChatQueryInput;
 }

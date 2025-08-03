@@ -1,13 +1,13 @@
 ﻿using System.Net;
-using System.Reflection;
 using System.Text.Json;
-using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
+using AiTrainer.Web.Common.Helpers;
 using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
@@ -27,18 +27,16 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
         FormattedChatQueryBuilder,
         CoreFormattedChatQueryResponse
     > _chatFormattedQueryClient;
-    private readonly IFileCollectionFaissRepository _fileCollectionFaissRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IValidator<ChatGptFormattedQueryInput> _chatGptFormattedQueryValidator;
+    private readonly IValidator<BaseChatGptFormattedQueryInput> _chatGptFormattedQueryValidator;
 
     public ChatGptQueryProcessingManager(
         ICoreClient<
             FormattedChatQueryBuilder,
             CoreFormattedChatQueryResponse
         > chatFormattedQueryClient,
-        IValidator<ChatGptFormattedQueryInput> chatGptFormattedQueryValidator,
-        IFileCollectionFaissRepository fileCollectionFaissRepository,
+        IValidator<BaseChatGptFormattedQueryInput> chatGptFormattedQueryValidator,
         ILogger<ChatGptQueryProcessingManager> logger,
         IServiceProvider serviceProvider,
         IHttpContextAccessor httpContextAccessor
@@ -46,25 +44,25 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
     {
         _chatFormattedQueryClient = chatFormattedQueryClient;
         _chatGptFormattedQueryValidator = chatGptFormattedQueryValidator;
-        _fileCollectionFaissRepository = fileCollectionFaissRepository;
         _logger = logger;
         _serviceProvider = serviceProvider;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<string> ChatGptFaissQuery(
-        ChatGptFormattedQueryInput input,
+    public async Task<string> ChatGptQuery<TQueryInput>(
+        ChatGptFormattedQueryInput<TQueryInput> input,
         Domain.Models.User user,
         CancellationToken cancellationToken = default
-    )
+    ) where TQueryInput : ChatQueryInput
     {
-        var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+        var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
         _logger.LogInformation(
             "Entering {Action} for correlationId {CorrelationId}",
-            nameof(ChatGptFaissQuery),
+            nameof(ChatGptQuery),
             correlationId
         );
+        
         var validationResult = await _chatGptFormattedQueryValidator.ValidateAsync(
             input,
             cancellationToken
@@ -72,7 +70,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
         if (!validationResult.IsValid)
         {
             throw new ApiException(
-                $"{nameof(ChatGptFormattedQueryInput)} is not valid",
+                "Query is not valid",
                 HttpStatusCode.BadRequest
             );
         }
@@ -87,10 +85,22 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
         );
         var queryResult = queryEnum switch
         {
-            DefinedQueryFormatsEnum.AnalyseChunkInReferenceToQuestion =>
-                await Query<AnalyseChunkInReferenceToQuestionQueryInput>(
-                    input,
-                    x => AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(x, (Guid)user.Id!, input.CollectionId),
+            DefinedQueryFormatsEnum.AnalyseDocumentChunkInReferenceToQuestion =>
+                await Query(
+                    input as ChatGptFormattedQueryInput<AnalyseDocumentChunkInReferenceToQuestionQueryInput> ?? throw new ApiException(
+                        $"Unsupported query format: {queryEnum}",
+                        HttpStatusCode.BadRequest
+                    ),
+                    x => AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(x, (Guid)user.Id!, x.CollectionId),
+                    cancellationToken
+                ),
+            DefinedQueryFormatsEnum.EditFileDocument => 
+                await Query(
+                    input as ChatGptFormattedQueryInput<EditFileDocumentQueryInput> ?? throw new ApiException(
+                        $"Unsupported query format: {queryEnum}",
+                        HttpStatusCode.BadRequest
+                    ),
+                    x => EditFileDocumentQueryInputToFormattedChatQueryBuilder(x, user),
                     cancellationToken
                 ),
             _ => throw new ApiException(
@@ -101,15 +111,61 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
 
         _logger.LogInformation(
             "Exiting {Action} for correlationId {CorrelationId}",
-            nameof(ChatGptFaissQuery),
+            nameof(ChatGptQuery),
             correlationId
         );
-
+        
         return queryResult;
     }
+    private async Task<string> Query<TQueryType>(
+        ChatGptFormattedQueryInput<TQueryType> input,
+        Func<TQueryType, Task<FormattedChatQueryBuilder>> formattedQueryBuilderFactory,
+        CancellationToken cancellationToken
+    )
+        where TQueryType : ChatQueryInput
+    {
 
+        await ValidateQuery(input.QueryInput, cancellationToken);
+
+        var actualQueryResult =
+            await _chatFormattedQueryClient.TryInvokeAsync(
+                await formattedQueryBuilderFactory.Invoke(input.QueryInput),
+                cancellationToken
+            ) ?? throw new InvalidOperationException("Failed to retrieve query result");
+
+        return actualQueryResult.Content;
+    }
+    private async Task<FormattedChatQueryBuilder> EditFileDocumentQueryInputToFormattedChatQueryBuilder(EditFileDocumentQueryInput queryInput, Domain.Models.User currentUser)
+    {
+        var foundFileDocumentProcessingManager = _serviceProvider.GetRequiredService<IFileDocumentRepository>();
+        
+        var foundFileDocument = await EntityFrameworkUtils
+            .TryDbOperation(() => foundFileDocumentProcessingManager.GetOne(queryInput.FileDocumentId))
+                ?? throw new ApiException("Failed to retrieve file document");
+
+        if (foundFileDocument.Data is null)
+        {
+            throw new ApiException("Cannot find file document", HttpStatusCode.NotFound);
+        }
+        
+        if (foundFileDocument.Data.FileType != FileTypeEnum.Text)
+        {
+            throw new ApiException("This file type is not supported for editing", HttpStatusCode.BadRequest);
+        }
+        
+        _logger.LogDebug("Querying file document: {@FileDocument}", new
+        {
+            FileDocumentId = foundFileDocument.Data.Id,
+            foundFileDocument.Data.FileName,
+            FileType = foundFileDocument.Data.FileType.GetDisplayName(),
+            DateCreated = foundFileDocument.Data.DateCreated.ToUniversalTime(),
+        });
+        
+        return FormattedChatQueryBuilder
+            .BuildEditFileDocumentQueryFormat(queryInput.ChangeRequest, await FileHelper.GetTextFromTextFile(foundFileDocument.Data.FileData));
+    }
     private async Task<FormattedChatQueryBuilder> AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(
-        AnalyseChunkInReferenceToQuestionQueryInput input, Guid userId, Guid? collectionId)
+        AnalyseDocumentChunkInReferenceToQuestionQueryInput input, Guid userId, Guid? collectionId)
     {
         var fileCollectionFaiss = await GetFileCollectionFaiss(userId, collectionId);
         
@@ -120,7 +176,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
 
         if (foundSingleChunk is null)
         {
-            throw new ApiException("No chunk with that id found.", HttpStatusCode.BadRequest);
+            throw new ApiException("No chunk with that id found", HttpStatusCode.BadRequest);
         }
 
         _logger.LogInformation(
@@ -133,27 +189,7 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
             input.Question
         );
     }
-    private async Task<string> Query<TQueryType>(
-        ChatGptFormattedQueryInput input,
-        Func<TQueryType, Task<FormattedChatQueryBuilder>> formattedQueryBuilderFactory,
-        CancellationToken cancellationToken
-    )
-        where TQueryType : ChatQueryInput
-    {
 
-        var parsedQueryInput =
-            input.InputJson.Deserialize<TQueryType>() ?? throw new JsonException($"Failed to deserialize {typeof(TQueryType).Name}");
-
-        await ValidateQuery(parsedQueryInput, cancellationToken);
-
-        var actualQueryResult =
-            await _chatFormattedQueryClient.TryInvokeAsync(
-                await formattedQueryBuilderFactory.Invoke(parsedQueryInput),
-                cancellationToken
-            ) ?? throw new InvalidOperationException("Failed to retrieve query result");
-
-        return actualQueryResult.Content;
-    }
 
     private async Task ValidateQuery<TQueryType>(
         TQueryType queryInput,
@@ -178,9 +214,11 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
 
     private async Task<FileCollectionFaiss> GetFileCollectionFaiss(Guid userId, Guid? collectionId)
     {
+        var foundFileFaissCollectionRepo = _serviceProvider.GetRequiredService<IFileCollectionFaissRepository>();
+        
         var foundFileCollection = await EntityFrameworkUtils.TryDbOperation(
             () =>
-                _fileCollectionFaissRepository.ByUserAndCollectionId(
+                foundFileFaissCollectionRepo.ByUserAndCollectionId(
                     userId,
                     collectionId
                 ),

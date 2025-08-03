@@ -1,4 +1,5 @@
-﻿namespace AiTrainer.Web.Domain.Models
+﻿
+namespace AiTrainer.Web.Domain.Models
 {
     public enum FileTypeEnum
     {

@@ -3,13 +3,13 @@ using System.Text.Json.Serialization;
 
 namespace AiTrainer.Web.Domain.Models.ApiModels.Request;
 
-public sealed record ChatGptFormattedQueryInput
+public abstract record BaseChatGptFormattedQueryInput
 {
-    [JsonPropertyName("inputJson")]
-    public required JsonDocument InputJson { get; init; }
-
     [JsonPropertyName("definedQueryFormatsEnum")]
     public required int DefinedQueryFormatsEnum { get; init; }
-    [JsonPropertyName("collectionId")]
-    public Guid? CollectionId { get; init; }
+}
+
+public sealed record ChatGptFormattedQueryInput<TInputType>: BaseChatGptFormattedQueryInput where TInputType : ChatQueryInput
+{
+    [JsonPropertyName("queryInput")] public TInputType QueryInput { get; init; }
 }

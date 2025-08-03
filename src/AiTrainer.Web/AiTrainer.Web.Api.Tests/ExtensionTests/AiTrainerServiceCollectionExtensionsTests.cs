@@ -197,13 +197,18 @@ public sealed class AiTrainerServiceCollectionExtensionsTests
             d.Lifetime == ServiceLifetime.Singleton);
 
         Assert.Contains(_serviceCollectionWithAiTrainerServicesAdded, d =>
-            d.ServiceType == typeof(IValidator<ChatGptFormattedQueryInput>) &&
-            d.ImplementationType == typeof(ChatGptFormattedQueryInputValidator) &&
+            d.ServiceType == typeof(IValidator<BaseChatGptFormattedQueryInput>) &&
+            d.ImplementationType == typeof(BaseChatGptFormattedQueryInputValidator) &&
             d.Lifetime == ServiceLifetime.Singleton);
 
         Assert.Contains(_serviceCollectionWithAiTrainerServicesAdded, d =>
-            d.ServiceType == typeof(IValidator<AnalyseChunkInReferenceToQuestionQueryInput>) &&
+            d.ServiceType == typeof(IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>) &&
             d.ImplementationType == typeof(AnalyseChunkInReferenceToQuestionQueryValidator) &&
+            d.Lifetime == ServiceLifetime.Singleton);
+        
+        Assert.Contains(_serviceCollectionWithAiTrainerServicesAdded, d =>
+            d.ServiceType == typeof(IValidator<EditFileDocumentQueryInput>) &&
+            d.ImplementationType == typeof(EditFileDocumentQueryInputValidator) &&
             d.Lifetime == ServiceLifetime.Singleton);
 
         Assert.Contains(_serviceCollectionWithAiTrainerServicesAdded, d =>
