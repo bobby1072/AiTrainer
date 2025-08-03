@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.Api.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AiTrainer.Web.Aspire", "AiTrainer.Web.Aspire\AiTrainer.Web.Aspire.csproj", "{6D30736E-7FD0-458F-B33C-25853BDEE642}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BT.Common.Api.Helpers", "..\Submodules\BT\src\BT.Common\BT.Common.Api.Helpers\BT.Common.Api.Helpers.csproj", "{F38F1647-7ADF-4583-B08F-0A5C88C63681}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +123,10 @@ Global
 		{6D30736E-7FD0-458F-B33C-25853BDEE642}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D30736E-7FD0-458F-B33C-25853BDEE642}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D30736E-7FD0-458F-B33C-25853BDEE642}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F38F1647-7ADF-4583-B08F-0A5C88C63681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F38F1647-7ADF-4583-B08F-0A5C88C63681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F38F1647-7ADF-4583-B08F-0A5C88C63681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F38F1647-7ADF-4583-B08F-0A5C88C63681}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -135,6 +141,7 @@ Global
 		{E356AEE0-1257-4DC1-8662-0565FED8E1B5} = {B217D078-5937-47CF-9CA3-8C5443E7F9BF}
 		{E3F58512-A11F-49E1-B115-F50BA113F5D2} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 		{85771968-733F-4434-A7A0-7BA2BFA47BD8} = {B217D078-5937-47CF-9CA3-8C5443E7F9BF}
+		{F38F1647-7ADF-4583-B08F-0A5C88C63681} = {EF0EB3D7-CD7B-4677-91BB-198AFBF7B1DD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0EA356DC-E454-4B7C-909C-B1CB96C96363}

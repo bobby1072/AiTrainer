@@ -6,16 +6,17 @@ using System.Net;
 
 namespace AiTrainer.Web.Api.Middlewares
 {
-    internal class RequireLoginMiddleware : BaseMiddleware
+    internal sealed class RequireLoginMiddleware
     {
+        private readonly RequestDelegate _next;
         public RequireLoginMiddleware(
             RequestDelegate next
         )
-            : base(next)
         {
+            _next = next;
         }
 
-        public override async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context)
         {
             if (
                 context.GetEndpoint()?.Metadata.GetMetadata<RequireUserLoginAttribute>() is not null

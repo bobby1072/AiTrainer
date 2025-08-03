@@ -40,7 +40,7 @@ internal class CoreClientChunkDocument
     {
         try
         {
-            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             param.CoreDocumentToChunkInputChunkingType = (CoreDocumentToChunkInputChunkingTypeEnum)_aiTrainerCoreConfiguration.DocumentChunkingType;
             

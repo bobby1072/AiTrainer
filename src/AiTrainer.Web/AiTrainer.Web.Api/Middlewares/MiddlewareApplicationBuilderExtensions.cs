@@ -1,3 +1,5 @@
+using BT.Common.Api.Helpers.Extensions;
+
 namespace AiTrainer.Web.Api.Middlewares
 {
     public static class MiddlewareApplicationBuilderExtensions
@@ -8,7 +10,7 @@ namespace AiTrainer.Web.Api.Middlewares
         {
             app
                 .UseMiddleware<ExceptionHandlingMiddleware>()
-                .UseMiddleware<CorrelationIdMiddleware>()
+                .UseCorrelationIdMiddleware()
                 .UseMiddleware<RequireLoginMiddleware>();
 
             return app;

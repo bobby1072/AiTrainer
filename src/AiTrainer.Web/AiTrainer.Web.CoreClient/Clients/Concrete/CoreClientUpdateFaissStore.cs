@@ -42,7 +42,7 @@ internal class CoreClientUpdateFaissStore
     {
         try
         {
-            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             var fileContent = new ByteArrayContent(input.FileInput);
             fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(

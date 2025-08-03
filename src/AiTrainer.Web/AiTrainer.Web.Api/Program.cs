@@ -32,7 +32,10 @@ try
         {
             opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(360) };
         })
-        .AddLogging()
+        .AddLogging(opts =>
+        {
+            opts.AddJsonConsole();
+        })
         .AddEndpointsApiExplorer()
         .AddSwaggerGen()
         .AddControllers()

@@ -40,7 +40,7 @@ internal class CoreClientCreateFaissStore
     {
         try
         {
-            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             var response = await _aiTrainerCoreConfiguration.BaseEndpoint
                 .AppendPathSegment("api")

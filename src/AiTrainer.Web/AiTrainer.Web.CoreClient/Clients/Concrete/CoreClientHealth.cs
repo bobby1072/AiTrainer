@@ -45,7 +45,7 @@ internal class CoreClientHealth : ICoreClient<CoreClientHealthResponse>
     {
         try
         {
-            var correlationId = _httpContextAccessor.HttpContext.GetCorrelationId();
+            var correlationId = _httpContextAccessor.HttpContext?.GetCorrelationId();
 
             
             var response = await _aiTrainerCoreConfiguration.BaseEndpoint
