@@ -23,9 +23,11 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         CoreFormattedChatQueryResponse
     >> _mockChatFormattedQueryClient = new();
     private readonly Mock<IFileCollectionFaissRepository> _mockFileCollectionFaissRepository = new();
+    private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
     private readonly Mock<IValidator<BaseChatGptFormattedQueryInput>> _mockChatGptFormattedQueryValidator = new();
     private readonly Mock<IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>> _analyseChunkInReferenceToQuestionValidator = new();
+    private readonly Mock<IValidator<EditFileDocumentQueryInput>> _editFileDocumentValidator = new();
 
     private readonly ChatGptQueryProcessingManager _service;
 
@@ -36,6 +38,14 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         _mockServiceProvider
             .Setup(x => x.GetService(typeof(IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>)))
             .Returns(_analyseChunkInReferenceToQuestionValidator.Object);
+        
+        _mockServiceProvider
+            .Setup(x => x.GetService(typeof(IValidator<EditFileDocumentQueryInput>)))
+            .Returns(_editFileDocumentValidator.Object);
+        
+        _mockServiceProvider
+            .Setup(x => x.GetService(typeof(IFileDocumentRepository)))
+            .Returns(_mockFileDocumentRepository.Object);
         
         _mockServiceProvider
             .Setup(x => x.GetService(typeof(IFileCollectionFaissRepository)))
@@ -132,6 +142,100 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
                             x.HumanMessage == innerChatQueryStartingInput.Question && 
                             x.QueryParameters.Any(y => y.Key == "textChunk" && y.Value == singleChunkToUse.PageContent) &&
                             x.SystemMessage == "You need to analyse questions in reference to this section of text: {textChunk}"
+                    ),
+                It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ChatGptFaissQuery_Should_Correctly_Build_EditFileDocumentQuery_FormattedQuery()
+    {
+        //Arrange
+        var fileDocumentId = Guid.NewGuid();
+        var currentUser = _fixture
+            .Build<Domain.Models.User>()
+            .With(u => u.Id, Guid.NewGuid())
+            .Create();
+        
+        var changeRequest = "Change the salary to £50,000";
+        var fileContent = "Employee Name: John Doe\nSalary: £45,000\nPosition: Software Developer";
+        var fileData = System.Text.Encoding.UTF8.GetBytes(fileContent);
+        
+        var existingFileDocument = new FileDocument
+        {
+            Id = fileDocumentId,
+            UserId = (Guid)currentUser.Id!,
+            FileType = FileTypeEnum.Text,
+            FileName = "employee.txt",
+            FileData = fileData,
+            DateCreated = DateTime.UtcNow,
+        };
+        
+        var innerEditQueryInput = new EditFileDocumentQueryInput
+        {
+            FileDocumentId = fileDocumentId,
+            ChangeRequest = changeRequest
+        };
+        
+        var chatQueryInput = new ChatGptFormattedQueryInput<EditFileDocumentQueryInput>
+        {
+            QueryInput = innerEditQueryInput,
+            DefinedQueryFormatsEnum = 2 // EditFileDocument enum value
+        };
+
+        _mockChatGptFormattedQueryValidator
+            .Setup(x => x.ValidateAsync(chatQueryInput, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+        
+        _editFileDocumentValidator
+            .Setup(x => 
+                x.ValidateAsync(
+                    It.Is<EditFileDocumentQueryInput>(y => 
+                        y.ChangeRequest == innerEditQueryInput.ChangeRequest && 
+                        y.FileDocumentId == innerEditQueryInput.FileDocumentId),
+                    It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult());
+        
+        _mockFileDocumentRepository
+            .Setup(x => x.GetOne(fileDocumentId))
+            .ReturnsAsync(new DbGetOneResult<FileDocument>(existingFileDocument));
+        
+        _mockChatFormattedQueryClient
+            .Setup(x => x.TryInvokeAsync(It.Is<FormattedChatQueryBuilder>(
+                    z => 
+                        z.HumanMessage == changeRequest && 
+                        z.QueryParameters.Any(y => y.Key == "textToEdit" && y.Value == fileContent) &&
+                        z.SystemMessage == "You need to edit text according to different instructions given to you. This is the text to edit: {textToEdit}"
+                ),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CoreFormattedChatQueryResponse { Content = "Employee Name: John Doe\nSalary: £50,000\nPosition: Software Developer" });
+
+        //Act
+        var result = await _service.ChatGptQuery(chatQueryInput, currentUser);
+        
+        //Assert
+        Assert.NotNull(result);
+        Assert.Contains("£50,000", result);
+        
+        _mockChatGptFormattedQueryValidator
+            .Verify(x => x.ValidateAsync(chatQueryInput, It.IsAny<CancellationToken>()), Times.Once);
+        
+        _editFileDocumentValidator
+            .Verify(x =>
+                x.ValidateAsync(
+                    It.Is<EditFileDocumentQueryInput>(y =>
+                        y.ChangeRequest == innerEditQueryInput.ChangeRequest &&
+                        y.FileDocumentId == innerEditQueryInput.FileDocumentId),
+                    It.IsAny<CancellationToken>()), Times.Once);
+        
+        _mockFileDocumentRepository
+            .Verify(x => x.GetOne(fileDocumentId), Times.Once);
+
+        _mockChatFormattedQueryClient
+            .Verify(x => x.TryInvokeAsync(It.Is<FormattedChatQueryBuilder>(
+                    x => 
+                        x.HumanMessage == changeRequest && 
+                        x.QueryParameters.Any(y => y.Key == "textToEdit" && y.Value == fileContent) &&
+                        x.SystemMessage == "You need to edit text according to different instructions given to you. This is the text to edit: {textToEdit}"
                     ),
                 It.IsAny<CancellationToken>()), Times.Once);
     }
