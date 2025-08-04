@@ -27,7 +27,6 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
     private readonly Mock<IValidator<BaseChatGptFormattedQueryInput>> _mockChatGptFormattedQueryValidator = new();
     private readonly Mock<IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>> _analyseChunkInReferenceToQuestionValidator = new();
-    private readonly Mock<IValidator<EditFileDocumentQueryInput>> _editFileDocumentValidator = new();
 
     private readonly ChatGptQueryProcessingManager _service;
 
@@ -38,10 +37,6 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         _mockServiceProvider
             .Setup(x => x.GetService(typeof(IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>)))
             .Returns(_analyseChunkInReferenceToQuestionValidator.Object);
-        
-        _mockServiceProvider
-            .Setup(x => x.GetService(typeof(IValidator<EditFileDocumentQueryInput>)))
-            .Returns(_editFileDocumentValidator.Object);
         
         _mockServiceProvider
             .Setup(x => x.GetService(typeof(IFileDocumentRepository)))
@@ -172,8 +167,8 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         
         var innerEditQueryInput = new EditFileDocumentQueryInput
         {
-            FileDocumentId = fileDocumentId,
-            ChangeRequest = changeRequest
+            ChangeRequest = changeRequest,
+            FileDocumentToChange = existingFileDocument,
         };
         
         var chatQueryInput = new ChatGptFormattedQueryInput<EditFileDocumentQueryInput>
@@ -184,15 +179,6 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
 
         _mockChatGptFormattedQueryValidator
             .Setup(x => x.ValidateAsync(chatQueryInput, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
-        
-        _editFileDocumentValidator
-            .Setup(x => 
-                x.ValidateAsync(
-                    It.Is<EditFileDocumentQueryInput>(y => 
-                        y.ChangeRequest == innerEditQueryInput.ChangeRequest && 
-                        y.FileDocumentId == innerEditQueryInput.FileDocumentId),
-                    It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ValidationResult());
         
         _mockFileDocumentRepository

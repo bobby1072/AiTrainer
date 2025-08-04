@@ -7,6 +7,11 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
     public interface IFileDocumentProcessingManager : IDomainProcessingManager
     {
+        Task<FileDocument> PotentialDocumentEditChatQuery(
+            PotentialDocumentEditChatRawQueryInput input,
+            Domain.Models.User currentUser,
+            CancellationToken cancellationToken = default
+        );
         Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Domain.Models.User currentUser);
         Task<Guid> DeleteFileDocument(Guid documentId, Domain.Models.User currentUser);
         Task<FileDocumentPartial> UploadFileDocument(

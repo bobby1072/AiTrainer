@@ -7,7 +7,6 @@ using AiTrainer.Web.CoreClient.Clients.Abstract;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
-using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 using AiTrainer.Web.Persistence.Repositories.Abstract;
 using AiTrainer.Web.Persistence.Utils;
@@ -29,28 +28,25 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
     > _chatFormattedQueryClient;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IValidator<BaseChatGptFormattedQueryInput> _chatGptFormattedQueryValidator;
 
     public ChatGptQueryProcessingManager(
         ICoreClient<
             FormattedChatQueryBuilder,
             CoreFormattedChatQueryResponse
         > chatFormattedQueryClient,
-        IValidator<BaseChatGptFormattedQueryInput> chatGptFormattedQueryValidator,
         ILogger<ChatGptQueryProcessingManager> logger,
         IServiceProvider serviceProvider,
         IHttpContextAccessor httpContextAccessor
     )
     {
         _chatFormattedQueryClient = chatFormattedQueryClient;
-        _chatGptFormattedQueryValidator = chatGptFormattedQueryValidator;
         _logger = logger;
         _serviceProvider = serviceProvider;
         _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<string> ChatGptQuery<TQueryInput>(
-        ChatGptFormattedQueryInput<TQueryInput> input,
+        TQueryInput input,
         Domain.Models.User user,
         CancellationToken cancellationToken = default
     ) where TQueryInput : ChatQueryInput
@@ -62,51 +58,15 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
             nameof(ChatGptQuery),
             correlationId
         );
-        
-        var validationResult = await _chatGptFormattedQueryValidator.ValidateAsync(
-            input,
-            cancellationToken
-        );
-        if (!validationResult.IsValid)
-        {
-            throw new ApiException(
-                "Query is not valid",
-                HttpStatusCode.BadRequest
-            );
-        }
-        
 
-        var queryEnum = (DefinedQueryFormatsEnum)input.DefinedQueryFormatsEnum;
-
-        _logger.LogInformation(
-            "Attempting query: {QueryName} for correlationId: {CorrelationId}",
-            queryEnum.GetDisplayName(),
-            correlationId
-        );
-        var queryResult = queryEnum switch
+        string queryResult = input switch
         {
-            DefinedQueryFormatsEnum.AnalyseDocumentChunkInReferenceToQuestion =>
-                await Query(
-                    input as ChatGptFormattedQueryInput<AnalyseDocumentChunkInReferenceToQuestionQueryInput> ?? throw new ApiException(
-                        $"Unsupported query format: {queryEnum}",
-                        HttpStatusCode.BadRequest
-                    ),
-                    x => AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(x, (Guid)user.Id!, x.CollectionId),
-                    cancellationToken
-                ),
-            DefinedQueryFormatsEnum.EditFileDocument => 
-                await Query(
-                    input as ChatGptFormattedQueryInput<EditFileDocumentQueryInput> ?? throw new ApiException(
-                        $"Unsupported query format: {queryEnum}",
-                        HttpStatusCode.BadRequest
-                    ),
-                    x => EditFileDocumentQueryInputToFormattedChatQueryBuilder(x, user),
-                    cancellationToken
-                ),
-            _ => throw new ApiException(
-                $"Unsupported query format: {queryEnum}",
-                HttpStatusCode.BadRequest
-            ),
+            EditFileDocumentQueryInput editFileDocumentQueryInput => await Query(editFileDocumentQueryInput,
+                EditFileDocumentQueryInputToFormattedChatQueryBuilder, correlationId.ToString(), cancellationToken),
+            AnalyseDocumentChunkInReferenceToQuestionQueryInput analyseQueryInput => await Query(analyseQueryInput,
+                x => AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(x, (Guid)user.Id!,
+                    x.CollectionId), correlationId.ToString(), cancellationToken),
+            _ => throw new ApiException("Unsupported query format", HttpStatusCode.BadRequest)
         };
 
         _logger.LogInformation(
@@ -118,51 +78,43 @@ internal sealed class ChatGptQueryProcessingManager : IChatGptQueryProcessingMan
         return queryResult;
     }
     private async Task<string> Query<TQueryType>(
-        ChatGptFormattedQueryInput<TQueryType> input,
+        TQueryType input,
         Func<TQueryType, Task<FormattedChatQueryBuilder>> formattedQueryBuilderFactory,
+        string? correlationId,
         CancellationToken cancellationToken
     )
         where TQueryType : ChatQueryInput
     {
 
-        await ValidateQuery(input.QueryInput, cancellationToken);
+        await ValidateQuery(input, cancellationToken);
 
+        var formattedQuery = await formattedQueryBuilderFactory.Invoke(input);
+        
+        _logger.LogInformation(
+            "Attempting query: {QueryName} for correlationId: {CorrelationId}",
+            formattedQuery.GetQueryName(),
+            correlationId
+        );
         var actualQueryResult =
             await _chatFormattedQueryClient.TryInvokeAsync(
-                await formattedQueryBuilderFactory.Invoke(input.QueryInput),
+                formattedQuery,
                 cancellationToken
             ) ?? throw new InvalidOperationException("Failed to retrieve query result");
 
         return actualQueryResult.Content;
     }
-    private async Task<FormattedChatQueryBuilder> EditFileDocumentQueryInputToFormattedChatQueryBuilder(EditFileDocumentQueryInput queryInput, Domain.Models.User currentUser)
+    private async Task<FormattedChatQueryBuilder> EditFileDocumentQueryInputToFormattedChatQueryBuilder(EditFileDocumentQueryInput queryInput)
     {
-        var foundFileDocumentProcessingManager = _serviceProvider.GetRequiredService<IFileDocumentRepository>();
-        
-        var foundFileDocument = await EntityFrameworkUtils
-            .TryDbOperation(() => foundFileDocumentProcessingManager.GetOne(queryInput.FileDocumentId))
-                ?? throw new ApiException("Failed to retrieve file document");
-
-        if (foundFileDocument.Data is null)
-        {
-            throw new ApiException("Cannot find file document", HttpStatusCode.NotFound);
-        }
-        
-        if (foundFileDocument.Data.FileType != FileTypeEnum.Text)
-        {
-            throw new ApiException("This file type is not supported for editing", HttpStatusCode.BadRequest);
-        }
-        
         _logger.LogDebug("Querying file document: {@FileDocument}", new
         {
-            FileDocumentId = foundFileDocument.Data.Id,
-            foundFileDocument.Data.FileName,
-            FileType = foundFileDocument.Data.FileType.GetDisplayName(),
-            DateCreated = foundFileDocument.Data.DateCreated.ToUniversalTime(),
+            FileDocumentId = queryInput.FileDocumentToChange.Id,
+            queryInput.FileDocumentToChange.FileName,
+            FileType = queryInput.FileDocumentToChange.FileType.GetDisplayName(),
+            DateCreated = queryInput.FileDocumentToChange.DateCreated.ToUniversalTime(),
         });
         
         return FormattedChatQueryBuilder
-            .BuildEditFileDocumentQueryFormat(queryInput.ChangeRequest, await FileHelper.GetTextFromTextFile(foundFileDocument.Data.FileData));
+            .BuildEditFileDocumentQueryFormat(queryInput.ChangeRequest, await FileHelper.GetTextFromTextFile(queryInput.FileDocumentToChange.FileData));
     }
     private async Task<FormattedChatQueryBuilder> AnalyseChunkInReferenceToQuestionQueryInputToFormattedChatQueryBuilder(
         AnalyseDocumentChunkInReferenceToQuestionQueryInput input, Guid userId, Guid? collectionId)

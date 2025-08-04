@@ -20,23 +20,6 @@ namespace AiTrainer.Web.Api.Controllers
             : base(actionExecutor)
         {
         }
-
-        [HttpPost("Query/DocumentContentChangeRequest")]
-        public async Task<ActionResult<Outcome<string>>> DocumentChangeRequest([FromBody] ChatGptFormattedQueryInput<EditFileDocumentQueryInput> input,
-            CancellationToken ct = default)
-        {
-            var currentUser = await GetCurrentUser();
-            
-            var result = await _actionExecutor
-                .ExecuteAsync<IChatGptQueryProcessingManager, string>(x => x.ChatGptQuery(input, currentUser, ct), 
-                    nameof(IChatGptQueryProcessingManager.ChatGptQuery));
-
-            return new Outcome<string>
-            {
-                Data = result
-            };
-        }
-
         [HttpPost("Download")]
         public async Task<IActionResult> Download([FromBody] RequiredGuidIdInput input)
         {

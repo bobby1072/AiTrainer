@@ -11,8 +11,10 @@ using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
+using System.Text;
 using AiTrainer.Web.Domain.Services.File.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 using AiTrainer.Web.Persistence.Entities;
 
 namespace AiTrainer.Web.Domain.Services.File.Concrete
@@ -25,13 +27,16 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
         private readonly IFileCollectionRepository _fileCollectionRepository;
         private readonly IFileCollectionFaissSyncBackgroundJobQueue _faissSyncBackgroundJobQueue;
         private readonly IHttpContextAccessor? _httpContextAccessor;
-
+        private readonly IValidator<PotentialDocumentEditChatRawQueryInput> _potentialDocumentEditChatRawQueryInputValidator;
+        private readonly IChatGptQueryProcessingManager _chatGptQueryProcessingManager;
         public FileDocumentProcessingManager(
             ILogger<FileDocumentProcessingManager> logger,
             IFileDocumentRepository fileDocumentRepository,
             IValidator<FileDocument> validator,
             IFileCollectionRepository fileCollectionRepository,
             IFileCollectionFaissSyncBackgroundJobQueue faissSyncBackgroundJobQueue,
+            IValidator<PotentialDocumentEditChatRawQueryInput> potentialDocumentEditChatRawQueryInputValidator,
+            IChatGptQueryProcessingManager chatGptQueryProcessingManager,
             IHttpContextAccessor? httpContextAccessor = null
         )
         {
@@ -40,9 +45,60 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _fileDocumentRepository = fileDocumentRepository;
             _validator = validator;
             _fileCollectionRepository = fileCollectionRepository;
+            _potentialDocumentEditChatRawQueryInputValidator = potentialDocumentEditChatRawQueryInputValidator;
+            _chatGptQueryProcessingManager = chatGptQueryProcessingManager;
             _faissSyncBackgroundJobQueue = faissSyncBackgroundJobQueue;
         }
 
+        public async Task<FileDocument> PotentialDocumentEditChatQuery(
+            PotentialDocumentEditChatRawQueryInput input,
+            Domain.Models.User currentUser,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
+
+            _logger.LogInformation(
+                "Entering {Action} for correlationId {CorrelationId}",
+                nameof(PotentialDocumentEditChatQuery),
+                correlationId
+            );
+            var validationResult = await _potentialDocumentEditChatRawQueryInputValidator.ValidateAsync(input, cancellationToken);
+            
+            if (!validationResult.IsValid)
+            {
+                throw new ApiException("Invalid query input", HttpStatusCode.BadRequest);
+            }
+            
+            var foundDocument = await EntityFrameworkUtils.TryDbOperation(
+                () => _fileDocumentRepository.GetOne(input.FileDocumentId),
+                _logger
+            );
+            if (foundDocument?.Data is null)
+            {
+                throw new ApiException("Failed to retrieve file document");
+            }
+
+            if (foundDocument.Data.FileType != FileTypeEnum.Text)
+            {
+                throw new ApiException("File type not supported", HttpStatusCode.BadRequest);
+            }
+            
+            var gptResult = await _chatGptQueryProcessingManager.ChatGptQuery(
+                    new EditFileDocumentQueryInput
+                    {
+                        ChangeRequest = input.ChangeRequest,
+                        FileDocumentToChange = foundDocument.Data,
+                    },
+                    currentUser,
+                    cancellationToken
+                );
+
+
+            foundDocument.Data.FileData = Encoding.UTF8.GetBytes(gptResult);
+            
+            return foundDocument.Data;
+        }
         public async Task<FileDocument> GetFileDocumentForDownload(Guid documentId, Domain.Models.User currentUser)
         {
             var correlationId = _httpContextAccessor?.HttpContext?.GetCorrelationId();
