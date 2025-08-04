@@ -53,7 +53,7 @@ internal class CoreClientHealth : ICoreClient<CoreClientHealthResponse>
                 .AppendPathSegment("healthrouter")
                 .WithCoreApiKeyHeader(_aiTrainerCoreConfiguration.ApiKey)
                 .WithCorrelationIdHeader(correlationId?.ToString())
-                .PostJsonAsync<CoreResponse<CoreClientHealthResponse>>(_httpClient,
+                .GetJsonAsync<CoreResponse<CoreClientHealthResponse>>(_httpClient,
                     ApiConstants.DefaultCamelCaseSerializerOptions, cancellation);
 
             return response?.Data;

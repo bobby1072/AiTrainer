@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace AiTrainer.Web.Domain.Models.Validators;
 
-internal sealed class EditFileDocumentQueryInputValidator: BaseValidator<EditFileDocumentQueryInput>
+internal sealed class PotentialDocumentEditChatQueryInputValidator: BaseValidator<PotentialDocumentEditChatRawQueryInput>
 {
-    public EditFileDocumentQueryInputValidator()
+    public PotentialDocumentEditChatQueryInputValidator()
     {
         RuleFor(x => x.ChangeRequest)
             .NotEmpty()

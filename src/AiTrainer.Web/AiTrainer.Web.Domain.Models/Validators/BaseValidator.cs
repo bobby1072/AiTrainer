@@ -5,6 +5,10 @@ namespace AiTrainer.Web.Domain.Models.Validators
 {
     internal abstract class BaseValidator<T> : AbstractValidator<T> where T : class
     {
+        protected static bool IsEnumDefined<TEnumType>(int intEnumVal) where TEnumType : Enum
+        {
+            return Enum.IsDefined(typeof(TEnumType), intEnumVal);
+        }
         protected static bool IsValidEmail(string? input)
         {
             try

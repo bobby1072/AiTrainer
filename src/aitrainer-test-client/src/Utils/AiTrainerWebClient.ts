@@ -276,7 +276,7 @@ export default abstract class AiTrainerWebClient {
   ): Promise<string> {
     const response = await AiTrainerWebClient._httpClient
       .post<AiTrainerWebOutcome<string>>(
-        "Api/Faiss/Query/AnalyseDocumentChunkWithQuestion",
+        "Api/Faiss/Ai/Query/AnalyseDocumentChunkWithQuestion",
         query,
         {
           headers: {

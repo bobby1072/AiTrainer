@@ -3,14 +3,12 @@ using System.Net;
 using System.Text.Json;
 using AiTrainer.Web.Api.Attributes;
 using AiTrainer.Web.Api.Models;
-using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Views;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
-using BT.Common.FastArray.Proto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AiTrainer.Web.Api.Controllers
