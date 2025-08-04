@@ -10,8 +10,8 @@ var localLogger = LoggingHelper.CreateLogger();
 
 try
 {
-
     var builder = WebApplication.CreateBuilder(args);
+ 
     builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
     var appSettings = builder.Configuration.GetSection(ApplicationSettingsConfiguration.Key);
@@ -32,7 +32,13 @@ try
         {
             opts.DefaultPolicy = new RequestTimeoutPolicy { Timeout = TimeSpan.FromSeconds(360) };
         })
-        .AddLogging()
+        .AddLogging(opts =>
+        {
+            opts.AddJsonConsole(ctx =>
+            {
+                ctx.IncludeScopes = true;
+            });
+        })
         .AddEndpointsApiExplorer()
         .AddSwaggerGen()
         .AddControllers()

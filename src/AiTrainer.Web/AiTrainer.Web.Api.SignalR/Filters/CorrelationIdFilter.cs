@@ -1,4 +1,4 @@
-using AiTrainer.Web.Common;
+using CommonApiConstants = BT.Common.Api.Helpers.ApiConstants;
 using Microsoft.AspNetCore.SignalR;
 
 namespace AiTrainer.Web.Api.SignalR.Filters;
@@ -11,8 +11,8 @@ internal class CorrelationIdFilter: IHubFilter
         var correlationIdForRequest = Guid.NewGuid().ToString();
         
         var httpContext = context.Context.GetHttpContext();
-        httpContext?.Request.Headers.TryAdd(ApiConstants.CorrelationIdHeader, correlationIdForRequest);
-        httpContext?.Response.Headers.TryAdd(ApiConstants.CorrelationIdHeader, correlationIdForRequest);
+        httpContext?.Request.Headers.TryAdd(CommonApiConstants.CorrelationIdHeader, correlationIdForRequest);
+        httpContext?.Response.Headers.TryAdd(CommonApiConstants.CorrelationIdHeader, correlationIdForRequest);
 
         
         return await next.Invoke(context);

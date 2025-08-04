@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.Api.Helpers\BT.Common.Api.Helpers.csproj" />
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.FastArray\BT.Common.FastArray.csproj" />
     <ProjectReference Include="..\..\Submodules\BT\src\BT.Common\BT.Common.Polly\BT.Common.Polly.csproj" />
   </ItemGroup>

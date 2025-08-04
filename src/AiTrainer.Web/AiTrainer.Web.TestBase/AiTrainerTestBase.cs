@@ -1,5 +1,5 @@
-﻿using AiTrainer.Web.Common;
-using AutoFixture;
+﻿using AutoFixture;
+using BT.Common.Api.Helpers;
 using Microsoft.AspNetCore.Http;
 using Moq;
 

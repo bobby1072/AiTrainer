@@ -1,14 +1,12 @@
 ﻿using System.Net;
-using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Configuration;
 using AiTrainer.Web.CoreClient.Clients.Concrete;
 using AiTrainer.Web.CoreClient.Models.Request;
 using AiTrainer.Web.CoreClient.Models.Response;
 using AiTrainer.Web.TestBase;
 using AutoFixture;
-using Microsoft.Extensions.Logging;
+using BT.Common.Api.Helpers;
 using Microsoft.Extensions.Logging.Abstractions;
-using Moq;
 
 namespace AiTrainer.Web.CoreClient.Tests;
 

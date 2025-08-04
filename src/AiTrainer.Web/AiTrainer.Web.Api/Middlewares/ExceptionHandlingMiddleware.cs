@@ -1,39 +1,37 @@
 ﻿using System.Net.Mime;
 using AiTrainer.Web.Api.Models;
-using AiTrainer.Web.Common;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Common.Extensions;
 using BT.Common.OperationTimer.Common;
 using BT.Common.OperationTimer.Proto;
+using CommonApiConstants = BT.Common.Api.Helpers.ApiConstants;
+
 
 namespace AiTrainer.Web.Api.Middlewares
 {
-    internal class ExceptionHandlingMiddleware : BaseMiddleware
+    internal sealed class ExceptionHandlingMiddleware
     {
-        private readonly ILogger<ExceptionHandlingMiddleware> _logger;
-
+        private readonly RequestDelegate _next;
         public ExceptionHandlingMiddleware(
-            RequestDelegate requestDelegate,
-            ILogger<ExceptionHandlingMiddleware> logger
+            RequestDelegate requestDelegate
         )
-            : base(requestDelegate)
         {
-            _logger = logger;
+            _next = requestDelegate;
         }
 
-        public override async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, ILogger<ExceptionHandlingMiddleware> logger)
         {
-            var time = await OperationTimerUtils.TimeAsync(() => TryToInvokeFuncAsync(context));
+            var time = await OperationTimerUtils.TimeAsync(() => TryToInvokeFuncAsync(context, logger));
             var correlationId = context.GetCorrelationId();
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Request with correlationId {CorrelationId} took {TimeTaken}ms to complete",
                 correlationId,
                 time.Milliseconds
             );
         }
 
-        private async Task TryToInvokeFuncAsync(HttpContext context)
+        private async Task TryToInvokeFuncAsync(HttpContext context, ILogger<ExceptionHandlingMiddleware> logger)
         {
             try
             {
@@ -55,7 +53,7 @@ namespace AiTrainer.Web.Api.Middlewares
             {
                 var correlationId = context.GetCorrelationId();
 
-                _logger.LogError(
+                logger.LogError(
                     e,
                     "Uncaught exception occured during request for {Route} with message {Message} for correlationId {CorrelationId}",
                     context.Request.Path,
@@ -69,7 +67,7 @@ namespace AiTrainer.Web.Api.Middlewares
             {
                 var correlationId = context.GetCorrelationId();
 
-                _logger.Log(
+                logger.Log(
                     e.LogLevel,
                     e,
                     "ApiException was thrown during request for {Route} with message {Message} and status {Status} for correlationId {CorrelationId}",
@@ -85,7 +83,7 @@ namespace AiTrainer.Web.Api.Middlewares
             {
                 var correlationId = context.GetCorrelationId();
 
-                _logger.LogError(
+                logger.LogError(
                     e,
                     "Uncaught exception occured during request for {Route} with message {Message} for correlationId {CorrelationId}",
                     context.Request.Path,
@@ -109,14 +107,14 @@ namespace AiTrainer.Web.Api.Middlewares
             if (correlationId is not null)
             {
                 context.Response.Headers.TryAdd(
-                    ApiConstants.CorrelationIdHeader,
+                    CommonApiConstants.CorrelationIdHeader,
                     correlationId.ToString()
                 );
             }
             else
             {
                 context.Response.Headers.TryAdd(
-                    ApiConstants.CorrelationIdHeader,
+                    CommonApiConstants.CorrelationIdHeader,
                     Guid.NewGuid().ToString()
                 );
             }
