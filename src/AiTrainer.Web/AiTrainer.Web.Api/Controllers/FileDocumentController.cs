@@ -20,6 +20,23 @@ namespace AiTrainer.Web.Api.Controllers
             : base(actionExecutor)
         {
         }
+
+        [HttpPost("Ai/Query/EditTextFileDocumentContent")]
+        public async Task<IActionResult> Download([FromBody] PotentialDocumentEditChatRawQueryInput input,
+            CancellationToken token = default)
+        {
+            var currentUser = await GetCurrentUser();
+
+            var result = await _actionExecutor.ExecuteAsync<
+                IFileDocumentProcessingManager,
+                FileDocument
+            >(service => service.PotentialFileDocumentEditChatQuery(input, currentUser, token), nameof(IFileDocumentProcessingManager.PotentialFileDocumentEditChatQuery));
+
+            
+            var memoryStream = new MemoryStream(result.FileData);
+            return File(memoryStream, result.GetMimeType(), result.FileName);
+        }
+        
         [HttpPost("Download")]
         public async Task<IActionResult> Download([FromBody] RequiredGuidIdInput input)
         {
