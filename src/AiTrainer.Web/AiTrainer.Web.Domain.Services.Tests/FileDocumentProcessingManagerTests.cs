@@ -2,6 +2,7 @@
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
 using AiTrainer.Web.Domain.Models.Extensions;
+using AiTrainer.Web.Domain.Services.ChatGpt.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
 using AiTrainer.Web.Domain.Services.File.Concrete;
 using AiTrainer.Web.Domain.Services.File.Models;
@@ -22,6 +23,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
         private readonly Mock<ILogger<FileDocumentProcessingManager>> _mockLogger = new();
         private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
         private readonly Mock<IValidator<FileDocument>> _mockValidator = new();
+        private readonly Mock<IValidator<PotentialDocumentEditChatRawQueryInput>> _mockPotentialDocumentEditChatRawQueryInputValidator = new();
+        private readonly Mock<IChatGptQueryProcessingManager> _mockChatGptQueryProcessingManager = new();
         private readonly Mock<IFileCollectionRepository> _mockFileCollectionRepository = new();
         private readonly Mock<IFileCollectionFaissSyncBackgroundJobQueue> _mockJobQueue = new();
         private readonly FileDocumentProcessingManager _fileDocumentProcessingManager;
@@ -33,6 +36,8 @@ namespace AiTrainer.Web.Domain.Services.Tests
                 _mockValidator.Object,
                 _mockFileCollectionRepository.Object,
                 _mockJobQueue.Object,
+                _mockPotentialDocumentEditChatRawQueryInputValidator.Object,
+                _mockChatGptQueryProcessingManager.Object,
                 _mockHttpContextAccessor.Object
             );
         }

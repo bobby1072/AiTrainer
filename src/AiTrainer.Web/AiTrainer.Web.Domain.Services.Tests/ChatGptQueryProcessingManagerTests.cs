@@ -23,9 +23,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
         CoreFormattedChatQueryResponse
     >> _mockChatFormattedQueryClient = new();
     private readonly Mock<IFileCollectionFaissRepository> _mockFileCollectionFaissRepository = new();
-    private readonly Mock<IFileDocumentRepository> _mockFileDocumentRepository = new();
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
-    private readonly Mock<IValidator<BaseChatGptFormattedQueryInput>> _mockChatGptFormattedQueryValidator = new();
     private readonly Mock<IValidator<AnalyseDocumentChunkInReferenceToQuestionQueryInput>> _analyseChunkInReferenceToQuestionValidator = new();
 
     private readonly ChatGptQueryProcessingManager _service;
@@ -39,16 +37,11 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             .Returns(_analyseChunkInReferenceToQuestionValidator.Object);
         
         _mockServiceProvider
-            .Setup(x => x.GetService(typeof(IFileDocumentRepository)))
-            .Returns(_mockFileDocumentRepository.Object);
-        
-        _mockServiceProvider
             .Setup(x => x.GetService(typeof(IFileCollectionFaissRepository)))
             .Returns(_mockFileCollectionFaissRepository.Object);
         
         _service = new ChatGptQueryProcessingManager(
             _mockChatFormattedQueryClient.Object,
-            _mockChatGptFormattedQueryValidator.Object,
             new NullLogger<ChatGptQueryProcessingManager>(),
             _mockServiceProvider.Object,
             _mockHttpContextAccessor.Object
@@ -83,15 +76,7 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             ChunkId = (Guid)singleChunkToUse?.Id!,
             CollectionId = collectionId,
         };
-        var chatQueryInput = new ChatGptFormattedQueryInput<AnalyseDocumentChunkInReferenceToQuestionQueryInput>
-        {
-            QueryInput = innerChatQueryStartingInput,
-            DefinedQueryFormatsEnum = 1
-        };
-
-        _mockChatGptFormattedQueryValidator
-            .Setup(x => x.ValidateAsync(chatQueryInput, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
+        
         _analyseChunkInReferenceToQuestionValidator
             .Setup(x => 
                 x.ValidateAsync(
@@ -113,14 +98,12 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             .ReturnsAsync(new CoreFormattedChatQueryResponse {Content = "45000 every second"});
 
         //Act
-        var result = await _service.ChatGptQuery(chatQueryInput, currentUser);
+        var result = await _service.ChatGptQuery(innerChatQueryStartingInput, currentUser);
         
         //Assert
         Assert.NotNull(result);
         Assert.Equal("45000 every second", result);
         
-        _mockChatGptFormattedQueryValidator
-            .Verify(x => x.ValidateAsync(chatQueryInput, It.IsAny<CancellationToken>()), Times.Once);
         _analyseChunkInReferenceToQuestionValidator
             .Verify(x =>
                 x.ValidateAsync(
@@ -171,20 +154,6 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             FileDocumentToChange = existingFileDocument,
         };
         
-        var chatQueryInput = new ChatGptFormattedQueryInput<EditFileDocumentQueryInput>
-        {
-            QueryInput = innerEditQueryInput,
-            DefinedQueryFormatsEnum = 2 // EditFileDocument enum value
-        };
-
-        _mockChatGptFormattedQueryValidator
-            .Setup(x => x.ValidateAsync(chatQueryInput, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ValidationResult());
-        
-        _mockFileDocumentRepository
-            .Setup(x => x.GetOne(fileDocumentId))
-            .ReturnsAsync(new DbGetOneResult<FileDocument>(existingFileDocument));
-        
         _mockChatFormattedQueryClient
             .Setup(x => x.TryInvokeAsync(It.Is<FormattedChatQueryBuilder>(
                     z => 
@@ -196,25 +165,11 @@ public sealed class ChatGptQueryProcessingManagerTests: AiTrainerTestBase
             .ReturnsAsync(new CoreFormattedChatQueryResponse { Content = "Employee Name: John Doe\nSalary: £50,000\nPosition: Software Developer" });
 
         //Act
-        var result = await _service.ChatGptQuery(chatQueryInput, currentUser);
+        var result = await _service.ChatGptQuery(innerEditQueryInput, currentUser);
         
         //Assert
         Assert.NotNull(result);
         Assert.Contains("£50,000", result);
-        
-        _mockChatGptFormattedQueryValidator
-            .Verify(x => x.ValidateAsync(chatQueryInput, It.IsAny<CancellationToken>()), Times.Once);
-        
-        _editFileDocumentValidator
-            .Verify(x =>
-                x.ValidateAsync(
-                    It.Is<EditFileDocumentQueryInput>(y =>
-                        y.ChangeRequest == innerEditQueryInput.ChangeRequest &&
-                        y.FileDocumentId == innerEditQueryInput.FileDocumentId),
-                    It.IsAny<CancellationToken>()), Times.Once);
-        
-        _mockFileDocumentRepository
-            .Verify(x => x.GetOne(fileDocumentId), Times.Once);
 
         _mockChatFormattedQueryClient
             .Verify(x => x.TryInvokeAsync(It.Is<FormattedChatQueryBuilder>(
