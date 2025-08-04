@@ -7,7 +7,7 @@ namespace AiTrainer.Web.Domain.Services.File.Abstract
 {
     public interface IFileDocumentProcessingManager : IDomainProcessingManager
     {
-        Task<FileDocument> PotentialDocumentEditChatQuery(
+        Task<FileDocument> PotentialFileDocumentEditChatQuery(
             PotentialDocumentEditChatRawQueryInput input,
             Domain.Models.User currentUser,
             CancellationToken cancellationToken = default

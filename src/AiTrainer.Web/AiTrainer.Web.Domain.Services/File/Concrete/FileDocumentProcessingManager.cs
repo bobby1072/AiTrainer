@@ -50,7 +50,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
             _faissSyncBackgroundJobQueue = faissSyncBackgroundJobQueue;
         }
 
-        public async Task<FileDocument> PotentialDocumentEditChatQuery(
+        public async Task<FileDocument> PotentialFileDocumentEditChatQuery(
             PotentialDocumentEditChatRawQueryInput input,
             Domain.Models.User currentUser,
             CancellationToken cancellationToken = default
@@ -60,7 +60,7 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
             _logger.LogInformation(
                 "Entering {Action} for correlationId {CorrelationId}",
-                nameof(PotentialDocumentEditChatQuery),
+                nameof(PotentialFileDocumentEditChatQuery),
                 correlationId
             );
             var validationResult = await _potentialDocumentEditChatRawQueryInputValidator.ValidateAsync(input, cancellationToken);
@@ -96,6 +96,12 @@ namespace AiTrainer.Web.Domain.Services.File.Concrete
 
 
             foundDocument.Data.FileData = Encoding.UTF8.GetBytes(gptResult);
+            
+            _logger.LogInformation(
+                "Exiting {Action} for correlationId {CorrelationId}",
+                nameof(PotentialFileDocumentEditChatQuery),
+                correlationId
+            );
             
             return foundDocument.Data;
         }
