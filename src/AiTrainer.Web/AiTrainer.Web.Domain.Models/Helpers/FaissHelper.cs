@@ -21,7 +21,7 @@ public static class FaissHelper
             foreach (var chunk in filesFromDocAwayFromMap)
             {
                 var enumedChunk = chunk.EnumerateArray();
-                var chunkId = Guid.Parse(enumedChunk.First().ToString());
+                var chunkId = Guid.Parse(enumedChunk.First().GetString()!);
 
                 var innerContent =
                     JsonSerializer.Deserialize<SingleInnerFaissJsonDocFileContent>(
