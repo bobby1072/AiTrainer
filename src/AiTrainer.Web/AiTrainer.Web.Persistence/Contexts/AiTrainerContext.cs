@@ -5,6 +5,7 @@ using BT.Common.FastArray.Proto;
 using BT.Common.Helpers;
 using BT.Common.Helpers.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace AiTrainer.Web.Persistence.Contexts
 {
@@ -91,6 +92,11 @@ namespace AiTrainer.Web.Persistence.Contexts
                     .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
                 ent.Property(e => e.DateModified)
                     .HasConversion(x => x.ToUniversalTime(), x => x.ToUniversalTime());
+                    
+                ent.Property(e => e.FaissJson)
+                    .HasConversion(
+                        x => x.RootElement.GetRawText(),
+                        x => JsonDocument.Parse(x, default(JsonDocumentOptions)));
             });
         }
 
