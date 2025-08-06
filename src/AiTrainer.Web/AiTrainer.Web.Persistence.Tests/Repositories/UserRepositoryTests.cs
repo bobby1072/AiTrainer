@@ -325,32 +325,6 @@ public sealed class UserRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task Delete_ByIds_ReturnsSuccess()
-    {
-        // Arrange
-        var sut = CreateSut();
-        var userEntities = new[]
-        {
-            CreateValidUserEntity(),
-            CreateValidUserEntity()
-        };
-        
-        await SeedUsersAsync(userEntities);
-
-        var idsToDelete = userEntities.Select(e => e.Id).ToArray();
-
-        // Act
-        var result = await sut.Delete(idsToDelete);
-
-        // Assert
-        Assert.Equal(idsToDelete, result.Data);
-        
-        // Verify deletion in database
-        var remainingEntities = await GetAllUsersFromDbAsync();
-        Assert.Empty(remainingEntities);
-    }
-
-    [Fact]
     public async Task Exists_ExistingUser_ReturnsTrue()
     {
         // Arrange

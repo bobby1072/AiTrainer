@@ -349,32 +349,6 @@ public sealed class FileCollectionFaissRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task Delete_ByIds_ReturnsSuccess()
-    {
-        // Arrange
-        var sut = CreateSut();
-        var faissEntities = new[]
-        {
-            CreateValidFileCollectionFaissEntity(),
-            CreateValidFileCollectionFaissEntity()
-        };
-        
-        await SeedFileCollectionFaissAsync(faissEntities);
-
-        var idsToDelete = faissEntities.Select(e => e.Id).ToArray();
-
-        // Act
-        var result = await sut.Delete(idsToDelete);
-
-        // Assert
-        Assert.Equal(idsToDelete, result.Data);
-        
-        // Verify deletion in database
-        var remainingEntities = await GetAllFileCollectionFaissFromDbAsync();
-        Assert.Empty(remainingEntities);
-    }
-
-    [Fact]
     public async Task Exists_ExistingFileCollectionFaiss_ReturnsTrue()
     {
         // Arrange

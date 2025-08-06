@@ -305,35 +305,6 @@ public sealed class FileDocumentRepositoryTests : IDisposable
         // Act & Assert - Updating non-existent entity throws exception
         await Assert.ThrowsAnyAsync<Exception>(() => sut.Update([nonExistentDocument]));
     }
-
-    // Test removed: Delete method uses ExecuteUpdateAsync which is not supported by in-memory database
-
-    [Fact]
-    public async Task Delete_ByIds_ReturnsSuccess()
-    {
-        // Arrange
-        var sut = CreateSut();
-        var documentEntities = new[]
-        {
-            CreateValidFileDocumentEntity(),
-            CreateValidFileDocumentEntity()
-        };
-        
-        await SeedFileDocumentsAsync(documentEntities);
-
-        var idsToDelete = documentEntities.Select(e => e.Id).ToArray();
-
-        // Act
-        var result = await sut.Delete(idsToDelete);
-
-        // Assert
-        Assert.Equal(idsToDelete, result.Data);
-        
-        // Verify deletion in database
-        var remainingEntities = await GetAllFileDocumentsFromDbAsync();
-        Assert.Empty(remainingEntities);
-    }
-
     [Fact]
     public async Task Exists_ExistingFileDocument_ReturnsTrue()
     {

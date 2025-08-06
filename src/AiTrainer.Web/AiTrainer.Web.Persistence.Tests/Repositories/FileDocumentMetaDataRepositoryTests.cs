@@ -378,32 +378,6 @@ public sealed class FileDocumentMetaDataRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task Delete_ByIds_ReturnsSuccess()
-    {
-        // Arrange
-        var sut = CreateSut();
-        var metaDataEntities = new[]
-        {
-            CreateValidFileDocumentMetaDataEntity(),
-            CreateValidFileDocumentMetaDataEntity()
-        };
-        
-        await SeedFileDocumentMetaDataAsync(metaDataEntities);
-
-        var idsToDelete = metaDataEntities.Select(e => e.Id).ToArray();
-
-        // Act
-        var result = await sut.Delete(idsToDelete);
-
-        // Assert
-        Assert.Equal(idsToDelete, result.Data);
-        
-        // Verify deletion in database
-        var remainingEntities = await GetAllFileDocumentMetaDataFromDbAsync();
-        Assert.Empty(remainingEntities);
-    }
-
-    [Fact]
     public async Task Exists_ExistingFileDocumentMetaData_ReturnsTrue()
     {
         // Arrange

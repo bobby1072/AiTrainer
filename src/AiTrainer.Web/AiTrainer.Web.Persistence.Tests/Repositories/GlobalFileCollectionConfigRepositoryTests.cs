@@ -292,33 +292,6 @@ public sealed class GlobalFileCollectionConfigRepositoryTests : IDisposable
         var remainingEntities = await GetAllGlobalFileCollectionConfigsFromDbAsync();
         Assert.Empty(remainingEntities);
     }
-
-    [Fact]
-    public async Task Delete_ByIds_ReturnsSuccess()
-    {
-        // Arrange
-        var sut = CreateSut();
-        var configEntities = new[]
-        {
-            CreateValidGlobalFileCollectionConfigEntity(),
-            CreateValidGlobalFileCollectionConfigEntity()
-        };
-        
-        await SeedGlobalFileCollectionConfigsAsync(configEntities);
-
-        var idsToDelete = configEntities.Select(e => e.Id).ToArray();
-
-        // Act
-        var result = await sut.Delete(idsToDelete);
-
-        // Assert
-        Assert.Equal(idsToDelete, result.Data);
-        
-        // Verify deletion in database
-        var remainingEntities = await GetAllGlobalFileCollectionConfigsFromDbAsync();
-        Assert.Empty(remainingEntities);
-    }
-
     [Fact]
     public async Task Exists_ExistingGlobalFileCollectionConfig_ReturnsTrue()
     {

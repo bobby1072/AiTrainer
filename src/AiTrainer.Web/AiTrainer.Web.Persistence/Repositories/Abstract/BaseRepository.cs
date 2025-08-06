@@ -268,8 +268,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             var set = dbContext.Set<TEnt>();
             async Task<TEntId?> operation()
             {
-                var entitiesToDelete = await set.Where(x => entIds.Contains(x.Id!)).ToArrayAsync();
-                set.RemoveRange(entitiesToDelete);
+                await set.Where(x => entIds.Contains(x.Id!)).ExecuteDeleteAsync();
                 await dbContext.SaveChangesAsync();
                 return default;
             }
