@@ -6,7 +6,7 @@ using FluentValidation.TestHelper;
 
 namespace AiTrainer.Web.Domain.Models.Tests.ValidatorTests;
 
-public class PotentialDocumentEditChatQueryInputValidatorTests : AiTrainerTestBase
+public sealed class PotentialDocumentEditChatQueryInputValidatorTests : AiTrainerTestBase
 {
     private readonly PotentialDocumentEditChatQueryInputValidator _validator;
 

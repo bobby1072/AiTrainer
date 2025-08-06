@@ -6,9 +6,11 @@ using AiTrainer.Web.Api.Models;
 using AiTrainer.Web.Common.Exceptions;
 using AiTrainer.Web.Domain.Models;
 using AiTrainer.Web.Domain.Models.ApiModels.Request;
+using AiTrainer.Web.Domain.Models.Extensions;
 using AiTrainer.Web.Domain.Models.Views;
 using AiTrainer.Web.Domain.Services.Abstract;
 using AiTrainer.Web.Domain.Services.File.Abstract;
+using BT.Common.FastArray.Proto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AiTrainer.Web.Api.Controllers
@@ -16,8 +18,13 @@ namespace AiTrainer.Web.Api.Controllers
     [RequireUserLogin]
     public sealed class FileCollectionController : BaseController
     {
-        public FileCollectionController(IHttpDomainServiceActionExecutor actionExecutor)
-            : base(actionExecutor) { }
+        private readonly ILogger<FileCollectionController> _logger;
+
+        public FileCollectionController(IHttpDomainServiceActionExecutor actionExecutor, ILogger<FileCollectionController> logger)
+            : base(actionExecutor)
+        {
+            _logger = logger;
+        }
 
         [HttpPost("UnshareWithMember")]
         public async Task<ActionResult<Outcome<Guid>>> Share(
@@ -36,10 +43,10 @@ namespace AiTrainer.Web.Api.Controllers
         }
         [HttpPost("ShareWithMembers")]
         public async Task<ActionResult<Outcome<IReadOnlyCollection<SharedFileCollectionMember>>>> Share(
-            [FromBody] JsonDocument fileCollectionMemberSaveInput)
+            [FromBody] SharedFileCollectionMemberRawSaveInput fileCollectionMemberSaveInput)
         {
             var currentUser = await GetCurrentUser();
-            var deserializedInput = DeserializeSharedFileCollectionMemberSaveInput(fileCollectionMemberSaveInput);
+            var deserializedInput = SanitiseSharedFileCollectionMemberSaveInput(fileCollectionMemberSaveInput);
 
             var result = await _actionExecutor
                 .ExecuteAsync<IFileCollectionProcessingManager, IReadOnlyCollection<SharedFileCollectionMember>>
@@ -124,51 +131,20 @@ namespace AiTrainer.Web.Api.Controllers
         }
         
         
-        private static SharedFileCollectionMemberSaveInput DeserializeSharedFileCollectionMemberSaveInput(JsonDocument genericMemberSaveInput)
+        private SharedFileCollectionMemberSaveInput SanitiseSharedFileCollectionMemberSaveInput(SharedFileCollectionMemberRawSaveInput genericMemberSaveInput)
         {
-            Guid collectionId;
-            var singleMemberInput = new List<SharedFileCollectionSingleMemberSaveInput>();
             try
             {
-                var rawCollectionId = genericMemberSaveInput.RootElement.GetProperty(
-                    SharedFileCollectionMemberSaveInput.CollectionIdJsonName).GetString() ?? throw new JsonException("Failed to get collection id from input");
-                collectionId = Guid.Parse(rawCollectionId);
-                var enumeratedMembers = genericMemberSaveInput.RootElement
-                    .GetProperty(SharedFileCollectionMemberSaveInput.MembersToShareToJsonName).EnumerateArray();
-
-                foreach (var member in enumeratedMembers)
-                {
-                    if (!string.IsNullOrEmpty(member
-                            .GetProperty(SharedFileCollectionSingleMemberEmailSaveInput.EmailJsonName)
-                            .GetString()))
-                    {
-                        singleMemberInput.Add(
-                            JsonSerializer
-                                .Deserialize<SharedFileCollectionSingleMemberEmailSaveInput>(member.GetRawText()) ?? throw new JsonException($"Failed to deserialize to {nameof(SharedFileCollectionSingleMemberEmailSaveInput)}")    
-                        );
-                    }
-                    else if (!string.IsNullOrEmpty(member
-                            .GetProperty(SharedFileCollectionSingleMemberUserIdSaveInput.UserIdJsonName)
-                            .GetString()))
-                    {
-                        singleMemberInput.Add(
-                            JsonSerializer
-                                .Deserialize<SharedFileCollectionSingleMemberUserIdSaveInput>(member.GetRawText()) ?? throw new JsonException($"Failed to deserialize to {nameof(SharedFileCollectionSingleMemberEmailSaveInput)}")    
-                        );
-                    }   
-                }
+                return genericMemberSaveInput.ToSanitisedInput();
             }
-            catch
+            catch(Exception ex)
             {
-                throw new ApiException("Failed to deserialize json input", HttpStatusCode.BadGateway);
+                _logger.LogError(ex, "Failed to deserialize json from input: {@Input}",
+                     genericMemberSaveInput.MembersToShareTo.FastArraySelect(x => x.RootElement.GetRawText()).ToArray()
+                );
+
+                throw new ApiException($"Failed to deserialize json input to {nameof(SharedFileCollectionMemberSaveInput)}" , HttpStatusCode.BadRequest);
             }
-
-
-            return new SharedFileCollectionMemberSaveInput
-            {
-                CollectionId = collectionId,
-                MembersToShareTo = singleMemberInput.ToArray(),
-            };
         } 
     }
 }

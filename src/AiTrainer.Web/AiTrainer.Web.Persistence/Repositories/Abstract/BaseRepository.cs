@@ -91,7 +91,7 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
 
         public virtual async Task<DbGetManyResult<TModel>> GetMany(params TEntId[] entityIds)
         {
-            if (entityIds.Length > 1)
+            if (entityIds.Length < 1)
             {
                 return new DbGetManyResult<TModel>();
             }
@@ -119,6 +119,35 @@ namespace AiTrainer.Web.Persistence.Repositories.Abstract
             var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>(), relations);
             var foundOne = await TimeAndLogDbOperation(
                 () => foundOneQuerySet.Where(x => x.Id!.Equals(entityId)).ToArrayAsync(),
+                nameof(GetMany),
+                _entityType.Name
+            );
+
+            return new DbGetManyResult<TModel>(
+                foundOne?.FastArraySelect(x => x.ToModel()).ToArray()
+            );
+        }
+
+        public virtual async Task<DbGetManyResult<TModel>> GetMany<T>(
+            IEnumerable<T> values,
+            string propertyName,
+            params string[] relations
+        )
+        {
+            var valuesList = values.ToList();
+            if (valuesList.Count == 0)
+            {
+                return new DbGetManyResult<TModel>();
+            }
+
+            ThrowIfPropertyDoesNotExist<T>(propertyName);
+            await using var dbContext = await _contextFactory.CreateDbContextAsync();
+            var foundOneQuerySet = AddRelationsToSet(dbContext.Set<TEnt>(), relations);
+            var foundOne = await TimeAndLogDbOperation(
+                () =>
+                    foundOneQuerySet
+                        .Where(x => valuesList.Contains(EF.Property<T>(x, propertyName)))
+                        .ToArrayAsync(),
                 nameof(GetMany),
                 _entityType.Name
             );

@@ -76,7 +76,7 @@ public sealed class AiTrainerServiceCollectionExtensionsTests
         ["AiTrainerCore:DelayBetweenAttemptsInSeconds"] = "5"
     };
     private readonly Mock<IWebHostEnvironment> _mockWebHost = new();
-    private readonly IServiceCollection _serviceCollectionWithAiTrainerServicesAdded;
+    private readonly IServiceCollection _serviceCollectionWithAiTrainerServicesAdded = new ServiceCollection();
     
     public AiTrainerServiceCollectionExtensionsTests()
     {
@@ -85,7 +85,7 @@ public sealed class AiTrainerServiceCollectionExtensionsTests
             .Build();
         _mockWebHost.Setup(x => x.EnvironmentName).Returns("Development");
         
-        _serviceCollectionWithAiTrainerServicesAdded = new ServiceCollection()
+        _serviceCollectionWithAiTrainerServicesAdded = _serviceCollectionWithAiTrainerServicesAdded
             .AddAiTrainerServices(config, _mockWebHost.Object);
     }
     

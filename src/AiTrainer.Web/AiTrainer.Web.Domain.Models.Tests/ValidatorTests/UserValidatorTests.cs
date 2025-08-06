@@ -5,7 +5,7 @@ using FluentValidation.TestHelper;
 
 namespace AiTrainer.Web.Domain.Models.Tests.ValidatorTests;
 
-public class UserValidatorTests : AiTrainerTestBase
+public sealed class UserValidatorTests : AiTrainerTestBase
 {
     private readonly UserValidator _validator;
 
