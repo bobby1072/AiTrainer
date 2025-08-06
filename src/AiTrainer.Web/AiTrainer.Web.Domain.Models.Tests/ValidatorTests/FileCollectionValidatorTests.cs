@@ -5,7 +5,7 @@ using FluentValidation.TestHelper;
 
 namespace AiTrainer.Web.Domain.Models.Tests.ValidatorTests;
 
-public class FileCollectionValidatorTests : AiTrainerTestBase
+public sealed class FileCollectionValidatorTests : AiTrainerTestBase
 {
     private readonly FileCollectionValidator _validator;
 

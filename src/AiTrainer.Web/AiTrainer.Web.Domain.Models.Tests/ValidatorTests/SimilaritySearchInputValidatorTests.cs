@@ -6,7 +6,7 @@ using FluentValidation.TestHelper;
 
 namespace AiTrainer.Web.Domain.Models.Tests.ValidatorTests;
 
-public class SimilaritySearchInputValidatorTests : AiTrainerTestBase
+public sealed class SimilaritySearchInputValidatorTests : AiTrainerTestBase
 {
     private readonly SimilaritySearchInputValidator _validator;
 

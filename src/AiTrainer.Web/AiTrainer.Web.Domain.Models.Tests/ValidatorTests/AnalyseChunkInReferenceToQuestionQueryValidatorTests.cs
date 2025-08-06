@@ -6,7 +6,7 @@ using FluentValidation.TestHelper;
 
 namespace AiTrainer.Web.Domain.Models.Tests.ValidatorTests;
 
-public class AnalyseChunkInReferenceToQuestionQueryValidatorTests : AiTrainerTestBase
+public sealed class AnalyseChunkInReferenceToQuestionQueryValidatorTests : AiTrainerTestBase
 {
     private readonly AnalyseChunkInReferenceToQuestionQueryValidator _validator;
 

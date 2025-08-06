@@ -5,7 +5,7 @@ using FluentValidation.TestHelper;
 
 namespace AiTrainer.Web.Domain.Models.Tests.ValidatorTests;
 
-public class FileDocumentValidatorTests : AiTrainerTestBase
+public sealed class FileDocumentValidatorTests : AiTrainerTestBase
 {
     private readonly FileDocumentValidator _validator;
 
@@ -37,7 +37,7 @@ public class FileDocumentValidatorTests : AiTrainerTestBase
         var model = _fixture.Build<FileDocument>()
             .With(x => x.FileType, validFileType)
             .With(x => x.FileName, "ValidFileName.txt")
-            .With(x => x.FileData, new byte[] { 1, 2, 3 })
+            .With(x => x.FileData, [1, 2, 3])
             .With(x => x.FileDescription, "Valid Description")
             .With(x => x.DateCreated, DateTime.UtcNow.AddDays(-1))
             .Create();
@@ -53,7 +53,7 @@ public class FileDocumentValidatorTests : AiTrainerTestBase
     [InlineData("   ")]
     [InlineData("\t")]
     [InlineData("\n")]
-    public void Should_Have_Error_When_FileName_Is_Invalid(string invalidFileName)
+    public void Should_Have_Error_When_FileName_Is_Invalid(string? invalidFileName)
     {
         // Arrange
         var model = _fixture.Build<FileDocument>()
@@ -91,7 +91,7 @@ public class FileDocumentValidatorTests : AiTrainerTestBase
         var model = _fixture.Build<FileDocument>()
             .With(x => x.FileName, validFileName)
             .With(x => x.FileType, FileTypeEnum.Text)
-            .With(x => x.FileData, new byte[] { 1, 2, 3 })
+            .With(x => x.FileData, [1, 2, 3])
             .With(x => x.FileDescription, "Valid Description")
             .With(x => x.DateCreated, DateTime.UtcNow.AddDays(-1))
             .Create();
@@ -177,7 +177,7 @@ public class FileDocumentValidatorTests : AiTrainerTestBase
             .With(x => x.FileDescription, validDescription ?? maxLengthDescription)
             .With(x => x.FileType, FileTypeEnum.Text)
             .With(x => x.FileName, "ValidFileName.txt")
-            .With(x => x.FileData, new byte[] { 1, 2, 3 })
+            .With(x => x.FileData, [1, 2, 3])
             .With(x => x.DateCreated, DateTime.UtcNow.AddDays(-1))
             .Create();
 
@@ -222,7 +222,7 @@ public class FileDocumentValidatorTests : AiTrainerTestBase
         var model = _fixture.Build<FileDocument>()
             .With(x => x.FileType, FileTypeEnum.Text)
             .With(x => x.FileName, "ValidFileName.txt")
-            .With(x => x.FileData, new byte[] { 1, 2, 3, 4, 5 })
+            .With(x => x.FileData, [1, 2, 3, 4, 5])
             .With(x => x.FileDescription, "Valid Description")
             .With(x => x.DateCreated, DateTime.UtcNow.AddDays(-1))
             .Create();

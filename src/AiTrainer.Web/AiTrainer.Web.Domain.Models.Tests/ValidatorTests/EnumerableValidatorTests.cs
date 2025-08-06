@@ -6,15 +6,15 @@ using FluentValidation.TestHelper;
 
 namespace AiTrainer.Web.Domain.Models.Tests.ValidatorTests;
 
-public class EnumerableValidatorTests : AiTrainerTestBase
+public sealed class EnumerableValidatorTests : AiTrainerTestBase
 {
-    private class TestItem
+    private sealed class TestItem
     {
         public required string Name { get; set; }
         public required int Value { get; set; }
     }
 
-    private class TestItemValidator : AbstractValidator<TestItem>
+    private sealed class TestItemValidator : AbstractValidator<TestItem>
     {
         public TestItemValidator()
         {
