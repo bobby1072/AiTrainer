@@ -5,4 +5,5 @@ updates:
     schedule:
       interval: "daily"
     exclude-paths:
-      - "src/aitrainer-test-client"
+      - "src/aitrainer-test-client/package.json"
+      - "src/aitrainer-test-client/package-lock.json"
