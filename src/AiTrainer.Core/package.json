@@ -35,7 +35,7 @@
     "compression": "1.8.1",
     "express": "5.1.0",
     "faiss-node": "0.5.1",
-    "memfs": "4.17.2",
+    "memfs": "4.46.1",
     "multer": "2.0.2",
     "pickleparser": "0.2.1",
     "semantic-chunking": "^2.4.3",
