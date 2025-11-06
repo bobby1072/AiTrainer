@@ -28,7 +28,7 @@
   },
   "dependencies": {
     "@langchain/community": "0.3.57",
-    "@langchain/core": "0.3.78",
+    "@langchain/core": "0.3.79",
     "@langchain/openai": "0.6.16",
     "@langchain/textsplitters": "0.1.0",
     "body-parser": "2.2.0",
