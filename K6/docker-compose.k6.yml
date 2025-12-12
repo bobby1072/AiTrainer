@@ -3,7 +3,7 @@ volumes:
 
 services:
   influxdb:
-    image: influxdb:2.7
+    image: influxdb:2.8
     container_name: influxdb
     ports:
       - 8086:8086
