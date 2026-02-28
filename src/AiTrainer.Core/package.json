@@ -27,9 +27,9 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
-    "@langchain/community": "0.3.58",
-    "@langchain/core": "0.3.80",
-    "@langchain/openai": "0.6.16",
+    "@langchain/community": "1.1.12",
+    "@langchain/core": "1.1.19",
+    "@langchain/openai": "1.2.5",
     "@langchain/textsplitters": "0.1.0",
     "body-parser": "2.2.1",
     "compression": "1.8.1",
